@@ -20,7 +20,7 @@
 //! - **Times**: one offset for every SMS page, the router's local time
 //!   zone (the zone its schedules use). Message dates carry their own
 //!   offset and are converted; list labels count from the router clock,
-//!   in the app's abbreviated words ("5 min. ago", "in 2 min."), or the
+//!   in the app's abbreviated words ("5分钟前", "in 2 min."), or the
 //!   date while the router clock is unset.
 
 use serde_json::{json, Value};
@@ -334,8 +334,8 @@ fn months_between(a: i64, b: i64, off: i64) -> i64 {
 }
 
 /// The app's list time (`RelativeDateTimeFormatter`, abbreviated): the
-/// largest whole unit, "5 sec. ago" … "2 yr. ago", "in 3 min." for a time
-/// ahead of the router clock (as the app, "in 0 sec." for now). While the
+/// largest whole unit, "5秒前" … "2 yr. ago", "in 3 min." for a time
+/// ahead of the router clock (as the app, "0秒后" for now). While the
 /// router clock is unset, the date.
 pub fn relative(t: i64, now: i64, off: i64) -> String {
     if now < CLOCK_SET {
@@ -344,23 +344,23 @@ pub fn relative(t: i64, now: i64, off: i64) -> String {
     let (a, b) = if t < now { (t, now) } else { (now, t) };
     let secs = b - a;
     let (n, unit) = if secs < 60 {
-        (secs, "sec.")
+        (secs, "秒")
     } else if secs < 3600 {
-        (secs / 60, "min.")
+        (secs / 60, "分钟")
     } else if secs < 86_400 {
-        (secs / 3600, "hr.")
+        (secs / 3600, "小时")
     } else {
         match months_between(a, b, off) {
-            m if m >= 12 => (m / 12, "yr."),
-            m if m >= 1 => (m, "mo."),
-            _ if secs >= 7 * 86_400 => (secs / (7 * 86_400), "wk."),
-            _ => (secs / 86_400, if secs < 2 * 86_400 { "day" } else { "days" }),
+            m if m >= 12 => (m / 12, "年"),
+            m if m >= 1 => (m, "个月"),
+            _ if secs >= 7 * 86_400 => (secs / (7 * 86_400), "周"),
+            _ => (secs / 86_400, "天"),
         }
     };
     if t < now {
-        format!("{n} {unit} ago")
+        format!("{n}{unit}前")
     } else {
-        format!("in {n} {unit}")
+        format!("{n}{unit}后")
     }
 }
 
@@ -749,22 +749,22 @@ mod tests {
     fn relative_labels_follow_the_app() {
         let now = NEW_YEAR + 200 * DAY + 12 * H;
         let cases: [(i64, &str); 16] = [
-            (0, "in 0 sec."),
-            (-5, "5 sec. ago"),
-            (-59, "59 sec. ago"),
-            (-60, "1 min. ago"),
-            (-300, "5 min. ago"),
-            (-2 * H - 59, "2 hr. ago"),
-            (-23 * H, "23 hr. ago"),
-            (-DAY, "1 day ago"),
-            (-3 * DAY, "3 days ago"),
-            (-8 * DAY, "1 wk. ago"),
-            (-27 * DAY, "3 wk. ago"),
-            (-40 * DAY, "1 mo. ago"),
-            (-200 * DAY, "6 mo. ago"),
-            (-400 * DAY, "1 yr. ago"),
-            (90, "in 1 min."),
-            (3 * H, "in 3 hr."),
+            (0, "0秒后"),
+            (-5, "5秒前"),
+            (-59, "59秒前"),
+            (-60, "1分钟前"),
+            (-300, "5分钟前"),
+            (-2 * H - 59, "2小时前"),
+            (-23 * H, "23小时前"),
+            (-DAY, "1天前"),
+            (-3 * DAY, "3天前"),
+            (-8 * DAY, "1周前"),
+            (-27 * DAY, "3周前"),
+            (-40 * DAY, "1个月前"),
+            (-200 * DAY, "6个月前"),
+            (-400 * DAY, "1年前"),
+            (90, "1分钟后"),
+            (3 * H, "3小时后"),
         ];
         for (delta, want) in cases {
             assert_eq!(relative(now + delta, now, 0), want, "{delta}");

@@ -71,7 +71,7 @@ struct ProcessListSheet: View {
                     }
                 }
             }
-            .navigationTitle("流程")
+            .navigationTitle("进程")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

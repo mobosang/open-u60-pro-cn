@@ -81,7 +81,7 @@ struct STKMenuView: View {
                 Button(role: .destructive) {
                     Task { await viewModel.cancelUSSD() }
                 } label: {
-                    Label("结束会议", systemImage: "xmark.circle")
+                    Label("结束会话", systemImage: "xmark.circle")
                 }
             }
         }

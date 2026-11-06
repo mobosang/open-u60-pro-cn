@@ -133,7 +133,7 @@ private fun LogEntryItem(entry: ForwardLogEntry) {
                 )
                 // Held while the router had no link; the agent sends it on its own.
                 entry.pending -> Text(
-                    "已举行，将重试",
+                    "已暂存，将重试",
                     color = MaterialTheme.colorScheme.tertiary,
                     style = MaterialTheme.typography.labelSmall,
                 )

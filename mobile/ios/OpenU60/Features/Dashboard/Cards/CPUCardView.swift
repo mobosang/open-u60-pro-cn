@@ -56,7 +56,7 @@ struct CPUDetailSheet: View {
                 }
                 row("正常运行时间", icon: "clock", value: formatUptime(systemInfo.uptime))
                 row("内存总量", icon: "memorychip", value: formatBytes(systemInfo.memTotal))
-                row("内存释放", icon: "memorychip", value: formatBytes(systemInfo.memFree))
+                row("可用内存", icon: "memorychip", value: formatBytes(systemInfo.memFree))
                 if systemInfo.memTotal > 0 {
                     let used = Double(systemInfo.memTotal - systemInfo.memFree) / Double(systemInfo.memTotal) * 100
                     row("已用内存", icon: "chart.bar", value: String(format: "%.0f%%", used))
@@ -66,7 +66,7 @@ struct CPUDetailSheet: View {
                     showProcessList = true
                 } label: {
                     HStack {
-                        Label("流程", systemImage: "list.number")
+                        Label("进程", systemImage: "list.number")
                         Spacer()
                         if !bloatSummary.isEmpty {
                             Text(bloatSummary)

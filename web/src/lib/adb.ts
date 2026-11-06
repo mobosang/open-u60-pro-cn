@@ -160,7 +160,7 @@ export class ADBClient {
 
     if (!found || this.epIn === null || this.epOut === null) {
       throw new Error(
-        "USB 设备上未找到 ADB 接口。是否启用了亚行？"
+        "USB 设备上未找到 ADB 接口。是否启用了 ADB？"
       );
     }
 

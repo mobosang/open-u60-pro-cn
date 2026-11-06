@@ -41,7 +41,7 @@ fun ProcessListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("流程") },
+                title = { Text("进程") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")

@@ -200,7 +200,7 @@ class STKViewModel @Inject constructor(
                     ussdResponse = USSDResponse.empty,
                     ussdReply = "",
                     isLoading = false,
-                    message = "USSD会议取消",
+                    message = "USSD会话取消",
                     messageIsError = false,
                 )
             } catch (e: AgentError.Unauthorized) {

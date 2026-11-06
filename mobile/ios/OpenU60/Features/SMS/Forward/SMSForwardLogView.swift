@@ -22,7 +22,7 @@ struct SMSForwardLogView: View {
                         Spacer()
                         if entry.pending {
                             // Held while the router had no link; the agent sends it on its own.
-                            Label("已举行，将重试", systemImage: "clock.arrow.circlepath")
+                            Label("已暂存，将重试", systemImage: "clock.arrow.circlepath")
                                 .font(.caption)
                                 .foregroundStyle(.orange)
                         } else {

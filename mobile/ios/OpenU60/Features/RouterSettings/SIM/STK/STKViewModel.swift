@@ -102,7 +102,7 @@ final class STKViewModel {
             ussdResponse = .empty
             showUssdResponse = false
             ussdReply = ""
-            showMessage("USSD会议结束", isError: false)
+            showMessage("USSD会话结束", isError: false)
         } catch {
             showMessage("失败：\(error.localizedDescription)", isError: true)
         }

@@ -71,7 +71,7 @@ struct SettingsView: View {
                             .accessibilityValue(String(format: "%.1f seconds", viewModel.pollInterval))
                     }
                 } header: {
-                    Text("投票")
+                    Text("轮询")
                 } footer: {
                     Text("实时上传和下载使用单独的 1 秒刷新，与调制解调器的更新速率相匹配。")
                 }
