@@ -40,7 +40,7 @@ struct SMSForwardLogTests {
         precondition(client.requests.suffix(2) == ["POST /api/sms/forward/log/clear", "GET /api/sms/forward/log"],
                      "A clear re-reads the log")
         precondition(vm.log.map(\.smsId) == [2] && vm.log[0].pending, "Held entries survive a clear and stay on screen")
-        precondition(vm.message == "Log cleared" && !vm.messageIsError)
+        precondition(vm.message == "日志已清除" && !vm.messageIsError)
         print("SMSForwardLogTests: pending parsing and held entries surviving a clear passed")
     }
 }

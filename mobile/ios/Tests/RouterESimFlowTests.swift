@@ -160,7 +160,7 @@ struct RouterESimFlowTests {
         precondition(switchVM.inventory.observedAt == 110 && switchVM.enabledProfile?.iccid == target.iccid, "List re-read once the card is confirmed")
         switchClient.switchStatus = ["state": "no_data", "target_iccid": target.iccid]
         await switchVM.refresh()
-        precondition(switchVM.connectionPhase == .waiting && switchVM.connectionNote?.contains("hasn't connected") == true,
+        precondition(switchVM.connectionPhase == .waiting && switchVM.connectionNote?.contains("尚未连接") == true,
                      "A switch without data reports why and does not switch back")
         precondition(switchClient.requests.filter { $0 == "POST /api/esim/enable" }.count == 1, "Never switched again or back")
         // Older answers are ignored; a failed read keeps the list; a newer clean read clears the error.
