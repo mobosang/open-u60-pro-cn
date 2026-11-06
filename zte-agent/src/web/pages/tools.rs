@@ -90,7 +90,7 @@ pub fn device_info(pd: &PageData) -> Markup {
         (kit::section(Some("网络"), None, html! {
             li.it {
                 span.muted { "漫游" }
-                @if roaming { span.c-orange { "漫游" } } @else { span.c-green { "首页" } }
+                @if roaming { span.c-orange { "漫游" } } @else { span.c-green { "本地网络" } }
             }
             li.it {
                 span.muted { "信号" }

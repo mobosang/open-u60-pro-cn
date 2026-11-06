@@ -140,7 +140,7 @@ async fn device_info_shows_the_imei_tail_only() {
     let _fake = super::super::pages::fake::set(&c.app, json!({}));
     let html = get_with(&c, "/ui/tools/device-info", peer(102, 3), &cookie).await.text();
     assert_eq!(html.matches("<span class=\"num\">--</span>").count(), 4, "{html}");
-    assert!(html.contains("<span class=\"c-green\">首页</span>") && html.contains(">0/5</span>") && html.contains("tn muted"));
+    assert!(html.contains("<span class=\"c-green\">本地网络</span>") && html.contains(">0/5</span>") && html.contains("tn muted"));
 }
 
 /// Connected Devices: live from `clients`, the rows masked as on Wi-Fi &

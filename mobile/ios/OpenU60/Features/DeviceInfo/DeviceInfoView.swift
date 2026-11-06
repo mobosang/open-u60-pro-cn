@@ -58,7 +58,7 @@ struct DeviceInfoView: View {
             Text("漫游")
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(roaming ? "漫游" : "首页")
+            Text(roaming ? "漫游" : "本地网络")
                 .font(.body.monospacedDigit())
                 .foregroundStyle(roaming ? .orange : .green)
         }

@@ -385,7 +385,7 @@ async fn delete_and_rename_follow_the_app() {
     let r = post(&c, RENAME, peer(164, 5), &cookie, &rename("  Home  ", &once(&sheet))).await;
     let html = get_with(&c, &to(&r), peer(164, 5), &cookie).await.text();
     assert!(html.contains("<p>更名为Home。</p>"), "{html}");
-    assert_eq!(calls(&c).last().unwrap(), &("/api/esim/nickname".to_owned(), json!({"iccid": ICCIDS[1], "nickname": "首页"})));
+    assert_eq!(calls(&c).last().unwrap(), &("/api/esim/nickname".to_owned(), json!({"iccid": ICCIDS[1], "nickname": "Home"})));
     let sheet2 = get_with(&c, &format!("{RENAME}?p={dito}"), peer(164, 6), &cookie).await.text();
     let body = format!("csrf={}&p={dito}&once={}&nickname=", page_csrf(&sheet2), once(&sheet2));
     let html = get_with(&c, &to(&post(&c, RENAME, peer(164, 6), &cookie, &body).await), peer(164, 6), &cookie).await.text();

@@ -100,7 +100,7 @@ pub fn section(pd: &PageData) -> Markup {
                  computer trusts that authority once."
             }
             @if let Some(ca) = &s.kept {
-                p.foot { "证书颁发机构 " (ca) " is still on the router: Turn On HTTPS issues a new certificate from it, so devices that trust it need nothing new." }
+                p.foot { "证书颁发机构 " (ca) "仍保存在路由器上。开启 HTTPS 会由它签发新证书，已信任它的设备无需重新设置。" }
             }
             (error)
         };
@@ -110,7 +110,7 @@ pub fn section(pd: &PageData) -> Markup {
             @if s.kept.is_some() || s.error.is_some() { li { a.it.danger href=(RESET) { span { "复位HTTPS" } } } }
         });
     }
-    let state = if s.listening.is_some() { "开启" } else { "关于·不听" };
+    let state = if s.listening.is_some() { "开启" } else { "已开启 · 未监听" };
     let foot = html! {
         @if pd.secure {
             p.foot { "你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。" }
@@ -152,12 +152,10 @@ pub fn install(pd: &PageData) -> Markup {
     let ca = s.ca_name.as_str();
     let fp_foot = html! {
         @if pd.secure {
-            p.foot { "这个页面来自路由器的 HTTPS，所以这些是它的指纹。检查您设置的设备是否显示相同的 SHA-256 指纹；字母大小写、空格和冒号并不重要。" }
+            p.foot { "本页通过路由器的 HTTPS 连接提供，以下是其证书指纹。请核对设备上显示的 SHA-256 指纹是否一致，大小写、空格和冒号可忽略。" }
         } @else {
             p.foot {
-                "Before you trust it, check that your device shows the same SHA-256 fingerprint (letter case, spaces and colons do not matter). \
-                 This page came over plain http, so someone on your network could change it together with the download: for a check they \
-                 cannot fake, compare with this page opened over HTTPS on a device that already trusts the authority, or with "
+                "信任前，请核对设备显示的 SHA-256 指纹是否相同，大小写、空格和冒号可忽略。此页面使用明文 HTTP，同一网络上的人可能同时篡改页面和下载内容。请通过已信任此证书机构的设备，用 HTTPS 打开本页核对；或通过 SSH 执行 "
                 span.mono { "sha256sum " (DIR_CA) }
                 "（通过 SSH，使用相同的十六进制数字）。"
             }
@@ -168,35 +166,35 @@ pub fn install(pd: &PageData) -> Markup {
     html! {
         (kit::section(Some("证书颁发机构"), Some(fp_foot), html! {
             (kit::kv_row(None, "名称", ca))
-            (kit::kv_row(None, "可以证明", &s.covers.join(" 和 ")))
+            (kit::kv_row(None, "证书约束范围", &s.covers.join(" 和 ")))
             // Line breaks only between the byte pairs; screen readers get
             // the whole value once.
             li.it { span.cvb { span { "SHA-256 指纹" } span.sr { (s.sha256) } small.mono.fp translate="no" aria-hidden="true" { @for (i, pair) in s.sha256.split(':').enumerate() { @if i > 0 { ":" wbr; } (pair) } } } }
         }))
-        (kit::section(Some("下载"), Some(html! { p.foot { "两种格式的相同证书。这没有什么秘密。" } }), html! {
+        (kit::section(Some("下载"), Some(html! { p.foot { "这是同一公开证书的两种格式，不包含私密信息。" } }), html! {
             li { a.it href=(DOWNLOAD_PROFILE) download="u60-pro-ca.mobileconfig" { (kit::icon(Icon::Doc)) span { "iPhone 和 iPad 的配置文件" } } }
             li { a.it href=(DOWNLOAD_CRT) download="u60-pro-ca.crt" { (kit::icon(Icon::Doc)) span { "适用于 Android、Mac 和 Windows 的证书 (.crt)" } } }
         }))
-        (kit::section(Some("iPhone and iPad"), None, steps(&[
-            html! { "在 Safari 中，点击 " b { "iPhone 和 iPad 的配置文件" } ", then " b { "允许" } "." },
-            html! { "打开 " b { "设置" } " \u{203a} " b { "简介已下载" } " \u{203a} " b { "安装" } "." },
-            html! { b { "设置" } " \u{203a} " b { "概述" } " \u{203a} " b { "关于" } " \u{203a} " b { "证书信任设置" } ": turn on full trust for " b { (ca) } "." },
+        (kit::section(Some("iPhone 和 iPad"), None, steps(&[
+            html! { "在 Safari 中，点击 " b { "iPhone 和 iPad 的配置文件" } "，然后 " b { "允许" } "." },
+            html! { "打开 " b { "设置" } " \u{203a} " b { "已下载描述文件" } " \u{203a} " b { "安装" } "." },
+            html! { b { "设置" } " \u{203a} " b { "通用" } " \u{203a} " b { "关于" } " \u{203a} " b { "证书信任设置" } "：为以下证书开启完全信任：" b { (ca) } "." },
         ])))
         (kit::section(Some("安卓"), Some(html! { p.foot { "菜单名称因制造商而异：搜索 “CA 证书 ” 的设置。" } }), steps(&[
             html! { "点击 " b { "证书（.crt）" } " 以下载。" },
-            html! { b { "设置" } " \u{203a} " b { "安全与隐私" } " \u{203a} " b { "更高的安全性和隐私性" } " \u{203a} " b { "加密和凭证" } " \u{203a} " b { "安装证书" } " \u{203a} " b { "CA证书" } " \u{203a} " b { "无论如何安装" } ", confirm with your screen lock, then pick the downloaded file." },
+            html! { b { "设置" } " \u{203a} " b { "安全与隐私" } " \u{203a} " b { "更高的安全性和隐私性" } " \u{203a} " b { "加密和凭证" } " \u{203a} " b { "安装证书" } " \u{203a} " b { "CA证书" } " \u{203a} " b { "无论如何安装" } "，使用锁屏密码确认，然后选择下载的文件。" },
         ])))
-        (kit::section(Some("麦克"), None, steps(&[
+        (kit::section(Some("Mac"), None, steps(&[
             html! { "下载证书（.crt）并打开它：Keychain Access 将其添加到您的登录钥匙串中。" },
-            html! { "双击 " b { (ca) } " \u{203a} " b { "信任" } " \u{203a} " b { "使用此证书时：始终信任" } ", then close the window and confirm." },
+            html! { "双击 " b { (ca) } " \u{203a} " b { "信任" } " \u{203a} " b { "使用此证书时：始终信任" } "，然后关闭窗口并确认。" },
         ])))
-        (kit::section(Some("窗户"), Some(html! { p.foot { "Firefox 120 及更高版本使用您添加到 Windows、macOS 或 Android 的证书。在 Linux 上，或关闭该设置： 设置 › 隐私和安全 › 证书 › 查看证书 … › 权限 › 导入 …，并信任它的网站。" } }), steps(&[
+        (kit::section(Some("Windows"), Some(html! { p.foot { "Firefox 120 及更高版本使用您添加到 Windows、macOS 或 Android 的证书。在 Linux 上，或关闭该设置： 设置 › 隐私和安全 › 证书 › 查看证书 … › 权限 › 导入 …，并信任它的网站。" } }), steps(&[
             html! { "下载证书（.crt）并打开› " b { "安装证书" } " \u{203a} " b { "当前用户" } "." },
             html! { b { "将所有证书放入以下存储中" } " \u{203a} " b { "浏览" } " \u{203a} " b { "受信任的根证书颁发机构" } " \u{203a} " b { "完成" } " \u{203a} " b { "是的" } "." },
         ])))
         (kit::section(Some("然后安装应用程序"), Some(html! {
-            p.foot { "打开这些地址之一并登录。Chrome：菜单› " b { "安装" } " (Android: " b { "添加到主屏幕" } "). Safari on iPhone: \u{2022}\u{2022}\u{2022} \u{203a} Share \u{203a} View More \u{203a} " b { "添加到主屏幕" } ". Safari on Mac: File \u{203a} " b { "添加到 Dock" } "." }
-            p.foot { "使用自己的 DNS 的设备（Android’s Private DNS 设置为提供商，浏览器中的 DNS over HTTPS，VPN）可能找不到 " (s.name) "; the address always works. Each address keeps its own login." }
+            p.foot { "打开这些地址之一并登录。Chrome：菜单› " b { "安装" } "（Android：" b { "添加到主屏幕" } "）。iPhone 的 Safari：••• › 共享 › 查看更多 › " b { "添加到主屏幕" } "。Mac 的 Safari：文件 › " b { "添加到 Dock" } "." }
+            p.foot { "使用自己的 DNS 的设备（Android’s Private DNS 设置为提供商，浏览器中的 DNS over HTTPS，VPN）可能找不到 " (s.name) "；IP 地址仍然可用。每个地址的登录状态独立保存。" }
         }), url_rows(&s)))
     }
 }
