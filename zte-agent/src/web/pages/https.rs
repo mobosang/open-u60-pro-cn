@@ -1,4 +1,4 @@
-//! Settings › "HTTPS & Install as App" (owner decision 59; a web
+//! Settings › "HTTPS 与安装为应用" (owner decision 59; a web
 //! addition, the app has no counterpart): LAN HTTPS with the router's own
 //! certificate authority (`crate::tls`), so Chrome, Edge and Samsung
 //! Internet can install the web UI as an app (Safari adds it to the Home
@@ -51,7 +51,7 @@ pub const ON: &str = "/ui/settings/https/on";
 pub const RENEW: &str = "/ui/settings/https/renew";
 pub const RESET: &str = "/ui/settings/https/reset";
 const SETTINGS: &str = "/ui/settings";
-const TITLE: &str = "HTTPS & Install as App";
+const TITLE: &str = "HTTPS 与安装为应用";
 
 /// "Oct 24, 2026" in the router's time zone.
 fn date(t: i64) -> String {

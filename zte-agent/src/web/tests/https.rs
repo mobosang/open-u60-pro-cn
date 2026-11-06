@@ -1,4 +1,4 @@
-//! Settings › HTTPS & Install as App through the whole router: the
+//! Settings › HTTPS 与安装为应用 through the whole router: the
 //! section, the questions and their single-use posts, the install page,
 //! the public downloads and the http hints. The manager runs on a
 //! temporary directory with fake clocks (`tls::tests::World`).
@@ -295,7 +295,7 @@ async fn downloads_are_public_with_their_types() {
 async fn login_page_hint() {
     let w = world("web-hint");
     let c = ctx_with(&w, Some(PW));
-    let hint = "To install this web UI as an app, trust the router’s certificate authority on this device (Settings › HTTPS &amp; Install as App › Install on Your Devices), then open <a href=\"https://192.168.0.1:9443/console/\" rel=\"noreferrer\">https://192.168.0.1:9443/console/</a>.";
+    let hint = "To install this web UI as an app, trust the router’s certificate authority on this device (Settings › HTTPS 与安装为应用 › Install on Your Devices), then open <a href=\"https://192.168.0.1:9443/console/\" rel=\"noreferrer\">https://192.168.0.1:9443/console/</a>.";
     assert!(!get(&c, "/ui/login", peer(234, 1)).await.text().contains("To install"));
     c.app.tls.turn_on().unwrap();
     let r = get(&c, "/ui/login", peer(234, 2)).await;

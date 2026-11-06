@@ -210,7 +210,7 @@ fn manifest(built: &[Built]) -> String {
     format!(
         concat!(
             r##"{{"name":"U60 Pro","short_name":"U60 Pro","id":"/ui/","start_url":"/ui/","scope":"/ui/","##,
-            r##""display":"standalone","background_color":"#0f172a","theme_color":"#f2f2f7","icons":["##,
+            r##""display":"standalone","lang":"zh-CN","background_color":"#0f172a","theme_color":"#f2f2f7","icons":["##,
             r##"{{"src":"{i192}","sizes":"192x192","type":"image/png"}},"##,
             r##"{{"src":"{i512}","sizes":"512x512","type":"image/png"}},"##,
             r##"{{"src":"{i512}","sizes":"512x512","type":"image/png","purpose":"maskable"}},"##,
