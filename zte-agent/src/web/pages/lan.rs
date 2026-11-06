@@ -84,7 +84,7 @@ fn lease_secs(s: &str) -> Option<u64> {
 pub fn page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载局域网失败： " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载局域网失败：" (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     let f = pd.form;

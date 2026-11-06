@@ -259,7 +259,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     op.assert_secure_html(200);
     let op = op.text();
     for want in [
-        "<h1 id=\"op-title\">正在正在注册…</h1>", "切换至Klook_app", "重新加载SIM</span><small>完成</small>",
+        "<h1 id=\"op-title\">正在注册…</h1>", "切换至Klook_app", "重新加载SIM</span><small>完成</small>",
         "连接到网络</span><small>进行中</small>", "Wi-Fi 保持连接 · 通常 15–45 秒",
         "href=\"/ui/router/esim\">返回 eSIM 配置文件</a>", "@get('/ui/live/op/",
     ] {
@@ -314,7 +314,7 @@ async fn switch_refusals_read_as_the_app() {
     let body = format!("csrf={}&p={dito}&once={}&confirm=1", page_csrf(&q), once(&q));
     let html = get_with(&c, &to(&post(&c, SWITCH, peer(163, 4), &cookie, &body).await), peer(163, 4), &cookie).await.text();
     for want in [
-        "<b>Can’t 现在就完成这个</b><p>切换失败： the modem is in airplane / low-power mode",
+        "<b>暂时无法完成此操作</b><p>切换失败：the modem is in airplane / low-power mode",
         "打开路由器设置→移动网络检查调制解调器模式。", "href=\"/ui/router/esim\">重新加载配置文件</a>",
         "重新加载只会读取列表，不会重复执行操作。",
     ] {

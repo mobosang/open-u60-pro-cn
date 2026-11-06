@@ -699,7 +699,7 @@ mod tests {
         let text = json!({"type": "input", "text": "Enter PIN 0000000000000042", "command_id": "9", "input": {"min": 4, "max": 8, "hidden": true}});
         let s = toolkit(&views(Some(text.clone()), None, 9)).into_string();
         // The SIM's text as it is (the app's).
-        assert!(s.contains("class=\"group own\"") && s.contains("输入PIN 0000000000000042") && !s.contains("输入响应"), "{s}");
+        assert!(s.contains("class=\"group own\"") && s.contains("Enter PIN 0000000000000042") && !s.contains("输入响应"), "{s}");
         let s = toolkit(&views(Some(text), None, 8)).into_string();
         assert!(!s.contains("own") && s.contains("<a class=\"it bt\" href=\"\">输入响应</a>"), "{s}");
         let display = json!({"type": "display", "text": "Done", "command_id": "10"});

@@ -227,7 +227,7 @@ fn on_link(path: &str, on: bool) -> String {
 pub fn page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载防火墙失败： " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载防火墙失败：" (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     let c = Config::of(d);
@@ -280,7 +280,7 @@ pub fn page(pd: &PageData) -> Markup {
                         @let g = generation(list);
                         @for r in rules(list) { (rule_row(&r, &g)) }
                     }
-                    Some(Err(e)) => li.it.off { span { "加载端口转发规则失败： " (fmt::truncate(e, 120)) } },
+                    Some(Err(e)) => li.it.off { span { "加载端口转发规则失败：" (fmt::truncate(e, 120)) } },
                     None => {}
                 }
             }

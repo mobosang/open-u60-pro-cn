@@ -218,7 +218,7 @@ fn banners(v: &Views) -> Markup {
     let sim = v.value(Topic::Sim);
     html! {
         div #sim-ban {
-            @if let Some(e) = err { p.msg.err role="alert" { "加载SIM信息失败： " (fmt::truncate(e, 120)) } }
+            @if let Some(e) = err { p.msg.err role="alert" { "加载SIM信息失败：" (fmt::truncate(e, 120)) } }
             @if let Some(sim) = sim {
                 @if pin_locked(sim) {
                     (banner(Icon::Lock, "c-orange", "需要 SIM PIN", "输入你的PIN来解锁SIM卡", PIN, "输入PIN"))

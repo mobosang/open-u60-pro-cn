@@ -41,7 +41,7 @@ const PASSTHROUGH: [(&str, &str, &str); 3] =
 pub fn vpn_page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载VPN失败： " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载VPN失败：" (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     html! {
@@ -64,7 +64,7 @@ pub fn qos_page(pd: &PageData) -> Markup {
     let hidden = html! { (pd.csrf()) (once_field(&pd.once())) };
     let act = |on: &'static str| Act::Post { action: QOS_SWITCH, name: "on", value: on };
     html! {
-        @if let Some(Err(e)) = pd.reads.first() { p.msg.err role="alert" { "加载QoS失败： " (fmt::truncate(e, 120)) } }
+        @if let Some(Err(e)) = pd.reads.first() { p.msg.err role="alert" { "加载QoS失败：" (fmt::truncate(e, 120)) } }
         (kit::section(Some("服务质量"), None, kit::switch_row(&hidden, "启用服务质量", state, act("1"), act("0"))))
     }
 }

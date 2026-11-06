@@ -168,8 +168,8 @@ async fn a_pasted_code_starts_the_preview_once() {
     // Refused by the app's checks, each with its words; nothing sent.
     let cases: [(&str, &str, &str, bool, bool); 6] = [
         ("", "", "扫描或选择二维码照片，或手动输入二维码。", false, false),
-        ("LPA:1$evil.example/x$FAKE-MATCHING-ID", "", "This QR code isn&#39;t an eSIM activation code.", true, false),
-        ("WIFI:T:WPA;S:FAKE-0000;P:x;;", "", "This QR code isn&#39;t an eSIM activation code.", true, false),
+        ("LPA:1$evil.example/x$FAKE-MATCHING-ID", "", "该二维码不是 eSIM 激活码。", true, false),
+        ("WIFI:T:WPA;S:FAKE-0000;P:x;;", "", "该二维码不是 eSIM 激活码。", true, false),
         (CC_CODE, "", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
         (CC_CODE, &"x".repeat(65), "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
         (CODE, "1\x072", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
@@ -227,8 +227,8 @@ async fn a_photo_is_read_on_the_router() {
     let wifi = png(&photo(w, h, "WIFI:T:WPA;S:Example;P:FAKE-0000;;", 5.0, 0.0, false), w, h, false);
     for (img, want) in [
         (&two[..], "选择一张带有eSIM二维码的照片。"),
-        (&none[..], "This QR code isn&#39;t an eSIM activation code."),
-        (&wifi[..], "This QR code isn&#39;t an eSIM activation code."),
+        (&none[..], "该二维码不是 eSIM 激活码。"),
+        (&wifi[..], "该二维码不是 eSIM 激活码。"),
         (b"GIF89a-not-a-photo".as_slice(), "选择 JPEG 或 PNG 照片，或手动输入代码。"),
         (b"\xff\xd8\xff\xe0broken".as_slice(), "无法读取此图片。请选择其他图片或手动输入激活码。"),
     ] {
@@ -328,7 +328,7 @@ async fn uploads_are_checked_and_refusals_read_as_the_app() {
     r.assert_secure_html(409);
     let html = r.text();
     for want in [
-        "<b>Can’t开始下载</b><p>the router has no mobile data connection; downloads use the router&#39;s own internet</p>",
+        "<b>无法开始下载</b><p>the router has no mobile data connection; downloads use the router&#39;s own internet</p>",
         "<span>路由器尚未连接移动数据。请先连接后再下载；此操作无法使用手机自身的移动数据。</span>",
     ] {
         let want = if html.contains(want) { want.to_owned() } else { want.replace("&#39;", "'") };
@@ -336,10 +336,10 @@ async fn uploads_are_checked_and_refusals_read_as_the_app() {
     }
     // The app's note once: at the top while the data connection is down
     // (read at page load), else in the card.
-    assert_eq!(html.matches("Connect it before downloading").count(), 1, "{html}");
+    assert_eq!(html.matches("请先连接后再下载").count(), 1, "{html}");
     assert!(!html.contains("value=\"LPA"), "{html}");
     let r = upload(&c, peer(173, 4), &cookie, &body).await;
-    assert!(r.status == 409 && r.text().contains("Can’t开始下载"), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("无法开始下载"), "{}", r.text());
     assert_eq!(calls(&c).len(), 1);
     // Busy: the agent's 409 reads as the app's line.
     let busy = (409, json!({"ok": false, "error": "eSIM manager busy; retry shortly"}));

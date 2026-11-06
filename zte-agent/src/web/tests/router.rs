@@ -114,7 +114,7 @@ async fn mobile_network_page_follows_the_app() {
     assert!(err.is_some() && err < conn, "{html}");
     let _dev = device::set(&c.app, reads(vec![("/api/modem/data", Err("ubus <down>".into())), ("/api/modem/status", Err("no".into()))]));
     let html = get_with(&c, MN, peer(140, 4), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">加载失败：ubus &lt;down&gt;</p>") && !html.contains("加载飞行模式状态失败"), "{html}");
+    assert!(html.contains("role=\"alert\">加载失败： ubus &lt;down&gt;</p>") && !html.contains("加载飞行模式状态失败"), "{html}");
 }
 
 /// Apply sends only what changed (the router's current values for the
@@ -178,7 +178,7 @@ async fn apply_sends_what_changed_once() {
     });
     let r = post(&c, APPLY, tailnet(40141), &cookie, &format!("csrf={csrf}&once={}&confirm=1&{both}", q.input("once"))).await;
     let html = get_with(&c, &to(&r), tailnet(40141), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">应用连接设置；自动选择失败： Invalid argument</p>"), "{html}");
+    assert!(html.contains("role=\"alert\">应用连接设置；自动选择失败：Invalid argument</p>"), "{html}");
     assert_eq!(calls(&c).len(), 2);
     // The state cannot be read: nothing sent, the token given back.
     let token = once().await;
@@ -261,7 +261,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     assert_eq!(calls(&c), [("/api/modem/register".to_owned(), json!({"m_mcc_mnc": "00101", "m_rat": "7"}))]);
     clock.advance(Duration::from_secs(3));
     let html = get_with(&c, &op, peer(142, 5), &cookie).await.text();
-    assert!(html.contains("<h1 id=\"op-title\">正在注册…</h1>"), "{html}");
+    assert!(html.contains("<h1 id=\"op-title\">注册网络</h1>"), "{html}");
     // A refused registration, and a scan that fails to start.
     let _sig = fake::set(&c.app, json!({"register": {"m_netselect_result": "fail"}}));
     let q = get_with(&c, &format!("{REG}?plmn=00102&rat=12"), peer(142, 6), &cookie).await;
@@ -285,7 +285,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     let token = get_with(&c, MN, peer(142, 7), &cookie).await.input("once");
     let r = post(&c, SCAN, peer(142, 7), &cookie, &format!("csrf={csrf}&once={token}&confirm=1")).await;
     let html = get_with(&c, &to(&r), peer(142, 7), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">扫描失败： busy</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">扫描失败：busy</p>"), "{html}");
 }
 
 /// Airplane mode off is tried twice (the host has no AT port), then
@@ -321,7 +321,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
     let html = r.text();
     for want in [
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/router/mobile-network\">移动网络</a></div><h1>需要重新启动</h1>",
-        "<p class=\"msg err\" role=\"alert\">失败： ",
+        "<p class=\"msg err\" role=\"alert\">失败：",
         "由于固件限制，不重新启动就无法恢复蜂窝无线电。路由器将重新启动（大约 60 秒）。",
         "<label for=\"rpw\">路由器管理密码</label><input id=\"rpw\" type=\"password\" name=\"password\" autocomplete=\"current-password\" required>",
         "<button class=\"btn btn-danger\" type=\"submit\">立即重新启动</button>", "href=\"/ui/router/mobile-network\">取消",
@@ -486,7 +486,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     // The reading fails (no fake: the host has no ubus): the app's line.
     drop(_sig);
     let html = get_with(&c, CELL, peer(144, 7), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载单元信息失败： ") && !html.contains("Couldn't update"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载单元信息失败：") && !html.contains("Couldn't update"), "{html}");
 }
 
 /// Smart Tower Connect: the state and parameters (either name set), the
@@ -498,7 +498,7 @@ async fn stc_shows_its_state_checks_numbers_and_asks() {
     r.assert_secure_html(200);
     let html = r.text();
     // No device: the app's line, the state unknown, both switches offered.
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载STC失败： "), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载STC失败："), "{html}");
     assert!(html.contains("<span>STC</span><span class=\"v\">不可用</span>"));
     assert!(html.contains("<a class=\"it bt\" href=\"/ui/router/stc/enable\">启用STC</a>") && html.contains("href=\"/ui/router/stc/disable\">禁用 STC</a>"));
     let params = json!({"stc_lte_collect_timer": "30", "stc_nrsa_collect_timer": 40, "lte_whitelist_max": "5", "nrsa_whitelist_max": "6", "stc_enable": "1"});
@@ -638,7 +638,7 @@ async fn signal_detection_starts_watches_and_stops() {
     let token = get_with(&c, SD, peer(146, 7), &cookie).await.input("once");
     let r = post(&c, &format!("{SD}/start"), peer(146, 7), &cookie, &format!("csrf={csrf}&once={token}&confirm=1")).await;
     let html = get_with(&c, &to(&r), peer(146, 7), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">启动失败：modem busy</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">启动失败： modem busy</p>"), "{html}");
 }
 
 /// Every Router post with a single-use token: refused without a session

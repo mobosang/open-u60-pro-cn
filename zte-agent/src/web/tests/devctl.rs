@@ -107,7 +107,7 @@ async fn device_controls_follow_the_app() {
         // The app's default timeout goes with the switch.
         "<input type=\"hidden\" name=\"timeout\" value=\"5\"><input type=\"hidden\" name=\"on\" value=\"1\"><button class=\"sw\"",
     ]);
-    assert!(!html.contains("空闲超时") && !html.contains("name=\"enabled\" value=\"1\" checked"), "{html}");
+    assert!(!html.contains("<label for=\"timeout\">空闲超时</label>") && !html.contains("name=\"enabled\" value=\"1\" checked"), "{html}");
     // A read that fails: the app's line with the error, the switch unknown.
     let _dev = device::set(&c.app, device::Device {
         gets: vec![("/api/device/power-save", Err("ubus call zwrt_mc.device.manager get_device_info failed: fake".into()))],
@@ -310,7 +310,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
         }
     }
     let r = limited.expect("rate limited");
-    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. 重试 in "), "{}", r.text());
+    assert!(r.header("retry-after").is_some() && r.text().contains("尝试次数过多，请在 "), "{}", r.text());
     let (pre, login_csrf) = login_form(&c, peer(223, 6)).await;
     let login = format!("login_csrf={}&next=%2Fui%2F&password={}", enc(&login_csrf), enc(PW));
     assert_eq!(post(&c, "/ui/login", peer(223, 6), &format!("zte_ui_pre={pre}"), &login).await.status, 429);

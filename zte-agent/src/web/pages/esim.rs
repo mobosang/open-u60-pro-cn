@@ -633,14 +633,14 @@ pub fn message(n: Notice) -> Markup {
     // The busy notice only (the app compares the text); any other line
     // without an outcome reads as one that could not complete.
     let busy = text == BUSY;
-    let receipts = lower.contains("receipts");
+    let receipts = lower.contains("receipts") || text.contains("收据");
     let error = ok == Some(false) || (ok.is_none() && !busy);
     let (icon, title) = if busy {
-        (Icon::Clock, "eSIM in use")
+        (Icon::Clock, "eSIM 正在使用中")
     } else if receipts {
         (Icon::PaperPlane, "运营商收据")
     } else if error {
-        (Icon::Alert, "Can’t 现在就完成这个")
+        (Icon::Alert, "暂时无法完成此操作")
     } else {
         (Icon::Check, "配置文件已更新")
     };
@@ -1215,7 +1215,7 @@ fn work(app: &AppState, names: &Names, k: Post, key: &str, nick: &str, claim: &m
         // A failed or timed-out enable may still have switched: the agent
         // started verifying it (a new switch generation), so follow that.
         (Post::Switch, Err(_)) if switch_generation(app) != before => Done::Op,
-        (Post::Switch, Err((status, e))) => line(failure(status, &e, "切换失败： ")),
+        (Post::Switch, Err((status, e))) => line(failure(status, &e, "切换失败：")),
         (Post::Delete, Ok(d)) => {
             let note = if d["operator_notified"] == false { " The operator will be notified on the next eSIM change." } else { "" };
             line((Some(true), format!("{name} deleted.{note}")))
@@ -1432,13 +1432,13 @@ mod tests {
         let mut v = sw("modem_confirmed", Value::Null);
         v.op = Some(Op { spec: &SWITCH_OP, started: BootInstant::ZERO, arg: "" });
         let html = op_progress(&v).into_string();
-        for want in ["<b>正在正在注册…</b>", "切换配置文件</span><small>完成</small>", "重新加载SIM</span><small>完成</small>",
+        for want in ["<b>正在注册…</b>", "切换配置文件</span><small>完成</small>", "重新加载SIM</span><small>完成</small>",
             "连接到网络</span><small>进行中</small>", "新的配置文件已加载。等待移动数据连接。",
             "Wi-Fi 保持连接 · 通常 15–45 秒", "切换至…0909", "href=\"/ui/router/esim\">返回 eSIM 配置文件</a>"] {
             assert!(html.contains(want), "{want} in {html}");
         }
         assert!(html.starts_with("<section class=\"card econn esw busy\" id=\"op-progress\">"), "{html}");
-        assert_eq!(op_title(&v), "正在正在注册…");
+        assert_eq!(op_title(&v), "正在注册…");
         assert!(!html.to_ascii_lowercase().contains("如果新配置文件没有收到数据，路由器不会自行切换回来。") && !html.contains("8900000000000000909"));
     }
 
@@ -1478,13 +1478,13 @@ mod tests {
         let html = message(Notice::Flash(None, BUSY.into())).into_string();
         assert!(html.contains("<b>eSIM in use</b>") && !html.contains("重新加载配置文件"), "{html}");
         let html = message(Notice::Flash(Some(false), "Switch failed: the modem is in airplane / low-power mode".into())).into_string();
-        assert!(html.contains("Can’t 现在就完成这个") && html.contains("打开路由器设置→移动网络检查调制解调器模式。") && html.contains("重新加载配置文件"));
+        assert!(html.contains("暂时无法完成此操作") && html.contains("打开路由器设置→移动网络检查调制解调器模式。") && html.contains("重新加载配置文件"));
         let html = message(Notice::Flash(Some(false), "Some receipts couldn't be sent yet. The router keeps retrying.".into())).into_string();
         assert!(html.contains("<b>运营商收据</b>") && !html.contains("重新加载配置文件"));
         assert!(message(Notice::Flash(Some(true), "Renamed to X.".into())).into_string().contains("<b>配置文件已更新</b>"));
-        // Only the busy notice is "eSIM in use" (the app compares the text).
+        // Only the busy notice is "eSIM 正在使用中" (the app compares the text).
         let html = message(Notice::Flash(None, "The router may still be working on it. Check before trying again.".into())).into_string();
-        assert!(html.contains("<b>Can’t 现在就完成这个</b>") && html.contains("重新加载配置文件") && !html.contains("eSIM in use"), "{html}");
+        assert!(html.contains("<b>暂时无法完成此操作</b>") && html.contains("重新加载配置文件") && !html.contains("eSIM 正在使用中"), "{html}");
     }
 
     /// The switch's operation page offers "Check again" (a reload of

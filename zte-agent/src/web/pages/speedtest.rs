@@ -209,7 +209,7 @@ pub fn page(pd: &PageData) -> Markup {
     html! {
         (render::live_snapshot(PATH))
         @if let Some(Err(e)) = pd.reads.first() {
-            p.msg.err role="alert" { "加载服务器失败： " (fmt::truncate(e, 120)) }
+            p.msg.err role="alert" { "加载服务器失败：" (fmt::truncate(e, 120)) }
         }
         (message(v))
         @if let Some(n) = &pd.notice { (n) }

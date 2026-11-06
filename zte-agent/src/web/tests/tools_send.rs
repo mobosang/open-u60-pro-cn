@@ -39,7 +39,7 @@ async fn speed_test_page_lists_servers_and_streams() {
     let (c, cookie, _) = signed_in(110).await;
     let r = get_with(&c, ST, peer(110, 2), &cookie).await;
     r.assert_secure_html(200);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">加载服务器失败： no server list in tests</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">加载服务器失败：no server list in tests</p>"), "{}", r.text());
     servers(&c);
     let r = get_with(&c, ST, peer(110, 2), &cookie).await;
     r.assert_secure_html(200);

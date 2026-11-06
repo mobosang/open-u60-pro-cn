@@ -160,7 +160,7 @@ pub fn cell_lock(pd: &PageData) -> Markup {
                 p.msg.ok role="status" { "找到 " (cells.len()) " 个邻区" }
             }
         }
-        @if let Some(e) = failed { p.msg.err role="alert" { "加载单元信息失败： " (fmt::truncate(e, 120)) } }
+        @if let Some(e) = failed { p.msg.err role="alert" { "加载单元信息失败：" (fmt::truncate(e, 120)) } }
         (kit::section(Some("当前小区"), None, html! {
             (kit::kv_row(None, "NR PCI", &v("nr5g_pci")))
             (kit::kv_row(None, "NR EARFCN", &v("nr5g_action_channel")))
@@ -327,10 +327,10 @@ pub fn send(app: &AppState, kind: Kind, i: &Input, claim: &mut Claim) -> Result<
     };
     claim.disarm();
     let prefix = match kind {
-        Kind::Neighbors => "扫描失败： ",
-        Kind::Detect => "启动失败： ",
-        Kind::DetectStop => "停止失败： ",
-        _ => "失败： ",
+        Kind::Neighbors => "扫描失败：",
+        Kind::Detect => "启动失败：",
+        Kind::DetectStop => "停止失败：",
+        _ => "失败：",
     };
     super::call(app, method, path, &body).map_err(|(status, e)| (status, format!("{prefix}{}", fmt::truncate(&e, 120))))?;
     if kind == Kind::Neighbors {
@@ -430,7 +430,7 @@ pub fn stc(pd: &PageData) -> Markup {
     };
     html! {
         @if let Some(Err(e)) = pd.reads.first() {
-            p.msg.err role="alert" { "加载STC失败： " (fmt::truncate(e, 120)) }
+            p.msg.err role="alert" { "加载STC失败：" (fmt::truncate(e, 120)) }
         }
         (kit::section(Some("状态"), None, html! {
             li.it {

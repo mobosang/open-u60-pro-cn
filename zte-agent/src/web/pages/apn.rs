@@ -169,7 +169,7 @@ fn row(p: &Value, manual: bool) -> Markup {
 pub fn page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载APN失败： " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载APN失败：" (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     let manual = d["manual"] == true;
@@ -237,7 +237,7 @@ pub fn form(pd: &PageData) -> Markup {
     let blank = json!({"pdp": "3", "auth": "0"});
     let p = if editing {
         match (pd.reads.first(), asked(pd, "profiles")) {
-            (Some(Err(e)), _) => return html! { p.msg.err role="alert" { "加载APN失败： " (fmt::truncate(e, 120)) } },
+            (Some(Err(e)), _) => return html! { p.msg.err role="alert" { "加载APN失败：" (fmt::truncate(e, 120)) } },
             (_, Some(p)) => p,
             _ => return not_found(),
         }
@@ -279,7 +279,7 @@ pub fn form(pd: &PageData) -> Markup {
 pub fn auto_page(pd: &PageData) -> Markup {
     let Some(p) = asked(pd, "auto") else {
         return match pd.reads.first() {
-            Some(Err(e)) => html! { p.msg.err role="alert" { "加载APN失败： " (fmt::truncate(e, 120)) } },
+            Some(Err(e)) => html! { p.msg.err role="alert" { "加载APN失败：" (fmt::truncate(e, 120)) } },
             _ => html! { (kit::empty_state(Icon::SimCard, "APN 未找到", "它可能已被删除。")) },
         };
     };

@@ -947,7 +947,7 @@ async fn every_screen_marks_its_tab() {
         assert_eq!(html.matches("aria-current=\"page\"").count(), 1, "{}", s.path);
         assert!(html.contains(&format!("<a href=\"{}\" aria-current=\"page\">", tab_href(s.tab))), "{}", s.path);
         // A heading from what the page read starts with the title (DNS Cache (N)).
-        let h1 = if s.heading.is_some() { format!("<h1>{} (", s.title) } else { format!("<h1>{}</h1>", s.title.replace('&', "&amp;")) };
+        let h1 = if s.heading.is_some() { format!("<h1>{}（", s.title) } else { format!("<h1>{}</h1>", s.title.replace('&', "&amp;")) };
         assert!(html.contains(&h1), "{}", s.path);
         let header = &html[html.find("<header").unwrap()..html.find("</header>").unwrap()];
         assert!(!header.contains("退出登录") && !header.contains("logout"), "{}", s.path);
@@ -980,7 +980,7 @@ async fn tab_roots_follow_the_app() {
     }
     let html = get_with(&c, "/ui/router", peer(27, 3), &cookie).await.text();
     for (section, rows) in [
-        ("Cellular", 8), ("Connectivity", 5), ("Security", 3), ("Quality", 1), ("System", 1),
+        ("蜂窝网络", 8), ("网络连接", 5), ("安全", 3), ("服务质量", 1), ("系统", 1),
     ] {
         let at = html.find(&format!("<h2>{section}</h2>")).unwrap_or_else(|| panic!("{section}"));
         let list = &html[at..at + html[at..].find("</ul>").unwrap()];
@@ -1103,7 +1103,7 @@ async fn mobile_network_page_and_confirmations() {
         assert!(html.contains(want), "{want}");
     }
     // No device here: the read's error, and the Apply form is disabled.
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载失败： ") && html.contains("<fieldset class=\"mnf\" disabled>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载失败：") && html.contains("<fieldset class=\"mnf\" disabled>"), "{html}");
     // Every POST form starts with the CSRF field; no page script; no form
     // inside a paragraph (the parser would close it there).
     for form in html.split("<form").skip(1) {
@@ -1254,7 +1254,7 @@ async fn router_posts_check_session_csrf_confirm_and_values() {
     let token = get_with(&c, &at("mobile-data/confirm?enable=0"), peer(18, 5), &cookie).await.input("once");
     let r = p(at("mobile-data"), format!("csrf={csrf}&enable=0&confirm=1&once={token}")).await;
     assert!(r.status >= 500, "{}", r.status);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： ") && r.header("location").is_none(), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：") && r.header("location").is_none(), "{}", r.text());
     // With the state read: two posts at once send one write and land on one
     // operation (kept under the token); a replay finds it.
     let wwan = serde_json::json!({"enable": 1, "roam_enable": 0, "connect_mode": 1, "connect_status": "ipv4_connected"});
@@ -1620,7 +1620,7 @@ async fn usb_card_shows_while_attached_and_stays_dismissed_until_detached() {
     }
     let r = post(&c, "/ui/usb/powerbank", peer(47, 3), &cookie, &format!("csrf={csrf}&state=1&mode=x")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： "), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败："), "{}", r.text());
     // Dismissed: hidden on reload while attached, for this session only.
     post(&c, "/ui/usb/dismiss", peer(47, 3), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/");
     assert!(dash(cookie.clone()).await.contains(OFF));
@@ -1686,12 +1686,12 @@ async fn usb_mode_turns_fast_charging_on_and_off() {
     // On the host the call fails: the screen again with "Failed: …".
     let r = post(&c, "/ui/tools/usb/powerbank", peer(48, 3), &cookie, &format!("csrf={csrf}&state=0")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： ") && r.text().contains("<h1>USB 模式</h1>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：") && r.text().contains("<h1>USB 模式</h1>"), "{}", r.text());
     drop(fake);
     // The card's button checks the cable first: the read fails here, so nothing is sent.
     let r = post(&c, "/ui/usb/powerbank", peer(48, 4), &cookie, &format!("csrf={csrf}&state=1")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： "), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败："), "{}", r.text());
 }
 
 /// The hub holds a value for every topic of every screen (a page load also

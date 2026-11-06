@@ -401,10 +401,10 @@ async fn test_destination() {
     let b = body(&f, &[("id", "1"), ("name", "Bot"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
     let r = post(&c, &test, peer(85, 4), &cookie, &b).await;
     r.assert_secure_html(502);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">测试失败： telegram: http status: 401</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">测试失败：telegram: http status: 401</p>"), "{}", r.text());
     assert_ne!(r.input("once"), f.input("once"));
     let replay = post(&c, &test, peer(85, 4), &cookie, &b).await;
-    assert!(replay.status == 502 && replay.text().contains("测试失败： telegram: http status: 401"));
+    assert!(replay.status == 502 && replay.text().contains("测试失败：telegram: http status: 401"));
     assert_eq!(fake::tests(&c.app).len(), 1);
     // SMS: asked first (it costs an SMS); Cancel shows the form again; confirmed, sent once.
     let _fake = fake::set(&c.app, (200, json!({"ok": true, "data": {"status": "sent"}})));
@@ -448,7 +448,7 @@ async fn test_destination() {
     let b = body(&f, &[("id", "1"), ("name", "Bot"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
     let r = post(&busy, &test, peer(85, 6), &cookie, &b).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("测试失败： the router is busy. 重试 in a few seconds."), "{}", r.text());
+    assert!(r.text().contains("测试失败：the router is busy. Try again in a few seconds."), "{}", r.text());
     assert_eq!(fake::tests(&c.app).len(), 1);
     let r = post(&c, &test, peer(85, 6), &cookie, &b).await;
     assert!(r.status == 200 && r.text().contains("测试消息发送"));
@@ -508,7 +508,7 @@ async fn forward_log_in_both_tabs() {
             "<span class=\"rs\">no WAN connectivity; held for retry</span>",
             "<span class=\"nm\">EXAMPLE-BANK</span><span class=\"c-red\" role=\"img\" aria-label=\"失败\"><svg",
             "<span class=\"rs er\">webhook: bad uri</span>",
-            "<span class=\"nm\">+15555550100</span><span class=\"c-green\" role=\"img\" aria-label=\"Forwarded\"><svg",
+            "<span class=\"nm\">+15555550100</span><span class=\"c-green\" role=\"img\" aria-label=\"已转发\"><svg",
             "<span class=\"rs\">Fake &lt;b&gt;bot&lt;/b&gt; → webhook</span><span class=\"pv\">Your code is 000000</span>",
             &format!("<div class=\"l2\"><span class=\"tm\">{}</span></div>", stamp(1_792_000_100)),
             &format!("<span class=\"tm\">{}</span><form class=\"sf\" method=\"post\" action=\"{base}/log/retry\">", stamp(1_792_000_200)),
@@ -665,7 +665,7 @@ async fn clear_asks_first() {
     }
 }
 
-const GONE: &str = "此表单已过期, so the 条规则 was not saved. 输入 the secret fields again, then save.";
+const GONE: &str = "此表单已过期，因此未保存规则。再次输入秘密字段，然后保存。";
 
 /// Secrets typed into a form are kept as long as its token (an hour), and
 /// a form whose draft is gone (pushed out of the store) says so and saves
@@ -823,8 +823,8 @@ async fn config_reads_last_id_and_failures() {
     assert!(q.contains("加载失败：Failed &lt;to&gt; read") && !q.contains("name=\"confirm\""), "{q}");
     let edit = get_with(&c, &format!("{SMS_FWD}/rules/1"), peer(92, 3), &cookie).await;
     edit.assert_secure_html(503);
-    assert!(edit.text().contains("<strong>加载失败</strong><p>失败 &lt;to&gt; read</p>"), "{}", edit.text());
-    for (action, want) in [("save", "失败：Failed &lt;to&gt; read"), ("test", "测试失败： 失败 &lt;to&gt; read")] {
+    assert!(edit.text().contains("<strong>加载失败</strong><p>Failed &lt;to&gt; read</p>"), "{}", edit.text());
+    for (action, want) in [("save", "失败：Failed &lt;to&gt; read"), ("test", "测试失败：Failed &lt;to&gt; read")] {
         let b = body(&f, &[("name", "X"), ("ft", "all"), ("dt", "telegram"), ("tg_token", "999:NEW-FAKE"), ("tg_chat", "1")]);
         let r = post(&c, &format!("{SMS_FWD}/rules/{action}"), peer(92, 4), &cookie, &b).await;
         r.assert_secure_html(503);

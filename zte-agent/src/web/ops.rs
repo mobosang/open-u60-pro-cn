@@ -222,7 +222,7 @@ pub static NETSCAN: OpSpec = OpSpec {
 /// `netscan` until the modem reports its result, for 30 s (the app polls
 /// 15 times, 2 s apart).
 pub static REGISTER: OpSpec = OpSpec {
-    titles: ["注册网络", "注册网络", "注册超时", "Registration failed"],
+    titles: ["注册网络", "注册网络", "注册超时", "注册失败"],
     steps: &["正在注册…"],
     topics: &[Topic::Netscan],
     status: |_, e, v| register_status(e, v.value(Topic::Netscan)),
@@ -514,7 +514,7 @@ mod tests {
         let op = Op { spec: &REGISTER, started: BootInstant::from_duration(at(1)), arg: "" };
         // The app's words: a timeout is not called a failure.
         let st = [OpStatus::Done { msg: "" }, OpStatus::TimedOut { msg: "" }, OpStatus::Failed { msg: "" }];
-        assert_eq!(st.map(|s| op.title(s)), ["正在注册…", "注册超时", "Registration failed"]);
+        assert_eq!(st.map(|s| op.title(s)), ["注册网络", "注册超时", "注册失败"]);
         let scan = Op { spec: &NETSCAN, ..op };
         assert_eq!(st.map(|s| scan.title(s)), ["扫描完成", "扫描超时", "扫描失败"]);
         assert!(OpStatus::Failed { msg: "" }.finished());

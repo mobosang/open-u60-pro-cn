@@ -80,7 +80,7 @@ fn post_button(pd: &PageData, action: &str, fields: &[(&str, &str)], label: &str
 pub fn page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载过滤器失败： " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载过滤器失败：" (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     let on = truthy(&d["enable"]);

@@ -290,7 +290,7 @@ pub fn page(pd: &PageData) -> Markup {
         // The app's message row, above everything (its data read's error
         // replaces the airplane mode one).
         @match (pd.reads.first(), pd.reads.get(1)) {
-            (Some(Err(e)), _) => p.msg.err role="alert" { "加载失败： " (fmt::truncate(e, 120)) },
+            (Some(Err(e)), _) => p.msg.err role="alert" { "加载失败：" (fmt::truncate(e, 120)) },
             (_, Some(Err(_))) => p.msg.err role="alert" { "加载飞行模式状态失败" },
             _ => {}
         }
@@ -478,20 +478,20 @@ pub fn send(app: &AppState, kind: Kind, i: &Input, claim: &mut Claim) -> Result<
             let wrote = mode.is_some() || roaming.is_some();
             if wrote {
                 claim.disarm();
-                super::call(app, Method::Put, "/api/modem/data", &apply_body(&cur, mode, roaming)).map_err(failed("失败： "))?;
+                super::call(app, Method::Put, "/api/modem/data", &apply_body(&cur, mode, roaming)).map_err(failed("失败："))?;
             }
             if i.val("sel") == "auto_select" && i.val("sel0") != "auto_select" {
                 claim.disarm();
                 let body = json!({"net_select_mode": "auto_select"});
                 // After the data write: say that part was applied.
-                let prefix = if wrote { "应用连接设置；自动选择失败： " } else { "失败： " };
+                let prefix = if wrote { "应用连接设置；自动选择失败：" } else { "失败：" };
                 super::call(app, Method::Put, "/api/modem/network-mode", &body).map_err(failed(prefix))?;
             }
             Ok(())
         }
         Kind::Scan => {
             claim.disarm();
-            super::call(app, Method::Post, "/api/modem/scan", &json!({})).map(|_| ()).map_err(failed("扫描失败： "))
+            super::call(app, Method::Post, "/api/modem/scan", &json!({})).map(|_| ()).map_err(failed("扫描失败："))
         }
         _ => {
             // Only a network the last scan offers (a crafted link sends nothing).
@@ -501,7 +501,7 @@ pub fn send(app: &AppState, kind: Kind, i: &Input, claim: &mut Claim) -> Result<
             }
             claim.disarm();
             let body = json!({"m_mcc_mnc": i.val("plmn"), "m_rat": i.val("rat")});
-            super::call(app, Method::Post, "/api/modem/register", &body).map(|_| ()).map_err(failed("失败： "))
+            super::call(app, Method::Post, "/api/modem/register", &body).map(|_| ()).map_err(failed("失败："))
         }
     }
 }

@@ -157,7 +157,7 @@ fn url_host(u: &str) -> Option<Host<'_>> {
 
 pub fn page(pd: &PageData) -> Markup {
     if let Some(Err(e)) = pd.reads.first() {
-        return html! { p.msg.err role="alert" { "加载DNS失败： \n【6】脚dmf dm-DNS " (fmt::truncate(e, 120)) } };
+        return html! { p.msg.err role="alert" { "加载DNS失败：\n【6】脚dmf dm-DNS " (fmt::truncate(e, 120)) } };
     }
     let doh = pd.read(1);
     let d = pd.read(0);

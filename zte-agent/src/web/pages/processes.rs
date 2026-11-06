@@ -503,7 +503,7 @@ mod tests {
     fn kb_and_summary_row() {
         assert_eq!((kb(0), kb(1023), kb(1024), kb(23_142)), ("0 KB".into(), "1023 KB".into(), "1.0 MB".into(), "22.6 MB".into()));
         let row = summary_row(Some(&fixture())).into_string();
-        assert!(row.contains("<a class=\"it\" href=\"/ui/health/processes\">") && row.contains("<span class=\"v c-orange\">3 bloat 4%</span>"), "{row}");
+        assert!(row.contains("<a class=\"it\" href=\"/ui/health/processes\">") && row.contains("<span class=\"v c-orange\">3 个冗余进程，占用 4%</span>"), "{row}");
         assert!(!summary_row(Some(&json!({"bloat_count": 0}))).into_string().contains("bloat"));
         assert!(!summary_row(None).into_string().contains("bloat"));
     }

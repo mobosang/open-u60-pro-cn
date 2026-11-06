@@ -254,7 +254,7 @@ fn log_row(csrf: &Markup, token: &str, m: &Mount, e: &Value) -> Markup {
                 @if held {
                     span.c-orange.hl { (kit::icon(Icon::ClockArrow)) "已举行，将重试" }
                 } @else if ok {
-                    span.c-green role="img" aria-label="Forwarded" { (kit::icon(Icon::Check)) }
+                    span.c-green role="img" aria-label="已转发" { (kit::icon(Icon::Check)) }
                 } @else {
                     span.c-red role="img" aria-label="失败" { (kit::icon(Icon::Cross)) }
                 }
@@ -747,9 +747,9 @@ const BUSY: &str = "the router is busy. Try again in a few seconds.";
 
 fn prefix(test: bool) -> &'static str {
     if test {
-        "测试失败： "
+        "测试失败："
     } else {
-        "失败： "
+        "失败："
     }
 }
 

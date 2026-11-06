@@ -160,7 +160,7 @@ async fn firewall_page_switches_and_level() {
     // A failed read shows only the error.
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/router/firewall", Err("ubus call failed: Method not found".into()))], ..Default::default() });
     let html = get_with(&c, FW, peer(210, 2), &cookie).await.text();
-    assert!(html.contains("加载防火墙失败： ubus call failed: 方法 not found") && !html.contains("<form class=\"rf dmz\""), "{html}");
+    assert!(html.contains("加载防火墙失败：ubus call failed: 方法 not found") && !html.contains("<form class=\"rf dmz\""), "{html}");
 }
 
 /// DMZ and New Port Forward: checked against the router's network and
@@ -312,7 +312,7 @@ async fn telemetry_blocker() {
         "<span class=\"dom\">update.ztems.com</span><span class=\"v\">", "<h2>添加自定义域</h2>", "placeholder=\"要阻止的域\"",
         "<h2>被阻止的域</h2>", "<span class=\"dom\">ads.example.com</span><small>未启用</small>", "aria-label=\"删除ads.example.com\"",
     ]);
-    assert_eq!(html.matches("Not blocked").count(), 4);
+    assert_eq!(html.matches("未启用").count(), 4);
     let (csrf, once) = (r.input("csrf"), r.input("once"));
     // The switch: no question, once.
     let off = body(&csrf, &once, &[("on", "0")]);
@@ -368,7 +368,7 @@ async fn telemetry_blocker() {
     assert_eq!(to(&get_with(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie).await), TM);
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/router/domain-filter", Err("ubus call failed: timed out".into()))], ..Default::default() });
     let html = get_with(&c, TM, peer(213, 2), &cookie).await.text();
-    assert!(html.contains("加载过滤器失败： ubus call failed: timed out") && !html.contains("阻止所有 ZTE 遥测"), "{html}");
+    assert!(html.contains("加载过滤器失败：ubus call failed: timed out") && !html.contains("阻止所有 ZTE 遥测"), "{html}");
 }
 
 /// VPN Passthrough and QoS: the app's switches, posted from the page once
@@ -411,7 +411,7 @@ async fn vpn_passthrough_and_qos() {
     let missing = || Err("ubus call zwrt_router.api router_get_qos_switch failed: Method not found".to_owned());
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/router/vpn", missing()), ("/api/router/qos", missing())], ..Default::default() });
     let html = get_with(&c, VPN, peer(214, 2), &cookie).await.text();
-    assert!(html.contains("加载VPN失败： ubus call") && !html.contains("<form class=\"rf\""), "{html}");
+    assert!(html.contains("加载VPN失败：ubus call") && !html.contains("<form class=\"rf\""), "{html}");
     let html = get_with(&c, QOS, peer(214, 2), &cookie).await.text();
-    has(&html, &["加载QoS失败： ubus call", "<span class=\"v\">不可用</span>", ">开启</button>", ">关闭</button>"]);
+    has(&html, &["加载QoS失败：ubus call", "<span class=\"v\">不可用</span>", ">开启</button>", ">关闭</button>"]);
 }

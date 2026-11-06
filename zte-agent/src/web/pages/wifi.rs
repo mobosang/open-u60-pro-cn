@@ -477,7 +477,7 @@ mod tests {
         // Off: "Off" in red, no client count, no bands (as the app).
         d["wifi_onoff"] = json!("0");
         let s = wifi_card(Ok(&card_fields(&d))).into_string();
-        assert!(s.contains("<span class=\"c-red\">关闭</span>") && !s.contains("client") && !s.contains("2.4G"), "{s}");
+        assert!(s.contains("<span class=\"c-red\">关闭</span>") && !s.contains("客户端") && !s.contains("2.4G"), "{s}");
         assert!(s.starts_with("<section class=\"card wf\">") && !s.contains("href"), "{s}");
         // No clients: no count.
         let mut d = status();

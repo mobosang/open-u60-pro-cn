@@ -503,7 +503,7 @@ async fn lan_checks_asks_and_links_the_new_address() {
     let fields = [("ip", "192.168.8.1"), ("mask", "255.255.255.0"), ("dhcp", "1"), ("start", "192.168.0.100"), ("end", "192.168.0.149"), ("lease", "12h")];
     let r = post(&c, LAN_APPLY, peer(204, 2), &cookie, &body(&csrf, &once, &fields)).await;
     r.assert_secure_html(400);
-    assert_eq!(r.text().matches("Use an address from 192.168.8.1 to 192.168.8.254.").count(), 2, "{}", r.text());
+    assert_eq!(r.text().matches("使用从 192.168.8.1 到 192.168.8.254 的地址。").count(), 2, "{}", r.text());
     let fields = [("ip", "192.168.8.1"), ("mask", "255.255.255.0"), ("dhcp", "1"), ("start", "192.168.8.100"), ("end", "192.168.8.149"), ("lease", "12h")];
     let r = post(&c, LAN_APPLY, peer(204, 2), &cookie, &body(&csrf, &once, &fields)).await;
     let q = get_with(&c, &to(&r), peer(204, 2), &cookie).await;

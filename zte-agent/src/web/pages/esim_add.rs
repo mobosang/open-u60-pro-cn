@@ -330,7 +330,7 @@ fn entry(pd: &PageData) -> Markup {
             section.card.emsg.ebad role="alert" {
                 span.eic { (kit::icon(Icon::Alert)) }
                 div {
-                    b { "Can’t开始下载" }
+                    b { "无法开始下载" }
                     p { (n) }
                     @if n.contains("no mobile data") && !offline(pd) { p.cap { (NO_DATA) } }
                     @if n.contains("agent password required") { p.cap { "在代理设置中设置路由器代理密码，然后重试。" } }
