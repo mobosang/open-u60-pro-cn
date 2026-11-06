@@ -217,7 +217,7 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
                     }
                 }
             }
-            let blocked_n = |n: usize| format!("屏蔽{n}遥测域{}", if n == 1 { "" } else { "s" });
+            let blocked_n = |n: usize| format!("已拦截 {n} 个遥测域名");
             match failure {
                 None => Ok(Done::Line(Some(true), blocked_n(added))),
                 Some(e) if added == 0 => Err(e),

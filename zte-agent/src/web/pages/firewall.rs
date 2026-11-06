@@ -512,8 +512,8 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             };
             let (on, ip) = (val(vals, "dmz") == "1", val(vals, "ip"));
             if on == c.dmz && (!on || ip == c.dmz_ip) {
-                let line = if on { format!("{ip} 已是 DMZ 主机。") } else { "DMZ is already off.".to_owned() };
-                return nothing("没有什么可申请的", vec![line]);
+                let line = if on { format!("{ip} 已是 DMZ 主机。") } else { "DMZ 已关闭。".to_owned() };
+                return nothing("没有需要应用的更改", vec![line]);
             }
             if on {
                 let mut lines = vec![format!("未被其他规则处理的互联网连接将转发至 {ip}，该设备的所有端口都可能从互联网访问。")];

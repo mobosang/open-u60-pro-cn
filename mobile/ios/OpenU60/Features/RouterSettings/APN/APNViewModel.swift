@@ -58,7 +58,7 @@ final class APNViewModel {
 
         do {
             let _ = try await client.putJSON("/api/router/apn/mode", body: ["apn_mode": manual ? 1 : 0])
-            showMessage("APN mode set to \(manual ? "manual" : "auto")", isError: false)
+            showMessage("APN 模式已设为\(manual ? "手动" : "自动")", isError: false)
             config = APNConfig(
                 mode: manual ? "1" : "0",
                 profiles: config.profiles,

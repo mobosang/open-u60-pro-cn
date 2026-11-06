@@ -371,7 +371,7 @@ async fn guest_wifi_form_and_apply() {
     let once = get_with(&c, GUEST, peer(202, 2), &cookie).await.input("once");
     let r = post(&c, GUEST_APPLY, peer(202, 2), &cookie, &body(&csrf, &once, &[("g5", "1"), ("gssid", "Fake&Guest"), ("gkey", "short"), ("genc", "sae"), ("gtime", "0")])).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("路由器无法保存以下字符") || r.text().contains("路由器无法保存以下字符"), "{}", r.text());
+    assert!(r.text().contains("路由器无法保存以下字符"), "{}", r.text());
     assert!(r.text().contains("使用 8 至 63 个字符（字母、数字、空格或符号）或 64 个十六进制数字。"));
 }
 

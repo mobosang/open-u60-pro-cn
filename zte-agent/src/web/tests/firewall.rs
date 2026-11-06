@@ -178,7 +178,7 @@ async fn dmz_and_new_port_forward() {
     has(&r.text(), &["这是路由器自己的地址；请使用设备的地址。", "name=\"ip\" value=\"192.168.0.1\"", "value=\"1\" checked"]);
     let r = post(&c, DMZ, peer(211, 2), &cookie, &body(&csrf, &once, &[("ip", "")])).await;
     let q = get_with(&c, &to(&r), peer(211, 2), &cookie).await.text();
-    assert!(q.contains("没有什么可申请的") && q.contains("DMZ is already off.") && !q.contains("name=\"confirm\""), "{q}");
+    assert!(q.contains("没有需要应用的更改") && q.contains("DMZ 已关闭。") && !q.contains("name=\"confirm\""), "{q}");
     let r = post(&c, DMZ, peer(211, 2), &cookie, &body(&csrf, &once, &[("dmz", "1"), ("ip", "192.168.0.77")])).await;
     assert_eq!(to(&r), format!("{DMZ}?t={once}"));
     let q = get_with(&c, &to(&r), peer(211, 2), &cookie).await;
@@ -211,7 +211,7 @@ async fn dmz_and_new_port_forward() {
     assert!(r.text().contains("WAN口8080已转发。"), "{}", r.text());
     let r = post(&c, ADD, peer(211, 3), &cookie, &typed("Cam", "udp", "8080", "192.168.0.80", "554")).await;
     let q = get_with(&c, &to(&r), peer(211, 3), &cookie).await;
-    has(&q.text(), &["<h2 class=\"q\">添加“Cam”？</h2>", "UDP WAN port 8080 goes to 192.168.0.80:554", ">添加规则</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">添加“Cam”？</h2>", "UDP WAN 端口 8080 将转发至 192.168.0.80:554", ">添加规则</button>"]);
     // A device failure: the form as typed, with the app's "Failed: …".
     let _fail = device::set(&c.app, device::Device {
         replies: vec![("/api/router/firewall/port-forward", (503, json!({"ok": false, "error": "ubus call zwrt_router.api router_set_portforward failed: Invalid argument"})))],
@@ -256,7 +256,7 @@ async fn port_forward_delete_names_its_list() {
     let href = html[at + 6..at + 6 + html[at + 6..].find('"').unwrap()].replace("&amp;", "&");
     let q = get_with(&c, &href, peer(212, 2), &cookie).await;
     q.assert_secure_html(200);
-    has(&q.text(), &["<h2 class=\"q\">删除“Web”？</h2>", "TCP WAN:8080 → 192.168.0.50:80 stops", ">删除</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">删除“Web”？</h2>", "TCP WAN:8080 → 192.168.0.50:80 将停止转发", ">删除</button>"]);
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     let g = q.input("g");
     // Another rule appears: the question and the post refuse.
@@ -340,7 +340,7 @@ async fn telemetry_blocker() {
     let done = to(&post(&c, "/ui/router/telemetry/block-all", peer(213, 2), &cookie, &body(&csrf, &once, &[])).await);
     let added: Vec<Value> = calls(&c)[2..].iter().map(|(_, b)| b["domain"].clone()).collect();
     assert_eq!(added, ["dconfig.ztems.com", "iot.ztems.com", "mcs-cloud.ztems.com", "update.ztems.com"]);
-    has(&get_with(&c, &done, peer(213, 2), &cookie).await.text(), &["屏蔽4遥测域s"]);
+    has(&get_with(&c, &done, peer(213, 2), &cookie).await.text(), &["已拦截 4 个遥测域名"]);
     // One add refused: the others still sent, and the line says so.
     let failing = device::Device {
         replies: vec![("/api/router/domain-filter#2", (503, json!({"ok": false, "error": "ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument"})))],
@@ -351,7 +351,7 @@ async fn telemetry_blocker() {
     let line = to(&post(&c, "/ui/router/telemetry/block-all", peer(213, 2), &cookie, &body(&csrf, &once, &[])).await);
     assert_eq!(calls(&c).len(), 4);
     has(&get_with(&c, &line, peer(213, 2), &cookie).await.text(), &[
-        "<p class=\"msg info\" role=\"status\">已添加 屏蔽3遥测域s; 1 could not be。 Failed: ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument</p>",
+        "<p class=\"msg info\" role=\"status\">已拦截 3 个遥测域名；无法添加 1。失败： ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument</p>",
     ]);
     let _dev = device::set(&c.app, filter(blocked()));
     // A removal: asked, by its list.
