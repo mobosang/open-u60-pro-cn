@@ -639,8 +639,8 @@ mod tests {
             {"section_id": "cfg0a1b2c", "comment": "Game", "proto": "udp", "src_dport": "3074", "dest_ip": "192.168.0.60"},
         ]});
         let r = rules(&list);
-        assert_eq!((r[0].id.as_str(), r[0].route().as_str(), r[0].enabled), ("0", "TCP WAN:8080 \u{2192} 192.168.0.50:80", true));
-        assert_eq!((r[1].id.as_str(), r[1].title(), r[1].route().as_str(), r[1].enabled), ("cfg0a1b2c", "Game", "UDP WAN:3074 \u{2192} 192.168.0.60:", false));
+        assert_eq!((r[0].id.as_str(), r[0].route().as_str(), r[0].enabled), ("0", "TCP WAN:8080 → 192.168.0.50:80", true));
+        assert_eq!((r[1].id.as_str(), r[1].title(), r[1].route().as_str(), r[1].enabled), ("cfg0a1b2c", "Game", "UDP WAN:3074 → 192.168.0.60:", false));
         assert_eq!(generation(&list), generation(&list.clone()));
         assert_ne!(generation(&list), generation(&json!({"rule_list": []})));
         assert_eq!(protocols("tcp+udp"), (true, true));
@@ -660,7 +660,7 @@ mod tests {
     fn hosts_and_ports() {
         let net = Some((Ipv4Addr::new(192, 168, 0, 1), 0xffff_ff00));
         assert_eq!(host_error(net, "192.168.0.50"), None);
-        assert!(host_error(net, "192.168.0.1").unwrap().contains("路由器自己的地址"));
+        assert!(host_error(net, "192.168.0.1").unwrap().contains("router’s own address"));
         assert_eq!(host_error(net, "192.168.1.5").unwrap(), "使用从 192.168.0.1 到 192 的地址。168.0.254.");
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
         assert!(host_error(net, "nope").unwrap().starts_with("Enter an IPv4"));

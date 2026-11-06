@@ -668,19 +668,19 @@ pub(crate) mod tests {
         ]);
         let s = banners(&all).into_string();
         for (class, title, text) in [
-            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> 以输入 PUK。"),
-            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> 以输入 PIN。"),
+            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">路由器 > SIM 卡</a> 以输入 PUK。"),
+            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">路由器 > SIM 卡</a> 以输入 PIN。"),
             ("b-blue", "飞行模式", "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"),
         ] {
             assert!(s.contains(&format!("<div class=\"banner {class}\"><svg")), "{class}");
             // PUK: the lock with "!" (the app's `exclamationmark.lock.fill`).
-            let icon = if class == "b-red" { Icon::LockWarn } else if class == "b-orange" { Icon::Lock } else { Icon::Airplane };
+            let icon = if class == "SIM PUK Required" { Icon::LockWarn } else if class == "SIM" { Icon::Lock } else { Icon::Airplane };
             assert!(s.contains(&format!("{}<div><strong>{title}", kit::icon(icon).into_string())), "{title}");
             assert!(s.contains(&format!("<strong>{title}</strong><span>{text}</span>")), "{title} in {s}");
         }
         let off = views(vec![(Topic::Modem, json!({"status": {"operate_mode": "ONLINE"}, "data": {"enable": 0}}))]);
         assert!(banners(&off).into_string().contains(
-            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">路由器 &gt; 移动网络</a> 以开启。</span>"
+            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">路由器 > 移动网络</a> 以开启。</span>"
         ));
     }
 

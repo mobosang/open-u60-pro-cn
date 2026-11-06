@@ -362,7 +362,7 @@ mod tests {
         let b = json!({"capacity": 101, "temperature": 260, "voltage_uv": 4_435_000, "current_ua": -5_680_000});
         assert_eq!(capacity(&b), None);
         assert_eq!(capacity(&json!({"capacity": "69"})), Some(69));
-        assert_eq!(battery_celsius(&b).map(celsius).as_deref(), Some("26.0 \u{b0}C"));
+        assert_eq!(battery_celsius(&b).map(celsius).as_deref(), Some("26.0 °C"));
         assert_eq!(battery_celsius(&json!({"temperature": 1600})), None);
         assert_eq!(format!("{:.1}", watts(&b).unwrap()), "25.2");
         assert_eq!(watts(&json!({"voltage_uv": 4_000_000})), None);
@@ -402,8 +402,8 @@ mod tests {
 
     #[test]
     fn truncation() {
-        assert_eq!(truncate("abcdef", 3), "abc\u{2026}");
+        assert_eq!(truncate("abcdef", 3), "abc…");
         assert_eq!(truncate("abc", 3), "abc");
-        assert_eq!(truncate("ééé", 2), "éé\u{2026}");
+        assert_eq!(truncate("ééé", 2), "éé…");
     }
 }

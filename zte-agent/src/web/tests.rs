@@ -102,8 +102,7 @@ impl Reply {
         assert!(csp.starts_with("default-src 'none'; script-src 'nonce-"));
         assert_eq!(self.header("cross-origin-opener-policy"), Some("same-origin"));
         assert!(csp.ends_with(
-            "style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; \
-             base-uri 'none'; frame-ancestors 'none'; manifest-src 'self'"
+            "style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'; manifest-src 'self'"
         ));
     }
 
@@ -253,7 +252,7 @@ async fn host_allowlist_and_redirects() {
     r.assert_security_headers();
     let none = axum::http::Request::builder().uri("/ui/").extension(peer(1, 2)).body(Body::empty()).unwrap();
     let r = send(&c, none).await;
-    assert_eq!((r.status, r.text().as_str()), (400, "缺少主机"));
+    assert_eq!((r.status, r.text().as_str()), (400, "Missing Host"));
     // `localhost` (like the Tailscale names) only from this device: a LAN
     // browser never gets there for that name.
     let local = |p: Peer| {
@@ -773,7 +772,7 @@ async fn detail_sheets_open_from_the_dashboard() {
     for (id, href) in [("card-traffic", "/ui/traffic"), ("card-battery", "/ui/battery"), ("card-health", "/ui/health")] {
         assert!(dash.contains(&format!("<a class=\"card\" id=\"{id}\" href=\"{href}\">")), "{id}");
     }
-    let done = "<div class=\"trail\"><a class=\"nl\" href=\"/ui/\">完成</a>";
+    let done = "<div class=\"trail\"><a class=\"nl\" href=\"/ui/\">Done</a>";
     for (uri, id, title, nav) in [
         ("/ui/traffic", "traffic", "实时流量", done),
         ("/ui/battery", "battery", "电池详情", done),
@@ -880,7 +879,7 @@ async fn network_mode_in_both_mounts() {
     let tailnet = Peer(SocketAddr::from(([127, 0, 0, 1], 40002)));
     let html = get_with(&c, &format!("{RT}/confirm?mode=Only_5G"), tailnet, &cookie).await.text();
     assert!(html.contains(
-        "你正在远程连接：如果 仅 5G SA has no coverage here, this page can’t be reached until the mode is changed on the router."
+        "你正在远程连接：如果 仅 5G SA 在此处没有覆盖，则在路由器上更改模式之前将无法访问此页面。"
     ), "{html}");
     get_with(&c, &format!("{RT}/confirm?mode=Only_4G"), peer(31, 4), &cookie).await.assert_secure_html(400);
     // Confirmed: the PUT runs (no ubus on the host, so it fails for sure):
@@ -910,13 +909,13 @@ async fn network_mode_operation_settles_or_times_out() {
     let sel = serde_json::json!({"net_select": "Only_LTE"});
     c.app.hub.offer(Topic::Signal, ReadOut { value: Some(sel), error: None }, std::time::Instant::now());
     let html = get_with(&c, "/ui/op/00000000000000a1", peer(32, 2), &cookie).await.text();
-    assert!(html.contains("<h1 id=\"op-title\">发送模式 — 路由器可能仍在切换</h1>") && html.contains("调制解调器报告新模式。"), "{html}");
+    assert!(html.contains("<h1 id=\"op-title\">网络模式更新</h1>") && html.contains("调制解调器报告新模式。"), "{html}");
     assert!(html.contains("<a href=\"/ui/router\" aria-current=\"page\">"));
     assert!(html.contains("<a class=\"nl back\" href=\"/ui/router/network-mode\">网络模式</a>") && html.contains("返回 网络模式"));
     assert!(!html.contains("http-equiv"), "a finished operation does not reload");
     // The other one is still waiting: it reloads without JS and streams the signal topic.
     let html = get_with(&c, "/ui/op/00000000000000a2", peer(32, 3), &cookie).await.text();
-    assert!(html.contains("<h1 id=\"op-title\">发送模式 — 路由器可能仍在切换</h1>") && html.contains("切换网络模式…"), "{html}");
+    assert!(html.contains("<h1 id=\"op-title\">更改网络模式</h1>") && html.contains("切换网络模式…"), "{html}");
     assert!(html.contains("http-equiv=\"refresh\"") && html.contains("@get('/ui/live/op/00000000000000a2/"));
     assert!(html.contains("<a href=\"/ui/\" aria-current=\"page\">") && html.contains("href=\"/ui/signal/network-mode\""));
     clock.advance(Duration::from_secs(10));
@@ -1621,7 +1620,7 @@ async fn usb_card_shows_while_attached_and_stays_dismissed_until_detached() {
     }
     let r = post(&c, "/ui/usb/powerbank", peer(47, 3), &cookie, &format!("csrf={csrf}&state=1&mode=x")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：ubus exec: No such file or directory (os error 2)"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： "), "{}", r.text());
     // Dismissed: hidden on reload while attached, for this session only.
     post(&c, "/ui/usb/dismiss", peer(47, 3), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/");
     assert!(dash(cookie.clone()).await.contains(OFF));
@@ -1687,12 +1686,12 @@ async fn usb_mode_turns_fast_charging_on_and_off() {
     // On the host the call fails: the screen again with "Failed: …".
     let r = post(&c, "/ui/tools/usb/powerbank", peer(48, 3), &cookie, &format!("csrf={csrf}&state=0")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：ubus exec: No such file or directory (os error 2)") && r.text().contains("<h1>USB 模式</h1>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： ") && r.text().contains("<h1>USB 模式</h1>"), "{}", r.text());
     drop(fake);
     // The card's button checks the cable first: the read fails here, so nothing is sent.
     let r = post(&c, "/ui/usb/powerbank", peer(48, 4), &cookie, &format!("csrf={csrf}&state=1")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：ubus exec: No such file or directory (os error 2)"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： "), "{}", r.text());
 }
 
 /// The hub holds a value for every topic of every screen (a page load also

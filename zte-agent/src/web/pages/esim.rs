@@ -1385,7 +1385,7 @@ mod tests {
         let p = profile("", "", "", false);
         assert_eq!((p.shown(), p.subtitle(), p.can_enable()), ("未命名的配置文件", "准备切换", true));
         assert!(!Profile { class: "test".into(), ..p }.can_enable());
-        assert_eq!(tail("8900000000000000101F"), "\u{2026}0101");
+        assert_eq!(tail("8900000000000000101F"), "…0101");
     }
 
     /// The dialog's words and warnings (an unknown code is skipped).
@@ -1397,7 +1397,7 @@ mod tests {
         let l = switch_lines(&inv, &p);
         assert_eq!(l.len(), 3);
         assert_eq!(l[0], "路由器将断开 Home 并通过 Travel 连接。互联网将中断约一分钟，Wi-Fi 保持开启。");
-        assert!(l[1].starts_with("路由器当前使用手动 APN“example.apn”。如果 Travel 需要"));
+        assert!(l[1].starts_with("The router is set to the manual APN “example.apn”. If Travel needs"));
         assert!(l[2].starts_with("Travel looks like a travel (roaming) profile and 数据漫游 is off"));
         // No manual APN known: that warning is left out; no active profile.
         let inv = Inventory { profiles: vec![p.clone()], ..Inventory::default() };
@@ -1460,7 +1460,7 @@ mod tests {
         later.arg = v.arg;
         let html = conn(&later).into_string();
         assert!(html.contains("<b>正在重新加载 SIM</b>") && html.contains("class=\"card econn busy\""), "{html}");
-        assert!(updating(&later).into_string().contains("更新"));
+        assert!(updating(&later).into_string().contains("Updating"));
         later.set(Topic::EsimSwitch, SlotView { version: 2, at: BootInstant::ZERO, value_at: BootInstant::ZERO, value: Some(Arc::new(json!({"state": "no_data", "generation": 5}))), error: None });
         assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。"));
         assert!(updating(&later).into_string().contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"));
@@ -1516,7 +1516,7 @@ mod tests {
     #[test]
     fn nicknames_are_checked_in_bytes() {
         assert!(nick_ok("") && nick_ok(&"a".repeat(64)) && nick_ok(&format!("  {}  ", "a".repeat(64))));
-        assert!(!nick_ok(&"a".repeat(65)) && !nick_ok("two\nlines") && !nick_ok("tab\there"));
+        assert!(!nick_ok(&"a".repeat(65)) && !nick_ok("two\nlines") && !nick_ok("tab	here"));
         assert!(nick_ok(&"é".repeat(32)) && !nick_ok(&"é".repeat(33)));
     }
 

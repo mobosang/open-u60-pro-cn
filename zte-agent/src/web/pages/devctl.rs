@@ -484,7 +484,7 @@ mod tests {
         assert!(question(Kind::AutoSleep, &on, false).is_none() && question(Kind::PowerSave, &on, true).is_none());
         let q = question(Kind::AutoSleep, &on, true).unwrap();
         assert_eq!((q.title.as_str(), q.label), ("开启自动睡眠？", Some("打开自动睡眠")));
-        assert!(q.lines[0].contains("20 分钟") && q.lines[1].starts_with("你正在远程连接："));
+        assert!(q.lines[0].contains("for 20 分钟,") && q.lines[1].starts_with("You are connected remotely:"));
         assert!(question(Kind::AutoSleep, &Input::of(&[("timeout", "20")]), true).is_none());
         assert_eq!(Power::of(REBOOT).map(Power::api), Some("/api/device/reboot"));
         assert_eq!(Power::of(RESET).map(Power::api), Some("/api/device/factory-reset"));

@@ -337,7 +337,7 @@ mod tests {
         let s = battery_rows(&v).into_string();
         let rows: Vec<(&str, &str)> = vec![
             ("容量", "69%"), ("状态", "充电中"), ("电压", "4.435 V"), ("当前", "5680 mA"), ("电源", "25.2 W"),
-            ("温度", "26.0 °C"), ("充满所需时间", "37m"), ("预计剩余时间", "\u{2014}"),
+            ("温度", "26.0 °C"), ("充满所需时间", "37m"), ("预计剩余时间", "—"),
         ];
         let mut at = 0;
         for (label, value) in rows {
@@ -354,7 +354,7 @@ mod tests {
             (Topic::BatteryInfo, json!({"battery_time_to_full": 37, "battery_time_to_empty": 1240})),
         ]);
         let s = battery_rows(&v).into_string();
-        for want in [">放电中<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "预计剩余时间</span><span class=\"v\">—"] {
+        for want in [">放电中<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "充满所需时间</span><span class=\"v\">—"] {
             assert!(s.contains(want), "{want} in {s}");
         }
         // Unknown voltage and current: no Voltage, Current or Power rows.
@@ -365,7 +365,7 @@ mod tests {
         assert!(s.contains(">不可用<") && s.contains(">120 mA<") && !s.contains("电源"), "{s}");
         // Nothing read yet.
         let s = battery_rows(&views(vec![])).into_string();
-        assert!(s.contains("预计剩余时间</span><span class=\"v\">—") && s.contains(">不可用<"), "{s}");
+        assert!(s.contains("容量</span><span class=\"v\">—") && s.contains(">不可用<"), "{s}");
     }
 
     #[test]
@@ -402,7 +402,7 @@ mod tests {
         for want in [
             "CPU·最热传感器</dt><dd><b>41.5 °C</b>", "电池</dt><dd><b>26.0 °C</b>", "USB</dt><dd><b>33.0 °C</b>",
             "板传感器 2</dt><dd class=\"muted\">不可用</dd>", "电源芯片·PMX75</dt><dd><b>38.2 °C</b>",
-            "更新 3s ago · refreshes every 2s",
+            "更新 3秒前 · 每 2 秒刷新",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -410,7 +410,7 @@ mod tests {
         assert!(!s.contains("CPU sensor") && !s.contains("Crystal"), "{s}");
         let s = hl_temps(&at(10, 3)).into_string();
         assert!(s.contains("CPU·最热传感器</dt><dd><b>—</b>") && s.contains("板传感器 2</dt><dd><b>—</b>"), "{s}");
-        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("最后一个样本 10s ago · waiting for device"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("最后一个样本 10秒前 · 等待设备"), "{s}");
         let s = hl_temps(&at(3, 12)).into_string();
         assert!(s.contains("电池</dt><dd><b>—</b>") && s.contains("更新 3s ago"), "{s}");
         // A failed read is not fresh, whatever its time.

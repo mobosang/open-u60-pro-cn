@@ -195,7 +195,7 @@ mod tests {
     #[test]
     fn only_the_imei_tail_is_kept() {
         let v = info(&json!({"imei": "000000000000042"}), &json!({"ipv4-address": [{"address": "192.168.0.1"}]}));
-        assert_eq!(v, json!({"imei": "\u{2026}0042", "lan": "192.168.0.1"}));
+        assert_eq!(v, json!({"imei": "…0042", "lan": "192.168.0.1"}));
         assert!(!v.to_string().contains("000000000000042"));
         assert_eq!(info(&json!({"imei": "12a"}), &Value::Null), json!({"imei": "", "lan": ""}));
         assert_eq!(info(&Value::Null, &Value::Null)["imei"], "");

@@ -502,8 +502,8 @@ pub(crate) mod tests {
         let s = body(&fixture()).into_string();
         for want in [
             "Example &lt;b&gt;Mobile&lt;/b&gt;", "5G NSA", "5G NR", "n41 (2500 MHz, TDD)", "50 / 100 MHz max", ">774<", ">4242<",
-            "513000", "NSA 锚点", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "活跃（2 CC)", "EARFCN", "SCC0",
-            "B3 (1800 MHz)\u{2003}PCI 12\u{2003}BW 20", "数据会话", "QCI", "10000 / 10000 Mbps", "向下/向上。运营商速率上限，在数据会话开始时设置。不是速度测试。",
+            "513000", "NSA 锚点", "2 CC", "B1 (2100 MHz, FDD) · PCC", "活跃（2 CC)", "EARFCN", "SCC0",
+            "B3 (1800 MHz) PCI 12 BW 20", "数据会话", "QCI", "10000 / 10000 Mbps", "向下/向上。运营商速率上限，在数据会话开始时设置。不是速度测试。",
             "信号历史", "10.20.30.40", "极佳", "良好",
         ] {
             assert!(s.contains(want), "missing {want:?} in {s}");

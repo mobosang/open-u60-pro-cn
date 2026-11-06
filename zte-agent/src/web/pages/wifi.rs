@@ -459,7 +459,7 @@ mod tests {
             "2.4G</dt><dd><b>&lt;b&gt;Home&lt;/b&gt;</b> <small class=\"muted\">WPA2</small> <small class=\"muted\">CH 6</small></dd>",
             // 5G: hidden, no actual channel: the configured one.
             "5G</dt><dd><small class=\"c-orange\">(Hidden)</small> <b>Home-5G</b> <small class=\"muted\">WPA2/3</small> <small class=\"muted\">CH 36</small></dd>",
-            " 访客</dt><dd><b>Guests</b></dd>",
+            "访客</dt><dd><b>Guests</b></dd>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -472,7 +472,7 @@ mod tests {
             d[k] = v;
         }
         let s = wifi_card(Ok(&card_fields(&d))).into_string();
-        assert!(s.contains("<span class=\"cap\">3 个客户端s</span>") && !s.contains("WiFi 7") && !s.contains("访客"), "{s}");
+        assert!(s.contains("<span class=\"cap\">1 个客户端</span>") && !s.contains("WiFi 7") && !s.contains("访客"), "{s}");
         assert!(s.contains("5G</dt><dd class=\"muted\">已禁用</dd>"), "{s}");
         // Off: "Off" in red, no client count, no bands (as the app).
         d["wifi_onoff"] = json!("0");
@@ -583,7 +583,7 @@ mod tests {
         let shown = share_html(read.clone(), Some("show=1"));
         assert!(shown.contains("<span class=\"mono\" translate=\"no\">p@ss&quot;word:1234567</span> <a href=\"/ui/wifi/share\">隐藏密码</a>"), "{shown}");
         // The same code either way, encoding the app's payload.
-        let code = qr::svg(&qr::encode(r#"WIFI:T:WPA;S:Home\;Net;P:p@ss\"word\:1234567;;"#).unwrap(), "Wi-Fi二维码").into_string();
+        let code = qr::svg(&qr::encode(r#"WIFI:T:WPA;S:Home\;Net;P:p@ss\"word\:1234567;;"#).unwrap(), "Wi-Fi QR code").into_string();
         assert!(hidden.contains(&code) && shown.contains(&code));
         assert!(!hidden.contains("style=") && !hidden.contains("<form"));
         // A short password: as many dots as characters; guest: its own links.

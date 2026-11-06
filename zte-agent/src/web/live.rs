@@ -488,7 +488,7 @@ mod tests {
         assert_eq!(ids(&parts), ["age", "live-status"]);
         // The badge's digit rolls up from 0 (`roll`); its label is what
         // screen readers read.
-        assert!(parts[0].contains("<span class=\"rl\" aria-hidden=\"true\"><i id=\"age04\" data-u=\"0\">4</i>s ago</span>"), "{}", parts[0]);
+        assert!(parts[0].contains("aria-label=\"几秒前更新 4\"><span class=\"rl\" aria-hidden=\"true\"><i id=\"age04\" data-u=\"0\">4</i>秒前</span>"), "{}", parts[0]);
         assert!(parts[1].contains("class=\"live on ps hb-a\""));
         let much_later = v.now.saturating_add(Duration::from_secs(20));
         let parts = elements(&em.tick(much_later, &ages));

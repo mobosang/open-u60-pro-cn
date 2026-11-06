@@ -238,7 +238,7 @@ async fn enable_adb_asks_and_sends_once() {
     let (c, cookie, _) = signed_in(113).await;
     let html = get_with(&c, ADB, peer(113, 2), &cookie).await.text();
     for want in [
-        "<h1>启用亚行</h1>", "<strong>启用ADB调试</strong>", "设置 USB 模式进行调试，允许通过 USB-C 进行 ADB 访问。",
+        "<h1>启用 ADB</h1>", "<strong>启用ADB调试</strong>", "设置 USB 模式进行调试，允许通过 USB-C 进行 ADB 访问。",
         "<a class=\"btn btn-wide\" href=\"/ui/tools/adb/enable\"><svg",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -248,7 +248,7 @@ async fn enable_adb_asks_and_sends_once() {
     let q = get_with(&c, "/ui/tools/adb/enable", peer(113, 3), &cookie).await;
     q.assert_secure_html(200);
     assert!(q.text().contains("<h2 class=\"q\">启用亚行？</h2>") && q.text().contains("任何插入 USB-C 端口的设备都会在路由器上获得 root shell，无需密码。"), "{}", q.text());
-    assert!(q.text().contains("<button class=\"btn btn-danger\" type=\"submit\">启用亚行</button>"));
+    assert!(q.text().contains("<button class=\"btn btn-danger\" type=\"submit\">启用 ADB</button>"));
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     post(&c, "/ui/tools/adb/enable", peer(113, 4), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/tools/adb/enable");
     let body = format!("csrf={csrf}&once={once}&confirm=1");
@@ -287,7 +287,7 @@ async fn band_lock_grids_questions_and_bodies() {
         "<form class=\"bl\" method=\"get\" action=\"/ui/tools/band-lock/nr\">",
         "<label title=\"频段 78 — 3500 MHz · TDD · Max BW 100 MHz · DL 3300–3800 MHz · UL 3300–3800 MHz\"><input class=\"sr\" type=\"checkbox\" name=\"nr\" value=\"78\"><span>B78<small>3500 MHz</small></span></label>",
         "<span>B66<small>AWS-3</small></span>", "</svg> 应用 NR 频段锁定</button>", "</svg> 应用 LTE 频段锁定</button>",
-        "<summary>频段详情</summary>", "<li><b>频段 29 \u{2014} 700 MHz</b><small>SDL \u{b7} Max BW 10 MHz \u{b7} DL 717\u{2013}728 MHz</small></li>",
+        "<summary>频段详情</summary>", "<li><b>Band 29 — 700 MHz</b><small>SDL · Max BW 10 MHz · DL 717–728 MHz</small></li>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -326,10 +326,10 @@ async fn band_lock_grids_questions_and_bodies() {
     // LTE and Unlock over Tailscale: the remote line.
     let tailnet = Peer(SocketAddr::from(([127, 0, 0, 1], 40114)));
     let q = get_with(&c, "/ui/tools/band-lock/lte?lte=3&lte=20", tailnet, &cookie).await;
-    assert!(q.text().contains("these LTE bands: 3, 20.") && q.text().contains("你正在远程连接"), "{}", q.text());
+    assert!(q.text().contains("these LTE bands: 3, 20.") && q.text().contains("You are connected remotely"), "{}", q.text());
     post(&c, "/ui/tools/band-lock/lte", tailnet, &cookie, &format!("csrf={csrf}&lte=3&lte=20&once={}&confirm=1", q.input("once"))).await;
     let q = get_with(&c, "/ui/tools/band-lock/reset", tailnet, &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">解除所有频段锁定？</h2>") && q.text().contains("你正在远程连接"));
+    assert!(q.text().contains("<h2 class=\"q\">解除所有频段锁定？</h2>") && q.text().contains("You are connected remotely"));
     let r = post(&c, "/ui/tools/band-lock/reset", tailnet, &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     let to = r.header("location").unwrap().to_owned();
     assert!(to.starts_with("/ui/tools/band-lock?r="), "{to}");
@@ -392,7 +392,7 @@ async fn at_terminal_sends_once_masks_and_forgets_on_logout() {
     b.assert_see_other(AT);
     assert_eq!(device::calls(&c.app), [("/api/at/send".to_owned(), json!({"command": "AT+CGSN", "timeout": 30}))]);
     let html = get_with(&c, AT, peer(115, 4), &cookie).await.text();
-    assert!(html.contains(&format!("<li><b class=\"mono\">&gt; AT+CGSN</b><pre>\r\n{}0042\r\n\r\nOK\r\n</pre><small>/dev/smd11 \u{b7} 1312ms \u{b7} ", "\u{2022}".repeat(11))), "{html}");
+    assert!(html.contains(&format!("<li><b class=\"mono\">&gt; AT+CGSN</b><pre>\r\n{}0042\r\n\r\nOK\r\n</pre><small>/dev/smd11 · 1312ms · ", "•".repeat(11))), "{html}");
     assert!(!html.contains("000000000000042") && html.contains(">清除</button>"));
     // The timeout sent last is kept.
     assert!(html.contains("name=\"timeout\" min=\"1\" max=\"30\" value=\"30\""));
@@ -477,11 +477,11 @@ async fn at_terminal_checks_what_is_sent() {
     // A PIN is never kept.
     let r = post(&c, "/ui/tools/at/send", peer(118, 4), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCPIN%3D%221234%22")).await;
     r.assert_see_other(AT);
-    assert_eq!(c.at.list(me, c.app.auth.now())[0].cmd, "AT+CPIN=\"\u{2022}\u{2022}\u{2022}\u{2022}\"");
+    assert_eq!(c.at.list(me, c.app.auth.now())[0].cmd, "AT+CPIN=\"••••\"");
     // A used token: the danger question is not shown, nothing sent.
     let r = post(&c, "/ui/tools/at/send", peer(118, 5), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCFUN%3D0")).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("此表单已过期") && !r.text().contains("危险命令"));
+    assert!(r.text().contains("This form expired") && !r.text().contains("危险命令"));
     assert_eq!(device::calls(&c.app).len(), 2);
     // A PIN typed into the command: masked in the question, as in the
     // history; the hidden field keeps the command as typed.
@@ -489,7 +489,7 @@ async fn at_terminal_checks_what_is_sent() {
     let r = post(&c, "/ui/tools/at/send", peer(118, 6), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCLCK%3D%22SC%22%2C1%2C%224321%22")).await;
     r.assert_secure_html(200);
     let html = r.text();
-    assert!(html.contains("<li>The command &quot;AT+CLCK=&quot;SC&quot;,1,&quot;\u{2022}\u{2022}\u{2022}\u{2022}&quot;&quot; may disrupt"), "{html}");
+    assert!(html.contains("<li>The command &quot;AT+CLCK=&quot;SC&quot;,1,&quot;••••&quot;&quot; may disrupt"), "{html}");
     assert_eq!(html.matches("4321").count(), 1, "{html}");
     assert!(html.contains("name=\"cmd\" value=\"AT+CLCK=&quot;SC&quot;,1,&quot;4321&quot;\""), "{html}");
     assert_eq!(device::calls(&c.app).len(), 2);

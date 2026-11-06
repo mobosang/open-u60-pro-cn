@@ -662,14 +662,14 @@ mod tests {
         assert!(parse("LPA:1$example.com$").is_some(), "an empty matching ID, as the app");
         for bad in [
             "", "LPA:2$example.com$FAKE", "LPA:1$$FAKE", "LPA:1$example.com", "LPA:1$a$b$c$1$x", "LPA:1$evil.example/x$FAKE",
-            "LPA:1$example.com$FAKE_ID", "LPA:1$example.com$FAKE ID", "LPA:1$example.com$FAKE\u{7}", "WIFI:T:WPA;S:x;;",
-            "https://example.com/esim", "LPA:1$exämple.com$FAKE", "LPA:1$example.com$FAKE$1.3\u{200b}$1",
+            "LPA:1$example.com$FAKE_ID", "LPA:1$example.com$FAKE ID", "LPA:1$example.com$FAKE\x07", "WIFI:T:WPA;S:x;;",
+            "https://example.com/esim", "LPA:1$exämple.com$FAKE", "LPA:1$example.com$FAKE$1.3​$1",
         ] {
             assert!(parse(bad).is_none(), "{bad}");
         }
         assert!(parse(&format!("LPA:1$example.com${}", "A".repeat(512 - 17))).is_none());
         assert!(parse(&format!("LPA:1$example.com${}", "A".repeat(512 - 18))).is_some());
-        assert!(cc_ok("12345678") && cc_ok(&"x".repeat(64)) && !cc_ok("") && !cc_ok(&"x".repeat(65)) && !cc_ok("1\n2") && !cc_ok("12\u{feff}"));
+        assert!(cc_ok("12345678") && cc_ok(&"x".repeat(64)) && !cc_ok("") && !cc_ok(&"x".repeat(65)) && !cc_ok("1\n2") && !cc_ok("12﻿"));
     }
 
     /// A photo's codes: the one activation code; none or several refused

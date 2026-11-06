@@ -209,14 +209,14 @@ mod tests {
         for want in ["<h2>USB-C 已连接</h2>", "<p class=\"cap\">U60 Pro 上连接有一条 USB-C 电缆。</p>"] {
             assert!(s.contains(want), "{want} in {s}");
         }
-        assert!(!s.contains("Fast charging is active"));
+        assert!(!s.contains("快速充电已开启"));
         // Powerbank on (a number or a string): the orange line, and the
         // class that hides "Fast Charging".
         for on in [json!({"otg_powerbank_state": 1}), json!({"otg_powerbank_state": "1"})] {
             let s = fragment(&views(cable(), Some(on))).into_string();
             assert!(s.starts_with("<div id=\"card-usb\" class=\"on pb\">"), "{s}");
             assert!(s.contains("<p class=\"c-orange\"><svg"), "{s}");
-            assert!(s.contains("</svg> Fast charging is active</p>"), "{s}");
+            assert!(s.contains("</svg> 快速充电已开启</p>"), "{s}");
         }
         // The forms follow the fragment, outside it; the button posts the one value.
         let csrf = html! { input type="hidden" name="csrf" value="t"; };

@@ -35,7 +35,7 @@ async fn tools_list_follows_the_app() {
         ("自动化任务", vec!["自动化", "短信转发"]),
         (
             "网络工具",
-            vec!["速度测试", "局域网速度测试", "启用亚行", "USB 模式", "频段锁定", "AT 终端", "设备信息", "已连接设备"],
+            vec!["速度测试", "局域网速度测试", "启用 ADB", "USB 模式", "频段锁定", "AT 终端", "设备信息", "已连接设备"],
         ),
         ("配置", vec!["配置解密/加密"]),
         ("需要 Shell 访问", vec!["TTL设置", "启用SSH", "设备资源管理器"]),
@@ -200,7 +200,7 @@ async fn automations_empty_and_new_form() {
     let (c, cookie, _) = signed_in(104).await;
     let html = get_with(&c, AUTO, peer(104, 2), &cookie).await.text();
     for want in [
-        "<h1>新的自动化</h1>", "<a class=\"nl back\" href=\"/ui/tools\">工具</a>", "<strong>无自动化</strong>",
+        "<h1>自动化</h1>", "<a class=\"nl back\" href=\"/ui/tools\">工具</a>", "<strong>无自动化</strong>",
         "安排飞行模式、重新启动或 WiFi 切换等操作在设备上自动运行。",
         "<a class=\"it bt\" href=\"/ui/tools/automations/new\">",
     ] {
@@ -221,7 +221,7 @@ async fn automations_empty_and_new_form() {
         "name=\"days\" value=\"0\" checked><span>周一</span>", "name=\"days\" value=\"4\" checked><span>周五</span>",
         "name=\"days\" value=\"5\"><span>周六</span>", "type=\"datetime-local\" name=\"at\"",
         "<span>反向动作</span><input class=\"sr\" id=\"restore\" type=\"checkbox\" role=\"switch\" name=\"restore\" value=\"1\">",
-        "<input id=\"rtime\" type=\"time\" name=\"rtime\" value=\"06:30\">", "时间为路由器本地时间（UTC",
+        "<input id=\"rtime\" type=\"time\" name=\"rtime\" value=\"06:30\">", "Times are the router's local time (UTC",
         "<button class=\"it cv snd\" type=\"submit\">保存</button>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -230,7 +230,7 @@ async fn automations_empty_and_new_form() {
     // A remote browser is told what cuts its connection when it runs.
     let tailnet = Peer(std::net::SocketAddr::from(([127, 0, 0, 1], 40104)));
     let html = get_with(&c, "/ui/tools/automations/new", tailnet, &cookie).await.text();
-    assert!(html.contains("<p class=\"foot\">时间为路由器本地时间（UTC)."), "{html}");
+    assert!(html.contains("<p class=\"foot\">You are connected remotely: 飞行模式开启 and 移动数据关闭 cut this connection when they run."), "{html}");
 }
 
 /// Create (once, with the app's body), edit (the switch kept), the switch,

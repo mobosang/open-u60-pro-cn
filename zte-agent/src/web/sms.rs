@@ -675,14 +675,14 @@ mod tests {
     fn ucs2_keeps_emoji_and_never_panics_on_raw_text() {
         assert_eq!(decode_ucs2("00480069"), "Hi");
         // A surrogate pair is one emoji; lower-case hex works too.
-        assert_eq!(decode_ucs2("D83DDE00"), "\u{1F600}");
-        assert_eq!(decode_ucs2("d83dde000021"), "\u{1F600}!");
+        assert_eq!(decode_ucs2("D83DDE00"), "😀");
+        assert_eq!(decode_ucs2("d83dde000021"), "😀!");
         // A lone surrogate is the replacement character, not a dropped unit.
-        assert_eq!(decode_ucs2("D83D0041"), "\u{FFFD}A");
+        assert_eq!(decode_ucs2("D83D0041"), "�A");
         // Groups that are not hex are skipped; a trailing partial group too.
         assert_eq!(decode_ucs2("0041zz4200420"), "AB");
         // Raw text, even non-ASCII (bytes, not chars): nothing, so shown raw.
-        for raw in ["aéé", "Hello", "Код 1234", "\u{1F600}\u{1F600}", "é"] {
+        for raw in ["aéé", "Hello", "Код 1234", "😀😀", "é"] {
             assert_eq!(decode_ucs2(raw), "", "{raw}");
             assert_eq!(content(raw), raw);
         }
@@ -695,11 +695,11 @@ mod tests {
         }
         // Control characters other than tab and line breaks are dropped;
         // nothing left: the raw text (without them).
-        assert_eq!(content("0041000D000A00090007"), "A\r\n\t");
-        assert_eq!(content("Fake\u{0}code\u{7}\n1"), "Fakecode\n1");
-        assert_eq!((content("0000"), content("\u{0}")), ("0000".to_owned(), String::new()));
+        assert_eq!(content("0041000D000A00090007"), "A\r\n	");
+        assert_eq!(content("Fake\x00code\x07\n1"), "Fakecode\n1");
+        assert_eq!((content("0000"), content("\x00")), ("0000".to_owned(), String::new()));
         // Round trip, emoji included.
-        let text = "Hi \u{1F600} Ж\n€";
+        let text = "Hi 😀 Ж\n€";
         assert_eq!(encode_ucs2(text), "004800690020D83DDE0000200416000A20AC");
         assert_eq!(content(&encode_ucs2(text)), text);
     }
@@ -735,7 +735,7 @@ mod tests {
         assert_eq!(clock(t, -16 * H), "11:41 PM");
         assert_eq!(clock(NEW_YEAR, 0), "12:00 AM");
         assert_eq!(clock(NEW_YEAR + 12 * H + 5 * 60, 0), "12:05 PM");
-        assert_eq!(day(t, 0), "一月 1, 2024");
+        assert_eq!(day(t, 0), "Jan 1, 2024");
         assert_eq!(stamp(t + 7, 0), "1/1/24, 3:41:07 PM");
         assert_eq!(stamp(t, 9 * H), "1/2/24, 12:41:00 AM");
         assert_eq!(stamp(NEW_YEAR + 300 * DAY + 9 * H + 5, -H), "10/27/24, 8:00:05 AM");
@@ -770,7 +770,7 @@ mod tests {
             assert_eq!(relative(now + delta, now, 0), want, "{delta}");
         }
         // An unset router clock: the date.
-        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "一月 1, 2024");
+        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "Jan 1, 2024");
     }
 
     fn item(id: u64, number: &str, text: &str, date: &str, tag: impl Into<Value>) -> Value {
@@ -834,7 +834,7 @@ mod tests {
         ]}));
         let _g = fake::set(&app, d.clone());
         let all = read(&app, Store::All).unwrap();
-        assert_eq!(all.msgs.iter().map(|m| (m.id, m.content.as_str())).collect::<Vec<_>>(), [(2, "Internal"), (1, "On the SIM")]);
+        assert_eq!(all.msgs.iter().map(|m| (m.id, m.content.as_str())).collect::<Vec<_>>(), [(2, "内部"), (1, "On the SIM")]);
         assert!(all.partial.is_none());
         assert_eq!(read(&app, Store::Sim).unwrap().msgs.len(), 2);
         assert_eq!(read(&app, Store::Internal).unwrap().msgs.len(), 1);
@@ -855,7 +855,7 @@ mod tests {
     #[test]
     fn encoding_limits_and_counter() {
         assert_eq!(encode_type("Hello @£$ ÄÖ\n"), "GSM7_default");
-        for text in ["Привет", "€", "{", "\u{1F600}", "ç"] {
+        for text in ["Привет", "€", "{", "😀", "ç"] {
             assert_eq!(encode_type(text), "UNICODE", "{text}");
         }
         assert!(check_text(&"a".repeat(765)).is_ok());
@@ -863,8 +863,8 @@ mod tests {
         assert!(check_text(&"Ж".repeat(335)).is_ok());
         assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("at most 335 个字符"));
         // An emoji is two UTF-16 units.
-        assert!(check_text(&"\u{1F600}".repeat(168)).is_err() && check_text(&"\u{1F600}".repeat(167)).is_ok());
-        for blank in ["", "  ", "\n\t"] {
+        assert!(check_text(&"😀".repeat(168)).is_err() && check_text(&"😀".repeat(167)).is_ok());
+        for blank in ["", "  ", "\n	"] {
             assert_eq!(check_text(blank).unwrap_err(), "输入消息。");
         }
         // The app's counter: 0 SMS while empty, then by 153 / 67.
@@ -882,25 +882,25 @@ mod tests {
         for (typed, sent) in [
             ("+15555550100", "+15555550100"),
             ("+1 (555) 555-0100", "+15555550100"),
-            (" 555.555.0100\u{a0}", "5555550100"),
+            (" 555.555.0100 ", "5555550100"),
             ("*100#", "*100#"),
             ("EXAMPLE", "EXAMPLE"),
         ] {
             assert_eq!((clean_number(typed).as_str(), check_number(&clean_number(typed))), (sent, Ok(())), "{typed}");
         }
         assert_eq!(check_number(&clean_number(" - ")).unwrap_err(), "输入电话号码。");
-        for bad in ["555<0100>", "555/0100", "\u{0660}1", &*"5".repeat(33)] {
+        for bad in ["555<0100>", "555/0100", "٠1", &*"5".repeat(33)] {
             assert_eq!(check_number(&clean_number(bad)).unwrap_err(), "最多输入 32 个数字、字母、空格、+、* 或 #。", "{bad}");
         }
         assert!(check_number(&"5".repeat(32)).is_ok());
         assert_eq!(length(""), (0, 765, 153));
         assert_eq!(length(&"a".repeat(154)), (154, 765, 153));
-        assert_eq!(length("Ж\u{1F600}"), (3, 335, 67));
+        assert_eq!(length("Ж😀"), (3, 335, 67));
     }
 
     #[test]
     fn send_body_result_and_capacity() {
-        let body = send_body("+15555550100", "Hi\n\u{1F600}", "24;01;01;10;00;00;+8");
+        let body = send_body("+15555550100", "Hi\n😀", "24;01;01;10;00;00;+8");
         assert_eq!(
             body,
             json!({"number": "+15555550100", "sms_time": "24;01;01;10;00;00;+8", "message_body": "00480069000AD83DDE00",
@@ -933,7 +933,7 @@ mod tests {
             x ^= x << 17;
             x
         };
-        const PIECES: [&str; 18] = ["D83D", "DE00", "00", "0", "F", "zz", "é", "\u{1F600}", ",", ";", "+", "-", "\0", " ", "24", "1", "Ж", "#"];
+        const PIECES: [&str; 18] = ["D83D", "DE00", "00", "0", "F", "zz", "é", "😀", ",", ";", "+", "-", "\x00", " ", "24", "1", "Ж", "#"];
         for _ in 0..3000 {
             let n = (next() % 24) as usize;
             let s: String = (0..n).map(|_| PIECES[(next() % 18) as usize]).collect();

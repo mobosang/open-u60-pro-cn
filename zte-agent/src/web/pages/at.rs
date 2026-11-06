@@ -351,14 +351,14 @@ mod tests {
     /// number, a PLMN, a signal value) stay.
     #[test]
     fn identifiers_are_masked() {
-        assert_eq!(mask("+CGSN: 000000000000042\r\nOK"), "+CGSN: \u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}0042\r\nOK");
-        assert_eq!(mask("8900100000009998877F"), format!("{}8877F", "\u{2022}".repeat(15)));
-        assert_eq!(mask("001019999911111"), format!("{}1111", "\u{2022}".repeat(11)));
+        assert_eq!(mask("+CGSN: 000000000000042\r\nOK"), "+CGSN: •••••••••••0042\r\nOK");
+        assert_eq!(mask("8900100000009998877F"), format!("{}8877F", "•".repeat(15)));
+        assert_eq!(mask("001019999911111"), format!("{}1111", "•".repeat(11)));
         assert_eq!(mask("+CSQ: 20,99 +1000000004 1234567890123"), "+CSQ: 20,99 +1000000004 1234567890123");
-        assert_eq!(mask("12345678901234567890123"), format!("{}0123", "\u{2022}".repeat(19)));
+        assert_eq!(mask("12345678901234567890123"), format!("{}0123", "•".repeat(19)));
         assert_eq!(mask(""), "");
-        assert_eq!(cut("abcdef", 4), "abcd\u{2026}");
-        assert_eq!(cut("ab\u{e9}", 3), "ab\u{2026}");
+        assert_eq!(cut("abcdef", 4), "abcd…");
+        assert_eq!(cut("abé", 3), "ab…");
         assert_eq!(cut("abc", 3), "abc");
     }
 
@@ -372,21 +372,21 @@ mod tests {
         let e = record("AT", 3, &Err((503, "no serial port found".into())));
         assert_eq!((e.resp.as_str(), e.err), ("错误：no serial port found", true));
         let long = Ok(json!({"response": "x".repeat(10_000)}));
-        assert_eq!(record("AT", 3, &long).resp.len(), MAX_RESP + "\u{2026}".len());
+        assert_eq!(record("AT", 3, &long).resp.len(), MAX_RESP + "…".len());
         // Masked before the cut: an IMEI across byte 4096 shows no digits
         // but its last ones, and a masked answer is still at most 4 KiB.
         let across = Ok(json!({"response": format!("{}000000000000042", "x".repeat(4083))}));
         let e = record("AT", 3, &across);
-        assert!(!e.resp.contains("00") && e.resp.len() <= MAX_RESP + "\u{2026}".len(), "{}", &e.resp[4000..]);
+        assert!(!e.resp.contains("00") && e.resp.len() <= MAX_RESP + "…".len(), "{}", &e.resp[4000..]);
         let digits = Ok(json!({"response": "000000000000042,".repeat(1000)}));
-        assert!(record("AT", 3, &digits).resp.len() <= MAX_RESP + "\u{2026}".len());
+        assert!(record("AT", 3, &digits).resp.len() <= MAX_RESP + "…".len());
     }
 
     /// PINs and PUKs never reach the history, in the command or its echo;
     /// other digits stay.
     #[test]
     fn pins_are_hidden() {
-        let b = "\u{2022}\u{2022}\u{2022}\u{2022}";
+        let b = "••••";
         assert_eq!(hide_pins("AT+CPIN=\"1234\""), format!("AT+CPIN=\"{b}\""));
         assert_eq!(hide_pins("at+cpin=\"12345678\",\"4321\""), format!("at+cpin=\"{b}\",\"{b}\""));
         assert_eq!(hide_pins("AT+CLCK=\"SC\",1,\"1234\""), format!("AT+CLCK=\"SC\",1,\"{b}\""));

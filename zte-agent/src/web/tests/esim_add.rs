@@ -172,7 +172,7 @@ async fn a_pasted_code_starts_the_preview_once() {
         ("WIFI:T:WPA;S:FAKE-0000;P:x;;", "", "This QR code isn&#39;t an eSIM activation code.", true, false),
         (CC_CODE, "", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
         (CC_CODE, &"x".repeat(65), "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
-        (CODE, "1\u{7}2", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
+        (CODE, "1\x072", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
     ];
     for (code, cc, want, manual, open_cc) in cases {
         let r = upload(&c, peer(171, 3), &cookie, &fields(&csrf, &token, code, cc, None)).await;
@@ -346,7 +346,7 @@ async fn uploads_are_checked_and_refusals_read_as_the_app() {
     let _dev = device::set(&c.app, device_with(vec![("/api/esim/download", busy)], "connected"));
     let (_, token) = entry(&c, peer(173, 5), &cookie).await;
     let r = upload(&c, peer(173, 5), &cookie, &fields(&csrf, &token, CODE, "", None)).await;
-    assert!(r.status == 409 && r.text().contains("<p>the router has no mobile data connection; downloads use the router's own internet</p>"), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("<p>eSIM 忙；稍后再试。</p>"), "{}", r.text());
     // A switch runs: nothing sent, the token given back.
     let _dev = device::set(&c.app, device_with(vec![started()], "connected"));
     let _sw = fake::set(&c.app, json!({"state": "reloading", "generation": 9}));
@@ -382,7 +382,7 @@ async fn the_download_card_follows_the_app() {
     let html = r.text();
     let once = r.input("once");
     for want in [
-        "<div class=\"trail\"><a class=\"nl\" id=\"eadd-bar\" href=\"/ui/router/esim\">完成</a></div>",
+        "<div class=\"trail\"><a class=\"nl\" id=\"eadd-bar\" href=\"/ui/router/esim\">关闭</a></div>",
         "<form id=\"eaddf\" method=\"post\" action=\"/ui/router/esim/add/install\"><input type=\"hidden\" name=\"csrf\"",
         "<section class=\"card eprog\" id=\"eadd-dl\" aria-live=\"polite\"><div class=\"ehead\"><span class=\"eic\"><span class=\"spin\"></span></span><b>正在连接运营商…</b>",
         "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。",
@@ -414,7 +414,7 @@ async fn the_download_card_follows_the_app() {
     let _f = fake::set(&c.app, json!({"state": "confirm", "step": "preview", "provider": "Example Travel", "name": "Fake Plan"}));
     let html = get_with(&c, ADD, peer(174, 4), &cookie).await.text();
     for want in [
-        "<b>Example Travel added.</b>", "<h2>安装 Example Travel?</h2><p class=\"cap\">Fake Plan</p>",
+        "<b>准备安装</b>", "<h2>安装 Example Travel?</h2><p class=\"cap\">Fake Plan</p>",
         "该配置文件将安装在您路由器的 eSIM 上并保持非活动状态，直到您切换到它。 2分钟内确认。",
         "<button class=\"btn btn-wide teal\" type=\"submit\" form=\"eaddf\" formaction=\"/ui/router/esim/add/install\">安装配置文件</button>",
         "formaction=\"/ui/router/esim/add/cancel\">取消下载</button>", "@get('/ui/live/esimadd/",
@@ -425,7 +425,7 @@ async fn the_download_card_follows_the_app() {
     // Installing: it can no longer be cancelled.
     let _f = fake::set(&c.app, json!({"state": "running", "step": "es10b_load_bound_profile_package"}));
     let html = get_with(&c, ADD, peer(174, 4), &cookie).await.text();
-    assert!(html.contains("<b>Example Travel added.</b>") && html.contains("请保持路由器供电。当前安装阶段无法取消。"), "{html}");
+    assert!(html.contains("<b>在eSIM…上安装</b>") && html.contains("请保持路由器供电。当前安装阶段无法取消。"), "{html}");
     assert!(!html.contains("取消下载"), "{html}");
     // Done: from eSIM Profiles' card (`?dl=1`), Switch to it now or Later;
     // a plain Add eSIM starts over (the app's "+").
@@ -434,7 +434,7 @@ async fn the_download_card_follows_the_app() {
     for want in [
         "<b>Example Travel added.</b>", "添加到您的路由器。您当前的配置文件仍然有效。",
         "<a class=\"btn teal\" href=\"/ui/router/esim/switch?new=1\">立即切换</a><a class=\"btn btn-quiet\" href=\"/ui/router/esim\">后来</a>",
-        "完成</a></div>",
+        ">完成</a></div>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -454,18 +454,18 @@ async fn the_download_card_follows_the_app() {
     // the app's); a server's echo of a code is not shown.
     let _f = fake::set(&c.app, json!({"state": "failed", "step": "es9p_authenticate_client", "error": "es9p_authenticate_client: matching ID not found (fake)"}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<b>Example Travel added.</b>") && html.contains("<p>es9p_authenticate_个客户端: matching ID not found (fake)</p>"), "{html}");
+    assert!(html.contains("<b>无法添加配置文件</b>") && html.contains("<p>es9p_authenticate_个客户端: matching ID not found (fake)</p>"), "{html}");
     assert!(html.contains("<a class=\"btn\" href=\"/ui/router/esim/add?manual=1\">重试</a>"), "{html}");
     let html = get_with(&c, "/ui/router/esim/add?manual=1", peer(174, 7), &cookie).await.text();
     assert!(html.contains("<details class=\"eopt\" open><summary>") && html.contains("手动输入代码</summary>"), "{html}");
-    let echo = format!("es9p_authenticate_client: unknown code {CODE}\tfor\nlpa:1$x$FAKE-0000");
+    let echo = format!("es9p_authenticate_client: unknown code {CODE}	for\nlpa:1$x$FAKE-0000");
     let _f = fake::set(&c.app, json!({"state": "failed", "step": "es9p_authenticate_client", "error": echo}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
     assert!(html.contains("<p>es9p_authenticate_个客户端: unknown code … for …</p>") && !html.contains("FAKE") && !html.contains("example.com"), "{html}");
     // Cancelled by the 2-minute limit.
     let _f = fake::set(&c.app, json!({"state": "cancelled", "error": "not confirmed within 2 minutes"}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<b>Example Travel added.</b>") && html.contains("未在两分钟内确认。"), "{html}");
+    assert!(html.contains("<b>下载已取消</b>") && html.contains("未在两分钟内确认。"), "{html}");
     // eSIM Profiles' card opens the download as it is.
     let html = get_with(&c, "/ui/router/esim", peer(174, 8), &cookie).await.text();
     assert!(html.contains("<a class=\"card edl\" href=\"/ui/router/esim/add?dl=1\">"), "{html}");

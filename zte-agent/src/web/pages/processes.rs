@@ -474,14 +474,14 @@ mod tests {
         assert_eq!(s.matches("class=\"kl\"").count(), 2);
         assert!(!s.contains("<form") && !s.contains("<input"));
         let sum = summary(&v).into_string();
-        assert!(sum.contains("Bloat Daemons") && sum.contains("<small class=\"fg\">3 个进程</small><small>4.2% CPU, 22.6 MB RSS</small>"), "{sum}");
+        assert!(sum.contains("个冗余守护进程") && sum.contains("<small class=\"fg\">3 个进程</small><small>4.2% CPU, 22.6 MB RSS</small>"), "{sum}");
         assert!(kill_all_link(&v).into_string().contains("<a class=\"nl c-red\" href=\"/ui/health/processes/kill-all\">结束所有冗余进程</a>"));
         // Only bloat Kill All leaves (all of it in the list): no Kill All
         // Bloat; one more bloat daemon outside the top 50: it is back.
         let rows = json!([{"pid": 6, "name": SMS}, {"pid": 7, "name": "zte_topsw_mc"}, {"pid": 8, "name": "init"}]);
         let kept = views(Some(json!({"bloat_count": 2, "processes": rows.clone()})), None);
         assert_eq!(kill_all_link(&kept).into_string(), "<span id=\"pr-all\"></span>");
-        assert!(summary(&kept).into_string().contains("Bloat Daemons"));
+        assert!(summary(&kept).into_string().contains("个冗余守护进程"));
         let more = views(Some(json!({"bloat_count": 3, "processes": rows})), None);
         assert!(kill_all_link(&more).into_string().contains(">结束所有冗余进程</a>"));
         // No bloat: no summary, no Kill All Bloat.
@@ -496,7 +496,7 @@ mod tests {
         assert!(failed.contains("role=\"alert\">no /proc<") && !failed.contains("Loading"), "{failed}");
         // The app's order: the bloat summary, then the error.
         let both = summary(&views(Some(fixture()), Some("no /proc"))).into_string();
-        assert!(both.find("Bloat Daemons").unwrap() < both.find("no /proc").unwrap(), "{both}");
+        assert!(both.find("个冗余守护进程").unwrap() < both.find("no /proc").unwrap(), "{both}");
     }
 
     #[test]
@@ -538,9 +538,9 @@ mod tests {
         let d = json!({"killed": [{"pid": 812, "name": "zte_topsw_diag"}], "skipped": [], "freed_rss_kb": 900});
         assert_eq!(killed_one(&one, &d), (Some(true), "结束PID 812，释放900 KB".into()));
         let gone = json!({"killed": [], "skipped": [{"pid": 812, "name": "zte_topsw_diag"}], "freed_rss_kb": 0});
-        assert_eq!(killed_one(&one, &gone), (Some(false), "PID 812 was not killed.".into()));
-        assert_eq!(killed_one(&one, &json!({"killed": [{"pid": 9}]})), (Some(false), "PID 812 was not killed.".into()));
-        assert_eq!(killed_one(&one, &Value::Null), (Some(false), "PID 812 is no longer zte_topsw_diag. Nothing was killed.".into()));
+        assert_eq!(killed_one(&one, &gone), (Some(false), "未结束 PID 812。".into()));
+        assert_eq!(killed_one(&one, &json!({"killed": [{"pid": 9}]})), (Some(false), "未结束 PID 812。".into()));
+        assert_eq!(killed_one(&one, &Value::Null), (Some(false), "PID 812 已不再属于 zte_topsw_diag，未结束任何进程。".into()));
     }
 
     #[test]
@@ -548,9 +548,9 @@ mod tests {
         assert!(warnings("zte_topsw_diag", true).is_empty());
         let w = warnings(SMS, true);
         assert_eq!(w.len(), 1);
-        assert!(w[0].starts_with("zte_topsw_wms handles SMS") && w[0].contains("SMS tab, sending and forwarding"));
+        assert!(w[0].starts_with("zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。") && w[0].contains("zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。"));
         assert_eq!(warnings("zte_dm", false), ["zte_dm is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."]);
-        assert!(warnings("zte_dm", true)[1].starts_with("你正在远程连接："));
+        assert!(warnings("zte_dm", true)[1].starts_with("You are connected remotely: "));
     }
 
     /// Render a confirmation block from a read, as a page would.
@@ -569,10 +569,9 @@ mod tests {
     fn kill_confirmations_name_the_daemons() {
         let s = confirm(kill_page, Ok(json!({"pid": 812, "name": "zte_topsw_diag"})), false);
         for want in [
-            "<h2 class=\"q\">结束zte_topsw_mc？</h2>", "<li>SIGKILL PID 812. It will return on reboot.</li>",
+            "<h2 class=\"q\">结束zte_topsw_diag？</h2>", "<li>将向 PID 812 发送 SIGKILL，重启后该进程会恢复。</li>",
             "<form class=\"panel\" method=\"post\" action=\"/ui/health/processes/kill\">",
-            "<input type=\"hidden\" name=\"pid\" value=\"812\"><input type=\"hidden\" name=\"name\" value=\"zte_topsw_diag\">\
-             <input type=\"hidden\" name=\"confirm\" value=\"1\">",
+            "<input type=\"hidden\" name=\"pid\" value=\"812\"><input type=\"hidden\" name=\"name\" value=\"zte_topsw_diag\"><input type=\"hidden\" name=\"confirm\" value=\"1\">",
             "<button class=\"btn btn-danger\" type=\"submit\">结束进程</button>",
             "<a class=\"btn btn-quiet\" href=\"/ui/health/processes\">取消</a>",
         ] {
@@ -581,7 +580,7 @@ mod tests {
         assert_eq!(s.matches("<li>").count(), 1);
         // The SMS daemon and a daemon.conf one: warned, still possible.
         let s = confirm(kill_page, Ok(json!({"pid": 400, "name": SMS})), false);
-        assert!(s.contains("<li>zte_topsw_wms handles SMS:") && s.contains("结束进程</button>"), "{s}");
+        assert!(s.contains("<li>zte_topsw_wms handles SMS:") && s.contains(">结束进程</button>"), "{s}");
         let s = confirm(kill_page, Ok(json!({"pid": 401, "name": "zte_topsw_mc"})), true);
         assert!(s.contains("boot-critical firmware daemon (daemon.conf)") && s.contains("connected remotely"), "{s}");
         // Not bloat, or gone: no form.
@@ -593,9 +592,9 @@ mod tests {
         let read = split(&[(5, "zte_topsw_diag".into()), (6, SMS.into()), (8, "zte_topsw_diag".into()), (9, "zte_dua".into()), (11, "zte_dm".into())]);
         let s = confirm(kill_all_page, Ok(read), false);
         for want in [
-            "<h2 class=\"q\">结束zte_topsw_mc？</h2>", "<li>这将使 SIGKILL 3 使守护进程膨胀。他们将在重新启动后返回。</li>",
+            "<h2 class=\"q\">结束所有冗余守护进程？</h2>", "<li>这将使 SIGKILL 3 使守护进程膨胀。他们将在重新启动后返回。</li>",
             "<li>zte_topsw_diag, zte_dua</li>", "<li>Left running: zte_topsw_wms, zte_dm. The SMS daemon",
-            "action=\"/ui/health/processes/kill-all\"", "结束进程</button>",
+            "action=\"/ui/health/processes/kill-all\"", ">结束所有冗余进程</button>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }

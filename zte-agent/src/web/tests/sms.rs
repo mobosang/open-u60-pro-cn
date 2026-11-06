@@ -206,7 +206,7 @@ async fn messages_stream_a_new_message_notice() {
     let mut b = resp.into_body().into_data_stream();
     let first = frame(&mut b).await.unwrap();
     assert!(first.contains("<div id=\"sms-new\"></div>"), "{first}");
-    assert!(first.contains("<span class=\"lost\"> No updates for 15 s · <a href=\"\">刷新</a>"), "{first}");
+    assert!(first.contains("<span class=\"lost\"> 15 秒未更新 · <a href=\"\">刷新</a>"), "{first}");
     sms_event();
     let mut seen = String::new();
     for _ in 0..4 {
@@ -409,7 +409,7 @@ async fn a_reply_is_sent_once() {
     let other = format!("zte_ui_session={}", login(&c, 64, 9).await);
     let theirs = get_with(&c, &format!("/ui/sms/t/{k0}"), peer(64, 9), &other).await.input("once");
     let r = post(&c, SEND, peer(64, 4), &cookie, &body(&theirs, "Hi")).await;
-    assert!(r.status == 400 && r.text().contains("此表单已过期"));
+    assert!(r.status == 400 && r.text().contains("This form expired"));
     assert_eq!(calls(&c).len(), 1);
 
     // The device rejects it: the text kept, the app's words; a replay shows
@@ -466,7 +466,7 @@ async fn a_reply_is_sent_once() {
             let tok = get_with(&c, &format!("/ui/sms/t/{k0}"), peer(64, 6), &cookie).await.input("once");
             c.once.update(&tok, sid, c.app.auth.now(), |t| *t = Token::Sending(twice));
             let r = post(&c, SEND, peer(64, 7), &cookie, &body(&tok, "Other")).await;
-            assert!(r.status == 400 && r.text().contains("此表单已过期") && r.text().contains(">Other</textarea>"), "{}", r.text());
+            assert!(r.status == 400 && r.text().contains("This form expired") && r.text().contains(">Other</textarea>"), "{}", r.text());
         }
     }
     assert_eq!(calls(&c).len(), 3);
@@ -577,20 +577,20 @@ async fn a_new_message_is_sent_once() {
     let body = |tok: &str, number: &str, text: &str| format!("csrf={csrf}&once={tok}&number={}&text={}", enc(number), enc(text));
     let sent = "/ui/sms?saved=sent";
     // Sent: to the typed number (trimmed), as the app's request; Messages says so.
-    post(&c, SEND, peer(65, 3), &cookie, &body(&tok, " +15555550199 ", "Fake hello \u{1F600}")).await.assert_see_other(sent);
+    post(&c, SEND, peer(65, 3), &cookie, &body(&tok, " +15555550199 ", "Fake hello 😀")).await.assert_see_other(sent);
     let done = calls(&c);
     assert_eq!(done.len(), 1);
     let (path, b) = &done[0];
     assert_eq!((*path, b["number"].as_str(), b["id"].as_str(), b["encode_type"].as_str()), ("/api/sms/send", Some("+15555550199"), Some("-1"), Some("UNICODE")));
-    assert_eq!(b["message_body"], encode_ucs2("Fake hello \u{1F600}"));
+    assert_eq!(b["message_body"], encode_ucs2("Fake hello 😀"));
     let list = get_with(&c, sent, peer(65, 3), &cookie).await.text();
     assert!(list.contains("<p class=\"msg info\" role=\"status\">消息已发送</p>"), "{list}");
     // A double click or a reload: nothing is sent again.
-    post(&c, SEND, peer(65, 3), &cookie, &body(&tok, "+15555550199", "Fake hello \u{1F600}")).await.assert_see_other(sent);
+    post(&c, SEND, peer(65, 3), &cookie, &body(&tok, "+15555550199", "Fake hello 😀")).await.assert_see_other(sent);
     assert_eq!(calls(&c).len(), 1);
     // The used token with another text or number (an old copy of the
     // form): an expired form with the values, never "Message sent".
-    for (number, text) in [("+15555550199", "Fake hello"), ("+15555550100", "Fake hello \u{1F600}")] {
+    for (number, text) in [("+15555550199", "Fake hello"), ("+15555550100", "Fake hello 😀")] {
         let r = post(&c, SEND, peer(65, 3), &cookie, &body(&tok, number, text)).await;
         r.assert_secure_html(400);
         assert!(r.text().contains("<span>此表单已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
@@ -732,13 +732,12 @@ async fn deleting_a_conversation_is_confirmed() {
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
-        "<title>短信 · U60 Pro</title>",
+        "<title>删除 conversation? · U60 Pro</title>",
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/sms\">短信</a></div><h1>确认</h1>",
         "<h2 class=\"q\">删除对话？</h2>",
         "<li>这将从 3 中删除所有 +15555550100 消息。</li>",
         "<form class=\"panel\" method=\"post\" action=\"/ui/sms/delete\">",
-        &format!("<input type=\"hidden\" name=\"t\" value=\"{k0}\"><input type=\"hidden\" name=\"fp\" value=\"3-12\">\
-                  <input type=\"hidden\" name=\"confirm\" value=\"1\">"),
+        &format!("<input type=\"hidden\" name=\"t\" value=\"{k0}\"><input type=\"hidden\" name=\"fp\" value=\"3-12\"><input type=\"hidden\" name=\"confirm\" value=\"1\">"),
         "<button class=\"btn btn-danger\" type=\"submit\">删除</button><a class=\"btn btn-quiet\" href=\"/ui/sms\">取消</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");

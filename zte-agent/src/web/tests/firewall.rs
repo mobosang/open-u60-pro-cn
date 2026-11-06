@@ -88,20 +88,20 @@ async fn firewall_page_switches_and_level() {
     let html = r.text();
     let g = html.split("&amp;g=").nth(1).unwrap()[..16].to_owned();
     has(&html, &[
-        "<h1>确认</h1>", "href=\"/ui/router\">路由器</a>", "<h2>防火墙</h2>", "<span>状态</span><span class=\"c-green\">已启用</span>",
+        "<h1>防火墙</h1>", "href=\"/ui/router\">路由器</a>", "<h2>防火墙</h2>", "<span>状态</span><span class=\"c-green\">已启用</span>",
         "<a class=\"it bt\" href=\"/ui/router/firewall/switch?on=0\"><span>禁用防火墙</span></a>",
         "<span aria-current=\"true\">中等</span>", "<a href=\"/ui/router/firewall/level?level=high\">高</a>",
         "<span>万平</span><span class=\"v\">允许</span>", "<h2>网络地址转换/UPnP</h2>",
         "<a class=\"sw\" href=\"/ui/router/firewall/nat?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"NAT\">",
         "<a class=\"sw\" href=\"/ui/router/firewall/upnp?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"通用即插即用\">",
         "<form class=\"rf dmz\" method=\"post\" action=\"/ui/router/firewall/dmz\" autocomplete=\"off\">",
-        "<input class=\"sr\" id=\"dmz\" type=\"checkbox\" role=\"switch\" name=\"dmz\" value=\"1\">", "DMZ主机IP", "禁用防火墙</button>",
+        "<input class=\"sr\" id=\"dmz\" type=\"checkbox\" role=\"switch\" name=\"dmz\" value=\"1\">", "DMZ主机IP", ">申请DMZ</button>",
         "<h2>端口转发</h2>", "<a class=\"it bt\" href=\"/ui/router/firewall/port-forward/new\">", "添加规则",
-        "<b class=\"nm\">Web</b><small class=\"c-green\">已启用</small>", "TCP WAN:8080 \u{2192} 192.168.0.50:80",
-        "<b class=\"nm\">规则</b><small>未启用</small>", "UDP WAN:3074 \u{2192} 192.168.0.60:3074",
+        "<b class=\"nm\">Web</b><small class=\"c-green\">已启用</small>", "TCP WAN:8080 → 192.168.0.50:80",
+        "<b class=\"nm\">规则</b><small>未启用</small>", "UDP WAN:3074 → 192.168.0.60:3074",
         "href=\"/ui/router/firewall/port-forward/delete?id=cfg0a1b2c&amp;g=", "aria-label=\"删除 Web\"",
-        "<h2>MAC/IP/端口过滤器</h2>", "MAC: \u{2022}\u{2022}:\u{2022}\u{2022}:\u{2022}\u{2022}:\u{2022}\u{2022}:3a:7f",
-        "192.168.0.70: \u{2192} 203.0.113.9:443",
+        "<h2>MAC/IP/端口过滤器</h2>", "MAC: ••:••:••:••:3a:7f",
+        "192.168.0.70: → 203.0.113.9:443",
     ]);
     assert!(!html.contains("02:00:5e") && !html.contains("Coming to the web UI"), "{html}");
     assert!(g.bytes().all(|b| b.is_ascii_hexdigit()), "{g}");
@@ -112,7 +112,7 @@ async fn firewall_page_switches_and_level() {
     has(&q.text(), &[
         "<h2 class=\"q\">关闭防火墙？</h2>", "路由器上的设备失去防火墙’ 的互联网保护。",
         "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。",
-        "<input type=\"hidden\" name=\"on\" value=\"0\">", "禁用防火墙</button>", "href=\"/ui/router/firewall\">取消</a>",
+        "<input type=\"hidden\" name=\"on\" value=\"0\">", ">禁用防火墙</button>", "href=\"/ui/router/firewall\">取消</a>",
     ]);
     assert!(!q.text().contains("connected remotely") && !q.text().contains("路由器本身及此管理网页可能变得可从移动网络访问，届时仅由 Agent 密码保护。"), "{}", q.text());
     let once = q.input("once");
@@ -134,9 +134,9 @@ async fn firewall_page_switches_and_level() {
     assert_eq!(calls(&c).len(), 1);
     // Turning it on or raising the level can lock a remote browser out.
     let q = get_with(&c, "/ui/router/firewall/switch?on=1", tailnet(41001), &cookie).await.text();
-    has(&q, &["是否开启防火墙？", "防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。", "你正在远程连接", "禁用防火墙</button>"]);
+    has(&q, &["是否开启防火墙？", "防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。", "You are connected remotely", ">启用防火墙</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=high", tailnet(41002), &cookie).await.text();
-    has(&q, &["<h2 class=\"q\">关闭防火墙？</h2>", "blocks more connections at High", "你正在远程连接", "禁用防火墙</button>"]);
+    has(&q, &["<h2 class=\"q\">将防火墙级别设置为High？</h2>", "blocks more connections at High", "You are connected remotely", ">设置级别</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=low", tailnet(41003), &cookie).await.text();
     has(&q, &["将防火墙级别设置为Low？", "lets more connections from the internet through at Low", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。"]);
     assert!(!q.contains("connected remotely") && !q.contains("防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。"), "{q}");
@@ -182,7 +182,7 @@ async fn dmz_and_new_port_forward() {
     let r = post(&c, DMZ, peer(211, 2), &cookie, &body(&csrf, &once, &[("dmz", "1"), ("ip", "192.168.0.77")])).await;
     assert_eq!(to(&r), format!("{DMZ}?t={once}"));
     let q = get_with(&c, &to(&r), peer(211, 2), &cookie).await;
-    has(&q.text(), &["<h2 class=\"q\">将192.168.0.77设为DMZ主机？</h2>", "every port of that device can be reached from the internet", "申请DMZ</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">将192.168.0.77设为DMZ主机？</h2>", "every port of that device can be reached from the internet", ">申请DMZ</button>"]);
     let confirm = format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"));
     let done = to(&post(&c, DMZ, peer(211, 2), &cookie, &confirm).await);
     assert_eq!(calls(&c), vec![("/api/router/firewall/dmz".to_owned(), json!({"dmz_enabled": "1", "dmz_ip": "192.168.0.77", "dmz_enable": 1}))]);
@@ -191,9 +191,9 @@ async fn dmz_and_new_port_forward() {
     let f = get_with(&c, NEW, peer(211, 3), &cookie).await;
     f.assert_secure_html(200);
     has(&f.text(), &[
-        "<h1>确认</h1>", "<a class=\"nl\" href=\"/ui/router/firewall\">取消</a>", "<h2>规则</h2>", "placeholder=\"名称\"",
+        "<h1>新建端口转发</h1>", "<a class=\"nl\" href=\"/ui/router/firewall\">取消</a>", "<h2>规则</h2>", "placeholder=\"名称\"",
         "<option value=\"tcp+udp\">TCP + UDP</option>", "<h2>WAN</h2>", "placeholder=\"广域网端口\"", "<h2>LAN</h2>", "placeholder=\"LAN IP\"",
-        "placeholder=\"局域网接口\"", "申请DMZ</button>",
+        "placeholder=\"局域网接口\"", ">添加规则</button>",
     ]);
     let once = f.input("once");
     let typed = |name: &'static str, proto: &'static str, wan: &'static str, ip: &'static str, lan: &'static str| {
@@ -211,7 +211,7 @@ async fn dmz_and_new_port_forward() {
     assert!(r.text().contains("WAN口8080已转发。"), "{}", r.text());
     let r = post(&c, ADD, peer(211, 3), &cookie, &typed("Cam", "udp", "8080", "192.168.0.80", "554")).await;
     let q = get_with(&c, &to(&r), peer(211, 3), &cookie).await;
-    has(&q.text(), &["<h2 class=\"q\">将192.168.0.77设为DMZ主机？</h2>", "UDP WAN port 8080 goes to 192.168.0.80:554", "申请DMZ</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">添加“Cam”？</h2>", "UDP WAN port 8080 goes to 192.168.0.80:554", ">添加规则</button>"]);
     // A device failure: the form as typed, with the app's "Failed: …".
     let _fail = device::set(&c.app, device::Device {
         replies: vec![("/api/router/firewall/port-forward", (503, json!({"ok": false, "error": "ubus call zwrt_router.api router_set_portforward failed: Invalid argument"})))],
@@ -256,7 +256,7 @@ async fn port_forward_delete_names_its_list() {
     let href = html[at + 6..at + 6 + html[at + 6..].find('"').unwrap()].replace("&amp;", "&");
     let q = get_with(&c, &href, peer(212, 2), &cookie).await;
     q.assert_secure_html(200);
-    has(&q.text(), &["<h2 class=\"q\">删除“Web”？</h2>", "TCP WAN:8080 \u{2192} 192.168.0.50:80 stops", ">删除</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">删除“Web”？</h2>", "TCP WAN:8080 → 192.168.0.50:80 stops", ">删除</button>"]);
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     let g = q.input("g");
     // Another rule appears: the question and the post refuse.

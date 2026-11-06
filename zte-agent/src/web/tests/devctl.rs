@@ -76,7 +76,7 @@ async fn device_controls_follow_the_app() {
         "启用后，断电后将暂停至 RAM，以实现近乎即时的启动。禁用使用完全关闭（关闭时节省电池）。",
         "<input type=\"hidden\" name=\"timeout\" value=\"10\"><input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"自动睡眠\">",
         "<label for=\"tmo\">空闲超时</label><form class=\"sf\" method=\"post\" action=\"/ui/router/device/auto-sleep\">",
-        "<option value=\"10\" selected>10 min</option>", "<option value=\"60\">1 hour</option>", "<option value=\"120\">2 hours</option>",
+        "<option value=\"10\" selected>10 分钟</option>", "<option value=\"60\">1 小时</option>", "<option value=\"120\">2 小时</option>",
         "当没有 WiFi 客户端连接并且空闲超时到期时，自动进入低功耗睡眠。按电源按钮唤醒。",
         "<a class=\"it bt\" href=\"/ui/router/device/reboot\">重启路由器</a>", "路由器将重新启动。这大约需要 60 秒。",
         "<a class=\"it bt danger\" href=\"/ui/router/device/factory-reset\">恢复出厂设置</a>",
@@ -241,12 +241,12 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     r.assert_secure_html(200);
     let html = r.text();
     has(&html, &[
-        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/device\">取消</a></div><h1>恢复出厂设置</h1>",
+        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/device\">取消</a></div><h1>重启路由器</h1>",
         "<form class=\"rf req\" method=\"post\" action=\"/ui/router/device/reboot\">",
-        "<p class=\"cap\">这将删除所有设置。输入您的路由器密码进行确认。</p>",
+        "<p class=\"cap\">输入您的路由器密码以确认重启。</p>",
         "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"路由器管理密码\" autocomplete=\"current-password\" required>",
-        "<p class=\"foot\">这将清除所有设置并恢复出厂默认设置。此操作无法撤消。</p>",
-        "<button class=\"it cv snd danger\" type=\"submit\">恢复出厂设置</button>",
+        "<p class=\"foot\">路由器将重新启动。这大约需要 60 秒。</p>",
+        "<button class=\"it cv snd danger\" type=\"submit\">重启</button>",
     ]);
     assert!(!html.contains("connected remotely"));
     let token = r.input("once");
@@ -265,7 +265,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     // Wrong: nothing sent, the password not echoed.
     let r = post(&c, REBOOT, peer(223, 3), &cookie, &format!("csrf={csrf}&once={token}&password=fake-wrong-1")).await;
     r.assert_secure_html(401);
-    has(&r.text(), &["<p class=\"ferr\" id=\"rpw-err\">尝试次数过多，请在 1 秒后重试。</p>", "aria-invalid=\"true\""]);
+    has(&r.text(), &["<p class=\"ferr\" id=\"rpw-err\">密码错误</p>", "aria-invalid=\"true\""]);
     assert!(!r.text().contains("fake-wrong-1"));
     // The session and CSRF first.
     post(&c, REBOOT, peer(223, 3), &cookie, &format!("once={token}&password={}", enc(PW))).await.assert_secure_html(403);
@@ -280,7 +280,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     for r in [a, b] {
         r.assert_secure_html(200);
         has(&r.text(), &[
-            "<h1>恢复出厂设置</h1>", "<p class=\"msg ok\" role=\"status\">路由器正在重启...</p>",
+            "<h1>正在重启…</h1>", "<p class=\"msg ok\" role=\"status\">路由器正在重启...</p>",
             "路由器将在约一分钟后恢复。重启会使所有浏览器退出登录，需要重新登录。",
             "<a class=\"btn\" href=\"/ui/\">重新加载</a>",
         ]);
@@ -291,7 +291,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     let token = get_with(&c, RESET, peer(223, 5), &cookie).await.input("once");
     let r = post(&c, RESET, peer(223, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await;
     r.assert_secure_html(200);
-    has(&r.text(), &["<h1>恢复出厂设置</h1>", "<p class=\"msg ok\" role=\"status\">恢复出厂设置已启动...</p>", "路由器清除其设置并重新启动。其 Wi-Fi 名称、Wi-Fi 密码和地址将恢复为出厂默认值，因此您可能需要先加入其默认 Wi-Fi 网络。"]);
+    has(&r.text(), &["<h1>正在重置…</h1>", "<p class=\"msg ok\" role=\"status\">恢复出厂设置已启动...</p>", "路由器清除其设置并重新启动。其 Wi-Fi 名称、Wi-Fi 密码和地址将恢复为出厂默认值，因此您可能需要先加入其默认 Wi-Fi 网络。"]);
     assert_eq!(calls(&c)[1], ("/api/device/factory-reset".to_owned(), json!({})));
     let fail = (503, json!({"ok": false, "error": "ubus call zwrt_bsp.power factory_reset failed: fake"}));
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/device/factory-reset", fail)], ..Default::default() });
