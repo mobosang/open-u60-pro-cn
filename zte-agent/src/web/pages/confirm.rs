@@ -366,12 +366,12 @@ fn question(kind: Kind, input: &Input, remote: bool, read: Option<(&Result<Value
             ask("开始速度测试？", lines, "启动速度测试", false)
         }
         Kind::Adb => ask(
-            "启用亚行？",
+            "启用 ADB？",
             vec![
                 "任何插入 USB-C 端口的设备都会在路由器上获得 root shell，无需密码。".into(),
                 "使用 USB-C 电缆进行网络连接的计算机可能会在 USB 模式更改时丢失该电缆。".into(),
             ],
-            "启用亚行",
+            "启用 ADB",
             true,
         ),
         Kind::Nr if input.bands.is_empty() => nothing("至少选择一个 NR 频段", Vec::new()),

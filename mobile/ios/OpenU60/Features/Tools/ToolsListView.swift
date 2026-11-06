@@ -47,7 +47,7 @@ struct ToolsListView: View {
                     }
 
                     NavigationLink(value: Route.enableADB) {
-                        Label("启用亚行", systemImage: "cable.connector.horizontal")
+                        Label("启用 ADB", systemImage: "cable.connector.horizontal")
                     }
 
                     NavigationLink(value: Route.usbMode) {

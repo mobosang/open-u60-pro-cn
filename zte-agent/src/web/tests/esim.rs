@@ -103,7 +103,7 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
         "<small class=\"active\">", "已启用</small><b>GOMO u60</b><small class=\"cap\">GOMO</small><small class=\"cap num\">…0101</small>",
         "<h2 class=\"esub\">切换到其他配置文件</h2>", "<b>Klook_app</b><small class=\"cap\">Travel - PHL</small>",
         "aria-label=\"不可用\"", "添加 eSIM</a>", "切换会使互联网暂停大约一分钟。您的路由器的 Wi-Fi 保持开启状态。",
-        "<b>运营商收据</b><small class=\"cap\">2 条待处理 · 自动重试</small>", "为什么这些人在等待？",
+        "<b>运营商回执</b><small class=\"cap\">2 条待处理 · 自动重试</small>", "为什么这些人在等待？",
         "action=\"/ui/router/esim/receipts\"", "立即发送</button>", "<b>eSIM 卡</b><small class=\"cap\">卡片详情与标识符</small>",
         "<span>固件</span><span class=\"v\">4.2.0</span>", "<span>可用内存</span><span class=\"v\">913 KB</span>",
         "•••• •••• •••• …0000", "href=\"/ui/router/esim?eid=1#chip\" aria-label=\"揭示EID\"", "@get('/ui/live/esim/",
@@ -232,7 +232,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     assert!(remote.contains(super::super::pages::confirm::REMOTE) && remote.contains("如果新配置文件没有收到数据，路由器不会自行切换回来。"), "{remote}");
     assert!(!remote.contains("travel (roaming)"));
     // Nothing to ask: the active profile, a test profile, an unknown key.
-    for (p, title) in [(&active, "GOMO u60 is already active."), (&test, "Test profile can’t be switched to here.")] {
+    for (p, title) in [(&active, "GOMO u60 已处于启用状态。"), (&test, "Test profile can’t be switched to here.")] {
         let page = get_with(&c, &format!("{SWITCH}?p={p}"), peer(162, 4), &cookie).await.text();
         assert!(page.contains(&format!("<h2 class=\"q\">{title}</h2>")) && !page.contains("name=\"once\""), "{page}");
     }
@@ -352,7 +352,7 @@ async fn delete_and_rename_follow_the_app() {
         assert!(q.contains(want), "{want} in {q}");
     }
     let active = get_with(&c, &format!("{DELETE}?p={gomo}"), peer(164, 3), &cookie).await.text();
-    assert!(active.contains("<h2 class=\"q\">GOMO u60 is active.</h2>") && !active.contains("name=\"once\""), "{active}");
+    assert!(active.contains("<h2 class=\"q\">GOMO u60 已启用。</h2>") && !active.contains("name=\"once\""), "{active}");
     let body = format!("csrf={}&p={dito}&once={}&confirm=1", page_csrf(&q), once(&q));
     let (a, b) = tokio::join!(post(&c, DELETE, peer(164, 4), &cookie, &body), post(&c, DELETE, peer(164, 4), &cookie, &body));
     assert_eq!(to(&a), to(&b));
@@ -402,15 +402,15 @@ async fn send_now_reports_the_receipts() {
     let list = get_with(&c, LIST, peer(165, 2), &cookie).await.text();
     let body = format!("csrf={}&once={}", page_csrf(&list), once(&list));
     let html = get_with(&c, &to(&post(&c, RECEIPTS, peer(165, 3), &cookie, &body).await), peer(165, 3), &cookie).await.text();
-    assert!(html.contains("<b>运营商收据</b><p>Some receipts couldn&#39;t be sent yet. The router keeps retrying.</p>")
-        || html.contains("<b>运营商收据</b><p>部分收据尚未发送。路由器不断重试。</p>"), "{html}");
+    assert!(html.contains("<b>运营商回执</b><p>Some receipts couldn&#39;t be sent yet. The router keeps retrying.</p>")
+        || html.contains("<b>运营商回执</b><p>部分回执尚未发送。路由器不断重试。</p>"), "{html}");
     assert_eq!(calls(&c), [("/api/esim/notifications/process".to_owned(), json!({}))]);
     let sent = ("/api/esim/notifications", Ok(json!({"count": 0, "pending": []})));
     let _dev = device::set(&c.app, device_with(vec![], vec![sent]));
     let list = get_with(&c, LIST, peer(165, 4), &cookie).await.text();
     let body = format!("csrf={}&once={}", page_csrf(&list), once(&list));
     let html = get_with(&c, &to(&post(&c, RECEIPTS, peer(165, 4), &cookie, &body).await), peer(165, 4), &cookie).await.text();
-    assert!(html.contains("<b>运营商收据</b><p>发送的运营商收据。</p>"), "{html}");
+    assert!(html.contains("<b>运营商回执</b><p>发送的运营商回执。</p>"), "{html}");
 }
 
 /// Every eSIM post refuses a missing CSRF token or a foreign origin and

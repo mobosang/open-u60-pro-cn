@@ -531,7 +531,7 @@ mod tests {
         let freed = json!({"killed": [{"pid": 5}, {"pid": 8}], "skipped": [], "freed_rss_kb": 2048});
         assert_eq!(killed_all(&v, &freed), (Some(true), "结束2守护进程，释放2.0 MB".into()));
         // Nothing to kill by the time of the post: nothing sent, a neutral line.
-        let none = "No bloat daemons that are safe to kill are running. Nothing was killed.";
+        let none = "没有可以安全结束的冗余守护进程正在运行。未结束任何进程。";
         assert_eq!(killed_all(&v, &Value::Null), (None, none.into()));
         // The app's line only for a PID the agent reports killed.
         let one = Valid::of(&[("pid", "812"), ("name", "zte_topsw_diag")]);
@@ -549,7 +549,7 @@ mod tests {
         let w = warnings(SMS, true);
         assert_eq!(w.len(), 1);
         assert!(w[0].starts_with("zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。") && w[0].contains("zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。"));
-        assert_eq!(warnings("zte_dm", false), ["zte_dm is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."]);
+        assert_eq!(warnings("zte_dm", false), ["zte_dm 是 daemon.conf 中的关键固件守护进程，结束它可能导致路由器异常，直到该进程重启。"]);
         assert!(warnings("zte_dm", true)[1].starts_with("你正在远程连接："));
     }
 
@@ -580,7 +580,7 @@ mod tests {
         assert_eq!(s.matches("<li>").count(), 1);
         // The SMS daemon and a daemon.conf one: warned, still possible.
         let s = confirm(kill_page, Ok(json!({"pid": 400, "name": SMS})), false);
-        assert!(s.contains("<li>zte_topsw_wms handles SMS:") && s.contains(">结束进程</button>"), "{s}");
+        assert!(s.contains("<li>zte_topsw_wms 负责短信:") && s.contains(">结束进程</button>"), "{s}");
         let s = confirm(kill_page, Ok(json!({"pid": 401, "name": "zte_topsw_mc"})), true);
         assert!(s.contains("boot-critical firmware daemon (daemon.conf)") && s.contains("connected remotely"), "{s}");
         // Not bloat, or gone: no form.

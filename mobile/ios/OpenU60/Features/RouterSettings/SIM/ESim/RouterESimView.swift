@@ -537,7 +537,7 @@ private struct ESimMessageCard: View {
                 Image(systemName: busy ? "hourglass" : housekeeping ? "paperplane" : (isError ? "exclamationmark.circle" : "checkmark.circle.fill"))
                     .font(.title3).foregroundStyle(isError && !housekeeping ? .orange : Color.eSimAccent)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(busy ? "eSIM in use" : housekeeping ? "运营商收据" : (isError ? "Can’t complete this right now" : "配置文件已更新")).font(.subheadline.weight(.semibold))
+                    Text(busy ? "eSIM in use" : housekeeping ? "运营商回执" : (isError ? "Can’t complete this right now" : "配置文件已更新")).font(.subheadline.weight(.semibold))
                     Text(message).font(.subheadline).foregroundStyle(.secondary).textSelection(.enabled)
                     if let guidance { Text(guidance).font(.caption).foregroundStyle(.secondary) }
                     if isError && !housekeeping {
@@ -580,13 +580,13 @@ private struct ESimReceiptsCard: View {
                     Image(systemName: "paperplane").foregroundStyle(.blue).font(.title3)
                         .frame(width: 40, height: 40).background(.blue.opacity(0.08), in: .rect(cornerRadius: 10))
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("运营商收据").font(.subheadline.weight(.semibold))
+                        Text("运营商回执").font(.subheadline.weight(.semibold))
                         Text(sending ? "Sending…" : "\(count) waiting · Retried automatically").font(.caption).foregroundStyle(.secondary)
                     }.frame(maxWidth: .infinity, alignment: .leading)
-                    if sending { ProgressView().accessibilityLabel("发送运营商收据") }
+                    if sending { ProgressView().accessibilityLabel("发送运营商回执") }
                 }
                 DisclosureGroup("为什么这些人在等待？", isExpanded: $expanded) {
-                    Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送收据。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。")
+                    Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送回执。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。")
                         .font(.caption).foregroundStyle(.secondary).padding(.top, 6)
                 }.font(.caption)
                 Button(action: send) { Label(sending ? "Sending receipts…" : "立即发送", systemImage: "arrow.up.circle") }

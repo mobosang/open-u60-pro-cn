@@ -217,7 +217,7 @@ async fn install_page_shows_the_ca_and_the_steps() {
     let html = r.text();
     for want in [
         &format!("<span class=\"v\">{}</span>", s.ca_name),
-        "<span>可以证明</span><span class=\"v\">192.168.0.1 and u60.home.arpa</span>",
+        "<span>可以证明</span><span class=\"v\">192.168.0.1 和 u60.home.arpa</span>",
         &format!("<span class=\"sr\">{}</span><small class=\"mono fp\" translate=\"no\" aria-hidden=\"true\">", s.sha256),
         &s.sha256.replace(':', ":<wbr>"),
         "came over plain http, so someone on your network could change it",

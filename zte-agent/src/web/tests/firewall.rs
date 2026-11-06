@@ -182,7 +182,7 @@ async fn dmz_and_new_port_forward() {
     let r = post(&c, DMZ, peer(211, 2), &cookie, &body(&csrf, &once, &[("dmz", "1"), ("ip", "192.168.0.77")])).await;
     assert_eq!(to(&r), format!("{DMZ}?t={once}"));
     let q = get_with(&c, &to(&r), peer(211, 2), &cookie).await;
-    has(&q.text(), &["<h2 class=\"q\">将192.168.0.77设为DMZ主机？</h2>", "every port of that device can be reached from the internet", ">申请DMZ</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">将192.168.0.77设为DMZ主机？</h2>", "该设备的所有端口都可能从互联网访问", ">申请DMZ</button>"]);
     let confirm = format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"));
     let done = to(&post(&c, DMZ, peer(211, 2), &cookie, &confirm).await);
     assert_eq!(calls(&c), vec![("/api/router/firewall/dmz".to_owned(), json!({"dmz_enabled": "1", "dmz_ip": "192.168.0.77", "dmz_enable": 1}))]);

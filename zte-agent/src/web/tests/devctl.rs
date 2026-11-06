@@ -203,7 +203,7 @@ async fn auto_sleep_on_is_asked_over_tailscale() {
     let qh = q.text();
     has(&qh, &[
         "<h1>确认</h1>", "<h2 class=\"q\">开启自动睡眠？</h2>",
-        "<li>当30 min没有连接Wi-Fi设备时，路由器进入休眠状态。按电源按钮将其唤醒。</li>",
+        "<li>当30 分钟没有连接Wi-Fi设备时，路由器进入休眠状态。按电源按钮将其唤醒。</li>",
         "<li>你正在远程连接：当路由器处于睡眠状态时，只有按下其电源按钮才能访问此页面。</li>",
         "<input type=\"hidden\" name=\"on\" value=\"1\"><input type=\"hidden\" name=\"timeout\" value=\"30\">",
         "<button class=\"btn btn-danger\" type=\"submit\">打开自动睡眠</button>", "href=\"/ui/router/device\">取消</a>",

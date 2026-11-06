@@ -223,8 +223,8 @@ final class RouterESimViewModel {
             try await Task.sleep(for: .seconds(8))
             let data = try await client.getJSON("/api/esim/notifications")
             if let count = data["count"] as? Int { pendingReceipts = count }
-            showMessage(pendingReceipts == 0 ? "发送的运营商收据。"
-                        : "部分收据尚未发送。路由器不断重试。", isError: pendingReceipts != 0)
+            showMessage(pendingReceipts == 0 ? "发送的运营商回执。"
+                        : "部分回执尚未发送。路由器不断重试。", isError: pendingReceipts != 0)
         } catch { if !error.isCancellation { showMessage(errorText(error), isError: true) } }
     }
 

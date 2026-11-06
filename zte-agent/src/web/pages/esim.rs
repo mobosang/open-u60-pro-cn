@@ -633,12 +633,12 @@ pub fn message(n: Notice) -> Markup {
     // The busy notice only (the app compares the text); any other line
     // without an outcome reads as one that could not complete.
     let busy = text == BUSY;
-    let receipts = lower.contains("receipts") || text.contains("收据");
+    let receipts = lower.contains("receipts") || text.contains("回执");
     let error = ok == Some(false) || (ok.is_none() && !busy);
     let (icon, title) = if busy {
         (Icon::Clock, "eSIM 正在使用中")
     } else if receipts {
-        (Icon::PaperPlane, "运营商收据")
+        (Icon::PaperPlane, "运营商回执")
     } else if error {
         (Icon::Alert, "暂时无法完成此操作")
     } else {
@@ -742,12 +742,12 @@ fn receipts(pd: &PageData, n: i64) -> Markup {
         section.card.erc {
             div.ehead {
                 span.eic.ebl { (kit::icon(Icon::PaperPlane)) }
-                div { b { "运营商收据" } small.cap { (n) " 条待处理 · 自动重试" } }
+                div { b { "运营商回执" } small.cap { (n) " 条待处理 · 自动重试" } }
             }
             details {
                 summary { "为什么这些人在等待？" }
                 p.cap {
-                    "添加、切换或删除配置文件时，您的 eSIM 会向运营商发送收据。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。"
+                    "添加、切换或删除配置文件时，您的 eSIM 会向运营商发送回执。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。"
                 }
             }
             form method="post" action=(RECEIPTS) {
@@ -1321,7 +1321,7 @@ pub async fn post(ctx: Ctx, req: Request, k: Post) -> Response {
     let out = Arc::clone(&counted);
     let read: job::Job = Box::new(move |app: &AppState| {
         let l = match super::api_get(app, NOTIFICATIONS) {
-            Ok(d) if fmt::int(&d["count"]) == Some(0) => (Some(true), "发送的运营商收据。".to_owned()),
+            Ok(d) if fmt::int(&d["count"]) == Some(0) => (Some(true), "发送的运营商回执。".to_owned()),
             Ok(_) => (Some(false), RETRYING.to_owned()),
             Err(e) => (Some(false), fmt::truncate(&e, 120)),
         };
@@ -1334,7 +1334,7 @@ pub async fn post(ctx: Ctx, req: Request, k: Post) -> Response {
     line(&ctx.app, &ctx.flash, owner, Some(&token), counted.unwrap_or((Some(false), RETRYING.to_owned())))
 }
 
-const RETRYING: &str = "部分收据尚未发送。路由器不断重试。";
+const RETRYING: &str = "部分回执尚未发送。路由器不断重试。";
 
 /// The posted nickname, trimmed and checked as the app does.
 fn nickname(form: &Form) -> Result<String, FormState> {
@@ -1402,7 +1402,7 @@ mod tests {
         // No manual APN known: that warning is left out; no active profile.
         let inv = Inventory { profiles: vec![p.clone()], ..Inventory::default() };
         let l = switch_lines(&inv, &p);
-        assert!(l[0].starts_with("The router disconnects from 当前配置文件 and") && l.len() == 2);
+        assert!(l[0].starts_with("路由器将断开 当前配置文件 并通过") && l.len() == 2);
     }
 
     /// Switch states as the app's phases, notes and the operation's status.
@@ -1480,7 +1480,7 @@ mod tests {
         let html = message(Notice::Flash(Some(false), "Switch failed: the modem is in airplane / low-power mode".into())).into_string();
         assert!(html.contains("暂时无法完成此操作") && html.contains("打开路由器设置→移动网络检查调制解调器模式。") && html.contains("重新加载配置文件"));
         let html = message(Notice::Flash(Some(false), "Some receipts couldn't be sent yet. The router keeps retrying.".into())).into_string();
-        assert!(html.contains("<b>运营商收据</b>") && !html.contains("重新加载配置文件"));
+        assert!(html.contains("<b>运营商回执</b>") && !html.contains("重新加载配置文件"));
         assert!(message(Notice::Flash(Some(true), "Renamed to X.".into())).into_string().contains("<b>配置文件已更新</b>"));
         // Only the busy notice is "eSIM 正在使用中" (the app compares the text).
         let html = message(Notice::Flash(None, "The router may still be working on it. Check before trying again.".into())).into_string();

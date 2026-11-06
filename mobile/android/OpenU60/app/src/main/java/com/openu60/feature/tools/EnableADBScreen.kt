@@ -76,7 +76,7 @@ fun EnableADBScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("启用亚行") },
+                title = { Text("启用 ADB") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
@@ -158,7 +158,7 @@ fun EnableADBScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                     }
-                    Text("启用亚行")
+                    Text("启用 ADB")
                 }
             }
         }

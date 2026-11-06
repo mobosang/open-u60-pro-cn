@@ -721,7 +721,7 @@ async fn deleting_a_conversation_is_confirmed() {
     let (k0, k1, k2) = (key(&c, "+15555550100"), key(&c, "+15555550101"), key(&c, "+15555550102"));
     let ask = format!("/ui/sms/t/{k0}/delete");
     let list = get_with(&c, "/ui/sms", peer(66, 2), &cookie).await.text();
-    let named = |n: &str| format!("Delete<span class=\"sr\"> conversation with {n}</span></a></li>");
+    let named = |n: &str| format!("删除<span class=\"sr\">，与以下号码的会话：{n}</span></a></li>");
     assert!(list.contains(&format!("</button></form><a class=\"del\" href=\"{ask}\">{}", named("+15555550100"))), "{list}");
     assert!(list.contains(&format!("</a><a class=\"del\" href=\"/ui/sms/t/{k1}/delete\">{}", named("+15555550101"))), "{list}");
     assert_eq!(list.matches("<a class=\"del\"").count(), 4);

@@ -41,7 +41,7 @@ struct EnableADBView: View {
                         ProgressView()
                             .tint(.white)
                     } else {
-                        Label("启用亚行", systemImage: "power")
+                        Label("启用 ADB", systemImage: "power")
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -54,7 +54,7 @@ struct EnableADBView: View {
             Spacer()
             Spacer()
         }
-        .navigationTitle("启用亚行")
+        .navigationTitle("启用 ADB")
     }
 
     private func enableADB() async {

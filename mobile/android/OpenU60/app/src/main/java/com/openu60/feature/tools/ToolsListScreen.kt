@@ -70,7 +70,7 @@ fun ToolsListScreen(
             )
             ToolItem(
                 icon = Icons.Default.Adb,
-                title = "启用亚行",
+                title = "启用 ADB",
                 subtitle = "启用USB调试模式",
                 onClick = onNavigateToEnableADB,
             )

@@ -752,7 +752,7 @@ mod tests {
             (0, "in 0 sec."),
             (-5, "5 sec. ago"),
             (-59, "59 sec. ago"),
-            (-60, "1 分钟. ago"),
+            (-60, "1 min. ago"),
             (-300, "5 分钟. ago"),
             (-2 * H - 59, "2 hr. ago"),
             (-23 * H, "23 hr. ago"),
@@ -841,7 +841,7 @@ mod tests {
         // One store failing: the other's messages and a note.
         let _g = fake::set(&app, fake::Device { sim: Err("ubus timeout".into()), ..d.clone() });
         let all = read(&app, Store::All).unwrap();
-        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("Couldn't read SIM messages: ubus timeout")));
+        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("无法读取 SIM 消息：ubus timeout")));
         assert_eq!(read(&app, Store::Sim).err().as_deref(), Some("ubus timeout"));
         // Both failing: the first error, never an empty list.
         let _g = fake::set(&app, fake::Device { internal: Err("first".into()), sim: Err("second".into()), ..d });
@@ -861,7 +861,7 @@ mod tests {
         assert!(check_text(&"a".repeat(765)).is_ok());
         assert_eq!(check_text(&"a".repeat(766)).unwrap_err(), "最多输入 765 个字符。");
         assert!(check_text(&"Ж".repeat(335)).is_ok());
-        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("最多 335 个字符"));
+        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("最多输入 335 个字符"));
         // An emoji is two UTF-16 units.
         assert!(check_text(&"😀".repeat(168)).is_err() && check_text(&"😀".repeat(167)).is_ok());
         for blank in ["", "  ", "\n	"] {

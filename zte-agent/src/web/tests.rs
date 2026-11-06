@@ -772,7 +772,7 @@ async fn detail_sheets_open_from_the_dashboard() {
     for (id, href) in [("card-traffic", "/ui/traffic"), ("card-battery", "/ui/battery"), ("card-health", "/ui/health")] {
         assert!(dash.contains(&format!("<a class=\"card\" id=\"{id}\" href=\"{href}\">")), "{id}");
     }
-    let done = "<div class=\"trail\"><a class=\"nl\" href=\"/ui/\">Done</a>";
+    let done = "<div class=\"trail\"><a class=\"nl\" href=\"/ui/\">完成</a>";
     for (uri, id, title, nav) in [
         ("/ui/traffic", "traffic", "实时流量", done),
         ("/ui/battery", "battery", "电池详情", done),
@@ -923,7 +923,7 @@ async fn network_mode_operation_settles_or_times_out() {
     assert!(html.contains("<h1 id=\"op-title\">发送模式 — 路由器可能仍在切换</h1>"), "{html}");
     assert!(html.contains("调制解调器尚未报告新模式。稍后再检查一次。") && !html.contains("http-equiv"));
     // Not an error (the app's "Mode sent" is not red): the mode was sent.
-    assert!(html.contains("<p class=\"msg info\" role=\"status\">The modem has not") && !html.contains("role=\"alert\""), "{html}");
+    assert!(html.contains("<p class=\"msg info\" role=\"status\">调制解调器尚未") && !html.contains("role=\"alert\""), "{html}");
 }
 
 /// Every screen of the route table: signed in only, its tab marked, the
@@ -1517,7 +1517,7 @@ async fn processes_kills_report_their_result_to_their_session() {
     assert_eq!(to.status, 303);
     assert!(location.starts_with("/ui/health/processes?r=") && super::ops::is_op_id(&location[23..]), "{location}");
     let shown = get_with(&c, &location, peer(46, 4), &cookie).await.text();
-    let line = "<p class=\"msg err\" role=\"alert\">PID 4194304 is no longer zte_topsw_diag. Nothing was killed.</p>";
+    let line = "<p class=\"msg err\" role=\"alert\">PID 4194304 已不再属于 zte_topsw_diag，未结束任何进程。</p>";
     assert!(shown.contains(line), "{shown}");
     // Another session, or an unknown id: nothing.
     let other = format!("zte_ui_session={}", login(&c, 46, 9).await);
@@ -1526,7 +1526,7 @@ async fn processes_kills_report_their_result_to_their_session() {
     // Kill All with nothing safe to kill: nothing is sent; a neutral line, never a success.
     let to = post(&c, "/ui/health/processes/kill-all", peer(46, 5), &cookie, &format!("csrf={csrf}&confirm=1")).await;
     let shown = get_with(&c, to.header("location").unwrap(), peer(46, 5), &cookie).await.text();
-    let line = "<p class=\"msg info\" role=\"status\">No bloat daemons that are safe to kill are running. Nothing was killed.</p>";
+    let line = "<p class=\"msg info\" role=\"status\">没有可以安全结束的冗余守护进程正在运行。未结束任何进程。</p>";
     assert!(shown.contains(line) && !shown.contains("msg ok"), "{shown}");
     // The questions: a PID that is not running, and no safe bloat running.
     let q = get_with(&c, "/ui/health/processes/kill?pid=4194304", peer(46, 6), &cookie).await.text();
@@ -1567,7 +1567,7 @@ async fn wifi_pages_link_stream_clients_and_never_stream_the_password() {
         assert!(!html.contains("/ui/live/") && !html.contains("/ui/a/datastar-"), "{uri}");
         assert!(html.contains("<a class=\"nl back\" href=\"/ui/wifi\">Wi-Fi 和设备</a></div><h1>WiFi 凭证</h1>"), "{html}");
         // The build machine has no Wi-Fi configuration: the read's error.
-        assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载失败 Wi-Fi credentials: "), "{html}");
+        assert!(html.contains("<p class=\"msg err\" role=\"alert\">无法加载 Wi-Fi 凭证："), "{html}");
     }
     // No stream for the share page.
     let r = open_live(&c, &format!("/ui/live/wifishare/{KEY}"), peer(47, 5), &cookie).await;
@@ -1746,7 +1746,7 @@ async fn every_live_screen_streams_its_fragments_as_in_the_page() {
     // What the visible states put in their fragments.
     let shows = [
         ("card-usb", "<div id=\"card-usb\" class=\"on pb\">"), ("card-devices", "<b class=\"big\">1</b>"),
-        ("pr-all", "Kill All Bloat"), ("pr-sum", "Bloat Daemons"), ("pr-list", "PID 812"),
+        ("pr-all", "结束所有冗余进程"), ("pr-sum", "Bloat Daemons"), ("pr-list", "PID 812"),
         ("wf-count", ">1</b>"), ("wf-devices", "<b>tv</b>"), ("cd-list", "<b class=\"dn\">tv</b>"),
         ("st-run", "<span>Uploading...</span><span class=\"muted num\">80%</span>"),
         ("sd-run", "<span>Progress</span><span class=\"muted num\">40%</span>"),

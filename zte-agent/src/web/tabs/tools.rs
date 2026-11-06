@@ -41,7 +41,7 @@ pub static TOOLS: Screen = Screen {
             &[
                 to(speedtest::PATH, "速度测试", Icon::Gauge, "测试 WAN 吞吐量"),
                 to("/ui/tools/lan-speedtest", "局域网速度测试", Icon::Wifi, "测试 WiFi 到路由器的链路"),
-                to(confirm::ADB, "启用亚行", Icon::Cable, "启用USB调试模式"),
+                to(confirm::ADB, "启用 ADB", Icon::Cable, "启用USB调试模式"),
                 to(usb::MODE, "USB 模式", Icon::UsbC, "USB 模式和移动电源控制"),
                 to(bandlock::PATH, "频段锁定", Icon::Lock, "锁定NR/LTE频段"),
                 to(at::PATH, "AT 终端", Icon::Terminal, "发送原始 AT 命令到调制解调器"),
@@ -132,7 +132,7 @@ pub static SPEEDTEST_STOP: Action = Action {
 pub static ADB: Screen = Screen {
     path: confirm::ADB,
     id: "adb",
-    title: "启用亚行",
+    title: "启用 ADB",
     blocks: &[Block::Custom(tools::adb)],
     own_notice: true,
     ..PUSHED

@@ -247,7 +247,7 @@ async fn enable_adb_asks_and_sends_once() {
     let _dev = device::set(&c.app, device::Device::default());
     let q = get_with(&c, "/ui/tools/adb/enable", peer(113, 3), &cookie).await;
     q.assert_secure_html(200);
-    assert!(q.text().contains("<h2 class=\"q\">启用亚行？</h2>") && q.text().contains("任何插入 USB-C 端口的设备都会在路由器上获得 root shell，无需密码。"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">启用 ADB？</h2>") && q.text().contains("任何插入 USB-C 端口的设备都会在路由器上获得 root shell，无需密码。"), "{}", q.text());
     assert!(q.text().contains("<button class=\"btn btn-danger\" type=\"submit\">启用 ADB</button>"));
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     post(&c, "/ui/tools/adb/enable", peer(113, 4), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/tools/adb/enable");
@@ -287,7 +287,7 @@ async fn band_lock_grids_questions_and_bodies() {
         "<form class=\"bl\" method=\"get\" action=\"/ui/tools/band-lock/nr\">",
         "<label title=\"频段 78 — 3500 MHz · TDD · 最大带宽 100 MHz · 下行 3300–3800 MHz · 上行 3300–3800 MHz\"><input class=\"sr\" type=\"checkbox\" name=\"nr\" value=\"78\"><span>B78<small>3500 MHz</small></span></label>",
         "<span>B66<small>AWS-3</small></span>", "</svg> 应用 NR 频段锁定</button>", "</svg> 应用 LTE 频段锁定</button>",
-        "<summary>频段详情</summary>", "<li><b>频段 29 — 700 MHz</b><small>S下行 · 最大带宽 10 MHz · 下行 717–728 MHz</small></li>",
+        "<summary>频段详情</summary>", "<li><b>频段 29 — 700 MHz</b><small>SDL · 最大带宽 10 MHz · 下行 717–728 MHz</small></li>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -410,7 +410,7 @@ async fn at_terminal_sends_once_masks_and_forgets_on_logout() {
     let html = r.text();
     for want in [
         "<h2 class=\"q\">危险命令</h2>",
-        "<li>The command &quot;at+cfun=0&quot; may disrupt connectivity or require a reboot. Are you sure?</li>",
+        "<li>命令“at+cfun=0”可能中断连接或要求重启，确定继续？</li>",
         "<input type=\"hidden\" name=\"cmd\" value=\"at+cfun=0\"><input type=\"hidden\" name=\"timeout\" value=\"5\">",
         "<button class=\"btn btn-danger\" type=\"submit\" name=\"confirm\" value=\"1\">无论如何发送</button>",
         "<button class=\"btn btn-quiet\" type=\"submit\" name=\"edit\" value=\"1\">取消</button>",
@@ -460,7 +460,7 @@ async fn at_terminal_checks_what_is_sent() {
     }
     let r = post(&c, "/ui/tools/at/send", peer(118, 3), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCFUN%3D%244")).await;
     let html = r.text();
-    assert!(html.contains("<li>The command &quot;AT+CFUN=4&quot; may disrupt connectivity"), "{html}");
+    assert!(html.contains("<li>命令“AT+CFUN=4”可能中断连接"), "{html}");
     assert!(html.contains("<input type=\"hidden\" name=\"cmd\" value=\"AT+CFUN=$4\">"), "{html}");
     assert!(device::calls(&c.app).is_empty());
     post(&c, "/ui/tools/at/send", peer(118, 3), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCFUN%3D%244&confirm=1"))
@@ -489,7 +489,7 @@ async fn at_terminal_checks_what_is_sent() {
     let r = post(&c, "/ui/tools/at/send", peer(118, 6), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCLCK%3D%22SC%22%2C1%2C%224321%22")).await;
     r.assert_secure_html(200);
     let html = r.text();
-    assert!(html.contains("<li>The command &quot;AT+CLCK=&quot;SC&quot;,1,&quot;••••&quot;&quot; may disrupt"), "{html}");
+    assert!(html.contains("<li>命令“AT+CLCK=&quot;SC&quot;,1,&quot;••••&quot;&quot; may disrupt"), "{html}");
     assert_eq!(html.matches("4321").count(), 1, "{html}");
     assert!(html.contains("name=\"cmd\" value=\"AT+CLCK=&quot;SC&quot;,1,&quot;4321&quot;\""), "{html}");
     assert_eq!(device::calls(&c.app).len(), 2);

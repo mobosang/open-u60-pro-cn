@@ -417,7 +417,7 @@ private fun ReceiptsCard(count: Int, sending: Boolean, canSend: Boolean, send: (
                     Icon(Icons.AutoMirrored.Filled.Send, null, tint = MaterialTheme.colorScheme.primary)
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text("运营商收据", style = MaterialTheme.typography.titleSmall)
+                    Text("运营商回执", style = MaterialTheme.typography.titleSmall)
                     Text(if (sending) "Sending…" else "$count waiting · Retried automatically", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 }
@@ -426,7 +426,7 @@ private fun ReceiptsCard(count: Int, sending: Boolean, canSend: Boolean, send: (
             TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(0.dp)) {
                 Text("为什么这些人在等待？"); Spacer(Modifier.width(8.dp)); Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, Modifier.size(16.dp))
             }
-            if (expanded) Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送收据。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。",
+            if (expanded) Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送回执。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedButton(onClick = send, enabled = canSend && !sending) {
                 Icon(Icons.Default.Upload, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)); Text(if (sending) "Sending receipts…" else "立即发送")
@@ -450,7 +450,7 @@ private fun MessageCard(message: String, isError: Boolean, canRetry: Boolean, re
             Icon(if (housekeeping) Icons.AutoMirrored.Filled.Send else if (isError) Icons.Default.Info else Icons.Default.CheckCircle, null,
                 tint = if (isError && !housekeeping) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(if (housekeeping) "运营商收据" else if (isError) "现在无法完成此操作" else "配置文件已更新", style = MaterialTheme.typography.titleSmall)
+                Text(if (housekeeping) "运营商回执" else if (isError) "现在无法完成此操作" else "配置文件已更新", style = MaterialTheme.typography.titleSmall)
                 Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 guidance?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }

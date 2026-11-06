@@ -245,7 +245,7 @@ class RouterESimViewModel @Inject constructor(
                 val left = withReauth { agentClient.get<RouterESimNotifications>("/api/esim/notifications") }.count
                 _state.value = _state.value.copy(
                     pendingReceipts = left ?: _state.value.pendingReceipts,
-                    message = if (left == 0) "发送的运营商收据。" else "部分收据尚未发送。路由器不断重试。",
+                    message = if (left == 0) "发送的运营商回执。" else "部分回执尚未发送。路由器不断重试。",
                     messageIsError = left != 0,
                 )
             } catch (e: CancellationException) { throw e }

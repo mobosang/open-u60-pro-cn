@@ -293,7 +293,7 @@ mod tests {
             lock_facts(true, 78),
             Some(("3500 MHz".into(), "TDD · 最大带宽 100 MHz · 下行 3300–3800 MHz · 上行 3300–3800 MHz".into()))
         );
-        assert_eq!(lock_facts(false, 29).unwrap().1, "S下行 · 最大带宽 10 MHz · 下行 717–728 MHz");
+        assert_eq!(lock_facts(false, 29).unwrap().1, "SDL · 最大带宽 10 MHz · 下行 717–728 MHz");
         assert_eq!(lock_facts(false, 66).unwrap().0, "AWS-3");
         assert_eq!(lock_facts(true, 41).unwrap().1, "TDD · 最大带宽 100 MHz · 下行 2496–2690 MHz · 上行 2496–2690 MHz");
         assert_eq!(lock_facts(false, 41).unwrap().1, "TDD · 最大带宽 20 MHz · 下行 2496–2690 MHz · 上行 2496–2690 MHz");

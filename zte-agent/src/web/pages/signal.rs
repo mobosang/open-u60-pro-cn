@@ -545,7 +545,7 @@ pub(crate) mod tests {
         assert!(s.contains("<polyline class=\"lte\" points=\"245.7,54.6 245.7,54.6\">"), "{s}");
         assert!(s.contains("<polyline class=\"lte\" points=\"254.6,53.5 268.0,54.6\">"), "{s}");
         assert_eq!(s.matches("<polyline").count(), 5);
-        assert!(s.contains("role=\"img\"") && s.contains("NR now -77 dBm, LTE now -85 dBm"));
+        assert!(s.contains("role=\"img\"") && s.contains("NR 当前为 -77 dBm，LTE 当前为 -85 dBm"));
         // The app's legend names, nothing else.
         assert!(s.contains("<figcaption class=\"legend\"><span class=\"nr\">NR</span> <span class=\"lte\">LTE</span> </figcaption>"), "{s}");
         // No history yet (the app's text, with three dots).

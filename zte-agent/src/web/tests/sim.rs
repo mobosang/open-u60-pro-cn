@@ -262,7 +262,7 @@ async fn pin_lock_change_and_puk_ask_and_send_the_apps_bodies() {
     assert!(get_with(&c, PUK, peer(152, 7), &cookie).await.text().contains("没有剩余 PUK 尝试。"));
     let _fake = fake::set(&c.app, json!({"sim_states": "wait puk", "pinnumber": "0"}));
     let r = get_with(&c, PUK, peer(152, 7), &cookie).await;
-    assert!(r.text().contains("role=\"alert\">The attempts left can't be read right now") && !r.text().contains("<form class=\"rf"), "{}", r.text());
+    assert!(r.text().contains("role=\"alert\">现在无法读取剩余的尝试") && !r.text().contains("<form class=\"rf"), "{}", r.text());
     let token = get_with(&c, "/ui/router/cell-lock", peer(152, 7), &cookie).await.input("once");
     let r = post(&c, PUK, peer(152, 7), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=&puk=12345678&new=4321&new2=4321")).await;
     r.assert_secure_html(409);

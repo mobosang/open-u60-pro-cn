@@ -545,7 +545,7 @@ async fn stc_shows_its_state_checks_numbers_and_asks() {
         assert!(html.contains(&format!("<p class=\"msg ok\" role=\"status\">{line}</p>")), "{html}");
         assert_eq!(calls(&c).last().unwrap(), &(api.to_owned(), json!({})));
         // The state it set, as the app (the reading is unavailable here).
-        let state = if path == "enable" { "<span class=\"v c-green\">Enabled</span>" } else { "<span class=\"v\">Disabled</span>" };
+        let state = if path == "enable" { "<span class=\"v c-green\">已启用</span>" } else { "<span class=\"v\">Disabled</span>" };
         assert!(html.contains(state), "{state} in {html}");
     }
     assert_eq!(calls(&c).len(), 3);

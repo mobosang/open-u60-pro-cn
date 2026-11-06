@@ -402,7 +402,7 @@ mod tests {
         for want in [
             "CPU·最热传感器</dt><dd><b>41.5 °C</b>", "电池</dt><dd><b>26.0 °C</b>", "USB</dt><dd><b>33.0 °C</b>",
             "板传感器 2</dt><dd class=\"muted\">不可用</dd>", "电源芯片·PMX75</dt><dd><b>38.2 °C</b>",
-            "更新 3秒前 · 每 2 秒刷新",
+            "更新 3 秒前 · 每 2 秒刷新",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -465,8 +465,8 @@ mod tests {
         let pd = PageData { app: &app, p: &p, views: &v, reads: &reads, remote: false, form: None, query: None, once: None, at: None, ussd: None, notice: None, token: Default::default(), prefs: Default::default(), secure: false };
         let s = cpu(&pd).into_string();
         for (label, value) in [
-            ("CPU Usage", "12.3%"), ("CPU Cores", "6"), ("CPU · hottest sensor", "41.5 °C"), ("Uptime", "1d 2h 3m"),
-            ("Memory Total", "3.0 GB"), ("Memory Free", "1.5 GB"), ("Memory Used", "50%"),
+            ("CPU 使用率", "12.3%"), ("CPU 核心", "6"), ("CPU·最热传感器", "41.5 °C"), ("正常运行时间", "1d 2h 3m"),
+            ("内存总量", "3.0 GB"), ("内存释放", "1.5 GB"), ("已用内存", "50%"),
         ] {
             assert!(s.contains(&format!("<span>{label}</span><span class=\"v\">{value}</span>")), "{label} {value} in {s}");
         }
@@ -484,7 +484,7 @@ mod tests {
         let empty = views(vec![]);
         let pd = PageData { app: &app, p: &p, views: &empty, reads: &reads, remote: false, form: None, query: None, once: None, at: None, ussd: None, notice: None, token: Default::default(), prefs: Default::default(), secure: false };
         let s = cpu(&pd).into_string();
-        for label in ["CPU Usage", "CPU Cores", "Uptime", "Memory Total", "Memory Free"] {
+        for label in ["CPU 使用率", "CPU 核心", "正常运行时间", "内存总量", "内存释放"] {
             assert!(s.contains(&format!("<span>{label}</span><span class=\"v\">—</span>")), "{label} in {s}");
         }
         assert!(!s.contains("已用内存"));

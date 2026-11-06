@@ -141,7 +141,7 @@ const DAYS: [&str; 7] = ["周一", "周二", "周三", "周四", "周五", "周�
 /// the router's time zone at that time.
 fn medium(t: i64) -> String {
     let off = sms::local_offset(t);
-    format!("{} at {}", sms::day(t, off), sms::clock(t, off))
+    format!("{} {}", sms::day(t, off), sms::clock(t, off))
 }
 
 /// The app's `scheduleSummary`: "Every day", "Mon–Fri", "Weekends" or the
@@ -159,8 +159,8 @@ pub fn schedule_summary(job: &Value) -> String {
                 d => d.iter().filter_map(|&d| DAYS.get(d as usize).copied()).collect::<Vec<_>>().join(", "),
             };
             match job["restore"]["time"].as_str() {
-                Some(rt) => format!("{days} at {time} \u{2192} {rt}"),
-                None => format!("{days} at {time}"),
+                Some(rt) => format!("{days} {time} \u{2192} {rt}"),
+                None => format!("{days} {time}"),
             }
         }
         "once" => s["at"].as_i64().map_or_else(|| "单次".to_owned(), |at| format!("一次：{}", medium(at))),
@@ -940,13 +940,13 @@ mod tests {
     fn schedule_summaries_follow_the_app() {
         let s = |schedule: Value, restore: Value| schedule_summary(&job(json!({"schedule": schedule, "restore": restore})));
         let rec = |days: Value| json!({"type": "recurring", "time": "23:00", "days": days});
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天 at 23:00");
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一–周五 at 23:00 → 06:30");
-        assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 at 23:00");
-        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "周日, 周一 at 23:00");
-        assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "周二 at ??:??");
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天 23:00");
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一–周五 23:00 → 06:30");
+        assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 23:00");
+        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "周日, 周一 23:00");
+        assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "周二 ??:??");
         assert_eq!(s(json!({"type": "once"}), Value::Null), "单次");
-        assert!(s(json!({"type": "once", "at": 1_790_000_000}), Value::Null).starts_with("Once: "));
+        assert!(s(json!({"type": "once", "at": 1_790_000_000}), Value::Null).starts_with("一次："));
         assert_eq!(s(json!({"type": "cron"}), Value::Null), "cron");
     }
 
