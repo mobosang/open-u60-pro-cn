@@ -138,7 +138,7 @@ pub fn read_badge(v: &Views) -> Markup {
 fn badge(v: &Views, at: Option<BootInstant>) -> Markup {
     let (text, label) = match at.map(|at| v.now.saturating_duration_since(at).as_secs()) {
         None => ("--".to_owned(), "尚未更新".to_owned()),
-        Some(s) if s < 60 => (format!("{s}秒前"), format!("更新于 {s}")),
+        Some(s) if s < 60 => (format!("{s}秒前"), format!("更新于 {s} 秒前")),
         Some(s) => (format!("{}分{}秒前", s / 60, s % 60), format!("更新 {} 分钟 {} 秒前", s / 60, s % 60)),
     };
     html! { span #age .agebadge role="img" aria-label=(label) { (roll_up_labelled(v, "age", &text)) } }
@@ -595,7 +595,7 @@ pub(crate) mod tests {
             let s = SlotView { version: 1, at: at(secs), value_at: at(secs), value: Some(Arc::new(json!({}))), error: None };
             age_badge(&Views::new(NOW, vec![(Topic::Signal, s)])).into_string()
         };
-        assert_eq!(badge(0), "<span class=\"agebadge\" id=\"age\" role=\"img\" aria-label=\"更新于 0\">0秒前</span>");
+        assert_eq!(badge(0), "<span class=\"agebadge\" id=\"age\" role=\"img\" aria-label=\"更新于 0 秒前\">0秒前</span>");
         assert!(badge(59).contains(">59秒前<"));
         assert!(badge(65).contains("aria-label=\"更新 1 分钟 5 秒前\">1分5秒前<"));
         let never = SlotView { version: 0, at: NOW, value_at: NOW, value: None, error: None };
@@ -668,8 +668,8 @@ pub(crate) mod tests {
         ]);
         let s = banners(&all).into_string();
         for (class, title, text) in [
-            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">路由器 > SIM 卡</a> 以输入 PUK。"),
-            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">路由器 > SIM 卡</a> 以输入 PIN。"),
+            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> 以输入 PUK。"),
+            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> 以输入 PIN。"),
             ("b-blue", "飞行模式", "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"),
         ] {
             assert!(s.contains(&format!("<div class=\"banner {class}\"><svg")), "{class}");
@@ -680,7 +680,7 @@ pub(crate) mod tests {
         }
         let off = views(vec![(Topic::Modem, json!({"status": {"operate_mode": "ONLINE"}, "data": {"enable": 0}}))]);
         assert!(banners(&off).into_string().contains(
-            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">路由器 > 移动网络</a> 以开启。</span>"
+            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">路由器 &gt; 移动网络</a> 以开启。</span>"
         ));
     }
 

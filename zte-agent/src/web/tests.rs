@@ -777,7 +777,7 @@ async fn detail_sheets_open_from_the_dashboard() {
         ("/ui/traffic", "traffic", "实时流量", done),
         ("/ui/battery", "battery", "电池详情", done),
         ("/ui/health", "health", "CPU 和温度", done),
-        ("/ui/health/cpu", "cpu", "中央处理器和内存", "<a class=\"nl back\" href=\"/ui/health\">CPU &amp; temperatures</a>"),
+        ("/ui/health/cpu", "cpu", "CPU 和内存", "<a class=\"nl back\" href=\"/ui/health\">CPU 和温度</a>"),
     ] {
         let r = get_with(&c, uri, peer(30, 3), &cookie).await;
         r.assert_secure_html(200);
@@ -1366,7 +1366,7 @@ async fn live_endpoints_need_datastar_and_a_session() {
     for (uri, status, link) in [
         (
             "/ui/live/dashboard",
-            "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>Offline</b></span></p>\ndata: elements <p id=\"live-note\">",
+            "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>离线</b></span></p>\ndata: elements <p id=\"live-note\">",
             "/ui/login?next=%2Fui%2F",
         ),
         ("/ui/live/signal", "<p class=\"live\" id=\"live-status\">", "/ui/login?next=%2Fui%2Fsignal"),
@@ -1746,7 +1746,7 @@ async fn every_live_screen_streams_its_fragments_as_in_the_page() {
     // What the visible states put in their fragments.
     let shows = [
         ("card-usb", "<div id=\"card-usb\" class=\"on pb\">"), ("card-devices", "<b class=\"big\">1</b>"),
-        ("pr-all", "结束所有冗余进程"), ("pr-sum", "Bloat Daemons"), ("pr-list", "PID 812"),
+        ("pr-all", "结束所有冗余进程"), ("pr-sum", "冗余后台服务"), ("pr-list", "PID 812"),
         ("wf-count", ">1</b>"), ("wf-devices", "<b>tv</b>"), ("cd-list", "<b class=\"dn\">tv</b>"),
         ("st-run", "<span>Uploading...</span><span class=\"muted num\">80%</span>"),
         ("sd-run", "<span>Progress</span><span class=\"muted num\">40%</span>"),
