@@ -384,7 +384,7 @@ mod tests {
             assert!(matches!(c.need, Need::Always));
             assert_eq!(c.title, format!("将网络模式更改为 {label}?"));
             assert_eq!(c.lines, [REREGISTER]);
-            assert!(c.remote.unwrap()[1].contains(&format!("你正在远程连接：如果 {label} has no coverage here,")));
+            assert!(c.remote.unwrap()[1].contains(&format!("你正在远程连接：如果 {label} 在此处没有覆盖")));
             // The body carries the checked value only; the operation follows it.
             let v = Valid::of(&[("mode", value)]);
             assert_eq!(mode_body(&v, &[]), Some(json!({"net_select": value})));

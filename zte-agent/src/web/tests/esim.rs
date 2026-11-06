@@ -199,7 +199,7 @@ async fn empty_and_failed_lists() {
         "error": {"kind": "sim_reloading", "message": "euicc_init failed", "at": 1}});
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/esim/profiles", Ok(stale))], ..Default::default() });
     let html = get_with(&c, LIST, peer(161, 3), &cookie).await.text();
-    assert!(html.contains("无法刷新配置文件") && html.contains("切换后 eSIM 仍在准备中。 Showing the list read at an earlier time."), "{html}");
+    assert!(html.contains("无法刷新配置文件") && html.contains("切换后 eSIM 仍在准备中。 当前显示的是 an earlier time 读取的列表。"), "{html}");
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/esim/profiles", Err("eSIM manager busy; retry shortly".into()))], ..Default::default() });
     let html = get_with(&c, LIST, peer(161, 4), &cookie).await.text();
     assert!(html.contains("无法读取 eSIM 配置文件：eSIM manager busy; retry shortly") && html.contains("<span class=\"cnt\">尚未阅读</span>"), "{html}");

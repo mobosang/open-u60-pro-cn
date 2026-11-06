@@ -116,7 +116,7 @@ async fn device_controls_follow_the_app() {
     let html = get_with(&c, DEV, peer(220, 4), &cookie).await.text();
     has(&html, &[
         "<p class=\"msg err\" role=\"alert\">加载失败 power-save settings: ubus call zwrt_mc.device.manager get_device_info failed: fake</p>",
-        "<span>省电模式</span><span class=\"v\">不可用</span>", "aria-label=\"开启Power-save Mode\">开启</button>",
+        "<span>省电模式</span><span class=\"v\">不可用</span>", "aria-label=\"开启省电模式\">开启</button>",
     ]);
     // The charge limit unread: no form (its Save would write the defaults).
     let _dev = device::set(&c.app, device::Device {

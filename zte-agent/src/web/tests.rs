@@ -1111,7 +1111,7 @@ async fn mobile_network_page_and_confirmations() {
     }
     assert!(!html.contains("/ui/a/datastar-") && !html.contains("style=") && !html.contains("<p class=\"actions\"><form"));
     // The state is unknown here (no device): both directions, saying what they turn on or off.
-    for label in ["开启移动数据", "Turn off Mobile Data", "Turn on Airplane Mode", "Turn off Airplane Mode"] {
+    for label in ["开启移动数据", "关闭移动数据", "Turn on Airplane Mode", "Turn off Airplane Mode"] {
         assert!(html.contains(&format!("aria-label=\"{label}\"")), "{label}");
     }
     // Unknown flash keys show nothing from the URL.

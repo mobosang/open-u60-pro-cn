@@ -223,7 +223,7 @@ mod tests {
         for (m, back, page, delete, actions, (log, clear, clear_action)) in [
             (
                 &forward::SMS,
-                ("/ui/sms", "Messages"),
+                ("/ui/sms", "短信"),
                 &FORWARD,
                 &DELETE,
                 [&FW_ENABLED, &FW_SETTINGS, &FW_TOGGLE, &FW_DELETE],
@@ -231,7 +231,7 @@ mod tests {
             ),
             (
                 &forward::TOOLS,
-                ("/ui/tools", "Tools"),
+                ("/ui/tools", "工具"),
                 &TOOLS_FORWARD,
                 &TOOLS_DELETE,
                 [&TOOLS_FW_ENABLED, &TOOLS_FW_SETTINGS, &TOOLS_FW_TOGGLE, &TOOLS_FW_DELETE],

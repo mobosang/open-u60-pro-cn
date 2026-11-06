@@ -444,7 +444,7 @@ async fn the_download_card_follows_the_app() {
     let q = get_with(&c, "/ui/router/esim/switch?new=1", peer(174, 6), &cookie).await;
     q.assert_secure_html(200);
     let q = q.text();
-    assert!(q.contains("<h2 class=\"q\">切换到Fake Plan？</h2>") && q.contains("The router disconnects from Home and connects with Fake Plan."), "{q}");
+    assert!(q.contains("<h2 class=\"q\">切换到Fake Plan？</h2>") && q.contains("路由器将断开 Home 并通过 Fake Plan 连接。"), "{q}");
     let key = q.split("name=\"p\" value=\"").nth(1).unwrap()[..16].to_owned();
     assert!(key.bytes().all(|b| b.is_ascii_hexdigit()) && !q.contains("0505"), "{q}");
     // Nothing downloaded: nothing to switch to.

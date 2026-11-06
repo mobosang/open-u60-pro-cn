@@ -138,8 +138,8 @@ pub fn read_badge(v: &Views) -> Markup {
 fn badge(v: &Views, at: Option<BootInstant>) -> Markup {
     let (text, label) = match at.map(|at| v.now.saturating_duration_since(at).as_secs()) {
         None => ("--".to_owned(), "尚未更新".to_owned()),
-        Some(s) if s < 60 => (format!("{s}s ago"), format!("几秒前更新 {s}")),
-        Some(s) => (format!("{}m {}s ago", s / 60, s % 60), format!("更新 {} 分钟 {} 秒前", s / 60, s % 60)),
+        Some(s) if s < 60 => (format!("{s}秒前"), format!("更新于 {s}")),
+        Some(s) => (format!("{}分{}秒前", s / 60, s % 60), format!("更新 {} 分钟 {} 秒前", s / 60, s % 60)),
     };
     html! { span #age .agebadge role="img" aria-label=(label) { (roll_up_labelled(v, "age", &text)) } }
 }
@@ -595,9 +595,9 @@ pub(crate) mod tests {
             let s = SlotView { version: 1, at: at(secs), value_at: at(secs), value: Some(Arc::new(json!({}))), error: None };
             age_badge(&Views::new(NOW, vec![(Topic::Signal, s)])).into_string()
         };
-        assert_eq!(badge(0), "<span class=\"agebadge\" id=\"age\" role=\"img\" aria-label=\"几秒前更新 0\">0s ago</span>");
-        assert!(badge(59).contains(">59s ago<"));
-        assert!(badge(65).contains("aria-label=\"更新 1 分钟 5 秒前\">1m 5s ago<"));
+        assert_eq!(badge(0), "<span class=\"agebadge\" id=\"age\" role=\"img\" aria-label=\"更新于 0\">0秒前</span>");
+        assert!(badge(59).contains(">59秒前<"));
+        assert!(badge(65).contains("aria-label=\"更新 1 分钟 5 秒前\">1分5秒前<"));
         let never = SlotView { version: 0, at: NOW, value_at: NOW, value: None, error: None };
         let s = age_badge(&Views::new(NOW, vec![(Topic::Signal, never)])).into_string();
         assert!(s.contains("aria-label=\"尚未更新\">--<"), "{s}");
@@ -607,11 +607,11 @@ pub(crate) mod tests {
         // signal sheet's counts from the failed read (its app sheet does).
         let failing = SlotView { version: 2, at: NOW, value_at: at(30), value: Some(Arc::new(json!({}))), error: Some(Arc::from("timeout")) };
         let v = Views::new(NOW, vec![(Topic::Signal, failing)]);
-        assert!(age_badge(&v).into_string().contains(">30s ago<"));
-        assert!(read_badge(&v).into_string().contains(">0s ago<"));
+        assert!(age_badge(&v).into_string().contains(">30秒前<"));
+        assert!(read_badge(&v).into_string().contains(">0秒前<"));
         let failed = SlotView { version: 1, at: NOW, value_at: NOW, value: None, error: Some(Arc::from("timeout")) };
         let v = Views::new(NOW, vec![(Topic::Signal, failed)]);
-        assert!(age_badge(&v).into_string().contains(">--<") && read_badge(&v).into_string().contains(">0s ago<"));
+        assert!(age_badge(&v).into_string().contains(">--<") && read_badge(&v).into_string().contains(">0秒前<"));
     }
 
     #[test]
@@ -623,7 +623,7 @@ pub(crate) mod tests {
                       json!({"battery_time_to_empty": 1240}));
         assert!(s.contains("<span class=\"c-green\">20h 40m</span><span class=\"muted\"> · </span><span class=\"c-green\">1.9W</span>"), "{s}");
         let s = card(json!({"status": "Discharging", "capacity": 15}), json!({"battery_time_to_empty": 45}));
-        assert!(s.contains("<span class=\"c-red\">45m left</span>") && !s.contains(" · "), "{s}");
+        assert!(s.contains("<span class=\"c-red\">剩余 45m</span>") && !s.contains(" · "), "{s}");
         let s = card(json!({"status": "Charging", "capacity": 60, "current_ua": 120_000}), json!({"battery_time_to_full": 65}));
         assert!(s.contains(">充电中</span>") && s.contains(">+120mA<") && !s.contains("1h 5m"), "{s}");
         // The level icon (75 % and up full).
