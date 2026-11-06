@@ -859,7 +859,7 @@ mod tests {
         let f = |q: &str| shown_left(&Form::parse(q.as_bytes()));
         assert_eq!((f("left=3"), f("left="), f("x=1"), f("left=-1"), f("left=2a")), (Some(3), None, None, Some(-1), Some(-1)));
         let l = lines(Sheet::LockOn, Some(1), true);
-        assert!(l[0].starts_with("每次路由器启动时，SIM 都会请求该 PIN。在输入之前，路由器没有移动连接。") && l[1].starts_with("This is the last attempt") && l[2] == super::super::confirm::REMOTE);
+        assert!(l[0].starts_with("每次路由器启动时，SIM 都会请求该 PIN。在输入之前，路由器没有移动连接。") && l[1].starts_with("这是最后一次尝试") && l[2] == super::super::confirm::REMOTE);
         assert_eq!(lines(Sheet::Pin, Some(3), true), Vec::<&str>::new());
         assert_eq!(lines(Sheet::Nck, Some(1), true).len(), 1);
     }

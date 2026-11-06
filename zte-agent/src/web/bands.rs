@@ -291,12 +291,12 @@ mod tests {
         assert!(RANGES.windows(2).all(|w| w[0].0 < w[1].0));
         assert_eq!(
             lock_facts(true, 78),
-            Some(("3500 MHz".into(), "TDD · Max BW 100 MHz · DL 3300–3800 MHz · UL 3300–3800 MHz".into()))
+            Some(("3500 MHz".into(), "TDD · 最大带宽 100 MHz · 下行 3300–3800 MHz · 上行 3300–3800 MHz".into()))
         );
-        assert_eq!(lock_facts(false, 29).unwrap().1, "SDL · Max BW 10 MHz · DL 717–728 MHz");
+        assert_eq!(lock_facts(false, 29).unwrap().1, "S下行 · 最大带宽 10 MHz · 下行 717–728 MHz");
         assert_eq!(lock_facts(false, 66).unwrap().0, "AWS-3");
-        assert_eq!(lock_facts(true, 41).unwrap().1, "TDD · Max BW 100 MHz · DL 2496–2690 MHz · UL 2496–2690 MHz");
-        assert_eq!(lock_facts(false, 41).unwrap().1, "TDD · Max BW 20 MHz · DL 2496–2690 MHz · UL 2496–2690 MHz");
+        assert_eq!(lock_facts(true, 41).unwrap().1, "TDD · 最大带宽 100 MHz · 下行 2496–2690 MHz · 上行 2496–2690 MHz");
+        assert_eq!(lock_facts(false, 41).unwrap().1, "TDD · 最大带宽 20 MHz · 下行 2496–2690 MHz · 上行 2496–2690 MHz");
         assert_eq!(lock_facts(true, 99), None);
     }
 
@@ -325,8 +325,8 @@ mod tests {
         assert_eq!(band("", true, false), "--");
         assert_eq!(carrier_band("3", false), "B3 (1800 MHz)");
         assert_eq!(carrier_band("200", true), "n200");
-        assert_eq!(bandwidth("50", "41", true), "50 / 100 MHz max");
-        assert_eq!(bandwidth("10MHz", "1", false), "10 / 20 MHz max");
+        assert_eq!(bandwidth("50", "41", true), "50 / 100 MHz（最大值）");
+        assert_eq!(bandwidth("10MHz", "1", false), "10 / 20 MHz（最大值）");
         assert_eq!(bandwidth("15", "99", false), "15");
         assert_eq!(bandwidth("", "1", false), "--");
         assert_eq!(mhz("BW 100"), Some(100));

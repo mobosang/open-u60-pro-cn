@@ -550,7 +550,7 @@ mod tests {
         assert_eq!(w.len(), 1);
         assert!(w[0].starts_with("zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。") && w[0].contains("zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。"));
         assert_eq!(warnings("zte_dm", false), ["zte_dm is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."]);
-        assert!(warnings("zte_dm", true)[1].starts_with("You are connected remotely: "));
+        assert!(warnings("zte_dm", true)[1].starts_with("你正在远程连接："));
     }
 
     /// Render a confirmation block from a read, as a page would.

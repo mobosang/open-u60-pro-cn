@@ -133,7 +133,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
         let r = post(&c, PIN, peer(151, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&{stale}&pin=1234")).await;
         r.assert_secure_html(409);
         let html = r.text();
-        assert!(html.contains("剩余的尝试已更改，因此未发送任何内容。尝试之前请再次阅读该表。") && html.contains("This is the last attempt") && !html.contains("1234\""), "{html}");
+        assert!(html.contains("剩余的尝试已更改，因此未发送任何内容。尝试之前请再次阅读该表。") && html.contains("这是最后一次尝试") && !html.contains("1234\""), "{html}");
         assert!(html.contains("<input type=\"hidden\" name=\"left\" value=\"1\">"), "{html}");
     }
     assert!(calls(&c).is_empty());
@@ -279,7 +279,7 @@ async fn sim_unlock_sends_the_code_once() {
     let html = r.text();
     for want in [
         "<h1>SIM解锁</h1>", "<input id=\"nck\" type=\"text\" name=\"nck\" placeholder=\"解锁代码（NCK）\"",
-        "<p class=\"foot\">1 次剩余尝试</p>", "This is the last attempt",
+        "<p class=\"foot\">1 次剩余尝试</p>", "这是最后一次尝试",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }

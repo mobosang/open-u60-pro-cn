@@ -660,8 +660,8 @@ mod tests {
     fn hosts_and_ports() {
         let net = Some((Ipv4Addr::new(192, 168, 0, 1), 0xffff_ff00));
         assert_eq!(host_error(net, "192.168.0.50"), None);
-        assert!(host_error(net, "192.168.0.1").unwrap().contains("router’s own address"));
-        assert_eq!(host_error(net, "192.168.1.5").unwrap(), "使用从 192.168.0.1 到 192 的地址。168.0.254.");
+        assert!(host_error(net, "192.168.0.1").unwrap().contains("路由器自己的地址"));
+        assert_eq!(host_error(net, "192.168.1.5").unwrap(), "使用从 192.168.0.1 到 192.168.0.254 的地址。");
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
         assert!(host_error(net, "nope").unwrap().starts_with("Enter an IPv4"));
         for unread in ["10.0.0.9", "192.168.0.1", "8.8.8.8"] {

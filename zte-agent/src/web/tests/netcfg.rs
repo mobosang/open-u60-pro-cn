@@ -404,7 +404,7 @@ async fn apn_list_sheets_and_changes() {
         "<h1>APN 设置</h1>", "<h2>当前APN</h2>", "<b>Fake Home</b>", "<h2>APN模式</h2>",
         "<a class=\"sw\" href=\"/ui/router/apn/mode?manual=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"手动 APN\">",
         "<h2>手动配置文件</h2>", "<a class=\"it bt\" href=\"/ui/router/apn/new\">", "<span>添加APN</span>", "href=\"/ui/router/apn/edit?id=manu1\"",
-        "<small class=\"c-green\">已启用</small>", "IPv4v6 / PAP", "IPv4 / None", "href=\"/ui/router/apn/activate?id=manu2\"",
+        "<small class=\"c-green\">已启用</small>", "IPv4v6 / PAP", "IPv4 / 无", "href=\"/ui/router/apn/activate?id=manu2\"",
         "href=\"/ui/router/apn/delete?id=manu2\"",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -434,7 +434,7 @@ async fn apn_list_sheets_and_changes() {
     // Activate: asked (remote line), sent once.
     let q = get_with(&c, "/ui/router/apn/activate?id=manu2", tailnet(40203), &cookie).await;
     let html = q.text();
-    assert!(html.contains("<h2 class=\"q\">使用“Fake Travel”？</h2>") && html.contains("You are connected remotely") && html.contains(">激活</button>"), "{html}");
+    assert!(html.contains("<h2 class=\"q\">使用“Fake Travel”？</h2>") && html.contains("你正在远程连接") && html.contains(">激活</button>"), "{html}");
     let csrf = q.input("csrf");
     let go = format!("csrf={csrf}&id=manu2&once={}&confirm=1", q.input("once"));
     let r = post(&c, "/ui/router/apn/activate", peer(203, 2), &cookie, &go).await;
@@ -513,7 +513,7 @@ async fn lan_checks_asks_and_links_the_new_address() {
     // Over Tailscale: the address on the router's network, the remote line.
     let remote = get_with(&c, &to(&r), tailnet(40204), &cookie).await.text();
     assert!(remote.contains("路由器’在其网络上的地址从192.168.0.1更改为192。168.8.1.") && !remote.contains("this browser too"), "{remote}");
-    assert!(remote.contains("You are connected remotely:") && !remote.contains("open http://"), "{remote}");
+    assert!(remote.contains("你正在远程连接：") && !remote.contains("open http://"), "{remote}");
     let r = post(&c, LAN_APPLY, peer(204, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     let done = to(&r);
     assert_eq!(done, format!("/ui/router/lan/applied?t={once}"));
@@ -564,7 +564,7 @@ async fn dns_modes_presets_cache_and_clear() {
     let q = get_with(&c, &to(&r), peer(205, 2), &cookie).await;
     let html = q.text();
     assert!(html.contains("<h2 class=\"q\">使用自定义 DNS 服务器？</h2>") && html.contains("through 1.1.1.1 and 1.0.0.1") && html.contains("DNS 通过 HTTPS 关闭。"), "{html}");
-    assert!(!html.contains("You are connected remotely"), "{html}");
+    assert!(!html.contains("你正在远程连接"), "{html}");
     let r = post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     assert!(get_with(&c, &to(&r), peer(205, 2), &cookie).await.text().contains("<p class=\"msg ok\" role=\"status\">DNS 设置为自定义 (1.1.1.1)</p>"));
     assert_eq!(

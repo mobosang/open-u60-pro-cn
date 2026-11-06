@@ -134,9 +134,9 @@ async fn firewall_page_switches_and_level() {
     assert_eq!(calls(&c).len(), 1);
     // Turning it on or raising the level can lock a remote browser out.
     let q = get_with(&c, "/ui/router/firewall/switch?on=1", tailnet(41001), &cookie).await.text();
-    has(&q, &["是否开启防火墙？", "防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。", "You are connected remotely", ">启用防火墙</button>"]);
+    has(&q, &["是否开启防火墙？", "防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。", "你正在远程连接", ">启用防火墙</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=high", tailnet(41002), &cookie).await.text();
-    has(&q, &["<h2 class=\"q\">将防火墙级别设置为High？</h2>", "blocks more connections at High", "You are connected remotely", ">设置级别</button>"]);
+    has(&q, &["<h2 class=\"q\">将防火墙级别设置为High？</h2>", "blocks more connections at High", "你正在远程连接", ">设置级别</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=low", tailnet(41003), &cookie).await.text();
     has(&q, &["将防火墙级别设置为Low？", "lets more connections from the internet through at Low", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。"]);
     assert!(!q.contains("connected remotely") && !q.contains("防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。"), "{q}");

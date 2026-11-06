@@ -88,7 +88,7 @@ async fn mobile_network_page_follows_the_app() {
     let r = post(&c, SCAN, tailnet(40140), &cookie, &format!("csrf={csrf}&once=0123456789abcdef")).await;
     assert_eq!(to(&r), SCAN);
     let q = get_with(&c, SCAN, tailnet(40140), &cookie).await.text();
-    for want in ["<h2 class=\"q\">扫描网络？</h2>", "调制解调器搜索最多一分钟。某些调制解调器在搜索时会暂停移动数据。", "You are connected remotely", ">扫描网络</button>"] {
+    for want in ["<h2 class=\"q\">扫描网络？</h2>", "调制解调器搜索最多一分钟。某些调制解调器在搜索时会暂停移动数据。", "你正在远程连接", ">扫描网络</button>"] {
         assert!(q.contains(want), "{want} in {q}");
     }
     assert!(calls(&c).is_empty());
@@ -168,7 +168,7 @@ async fn apply_sends_what_changed_once() {
     let both = "cm=0&roam=0&sel=auto_select&cm0=1&roam0=0&sel0=manual_select";
     let q_url = to(&post(&c, APPLY, tailnet(40141), &cookie, &format!("csrf={csrf}&once={}&{both}", once().await)).await);
     let q = get_with(&c, &q_url, tailnet(40141), &cookie).await;
-    for want in ["<h2 class=\"q\">切换到自动网络选择？</h2>", "连接断开后，移动数据不再自行重新连接。", "You are connected remotely"] {
+    for want in ["<h2 class=\"q\">切换到自动网络选择？</h2>", "连接断开后，移动数据不再自行重新连接。", "你正在远程连接"] {
         assert!(q.text().contains(want), "{want} in {}", q.text());
     }
     let _dev = device::set(&c.app, device::Device {
@@ -247,7 +247,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     q.assert_secure_html(200);
     for want in [
         "<h2 class=\"q\">注册Test Net？</h2>", "调制解调器离开当前网络并注册到 Test Net (00101)。",
-        "You are connected remotely", "<button class=\"btn btn-danger\" type=\"submit\">注册</button>",
+        "你正在远程连接", "<button class=\"btn btn-danger\" type=\"submit\">注册</button>",
         "href=\"/ui/router/mobile-network?scan=1\">取消",
     ] {
         assert!(q.text().contains(want), "{want} in {}", q.text());
@@ -332,7 +332,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
     let token = r.input("once");
     // Over Tailscale: the remote line.
     let remote = get_with(&c, REBOOT, tailnet(40143), &cookie).await.text();
-    assert!(remote.contains("You are connected remotely"), "{remote}");
+    assert!(remote.contains("你正在远程连接"), "{remote}");
     let _dev = device::set(&c.app, device::Device::default());
     // Wrong: nothing sent, the password not echoed.
     let r = post(&c, REBOOT, peer(143, 3), &cookie, &format!("csrf={csrf}&password=nope-42")).await;
@@ -443,7 +443,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     assert!(html.contains("<span>锁定</span><span class=\"v c-orange\">是的</span>") && html.contains("解除小区锁定"), "{html}");
     // LTE and Unlock over Tailscale: the remote line.
     let q = get_with(&c, &format!("{CELL}/lte?lte_pci=178&lte_earfcn=301"), tailnet(40144), &cookie).await;
-    assert!(q.text().contains("调制解调器将仅使用 PCI 为 178、EARFCN 为 301 的 LTE 小区。") && q.text().contains("You are connected remotely"));
+    assert!(q.text().contains("调制解调器将仅使用 PCI 为 178、EARFCN 为 301 的 LTE 小区。") && q.text().contains("你正在远程连接"));
     post(&c, &format!("{CELL}/lte"), tailnet(40144), &cookie, &format!("csrf={csrf}&lte_pci=178&lte_earfcn=301&once={}&confirm=1", q.input("once"))).await;
     let q = get_with(&c, &format!("{CELL}/reset"), tailnet(40144), &cookie).await;
     assert!(q.text().contains("<h2 class=\"q\">解锁牢房？</h2>") && q.text().contains("固件会一起重置频段和小区设置，因此频段锁定也可能会被撤销。"), "{}", q.text());
@@ -473,7 +473,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     let html = get_with(&c, &format!("{CELL}?nbr=1"), peer(144, 6), &cookie).await.text();
     for want in [
         "<p class=\"msg ok\" role=\"status\">找到 2 个邻区</p>",
-        "<b>NR</b><span class=\"muted\">Band 41</span></span><small>PCI: 775  EARFCN: 513000  RSRP: -95</small>",
+        "<b>NR</b><span class=\"muted\">频段 41</span></span><small>PCI: 775  EARFCN: 513000  RSRP: -95</small>",
         "<b>LTE</b><span class=\"muted\">Band 1</span></span><small>PCI: 179  EARFCN: 301  RSRP: -101</small>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -538,7 +538,7 @@ async fn stc_shows_its_state_checks_numbers_and_asks() {
     ] {
         post(&c, &format!("{STC}/{path}"), peer(145, 5), &cookie, &format!("csrf={csrf}")).await.assert_see_other(&format!("{STC}/{path}"));
         let q = get_with(&c, &format!("{STC}/{path}"), tailnet(40145), &cookie).await;
-        assert!(q.text().contains(&format!("<h2 class=\"q\">{title}</h2>")) && q.text().contains("You are connected remotely"), "{}", q.text());
+        assert!(q.text().contains(&format!("<h2 class=\"q\">{title}</h2>")) && q.text().contains("你正在远程连接"), "{}", q.text());
         assert!(q.text().contains(&format!(">{label}</button>")) && q.text().contains("href=\"/ui/router/stc\">取消"));
         let r = post(&c, &format!("{STC}/{path}"), peer(145, 5), &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
         let html = get_with(&c, &to(&r), peer(145, 5), &cookie).await.text();
@@ -602,7 +602,7 @@ async fn signal_detection_starts_watches_and_stops() {
     let html = get_with(&c, &format!("{SD}?since={since:x}"), peer(146, 3), &cookie).await.text();
     for want in [
         "<div id=\"sd-msg\"><p class=\"msg ok\" role=\"status\">检测完成</p></div>", "<h2>结果</h2>",
-        "<b>NR</b><span class=\"muted\">Band 78</span>", "PCI: 12  EARFCN: 636666",
+        "<b>NR</b><span class=\"muted\">频段 78</span>", "PCI: 12  EARFCN: 636666",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }

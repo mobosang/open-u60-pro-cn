@@ -1397,8 +1397,8 @@ mod tests {
         let l = switch_lines(&inv, &p);
         assert_eq!(l.len(), 3);
         assert_eq!(l[0], "路由器将断开 Home 并通过 Travel 连接。互联网将中断约一分钟，Wi-Fi 保持开启。");
-        assert!(l[1].starts_with("The router is set to the manual APN “example.apn”. If Travel needs"));
-        assert!(l[2].starts_with("Travel looks like a travel (roaming) profile and 数据漫游 is off"));
+        assert!(l[1].starts_with("路由器当前使用手动 APN“example.apn”。如果 Travel 需要"));
+        assert!(l[2].starts_with("Travel 看起来是旅行（漫游）配置文件，而数据漫游已关闭"));
         // No manual APN known: that warning is left out; no active profile.
         let inv = Inventory { profiles: vec![p.clone()], ..Inventory::default() };
         let l = switch_lines(&inv, &p);
@@ -1432,13 +1432,13 @@ mod tests {
         let mut v = sw("modem_confirmed", Value::Null);
         v.op = Some(Op { spec: &SWITCH_OP, started: BootInstant::ZERO, arg: "" });
         let html = op_progress(&v).into_string();
-        for want in ["<b>正在注册网络</b>", "切换配置文件</span><small>完成</small>", "重新加载SIM</span><small>完成</small>",
+        for want in ["<b>正在正在注册…</b>", "切换配置文件</span><small>完成</small>", "重新加载SIM</span><small>完成</small>",
             "连接到网络</span><small>进行中</small>", "新的配置文件已加载。等待移动数据连接。",
             "Wi-Fi 保持连接 · 通常 15–45 秒", "切换至…0909", "href=\"/ui/router/esim\">返回 eSIM 配置文件</a>"] {
             assert!(html.contains(want), "{want} in {html}");
         }
         assert!(html.starts_with("<section class=\"card econn esw busy\" id=\"op-progress\">"), "{html}");
-        assert_eq!(op_title(&v), "正在注册网络");
+        assert_eq!(op_title(&v), "正在正在注册…");
         assert!(!html.to_ascii_lowercase().contains("如果新配置文件没有收到数据，路由器不会自行切换回来。") && !html.contains("8900000000000000909"));
     }
 
@@ -1460,7 +1460,7 @@ mod tests {
         later.arg = v.arg;
         let html = conn(&later).into_string();
         assert!(html.contains("<b>正在重新加载 SIM</b>") && html.contains("class=\"card econn busy\""), "{html}");
-        assert!(updating(&later).into_string().contains("Updating"));
+        assert!(updating(&later).into_string().contains("更新"));
         later.set(Topic::EsimSwitch, SlotView { version: 2, at: BootInstant::ZERO, value_at: BootInstant::ZERO, value: Some(Arc::new(json!({"state": "no_data", "generation": 5}))), error: None });
         assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。"));
         assert!(updating(&later).into_string().contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"));
@@ -1524,8 +1524,8 @@ mod tests {
     fn download_texts_follow_the_app() {
         assert_eq!(download_text(&json!({"state": "confirm"})), "准备安装");
         assert_eq!(download_text(&json!({"state": "running", "step": "es9p_authenticate_client"})), "正在连接运营商…");
-        assert_eq!(download_text(&json!({"state": "done", "provider": "Example", "name": "Plan"})), "Example added.");
-        assert_eq!(download_text(&json!({"state": "done"})), "eSIM profile added.");
+        assert_eq!(download_text(&json!({"state": "done", "provider": "Example", "name": "Plan"})), "已添加 Example。");
+        assert_eq!(download_text(&json!({"state": "done"})), "已添加 eSIM profile。");
         assert_eq!(download_text(&json!({"state": "running", "step": "es10b_load_bound_profile_package"})), "在eSIM…上安装");
     }
 }

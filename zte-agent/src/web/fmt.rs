@@ -379,7 +379,7 @@ mod tests {
         assert_eq!(line(Charge::Charging, Some(69), false, Some(0), None), ("充电中".into(), "c-green"));
         assert_eq!(line(Charge::Unknown, None, true, None, None), ("不可用".into(), "muted"));
         assert_eq!(line(Charge::Discharging, Some(69), true, None, Some(1240)), ("20h 40m".into(), "c-green"));
-        assert_eq!(line(Charge::Discharging, Some(30), false, None, Some(90)), ("1h 30m left".into(), "c-orange"));
+        assert_eq!(line(Charge::Discharging, Some(30), false, None, Some(90)), ("剩余 1h 30m".into(), "c-orange"));
         assert_eq!(line(Charge::Discharging, Some(10), true, None, Some(-1)), ("放电中".into(), "c-red"));
         let b = |mv: Option<i64>, ua: Option<i64>| power(&json!({"voltage_uv": mv, "current_ua": ua}));
         assert_eq!(b(Some(4_435_000), Some(5_680_000)).as_deref(), Some("25.2W"));

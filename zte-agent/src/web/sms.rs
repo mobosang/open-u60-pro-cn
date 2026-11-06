@@ -735,11 +735,11 @@ mod tests {
         assert_eq!(clock(t, -16 * H), "11:41 PM");
         assert_eq!(clock(NEW_YEAR, 0), "12:00 AM");
         assert_eq!(clock(NEW_YEAR + 12 * H + 5 * 60, 0), "12:05 PM");
-        assert_eq!(day(t, 0), "Jan 1, 2024");
+        assert_eq!(day(t, 0), "一月 1, 2024");
         assert_eq!(stamp(t + 7, 0), "1/1/24, 3:41:07 PM");
         assert_eq!(stamp(t, 9 * H), "1/2/24, 12:41:00 AM");
         assert_eq!(stamp(NEW_YEAR + 300 * DAY + 9 * H + 5, -H), "10/27/24, 8:00:05 AM");
-        assert_eq!(day(t, 9 * H), "Jan 2, 2024");
+        assert_eq!(day(t, 9 * H), "一月 2, 2024");
         assert_eq!(sms_time(t, 8 * H), "24;01;01;23;41;00;+8");
         assert_eq!(sms_time(t, -5 * H - 1800), "24;01;01;10;11;00;-5");
         assert_eq!(sms_time(t, 0), "24;01;01;15;41;00;+0");
@@ -752,8 +752,8 @@ mod tests {
             (0, "in 0 sec."),
             (-5, "5 sec. ago"),
             (-59, "59 sec. ago"),
-            (-60, "1 min. ago"),
-            (-300, "5 min. ago"),
+            (-60, "1 分钟. ago"),
+            (-300, "5 分钟. ago"),
             (-2 * H - 59, "2 hr. ago"),
             (-23 * H, "23 hr. ago"),
             (-DAY, "1 day ago"),
@@ -763,14 +763,14 @@ mod tests {
             (-40 * DAY, "1 mo. ago"),
             (-200 * DAY, "6 mo. ago"),
             (-400 * DAY, "1 yr. ago"),
-            (90, "in 1 min."),
+            (90, "in 1 分钟."),
             (3 * H, "in 3 hr."),
         ];
         for (delta, want) in cases {
             assert_eq!(relative(now + delta, now, 0), want, "{delta}");
         }
         // An unset router clock: the date.
-        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "Jan 1, 2024");
+        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "一月 1, 2024");
     }
 
     fn item(id: u64, number: &str, text: &str, date: &str, tag: impl Into<Value>) -> Value {
@@ -834,14 +834,14 @@ mod tests {
         ]}));
         let _g = fake::set(&app, d.clone());
         let all = read(&app, Store::All).unwrap();
-        assert_eq!(all.msgs.iter().map(|m| (m.id, m.content.as_str())).collect::<Vec<_>>(), [(2, "内部"), (1, "On the SIM")]);
+        assert_eq!(all.msgs.iter().map(|m| (m.id, m.content.as_str())).collect::<Vec<_>>(), [(2, "Internal"), (1, "On the SIM")]);
         assert!(all.partial.is_none());
         assert_eq!(read(&app, Store::Sim).unwrap().msgs.len(), 2);
         assert_eq!(read(&app, Store::Internal).unwrap().msgs.len(), 1);
         // One store failing: the other's messages and a note.
         let _g = fake::set(&app, fake::Device { sim: Err("ubus timeout".into()), ..d.clone() });
         let all = read(&app, Store::All).unwrap();
-        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("无法读取 SIM 消息：ubus timeout")));
+        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("Couldn't read SIM messages: ubus timeout")));
         assert_eq!(read(&app, Store::Sim).err().as_deref(), Some("ubus timeout"));
         // Both failing: the first error, never an empty list.
         let _g = fake::set(&app, fake::Device { internal: Err("first".into()), sim: Err("second".into()), ..d });
@@ -861,7 +861,7 @@ mod tests {
         assert!(check_text(&"a".repeat(765)).is_ok());
         assert_eq!(check_text(&"a".repeat(766)).unwrap_err(), "最多输入 765 个字符。");
         assert!(check_text(&"Ж".repeat(335)).is_ok());
-        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("at most 335 个字符"));
+        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("最多 335 个字符"));
         // An emoji is two UTF-16 units.
         assert!(check_text(&"😀".repeat(168)).is_err() && check_text(&"😀".repeat(167)).is_ok());
         for blank in ["", "  ", "\n	"] {

@@ -173,7 +173,7 @@ async fn switches_settings_and_delete() {
     assert_eq!(config(&c).await["rules"][1]["enabled"], true);
     let r = post(&c, &format!("{SMS_FWD}/rules/toggle"), peer(82, 4), &cookie, &format!("csrf={csrf}&id=9&enabled=1")).await;
     r.assert_secure_html(404);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：找不到规则</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：rule not found</p>"), "{}", r.text());
     // Delete: asked first, then gone, "Rule deleted".
     let del = format!("{TOOLS_FWD}/rules/delete");
     post(&c, &del, peer(82, 5), &cookie, &format!("csrf={csrf}&id=1")).await.assert_see_other(&format!("{del}?id=1"));
@@ -182,7 +182,7 @@ async fn switches_settings_and_delete() {
     let left: Vec<u64> = config(&c).await["rules"].as_array().unwrap().iter().map(|r| r["id"].as_u64().unwrap()).collect();
     assert_eq!(left, [2, 3, 4]);
     let r = post(&c, &del, peer(82, 5), &cookie, &format!("csrf={csrf}&id=1&confirm=1")).await;
-    assert!(r.status == 404 && r.text().contains("失败：找不到规则"));
+    assert!(r.status == 404 && r.text().contains("失败：rule not found"));
     // Refused: another origin, no token; signed out, nothing changes.
     for path in [format!("{SMS_FWD}/enabled"), format!("{TOOLS_FWD}/rules/toggle")] {
         post(&c, &path, peer(82, 6), &cookie, "enabled=0&id=2").await.assert_secure_html(403);
@@ -602,7 +602,7 @@ async fn retry_once_by_fingerprint() {
     busy.gate = Arc::new(Gate::new(2, 0, Duration::from_millis(20)));
     let page = get_with(&c, &log, peer(87, 6), &cookie).await;
     let html = retried(&c, &cookie, &log, &post(&busy, &retry, peer(87, 6), &cookie, &body(&page)).await).await;
-    assert!(html.contains("重试失败：the router is busy. Try again in a few seconds."), "{html}");
+    assert!(html.contains("重试失败：路由器正忙。 Try again in a few seconds."), "{html}");
     assert_eq!(fake::retries(&c.app).len(), 3);
     let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 6), &cookie, &body(&page)).await).await;
     assert!(html.contains(OK_LINE));
@@ -665,7 +665,7 @@ async fn clear_asks_first() {
     }
 }
 
-const GONE: &str = "This form expired, so the rule was not saved. Enter the secret fields again, then save.";
+const GONE: &str = "此表单已过期, so the rule was not saved. Enter the secret fields again, then save.";
 
 /// Secrets typed into a form are kept as long as its token (an hour), and
 /// a form whose draft is gone (pushed out of the store) says so and saves

@@ -943,8 +943,8 @@ mod tests {
         assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天 at 23:00");
         assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一–周五 at 23:00 → 06:30");
         assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 at 23:00");
-        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "Sun, Mon at 23:00");
-        assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "Tue at ??:??");
+        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "周日, 周一 at 23:00");
+        assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "周二 at ??:??");
         assert_eq!(s(json!({"type": "once"}), Value::Null), "单次");
         assert!(s(json!({"type": "once", "at": 1_790_000_000}), Value::Null).starts_with("Once: "));
         assert_eq!(s(json!({"type": "cron"}), Value::Null), "cron");

@@ -409,7 +409,7 @@ async fn a_reply_is_sent_once() {
     let other = format!("zte_ui_session={}", login(&c, 64, 9).await);
     let theirs = get_with(&c, &format!("/ui/sms/t/{k0}"), peer(64, 9), &other).await.input("once");
     let r = post(&c, SEND, peer(64, 4), &cookie, &body(&theirs, "Hi")).await;
-    assert!(r.status == 400 && r.text().contains("This form expired"));
+    assert!(r.status == 400 && r.text().contains("此表单已过期"));
     assert_eq!(calls(&c).len(), 1);
 
     // The device rejects it: the text kept, the app's words; a replay shows
@@ -466,7 +466,7 @@ async fn a_reply_is_sent_once() {
             let tok = get_with(&c, &format!("/ui/sms/t/{k0}"), peer(64, 6), &cookie).await.input("once");
             c.once.update(&tok, sid, c.app.auth.now(), |t| *t = Token::Sending(twice));
             let r = post(&c, SEND, peer(64, 7), &cookie, &body(&tok, "Other")).await;
-            assert!(r.status == 400 && r.text().contains("This form expired") && r.text().contains(">Other</textarea>"), "{}", r.text());
+            assert!(r.status == 400 && r.text().contains("此表单已过期") && r.text().contains(">Other</textarea>"), "{}", r.text());
         }
     }
     assert_eq!(calls(&c).len(), 3);

@@ -583,7 +583,7 @@ mod tests {
         let shown = share_html(read.clone(), Some("show=1"));
         assert!(shown.contains("<span class=\"mono\" translate=\"no\">p@ss&quot;word:1234567</span> <a href=\"/ui/wifi/share\">隐藏密码</a>"), "{shown}");
         // The same code either way, encoding the app's payload.
-        let code = qr::svg(&qr::encode(r#"WIFI:T:WPA;S:Home\;Net;P:p@ss\"word\:1234567;;"#).unwrap(), "Wi-Fi QR code").into_string();
+        let code = qr::svg(&qr::encode(r#"WIFI:T:WPA;S:Home\;Net;P:p@ss\"word\:1234567;;"#).unwrap(), "Wi-Fi二维码").into_string();
         assert!(hidden.contains(&code) && shown.contains(&code));
         assert!(!hidden.contains("style=") && !hidden.contains("<form"));
         // A short password: as many dots as characters; guest: its own links.

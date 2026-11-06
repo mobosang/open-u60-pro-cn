@@ -675,7 +675,7 @@ mod tests {
         let v = views(sweep(json!(100), json!(0)), start + 8_000, ours);
         assert!(message(&v).into_string().contains("检测完成"));
         let r = results(&v).into_string();
-        for want in ["<b>LTE</b><span class=\"muted\">Band 3</span>", "-90", "12", "PCI: 178  EARFCN: 1300"] {
+        for want in ["<b>LTE</b><span class=\"muted\">频段 3</span>", "-90", "12", "PCI: 178  EARFCN: 1300"] {
             assert!(r.contains(want), "{want} in {r}");
         }
         // A fresh page: no results, no message; after Stop: results, no message.
