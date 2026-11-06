@@ -91,7 +91,7 @@ async fn firewall_page_switches_and_level() {
         "<h1>防火墙</h1>", "href=\"/ui/router\">路由器</a>", "<h2>防火墙</h2>", "<span>状态</span><span class=\"c-green\">已启用</span>",
         "<a class=\"it bt\" href=\"/ui/router/firewall/switch?on=0\"><span>禁用防火墙</span></a>",
         "<span aria-current=\"true\">中等</span>", "<a href=\"/ui/router/firewall/level?level=high\">高</a>",
-        "<span>万平</span><span class=\"v\">允许</span>", "<h2>网络地址转换/UPnP</h2>",
+        "<span>WAN Ping</span><span class=\"v\">允许</span>", "<h2>网络地址转换/UPnP</h2>",
         "<a class=\"sw\" href=\"/ui/router/firewall/nat?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"NAT\">",
         "<a class=\"sw\" href=\"/ui/router/firewall/upnp?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"通用即插即用\">",
         "<form class=\"rf dmz\" method=\"post\" action=\"/ui/router/firewall/dmz\" autocomplete=\"off\">",
@@ -136,7 +136,7 @@ async fn firewall_page_switches_and_level() {
     let q = get_with(&c, "/ui/router/firewall/switch?on=1", tailnet(41001), &cookie).await.text();
     has(&q, &["是否开启防火墙？", "防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。", "你正在远程连接", ">启用防火墙</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=high", tailnet(41002), &cookie).await.text();
-    has(&q, &["<h2 class=\"q\">将防火墙级别设置为高？</h2>", "blocks more connections at High", "你正在远程连接", ">设置级别</button>"]);
+    has(&q, &["<h2 class=\"q\">将防火墙级别设置为高？</h2>", "高等级防火墙会阻止更多连接", "你正在远程连接", ">设置级别</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=low", tailnet(41003), &cookie).await.text();
     has(&q, &["将防火墙级别设置为Low？", "lets more connections from the internet through at Low", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。"]);
     assert!(!q.contains("connected remotely") && !q.contains("防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。"), "{q}");
@@ -312,7 +312,7 @@ async fn telemetry_blocker() {
         "<span class=\"dom\">update.ztems.com</span><span class=\"v\">", "<h2>添加自定义域</h2>", "placeholder=\"要阻止的域\"",
         "<h2>被阻止的域</h2>", "<span class=\"dom\">ads.example.com</span><small>未启用</small>", "aria-label=\"删除ads.example.com\"",
     ]);
-    assert_eq!(html.matches("未启用").count() + html.matches("未被封锁").count(), 4);
+    assert_eq!(html.matches("未被封锁").count(), 4);
     let (csrf, once) = (r.input("csrf"), r.input("once"));
     // The switch: no question, once.
     let off = body(&csrf, &once, &[("on", "0")]);

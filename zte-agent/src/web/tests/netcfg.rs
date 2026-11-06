@@ -131,7 +131,7 @@ async fn wifi_form_question_and_reconnect_page() {
     for want in [
         "<h1>确认</h1>", "<h2 class=\"q\">应用WiFi设置？</h2>",
         "在2.4 GHz上，设备必须再次加入“Fake-Net-New”，使用新密码。",
-        "“Fake-Net-New”是隐藏网络，设备需要输入名称才能加入。", "WiFi restarts to apply the changes",
+        "“Fake-Net-New”是隐藏网络，设备需要输入名称才能加入。", "WiFi 重新启动以应用更改",
         "<button class=\"btn btn-danger\" type=\"submit\">应用</button>", cancel.as_str(),
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -347,8 +347,8 @@ async fn guest_wifi_form_and_apply() {
     let html = page.text();
     for want in [
         "<title>重新连接WiFi · U60 Pro</title>", "<p class=\"msg ok\" role=\"status\">已应用访客 WiFi 设置</p>",
-        "Join “Fake-Net”，若未自动重连，请手动连接。", "Join “Fake-Net-5G”，若未自动重连，请手动连接。",
-        "Guests join “Fake-Guest-2”，使用新密码.", "href=\"/ui/router/guest-wifi\">返回访客WiFi</a>",
+        "加入“Fake-Net”，若未自动重连，请手动连接。", "加入“Fake-Net-5G”，若未自动重连，请手动连接。",
+        "访客加入“Fake-Guest-2”，使用新密码。", "href=\"/ui/router/guest-wifi\">返回访客WiFi</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -363,7 +363,7 @@ async fn guest_wifi_form_and_apply() {
     let html = get_with(&c, &to(&r), peer(202, 2), &cookie).await.text();
     for want in [
         "<h2 class=\"q\">应用访客WiFi设置？</h2>", "5 GHz 访客网络打开。",
-        "“Fake-Guest” is an open network: anyone nearby can join it, without a password, and reach this router.",
+        "“Fake-Guest”是开放网络：附近任何人都可以无需密码加入并访问此路由器。",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -524,7 +524,7 @@ async fn lan_checks_asks_and_links_the_new_address() {
             "ignore": 0, "zte_start": "192.168.8.100", "zte_end": "192.168.8.149", "leasetime": "12h"}))]
     );
     let html = get_with(&c, &done, peer(204, 2), &cookie).await.text();
-    assert!(html.contains("局域网设置已更新") && html.contains("<a class=\"btn\" href=\"http://192.168.8.1:9090/ui/\" rel=\"noreferrer\">Open 192.168.8.1</a>"), "{html}");
+    assert!(html.contains("局域网设置已更新") && html.contains("<a class=\"btn\" href=\"http://192.168.8.1:9090/ui/\" rel=\"noreferrer\">打开 192.168.8.1</a>"), "{html}");
 }
 
 /// DNS: the app's mode and sections from the DoH status; presets fill the
@@ -586,14 +586,14 @@ async fn dns_modes_presets_cache_and_clear() {
     let q = ask(vec![("mode", "doh"), ("dns1", "9.9.9.9"), ("dns2", ""), ("url", "https://1.1.1.1/dns-query")]).await;
     assert!(q.contains("<h2 class=\"q\">没有什么可申请的</h2>") && !q.contains("name=\"confirm\""), "{q}");
     let q = ask(vec![("mode", "doh"), ("dns1", "1.1.1.1"), ("dns2", ""), ("url", "https://1.1.1.1/dns-query")]).await;
-    assert!(q.contains("<h2 class=\"q\">更换DNS服务器？</h2>") && q.contains("路由器的 DNS 服务器将改为 1。1.1.1.") && !q.contains("encrypted"), "{q}");
+    assert!(q.contains("<h2 class=\"q\">更换DNS服务器？</h2>") && q.contains("路由器的 DNS 服务器将改为 1.1.1.1。") && !q.contains("encrypted"), "{q}");
     // A remote browser: the router's own lookups use the new servers too.
     let once = get_with(&c, DNS, tailnet(40205), &cookie).await.input("once");
     let r = post(&c, "/ui/router/dns/apply", tailnet(40205), &cookie, &body(&csrf, &once, &[("mode", "custom"), ("dns1", "8.8.8.8"), ("dns2", ""), ("url", "")])).await;
     let q = get_with(&c, &to(&r), tailnet(40205), &cookie).await.text();
     assert!(
         q.contains("<h2 class=\"q\">使用自定义 DNS 服务器？</h2>")
-            && q.contains("你正在远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达’的服务器可以切断远程访问。"),
+            && q.contains("你正在远程连接：路由器自身的 DNS 查询（包括 Tailscale 重连、短信转发 webhook）也使用这些服务器；服务器无法访问时，远程连接可能中断。"),
         "{q}"
     );
     // DoH: they go through the DoH server.
@@ -601,8 +601,8 @@ async fn dns_modes_presets_cache_and_clear() {
     let r = post(&c, "/ui/router/dns/apply", tailnet(40205), &cookie, &body(&csrf, &once, &[("mode", "doh"), ("dns1", "1.1.1.1"), ("url", "https://9.9.9.9/dns-query")])).await;
     let q = get_with(&c, &to(&r), tailnet(40205), &cookie).await.text();
     assert!(
-        q.contains("你正在远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也经过此DoH服务器，因此可以到达’的服务器可以切断远程访问。")
-            && !q.contains("你正在远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达’的服务器可以切断远程访问。"),
+        q.contains("你正在远程连接：路由器自身的 DNS 查询（包括 Tailscale 重连、短信转发 webhook）也经过此 DoH 服务器；服务器无法访问时，远程连接可能中断。")
+            && !q.contains("你正在远程连接：路由器自身的 DNS 查询（包括 Tailscale 重连、短信转发 webhook）也使用这些服务器；服务器无法访问时，远程连接可能中断。"),
         "{q}"
     );
     let n = calls(&c).len();
@@ -610,7 +610,7 @@ async fn dns_modes_presets_cache_and_clear() {
     let once = get_with(&c, DNS, peer(205, 2), &cookie).await.input("once");
     let r = post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &body(&csrf, &once, &[("mode", "doh"), ("dns1", "1.1.1.1"), ("url", "https://9.9.9.9/dns-query")])).await;
     let q = get_with(&c, &to(&r), peer(205, 2), &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">更改 DoH 服务器？</h2>") && q.text().contains("路由器的 DNS 服务器将改为 1。1.1.1."), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">更改 DoH 服务器？</h2>") && q.text().contains("路由器的 DNS 服务器将改为 1.1.1.1。"), "{}", q.text());
     assert!(!q.text().contains("connected remotely"), "{}", q.text());
     post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     let sent: Vec<String> = calls(&c).into_iter().map(|(p, _)| p).collect();

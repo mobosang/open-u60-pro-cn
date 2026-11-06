@@ -253,7 +253,7 @@ pub fn page(pd: &PageData) -> Markup {
                     }
                 }
             }
-            (kit::kv_row(None, "万平", if c.ping_blocked { "被封锁" } else { "允许" }))
+            (kit::kv_row(None, "WAN Ping", if c.ping_blocked { "被封锁" } else { "允许" }))
         }))
         (kit::section(Some("网络地址转换/UPnP"), None, html! {
             (kit::switch_row(&none, "NAT", Some(c.nat), Act::Link(&on_link(NAT, true)), Act::Link(&on_link(NAT, false))))
@@ -347,7 +347,7 @@ fn lan_net(app: &AppState) -> Option<(Ipv4Addr, u32)> {
 fn host_error(net: Option<(Ipv4Addr, u32)>, s: &str) -> Option<String> {
     let Some(a) = lan::ip(s) else { return Some("输入 IPv4 地址，例如 192.168.0.50。".into()) };
     let Some((router, m)) = net else {
-        return Some("Couldn’t 读取路由器’s 网络。再试一次。".into());
+        return Some("无法读取路由器网络，请重试。".into());
     };
     let (x, net) = (u32::from(a), u32::from(router) & m);
     let last = net | !m;
@@ -453,7 +453,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         Kind::FwSwitch if on => ask("是否开启防火墙？", &["传入连接再次被过滤。", LOCK], "启用防火墙", true),
         Kind::FwSwitch => ask(
             "关闭防火墙？",
-            &["路由器上的设备失去防火墙’ 的互联网保护。", exposed()],
+            &["路由器上的设备将失去防火墙的互联网保护。", exposed()],
             "禁用防火墙",
             false,
         ),
@@ -470,7 +470,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             }
             let up = rank(level) > rank(&c.level);
             let lines = if up {
-                vec![format!("防火墙阻止 {label} 处的更多连接。"), LOCK.into()]
+                vec![format!("{label}等级防火墙会阻止更多连接。"), LOCK.into()]
             } else {
                 vec![format!("防火墙允许更多来自互联网的连接通过 {label}。"), exposed().into()]
             };
@@ -479,7 +479,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         Kind::FwNat if on => ask("开启NAT？", &["路由器上的设备再次通过 NAT 共享其移动连接。"], "开启 NAT", false),
         Kind::FwNat => ask(
             "关闭NAT？",
-            &["路由器上的设备失去互联网访问权限：没有 NAT，它们可以 ’ 共享路由器 ’ 的移动连接。"],
+            &["路由器上的设备将无法访问互联网：关闭 NAT 后，它们无法共享路由器的移动网络连接。"],
             "关闭 NAT",
             false,
         ),
@@ -665,7 +665,7 @@ mod tests {
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
         assert!(host_error(net, "nope").unwrap().starts_with("输入 IPv4"));
         for unread in ["10.0.0.9", "192.168.0.1", "8.8.8.8"] {
-            assert_eq!(host_error(None, unread).as_deref(), Some("Couldn’t 读取路由器’s 网络。再试一次。"), "{unread}");
+            assert_eq!(host_error(None, unread).as_deref(), Some("无法读取路由器网络，请重试。"), "{unread}");
         }
         assert!(host_error(net, "192.168.0.50 ").unwrap().starts_with("输入 IPv4"));
         assert_eq!(port("8080"), Some(8080));

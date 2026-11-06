@@ -610,7 +610,7 @@ async fn retry_once_by_fingerprint() {
     // An unknown token, another session's: nothing.
     let page = get_with(&c, &log, peer(87, 7), &cookie).await;
     let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 7), &cookie, &body(&page).replace(&page.input("once"), "00")).await).await;
-    assert!(html.contains("This page expired"));
+    assert!(html.contains("该页面已过期"));
     let theirs = format!("zte_ui_session={}", login(&c, 87, 8).await);
     let csrf = get_with(&c, &log, peer(87, 8), &theirs).await.input("csrf");
     let b = body(&page).replace(&page.input("csrf"), &csrf);

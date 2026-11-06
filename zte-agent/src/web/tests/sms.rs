@@ -798,11 +798,11 @@ async fn deleting_a_conversation_is_confirmed() {
     let _dev = fake::set(&c.app, fake::Device { sim: Err("SIM busy".into()), ..device() });
     let r = get_with(&c, &ask, peer(66, 7), &cookie).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：无法读取 0 消息：1</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：无法读取 SIM 消息：SIM busy</p>"), "{}", r.text());
     assert!(!r.text().contains("action=\"/ui/sms/delete\""));
     let r = post(&c, DEL, peer(66, 7), &cookie, &del("&fp=3-12&confirm=1")).await;
     let html = get_with(&c, r.header("location").unwrap(), peer(66, 7), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">删除失败：无法读取 0 消息：1</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">删除失败：无法读取 SIM 消息：SIM busy</p>"), "{html}");
     assert!(calls(&c).is_empty());
     let r = post(&c, DEL, peer(66, 7), &cookie, &del("&store=internal&fp=3-12&confirm=1")).await;
     r.assert_see_other("/ui/sms?store=internal&saved=deleted");

@@ -536,7 +536,7 @@ pub fn applied(vals: &[(&'static str, String)]) -> (String, Markup) {
         div.narrow {
             ul.consequences {
                 @if on {
-                    li { "WiFi 正在重启。如果此设备位于路由器’s WiFi 上，则会暂时断开连接。" }
+                    li { "WiFi 正在重启。如果此设备位于路由器的 WiFi 上，则会暂时断开连接。" }
                     @for b in &live {
                         li {
                             "加入“" (val(vals, b.ssid)) "\u{201d} (" (b.label) ")"
@@ -544,7 +544,7 @@ pub fn applied(vals: &[(&'static str, String)]) -> (String, Markup) {
                             "，若未自动重连，请手动连接。"
                         }
                     }
-                    @if vals.is_empty() { li { "如果该设备没有自行重新连接，请重新加入路由器’s WiFi。" } }
+                    @if vals.is_empty() { li { "如果该设备没有自行重新连接，请重新加入路由器的 WiFi。" } }
                 } @else {
                     li { "路由器’ WiFi 上的设备失去连接。从路由器 ’ 屏幕或此处从通过 USB 连接的设备重新打开 WiFi。" }
                 }
@@ -806,14 +806,14 @@ pub fn guest_applied(vals: &[(&'static str, String)]) -> (String, Markup) {
         p.msg.ok role="status" { "已应用访客 WiFi 设置" }
         div.narrow {
             ul.consequences {
-                li { "WiFi 正在重启，包括访客网络。如果此设备位于路由器’s WiFi 上，则会暂时断开连接。" }
-                @for n in &names { li { "加入“" (n) "\u{201d} if it does not reconnect by itself." } }
-                @if names.is_empty() { li { "如果该设备没有自行重新连接，请重新加入路由器’s WiFi。" } }
+                li { "WiFi 正在重启，包括访客网络。如果此设备位于路由器的 WiFi 上，则会暂时断开连接。" }
+                @for n in &names { li { "加入“" (n) "\u{201d}，若未自动重连，请手动连接。" } }
+                @if names.is_empty() { li { "如果该设备没有自行重新连接，请重新加入路由器的 WiFi。" } }
                 @if guests && !val(vals, "gssid").is_empty() {
                     li {
                         "访客加入“" (val(vals, "gssid")) "\u{201d}"
                         @if val(vals, "set_g") == "1" { "，使用新密码" }
-                        "."
+                        "。"
                     }
                 }
             }

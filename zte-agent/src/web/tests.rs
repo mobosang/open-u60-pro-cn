@@ -1748,9 +1748,9 @@ async fn every_live_screen_streams_its_fragments_as_in_the_page() {
         ("card-usb", "<div id=\"card-usb\" class=\"on pb\">"), ("card-devices", "<b class=\"big\">1</b>"),
         ("pr-all", "结束所有冗余进程"), ("pr-sum", "个冗余守护进程"), ("pr-list", "PID 812"),
         ("wf-count", ">1</b>"), ("wf-devices", "<b>tv</b>"), ("cd-list", "<b class=\"dn\">tv</b>"),
-        ("st-run", "<span>Uploading...</span><span class=\"muted num\">80%</span>"),
-        ("sd-run", "<span>Progress</span><span class=\"muted num\">40%</span>"),
-        ("eadd-dl", "<b>Connecting to the operator…</b>"),
+        ("st-run", "<span>正在上传...</span><span class=\"muted num\">80%</span>"),
+        ("sd-run", "<span>进度</span><span class=\"muted num\">40%</span>"),
+        ("eadd-dl", "<b>正在连接运营商…</b>"),
     ];
     let mut shown = 0;
     for s in super::routes::SCREENS.iter().filter(|s| !s.live.is_empty()) {
