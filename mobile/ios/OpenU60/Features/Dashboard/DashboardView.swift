@@ -118,7 +118,7 @@ struct DashboardView: View {
                     ConnectionSignalDetail(dashboard: viewModel, viewModel: signalMonitorVM,
                                            networkModeViewModel: networkModeVM)
                 } else {
-                    ProgressView("Loading connection details…")
+                    ProgressView("正在加载连接详情…")
                 }
             }
         case .traffic, .wifi:
@@ -131,7 +131,7 @@ struct DashboardView: View {
                                 .font(.subheadline).foregroundStyle(.secondary)
                         } else {
                             WiFiCardScope(viewModel: viewModel, showWiFiShare: $showWiFiShare)
-                            Button(showWiFiShare ? "Hide Wi-Fi sharing" : "共享 Wi-Fi") { showWiFiShare.toggle() }
+                            Button(showWiFiShare ? "隐藏 Wi-Fi 分享" : "共享 Wi-Fi") { showWiFiShare.toggle() }
                             if showWiFiShare {
                                 WiFiShareCardScope(viewModel: viewModel, client: client,
                                     authManager: authManager, isExpanded: $showWiFiShare)

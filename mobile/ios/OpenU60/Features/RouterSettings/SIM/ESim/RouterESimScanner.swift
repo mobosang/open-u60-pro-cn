@@ -134,7 +134,7 @@ final class ESimScannerController: UIViewController, DataScannerViewControllerDe
         let on = AVCaptureDevice.default(for: .video)?.isTorchActive != true
         setTorch(on)
         torchButton.setImage(UIImage(systemName: on ? "flashlight.on.fill" : "flashlight.off.fill"), for: .normal)
-        torchButton.accessibilityLabel = on ? "Turn flashlight off" : "打开手电筒"
+        torchButton.accessibilityLabel = on ? "关闭手电筒" : "打开手电筒"
     }
     private func setTorch(_ on: Bool) {
         guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }

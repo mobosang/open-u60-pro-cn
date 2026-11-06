@@ -22,7 +22,7 @@ struct WiFiCardView: View {
                         HStack(spacing: 2) {
                             AnimatedNumber(value: wifiStatus.clientsTotal,
                                            font: .caption2, textColor: .secondary)
-                            Text("client\(wifiStatus.clientsTotal == 1 ? "" : "s")")
+                            Text("台设备")
                                 .font(.caption2).foregroundStyle(.secondary)
                         }
                     }

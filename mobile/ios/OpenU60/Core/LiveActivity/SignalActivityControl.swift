@@ -29,7 +29,7 @@ struct SignalActivityControl: View {
             }
             if let sampled = manager.displayedSampleAt {
                 HStack {
-                    Text(manager.isStale ? "Phone sample · Stale" : "Phone sample")
+                    Text(manager.isStale ? "手机采样 · 已过期" : "Phone sample")
                     Text(sampled, style: .time)
                 }
                 .font(.caption2)

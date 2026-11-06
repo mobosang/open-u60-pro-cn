@@ -463,7 +463,7 @@ class RouterESimViewModel @Inject constructor(
     }
 
     private fun clock(unix: Long): String =
-        if (unix <= 0) "an earlier time"
+        if (unix <= 0) "此前的时间"
         else java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT).format(java.util.Date(unix * 1000))
 
     /** The agent replies `outcome: "unknown"` when the card command failed or timed out mid-switch. */

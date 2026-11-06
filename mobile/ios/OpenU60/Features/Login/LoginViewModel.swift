@@ -20,7 +20,7 @@ final class LoginViewModel {
 
     func login() async {
         guard !password.isEmpty else {
-            errorMessage = "Please enter a password"
+            errorMessage = "请输入密码"
             return
         }
         isLoading = true

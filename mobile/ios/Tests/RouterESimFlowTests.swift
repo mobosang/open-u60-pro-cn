@@ -103,7 +103,7 @@ struct RouterESimFlowTests {
         vm.requestDelete(other); vm.pendingDelete = nil // the dialog clears it when it closes
         await vm.confirmDelete(other)
         precondition(vm.profiles.count == 1 && vm.profiles[0].isEnabled)
-        precondition(vm.message?.contains("next eSIM change") == true)
+        precondition(vm.message?.contains("下次更改 eSIM") == true)
         client.postError = AgentError.serverError("{\"ok\":false,\"error\":\"agent password required\"}")
         client.status = ["state": "idle"]
         await vm.startDownload(code: "LPA:1$example.com$ABC", confirmationCode: "")
@@ -170,7 +170,7 @@ struct RouterESimFlowTests {
         switchClient.inventoryMeta = ["agent_instance": 5, "generation": 1, "observed_at": 120, "stale": true,
                                       "error": ["kind": "management_unavailable", "message": "euicc_init", "at": 120]]
         await switchVM.refresh()
-        precondition(switchVM.listError?.contains("isn't responding") == true && !switchVM.profiles.isEmpty, "A failed read keeps the list and says why")
+        precondition(switchVM.listError?.contains("无响应") == true && !switchVM.profiles.isEmpty, "A failed read keeps the list and says why")
         switchClient.inventoryMeta = ["agent_instance": 5, "generation": 1, "observed_at": 130, "pending_receipts": 2]
         await switchVM.refresh()
         precondition(switchVM.listError == nil && switchVM.pendingReceipts == 2, "A newer clean read clears the error")

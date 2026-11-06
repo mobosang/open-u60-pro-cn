@@ -48,8 +48,8 @@ fun RouterESimScreen(onBack: () -> Unit, viewModel: RouterESimViewModel = hiltVi
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(viewModel) { viewModel.refresh() }
     LaunchedEffect(state.message, state.downloadNote, state.operationInFlight) {
-        if (!state.operationInFlight && (state.message?.contains("a different eSIM card", ignoreCase = true) == true ||
-                state.downloadNote?.contains("a different eSIM card", ignoreCase = true) == true)) viewModel.retryProfiles()
+        if (!state.operationInFlight && (state.message?.contains("另一张 eSIM 卡", ignoreCase = true) == true ||
+                state.downloadNote?.contains("另一张 eSIM 卡", ignoreCase = true) == true)) viewModel.retryProfiles()
     }
     DisposableEffect(lifecycleOwner, viewModel) {
         val observer = LifecycleEventObserver { _, event ->
@@ -69,7 +69,7 @@ fun RouterESimScreen(onBack: () -> Unit, viewModel: RouterESimViewModel = hiltVi
                 IconButton(onClick = { viewModel.resetDownloadResult(); adding = true }, enabled = !state.blocksSwitching) { Icon(Icons.Default.Add, "添加 eSIM") }
                 IconButton(onClick = viewModel::refresh, enabled = !state.isLoading && !state.isSwitching && !state.operationInFlight) {
                     if (state.isLoading) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                    else Icon(Icons.Default.Refresh, if (state.download.isBusy) "Refresh download status" else "刷新配置文件和连接")
+                    else Icon(Icons.Default.Refresh, if (state.download.isBusy) "刷新下载状态" else "刷新配置文件和连接")
                 }
             },
         )
@@ -429,7 +429,7 @@ private fun ReceiptsCard(count: Int, sending: Boolean, canSend: Boolean, send: (
             if (expanded) Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送回执。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedButton(onClick = send, enabled = canSend && !sending) {
-                Icon(Icons.Default.Upload, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)); Text(if (sending) "Sending receipts…" else "立即发送")
+                Icon(Icons.Default.Upload, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)); Text(if (sending) "正在发送回执…" else "立即发送")
             }
         }
     }
@@ -437,7 +437,7 @@ private fun ReceiptsCard(count: Int, sending: Boolean, canSend: Boolean, send: (
 
 @Composable
 private fun MessageCard(message: String, isError: Boolean, canRetry: Boolean, retry: () -> Unit) {
-    val housekeeping = message.contains("receipts", true)
+    val housekeeping = message.contains("receipts", true) || message.contains("回执")
     val guidance = when {
         message.contains("agent password required", true) -> "在代理设置中设置路由器代理密码，然后重试您的操作。"
         message.contains("airplane", true) || message.contains("low-power", true) -> "打开路由器设置→移动网络检查调制解调器模式。"

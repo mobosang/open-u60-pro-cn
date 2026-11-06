@@ -26,7 +26,7 @@ struct ClientsView: View {
             }
 
             if !filteredDevices.isEmpty {
-                Section("\(filteredDevices.count) Devices") {
+                Section("\(filteredDevices.count) 台设备") {
                     ForEach(filteredDevices) { device in
                         VStack(alignment: .leading, spacing: 4) {
                             Text(device.displayName)

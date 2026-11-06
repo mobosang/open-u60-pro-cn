@@ -63,7 +63,7 @@ struct SMSListView: View {
                     }
                 }
 
-                Section("\(filteredConversations.count) Conversations") {
+                Section("\(filteredConversations.count) 个对话") {
                     ForEach(filteredConversations) { conversation in
                         NavigationLink(value: conversation.id) {
                             SMSConversationRow(conversation: conversation, now: now)
@@ -178,7 +178,7 @@ private struct SMSConversationRow: View {
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(.blue, in: Capsule())
-                            .accessibilityLabel("\(conversation.unreadCount) unread")
+                            .accessibilityLabel("\(conversation.unreadCount) 条未读")
                     }
                 }
             }

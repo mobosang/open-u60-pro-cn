@@ -171,7 +171,7 @@ final class SMSForwardViewModel {
             let data = try await client.getJSONArray("/api/sms/forward/log")
             log = data.compactMap { SMSForwardParser.parseLogEntry($0) }
         } catch {
-            report(error, as: "Failed to load log")
+            report(error, as: "加载日志失败")
         }
         isLoading = false
     }

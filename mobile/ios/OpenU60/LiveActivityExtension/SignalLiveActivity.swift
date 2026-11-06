@@ -141,7 +141,7 @@ struct SignalLiveActivity: Widget {
         }
         .foregroundStyle(stale ? Color.orange : (sinr == nil ? Color.secondary : Color.blue))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(sinr.map { "当前无线电 SINR \(Int($0)) 分贝" } ?? "Active radio SINR unavailable")
+        .accessibilityLabel(sinr.map { "当前无线电 SINR \(Int($0)) 分贝" } ?? "当前无线电 SINR 不可用")
     }
 
     @ViewBuilder
@@ -182,6 +182,6 @@ private struct SignalBarsView: View {
             .foregroundStyle(stale ? Color.orange : (bars == nil ? Color.secondary : Color.blue))
             .frame(width: 24, height: 20)
         .opacity(stale || bars == nil ? 0.5 : 1)
-        .accessibilityLabel(stale ? "Stale modem signal" : bars.map { "Modem signal \($0) of 4 bars" } ?? "Modem signal unavailable")
+        .accessibilityLabel(stale ? "路由器信号已过期" : bars.map { "路由器信号 \($0) 格，共 4 格" } ?? "路由器信号不可用")
     }
 }

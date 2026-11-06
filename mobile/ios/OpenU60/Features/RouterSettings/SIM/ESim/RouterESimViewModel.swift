@@ -209,7 +209,7 @@ final class RouterESimViewModel {
             while downloadInFlight { try await Task.sleep(for: .milliseconds(50)) }
             _ = try await client.postJSON("/api/esim/nickname", body: ["iccid": target.iccid, "nickname": nickname])
             await loadProfiles()
-            showMessage(nickname.isEmpty ? "Nickname cleared." : "Renamed to \(nickname).", isError: false)
+            showMessage(nickname.isEmpty ? "Nickname cleared." : "已重命名为 \(nickname)。", isError: false)
         } catch { if !error.isCancellation { showMessage(errorText(error), isError: true) } }
     }
 
@@ -251,7 +251,7 @@ final class RouterESimViewModel {
             await loadChip()
             let suffix = result["operator_notified"] as? Bool == false
                 ? "下次更改 eSIM 时将通知运营商。" : ""
-            showMessage("\(target.displayName) deleted." + suffix, isError: false)
+            showMessage("已删除 \(target.displayName)。" + suffix, isError: false)
         } catch { if !error.isCancellation { showMessage(errorText(error), isError: true) } }
     }
 
@@ -441,7 +441,7 @@ final class RouterESimViewModel {
     }
 
     private static func clock(_ unix: UInt64) -> String {
-        guard unix > 0 else { return "an earlier time" }
+        guard unix > 0 else { return "此前的时间" }
         return Date(timeIntervalSince1970: TimeInterval(unix)).formatted(date: .omitted, time: .shortened)
     }
 

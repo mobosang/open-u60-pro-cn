@@ -314,7 +314,7 @@ struct RouterESimDownloadStatus: Decodable, Equatable {
     var progressText: String {
         if state == "confirm" { return "准备安装" }
         if state == "cancelling" || step?.hasSuffix("_cancel_session") == true { return "取消..." }
-        if state == "done" { return "\(displayName) added." }
+        if state == "done" { return "已添加 \(displayName)。" }
         if state == "failed" { return "无法添加配置文件" }
         if state == "cancelled" { return "下载已取消" }
         switch step {

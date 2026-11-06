@@ -52,7 +52,7 @@ struct RouterESimView: View {
                     else { Image(systemName: "arrow.clockwise") }
                 }
                 .disabled(viewModel.isLoading || viewModel.isSwitching || viewModel.operationInFlight)
-                .accessibilityLabel(viewModel.download.isBusy ? "Refresh download status" : "刷新配置文件和连接")
+                .accessibilityLabel(viewModel.download.isBusy ? "刷新下载状态" : "刷新配置文件和连接")
             }
         }
         .sheet(isPresented: $adding, onDismiss: {
@@ -71,10 +71,10 @@ struct RouterESimView: View {
             else { viewModel.stopMonitoring() }
         }
         .onChange(of: viewModel.message) { _, message in
-            if message?.localizedCaseInsensitiveContains("a different eSIM card") == true { retryProfiles() }
+            if message?.localizedCaseInsensitiveContains("另一张 eSIM 卡") == true { retryProfiles() }
         }
         .onChange(of: viewModel.downloadNote) { _, note in
-            if note?.localizedCaseInsensitiveContains("a different eSIM card") == true { retryProfiles() }
+            if note?.localizedCaseInsensitiveContains("另一张 eSIM 卡") == true { retryProfiles() }
         }
         .sheet(item: $viewModel.pendingRename) { profile in
             ESimRenameSheet(profile: profile, text: $viewModel.renameText, blocked: viewModel.blocksSwitching) { name in
@@ -82,7 +82,7 @@ struct RouterESimView: View {
             }
         }
         .confirmationDialog(
-            viewModel.pendingDelete.map { "Delete \($0.displayName) permanently?" } ?? "Delete profile?",
+            viewModel.pendingDelete.map { "永久删除 \($0.displayName)？" } ?? "Delete profile?",
             isPresented: Binding(get: { viewModel.pendingDelete != nil }, set: { if !$0 { viewModel.pendingDelete = nil } }),
             titleVisibility: .visible, presenting: viewModel.pendingDelete
         ) { profile in
@@ -127,7 +127,7 @@ struct RouterESimView: View {
     private func dialogs<Content: View>(_ content: Content) -> some View {
         content
         .confirmationDialog(
-            viewModel.pendingSwitch.map { "Switch to \($0.displayName)?" } ?? "Switch profile?",
+            viewModel.pendingSwitch.map { "切换到 \($0.displayName)？" } ?? "Switch profile?",
             isPresented: Binding(get: { viewModel.pendingSwitch != nil },
                                  set: { if !$0 { viewModel.pendingSwitch = nil } }),
             titleVisibility: .visible,
@@ -185,7 +185,7 @@ struct RouterESimView: View {
                         Text("更新中……").font(.caption)
                     }.foregroundStyle(.secondary).accessibilityElement(children: .combine)
                 } else {
-                    Text(viewModel.listError != nil && viewModel.profiles.isEmpty ? "Not read yet" : (viewModel.profiles.count == 1 ? "1 profile" : "\(viewModel.profiles.count) profiles")).font(.caption).foregroundStyle(.secondary)
+                    Text(viewModel.listError != nil && viewModel.profiles.isEmpty ? "尚未读取" : (viewModel.profiles.count == 1 ? "1 profile" : "\(viewModel.profiles.count) 个配置文件")).font(.caption).foregroundStyle(.secondary)
                 }
             }
             if viewModel.inventory.observedAt > 0 {
@@ -291,7 +291,7 @@ private struct ESimProfileCard: View {
     private var subtitle: String {
         if !profile.provider.isEmpty && profile.provider.caseInsensitiveCompare(profile.displayName) != .orderedSame { return profile.provider }
         if !profile.name.isEmpty && profile.name.caseInsensitiveCompare(profile.displayName) != .orderedSame { return profile.name }
-        return profile.isEnabled ? "Selected on your router" : "准备切换"
+        return profile.isEnabled ? "路由器当前选择" : "准备切换"
     }
 
     var body: some View {
@@ -520,7 +520,7 @@ private struct ESimMessageCard: View {
     let isError: Bool
     let canRetry: Bool
     let retry: () -> Void
-    private var housekeeping: Bool { message.localizedCaseInsensitiveContains("receipts") }
+    private var housekeeping: Bool { message.localizedCaseInsensitiveContains("receipts") || message.contains("回执") }
     /// A switch or delete that found the card still in use: a notice, not a result.
     private var busy: Bool { message == RouterESimViewModel.busyText }
     private var guidance: String? {
@@ -537,7 +537,7 @@ private struct ESimMessageCard: View {
                 Image(systemName: busy ? "hourglass" : housekeeping ? "paperplane" : (isError ? "exclamationmark.circle" : "checkmark.circle.fill"))
                     .font(.title3).foregroundStyle(isError && !housekeeping ? .orange : Color.eSimAccent)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(busy ? "eSIM in use" : housekeeping ? "运营商回执" : (isError ? "暂时无法完成此操作" : "配置文件已更新")).font(.subheadline.weight(.semibold))
+                    Text(busy ? "eSIM 正在使用中" : housekeeping ? "运营商回执" : (isError ? "暂时无法完成此操作" : "配置文件已更新")).font(.subheadline.weight(.semibold))
                     Text(message).font(.subheadline).foregroundStyle(.secondary).textSelection(.enabled)
                     if let guidance { Text(guidance).font(.caption).foregroundStyle(.secondary) }
                     if isError && !housekeeping {
@@ -581,7 +581,7 @@ private struct ESimReceiptsCard: View {
                         .frame(width: 40, height: 40).background(.blue.opacity(0.08), in: .rect(cornerRadius: 10))
                     VStack(alignment: .leading, spacing: 3) {
                         Text("运营商回执").font(.subheadline.weight(.semibold))
-                        Text(sending ? "Sending…" : "\(count) waiting · Retried automatically").font(.caption).foregroundStyle(.secondary)
+                        Text(sending ? "Sending…" : "\(count) 条待处理 · 自动重试").font(.caption).foregroundStyle(.secondary)
                     }.frame(maxWidth: .infinity, alignment: .leading)
                     if sending { ProgressView().accessibilityLabel("发送运营商回执") }
                 }
@@ -589,7 +589,7 @@ private struct ESimReceiptsCard: View {
                     Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送回执。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。")
                         .font(.caption).foregroundStyle(.secondary).padding(.top, 6)
                 }.font(.caption)
-                Button(action: send) { Label(sending ? "Sending receipts…" : "立即发送", systemImage: "arrow.up.circle") }
+                Button(action: send) { Label(sending ? "正在发送回执…" : "立即发送", systemImage: "arrow.up.circle") }
                     .buttonStyle(.bordered).font(.caption.weight(.semibold)).disabled(!canSend || sending)
             }
         }
