@@ -333,7 +333,7 @@ pub fn check(app: &AppState, pairs: &[(String, String)], kept: &Vals) -> Result<
     let mut errors: Vec<(&'static str, String)> = Vec::new();
     for (k, v) in [("name", &name), ("apn", &apn)] {
         if v.is_empty() {
-            errors.push((k, "姓名和APN为必填项".into()));
+            errors.push((k, "名称和 APN 为必填项".into()));
         }
     }
     if !line_ok(&name, 64) {

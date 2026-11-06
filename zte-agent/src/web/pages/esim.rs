@@ -1481,6 +1481,7 @@ mod tests {
         assert!(html.contains("暂时无法完成此操作") && html.contains("打开路由器设置→移动网络检查调制解调器模式。") && html.contains("重新加载配置文件"));
         let html = message(Notice::Flash(Some(false), "Some receipts couldn't be sent yet. The router keeps retrying.".into())).into_string();
         assert!(html.contains("<b>运营商回执</b>") && !html.contains("重新加载配置文件"));
+        assert!(message(Notice::Flash(Some(false), RETRYING.into())).into_string().contains("<b>运营商回执</b>"));
         assert!(message(Notice::Flash(Some(true), "Renamed to X.".into())).into_string().contains("<b>配置文件已更新</b>"));
         // Only the busy notice is "eSIM 正在使用中" (the app compares the text).
         let html = message(Notice::Flash(None, "The router may still be working on it. Check before trying again.".into())).into_string();
