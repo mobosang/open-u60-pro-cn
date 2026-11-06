@@ -67,7 +67,7 @@ class SpeedTestViewModel @Inject constructor(
                 )
             } catch (e: AgentError.Unauthorized) {
                 authManager.reauthenticate()
-                setError("Session expired — please try again")
+                setError("会话已过期，请重试")
             } catch (e: Exception) {
                 setError(e.message)
             }
@@ -148,7 +148,7 @@ class SpeedTestViewModel @Inject constructor(
                 )
             } catch (e: AgentError.Unauthorized) {
                 authManager.reauthenticate()
-                setError("Session expired — please try again")
+                setError("会话已过期，请重试")
             } catch (e: Exception) {
                 setError(e.message)
             }
@@ -161,7 +161,7 @@ class SpeedTestViewModel @Inject constructor(
                 agentClient.postJSON("/api/speedtest/stop")
             } catch (e: AgentError.Unauthorized) {
                 authManager.reauthenticate()
-                setError("Session expired — please try again")
+                setError("会话已过期，请重试")
             } catch (e: Exception) {
                 setError(e.message)
             }

@@ -26,7 +26,7 @@ final class SignalActivityManager {
     func start() async {
         guard !isBusy, activity == nil else { return }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            errorMessage = "Enable Live Activities for OpenU60 in iPhone Settings."
+            errorMessage = "请在 iPhone 设置中为 OpenU60 启用实时活动。"
             return
         }
         isBusy = true
@@ -35,7 +35,7 @@ final class SignalActivityManager {
         do {
             let status = try await client.getJSON("/api/live-activity")
             guard status["enabled"] as? Bool == true else {
-                errorMessage = "Enable Apple Live Activity updates on the modem first."
+                errorMessage = "请先在路由器上启用 Apple 实时活动更新。"
                 return
             }
             let sampled = Date()
@@ -83,8 +83,8 @@ final class SignalActivityManager {
             }
             if let recovery = status["recovery_state"] as? String, recovery != "ready" {
                 message = recovery == "waiting_for_time"
-                    ? "Agent is verifying modem time · retries automatically"
-                    : "Agent is waiting for internet · retries automatically"
+                    ? "Agent 正在验证路由器时间 · 将自动重试"
+                    : "Agent 正在等待联网 · 将自动重试"
             } else if status["registered"] as? Bool == true {
                 message = "启用调制解调器更新 · 1 小时会话"
             }
@@ -98,7 +98,7 @@ final class SignalActivityManager {
                lastRegistrationAttempt.map({ Date().timeIntervalSince($0) >= 60 }) ?? true {
                 queueRegistration(token, for: activity)
             }
-        } catch { errorMessage = "Cannot reach modem. Existing readings will become stale." }
+        } catch { errorMessage = "无法连接路由器，当前读数将逐渐过期。" }
     }
 
     func stop() async {
@@ -177,7 +177,7 @@ final class SignalActivityManager {
                     return
                 } catch {
                     guard !Task.isCancelled else { return }
-                    self.errorMessage = "Phone registration pending. Retrying automatically while the app is open."
+                    self.errorMessage = "手机注册待完成，应用打开期间将自动重试。"
                     if attempt < 3 {
                         do { try await Task.sleep(for: .seconds(2 << attempt)) } catch { return }
                     }
@@ -195,7 +195,7 @@ final class SignalActivityManager {
             errorMessage = nil
         } catch {
             cleanupPending = true
-            errorMessage = "Activity closed. Modem unreachable; its registration expires automatically."
+            errorMessage = "实时活动已关闭。路由器无法连接，其注册会自动过期。"
         }
     }
 }

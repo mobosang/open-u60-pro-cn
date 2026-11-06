@@ -110,9 +110,9 @@ data class RouterESimInventory(
         return codes.mapNotNull { code ->
             when (code) {
                 "manual_apn" -> manualApn?.let {
-                    "The router is set to the manual APN “${it.apn}”. If ${target.displayName} needs a different APN, change it in Mobile Network after switching, or it may have no data."
+                    "路由器使用手动 APN“${it.apn}”。若 ${target.displayName} 需要其他 APN，请在切换后前往“移动网络”修改，否则可能无法联网。"
                 }
-                "roaming_off" -> "${target.displayName} looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on."
+                "roaming_off" -> "${target.displayName} 可能是旅行（漫游）配置文件；数据漫游已关闭，开启后才能使用移动数据。"
                 else -> null
             }
         }
@@ -124,7 +124,7 @@ data class RouterESimInventory(
             val message = errorMessage ?: return null
             return when (errorKind) {
                 "sim_reloading" -> "切换后 eSIM 仍在准备中。"
-                "management_unavailable" -> "The eSIM's management app isn't responding ($message)."
+                "management_unavailable" -> "eSIM 管理应用无响应（$message）。"
                 else -> message
             }
         }

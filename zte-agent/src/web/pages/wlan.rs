@@ -186,7 +186,7 @@ fn ssid_error(ssid: &str, router: &str) -> Option<&'static str> {
     } else if ssid.chars().any(char::is_control) {
         Some("使用一行，不带控制字符。")
     } else if ssid != router && ssid.contains(&STRIPPED[..]) {
-        Some("The router can't store these characters: ' \" ; $ ` \\ | < > &")
+        Some("路由器无法保存以下字符： ' \" ; $ ` \\ | < > &")
     } else {
         None
     }
@@ -212,7 +212,7 @@ fn key_error(key: &str, enc: &str) -> Option<&'static str> {
     } else if !wpa_ok(key) {
         Some("使用 8 至 63 个字符（字母、数字、空格或符号）或 64 个十六进制数字。")
     } else if key.contains(&STRIPPED[..]) {
-        Some("The router can't store these characters in a password: ' \" ; $ ` \\ | < > &")
+        Some("密码中不能包含以下字符： ' \" ; $ ` \\ | < > &")
     } else {
         None
     }
@@ -327,7 +327,7 @@ fn key_of(typed: &str, kept: &str, router: &str, enc: &str, errors: &mut Vec<(&'
         if !wpa_ok(router) {
             errors.push((name, NO_PASSWORD.into()));
         } else if sae(enc) && router.len() == 64 {
-            errors.push((name, format!("{SAE_KEY} Enter one: the router\u{2019}s is a 64-digit key.")));
+            errors.push((name, format!("{SAE_KEY} 请重新输入：路由器当前保存的是 64 位密钥。")));
         }
         return String::new();
     }

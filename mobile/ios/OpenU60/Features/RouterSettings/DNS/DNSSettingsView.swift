@@ -149,7 +149,7 @@ struct DNSSettingsView: View {
         case .auto: "使用您的 ISP 分配的 DNS 服务器。"
         case .custom: "使用自定义 DNS 服务器。"
         case .doh: "通过 HTTPS 加密 DNS 查询。"
-        case .dot: "Encrypt DNS queries over TLS."
+        case .dot: "通过 TLS 加密 DNS 查询。"
         }
     }
 

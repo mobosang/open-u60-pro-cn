@@ -109,7 +109,7 @@ class RouterESimViewModel @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                setError("Could not read eSIM profiles: ${errorText(e)}")
+                setError("无法读取 eSIM 配置文件：${errorText(e)}")
             } finally {
                 _state.value = _state.value.copy(isLoading = false, hasLoaded = true)
             }
@@ -272,7 +272,7 @@ class RouterESimViewModel @Inject constructor(
                 }
                 withReauth { loadProfiles() }
                 loadChip()
-                val suffix = if (result.operatorNotified) "" else " The operator will be notified on the next eSIM change."
+                val suffix = if (result.operatorNotified) "" else "下次更改 eSIM 时将通知运营商。"
                 _state.value = _state.value.copy(message = "${target.displayName} deleted.$suffix", messageIsError = false)
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) { setError(errorText(e)) }
@@ -379,7 +379,7 @@ class RouterESimViewModel @Inject constructor(
             var note: String? = null
             val phase = if (tracker != null && switchedAt != null) {
                 if (sim.status.orEmpty().lowercase() in setOf("wait pin", "wait puk")) {
-                    note = "The SIM needs to be unlocked. Open SIM Card to continue."
+                    note = "需要先解锁 SIM 卡。请打开“SIM 卡”页面继续。"
                     RouterESimConnectionPhase.WAITING
                 } else tracker.phase(sim.iccid.orEmpty(), status, (SystemClock.elapsedRealtime() - switchedAt!!) / 1000.0)
             } else if (status.isEmpty()) RouterESimConnectionPhase.UNAVAILABLE
@@ -453,12 +453,12 @@ class RouterESimViewModel @Inject constructor(
                 inventory = fresh,
                 profiles = fresh.profiles,
                 pendingReceipts = fresh.pendingReceipts,
-                listError = fresh.errorText?.let { "$it Showing the list read at ${clock(fresh.observedAt)}." },
+                listError = fresh.errorText?.let { "$it 当前显示 ${clock(fresh.observedAt)} 读取的列表。" },
             )
         } catch (e: CancellationException) { throw e }
         catch (e: AgentError.Unauthorized) { throw e }
         catch (e: Exception) {
-            _state.value = _state.value.copy(listError = "Couldn't read eSIM profiles: ${errorText(e)}")
+            _state.value = _state.value.copy(listError = "无法读取 eSIM 配置文件：${errorText(e)}")
         }
     }
 

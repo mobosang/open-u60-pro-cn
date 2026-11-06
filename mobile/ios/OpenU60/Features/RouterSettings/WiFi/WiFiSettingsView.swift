@@ -125,7 +125,7 @@ struct WiFiSettingsView: View {
                             Text("80 MHz: channels 36–64, 100–128, or 149–161")
                         }
                         if viewModel.editBandwidth5g == "EHT20" {
-                            Text("20 MHz on 5 GHz is very narrow — some clients may fail to connect or have poor performance. Use 80 MHz or wider for best compatibility.")
+                            Text("5 GHz 下的 20 MHz 带宽较窄，部分客户端可能无法连接或性能较差。建议使用 80 MHz 或更宽带宽以获得更好的兼容性。")
                         }
                         if let pwr = Int(viewModel.editTxpower5g), pwr <= 20 {
                             Text("5 GHz 上的低 TX 功率可能会阻止客户端连接，尤其是在带宽较宽的情况下")

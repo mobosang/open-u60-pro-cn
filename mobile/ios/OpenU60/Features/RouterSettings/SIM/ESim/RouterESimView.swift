@@ -136,7 +136,7 @@ struct RouterESimView: View {
             Button("切换至\(profile.displayName)") { Task { await viewModel.confirmSwitch(to: profile) } }
             Button("取消", role: .cancel) {}
         } message: { profile in
-            Text((["The router disconnects from \(viewModel.enabledProfile?.displayName ?? "the current profile") and connects with \(profile.displayName). Internet is down for about a minute. Wi-Fi stays on."]
+            Text((["路由器将断开 \(viewModel.enabledProfile?.displayName ?? "the current profile") 并连接 \(profile.displayName)。互联网将暂停约一分钟，Wi-Fi 保持开启。"]
                   + viewModel.inventory.switchWarnings(for: profile)).joined(separator: "\n\n"))
         }
     }
@@ -189,7 +189,7 @@ struct RouterESimView: View {
                 }
             }
             if viewModel.inventory.observedAt > 0 {
-                Text("最后读取 \(Date(timeIntervalSince1970: TimeInterval(viewModel.inventory.observedAt)).formatted(日期: .省略, 时间: .shortened))")
+                Text("最后读取 \(Date(timeIntervalSince1970: TimeInterval(viewModel.inventory.observedAt)).formatted(date: .omitted, time: .shortened))")
                     .font(.caption2).foregroundStyle(.secondary)
             }
         }.padding(.horizontal, 2)
@@ -298,7 +298,7 @@ private struct ESimProfileCard: View {
         HStack(spacing: 0) {
             if profile.canEnable {
                 Button(action: onSwitch) { content }.buttonStyle(.plain).disabled(!canSwitch)
-                    .accessibilityHint("Switch profile. Internet pauses for about a minute; Wi-Fi stays on.")
+                    .accessibilityHint("切换配置文件，互联网将暂停约一分钟，Wi-Fi 保持开启。")
             } else { content }
             Menu {
                 Button("重命名", systemImage: "pencil", action: onRename)
@@ -380,7 +380,7 @@ private struct ESimRenameSheet: View {
                 } header: { Text("昵称") } footer: {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
-                            Text(valid ? "Leave empty to use the operator’s name." : "请使用单行文本，最多 64 字节。")
+                            Text(valid ? "留空则使用运营商名称。" : "请使用单行文本，最多 64 字节。")
                             Spacer()
                             Text("\(byteCount) / 64 bytes").monospacedDigit().fixedSize()
                         }.foregroundStyle(valid ? Color.secondary : .red)
@@ -426,7 +426,7 @@ private struct ESimConnectionCard: View {
         case .connected: "移动数据已连接"
         case .disconnected: "移动数据未连接"
         case .waiting: "连接需要处理"
-        case .unavailable: target == nil ? "Connection status unavailable" : "开关需要注意的地方"
+        case .unavailable: target == nil ? "连接状态不可用" : "切换需要处理"
         }
     }
     private var detail: String {
@@ -537,7 +537,7 @@ private struct ESimMessageCard: View {
                 Image(systemName: busy ? "hourglass" : housekeeping ? "paperplane" : (isError ? "exclamationmark.circle" : "checkmark.circle.fill"))
                     .font(.title3).foregroundStyle(isError && !housekeeping ? .orange : Color.eSimAccent)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(busy ? "eSIM in use" : housekeeping ? "运营商回执" : (isError ? "Can’t complete this right now" : "配置文件已更新")).font(.subheadline.weight(.semibold))
+                    Text(busy ? "eSIM in use" : housekeeping ? "运营商回执" : (isError ? "暂时无法完成此操作" : "配置文件已更新")).font(.subheadline.weight(.semibold))
                     Text(message).font(.subheadline).foregroundStyle(.secondary).textSelection(.enabled)
                     if let guidance { Text(guidance).font(.caption).foregroundStyle(.secondary) }
                     if isError && !housekeeping {
@@ -585,7 +585,7 @@ private struct ESimReceiptsCard: View {
                     }.frame(maxWidth: .infinity, alignment: .leading)
                     if sending { ProgressView().accessibilityLabel("发送运营商回执") }
                 }
-                DisclosureGroup("为什么这些人在等待？", isExpanded: $expanded) {
+                DisclosureGroup("为什么回执仍在等待？", isExpanded: $expanded) {
                     Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送回执。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。")
                         .font(.caption).foregroundStyle(.secondary).padding(.top, 6)
                 }.font(.caption)

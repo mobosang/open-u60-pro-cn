@@ -18,8 +18,8 @@ struct CellularCardView: View, Equatable {
         if !isTrafficAvailable || age >= 5 {
             return "最后一次流量样本 · \(age) 之前 · 等待设备"
         }
-        return trafficStats.source == "wwandst" ? "Live cellular traffic · all devices"
-            : "Estimated cellular traffic · all devices"
+        return trafficStats.source == "wwandst" ? "实时蜂窝流量 · 全部设备"
+            : "估算蜂窝流量 · 全部设备"
     }
 
     var body: some View {

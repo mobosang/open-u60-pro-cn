@@ -250,7 +250,7 @@ final class RouterESimViewModel {
             await loadProfiles()
             await loadChip()
             let suffix = result["operator_notified"] as? Bool == false
-                ? " The operator will be notified on the next eSIM change." : ""
+                ? "下次更改 eSIM 时将通知运营商。" : ""
             showMessage("\(target.displayName) deleted." + suffix, isError: false)
         } catch { if !error.isCancellation { showMessage(errorText(error), isError: true) } }
     }
@@ -359,7 +359,7 @@ final class RouterESimViewModel {
                 let simState = (sim["sim_states"] as? String ?? "").lowercased()
                 if simState == "wait pin" || simState == "wait puk" {
                     connectionPhase = .waiting
-                    connectionNote = "The SIM needs to be unlocked. Open SIM Card to continue."
+                    connectionNote = "需要先解锁 SIM 卡。请打开“SIM 卡”页面继续。"
                 } else {
                     connectionPhase = tracker.phase(simICCID: sim["sim_iccid"] as? String ?? "",
                                                     status: status, elapsed: Date().timeIntervalSince(switchedAt))
@@ -433,10 +433,10 @@ final class RouterESimViewModel {
             inventory = fresh
             profiles = fresh.profiles
             pendingReceipts = fresh.pendingReceipts
-            listError = fresh.errorText.map { "\($0) Showing the list read at \(Self.clock(fresh.observedAt))." }
+            listError = fresh.errorText.map { "\($0) 当前显示 \(Self.clock(fresh.observedAt)) 读取的列表。" }
         } catch {
             guard !error.isCancellation else { return }
-            listError = "Couldn't read eSIM profiles: \(errorText(error))"
+            listError = "无法读取 eSIM 配置文件：\(errorText(error))"
         }
     }
 

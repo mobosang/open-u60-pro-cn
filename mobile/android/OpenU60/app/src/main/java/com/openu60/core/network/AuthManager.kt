@@ -92,7 +92,7 @@ class AuthManager @Inject constructor(
             _authState.value = AuthState.ERROR
             _errorMessage.value = when (e) {
                 is AgentError.Unauthorized -> "Invalid password"
-                is AgentError.ServerUnreachable -> "Cannot reach agent — is it running on port 9090?"
+                is AgentError.ServerUnreachable -> "无法连接 Agent，请确认其正在 9090 端口运行。"
                 is AgentError.Timeout -> "Connection timed out"
                 is AgentError.NetworkError -> "Connection failed: ${e.message}"
                 else -> e.message

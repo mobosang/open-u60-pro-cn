@@ -334,7 +334,7 @@ impl Phase {
             Phase::Connected => "移动数据已连接",
             Phase::Disconnected => "移动数据未连接",
             Phase::Waiting => "连接需要处理",
-            Phase::Unavailable if switch => "开关需要注意的地方",
+            Phase::Unavailable if switch => "切换需要处理",
             Phase::Unavailable => "连接状态不可用",
         }
     }
@@ -745,7 +745,7 @@ fn receipts(pd: &PageData, n: i64) -> Markup {
                 div { b { "运营商回执" } small.cap { (n) " 条待处理 · 自动重试" } }
             }
             details {
-                summary { "为什么这些人在等待？" }
+                summary { "为什么回执仍在等待？" }
                 p.cap {
                     "添加、切换或删除配置文件时，您的 eSIM 会向运营商发送回执。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。"
                 }
@@ -841,7 +841,7 @@ pub fn page(pd: &PageData) -> Markup {
                 span.cnt { (count) }
             }
             @if inv.observed_at > 0 {
-                p.cap.last { "最后阅读 " (sms::clock(inv.observed_at, sms::local_offset(inv.observed_at))) }
+                p.cap.last { "最后读取 " (sms::clock(inv.observed_at, sms::local_offset(inv.observed_at))) }
             }
             @if let Some(e) = &failed { (error_card(e)) }
             @if n == 0 {
@@ -927,7 +927,7 @@ pub const REMOTE_SWITCH: &str = "如果新配置文件没有收到数据，路�
 /// remote browser, the remote lines.
 pub fn switch_page(pd: &PageData) -> Markup {
     let (inv, k) = match target_of(pd) {
-        Target::Read(e) => return nothing(pd, "Couldn’t 读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
+        Target::Read(e) => return nothing(pd, "无法读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
         Target::Gone => return nothing(pd, GONE, &[]),
         Target::Found(inv, k) => (inv, k),
     };
@@ -957,7 +957,7 @@ pub fn switch_page(pd: &PageData) -> Markup {
 /// "Delete <name> permanently?" (inactive profiles only).
 pub fn delete_page(pd: &PageData) -> Markup {
     let (inv, k) = match target_of(pd) {
-        Target::Read(e) => return nothing(pd, "Couldn’t 读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
+        Target::Read(e) => return nothing(pd, "无法读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
         Target::Gone => return nothing(pd, GONE, &[]),
         Target::Found(inv, k) => (inv, k),
     };
@@ -985,7 +985,7 @@ fn nick_ok(s: &str) -> bool {
 /// "Rename profile" (the app's sheet).
 pub fn rename_page(pd: &PageData) -> Markup {
     let (inv, k) = match target_of(pd) {
-        Target::Read(e) => return nothing(pd, "Couldn’t 读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
+        Target::Read(e) => return nothing(pd, "无法读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
         Target::Gone => return nothing(pd, GONE, &[]),
         Target::Found(inv, k) => (inv, k),
     };
@@ -1217,7 +1217,7 @@ fn work(app: &AppState, names: &Names, k: Post, key: &str, nick: &str, claim: &m
         (Post::Switch, Err(_)) if switch_generation(app) != before => Done::Op,
         (Post::Switch, Err((status, e))) => line(failure(status, &e, "切换失败：")),
         (Post::Delete, Ok(d)) => {
-            let note = if d["operator_notified"] == false { " The operator will be notified on the next eSIM change." } else { "" };
+            let note = if d["operator_notified"] == false { "下次更改 eSIM 时将通知运营商。" } else { "" };
             line((Some(true), format!("{name} deleted.{note}")))
         }
         (Post::Rename, Ok(_)) if nick.is_empty() => line((Some(true), "昵称已清除。".to_owned())),
@@ -1426,7 +1426,7 @@ mod tests {
         assert_eq!(op_status("", at(5), &sw("idle", Value::Null)), OpStatus::Pending { step: 0 });
         assert!(matches!(op_status("", at(15), &sw("idle", Value::Null)), OpStatus::TimedOut { .. }));
         assert_eq!(switch_note("card_busy", None), Some("eSIM 正忙，暂时拒绝切换。路由器会持续尝试长达 4 分钟。"));
-        assert_eq!(switch_phase("not_applied").title(true), "开关需要注意的地方");
+        assert_eq!(switch_phase("not_applied").title(true), "切换需要处理");
         assert_eq!(switch_phase("no_data").title(true), "连接需要处理");
         // The card: steps, In progress / Done, the note, no way to switch back.
         let mut v = sw("modem_confirmed", Value::Null);
@@ -1495,7 +1495,7 @@ mod tests {
         let mut v = views(vec![(Topic::EsimSwitch, json!({"state": "not_applied", "target_iccid": "8900000000000000909"}))]);
         v.op = Some(Op { spec: &SWITCH_OP, started: BootInstant::ZERO, arg: "" });
         let html = op_progress(&v).into_string();
-        assert!(html.contains("<b>开关需要注意的地方</b>") && html.contains("<a class=\"btn btn-quiet sm\" href=\"\">再次检查</a>"), "{html}");
+        assert!(html.contains("<b>切换需要处理</b>") && html.contains("<a class=\"btn btn-quiet sm\" href=\"\">再次检查</a>"), "{html}");
         let mut v = views(vec![(Topic::EsimSwitch, json!({"state": "reloading", "target_iccid": "8900000000000000909"}))]);
         v.op = Some(Op { spec: &SWITCH_OP, started: BootInstant::ZERO, arg: "" });
         assert!(!op_progress(&v).into_string().contains("再次检查"));

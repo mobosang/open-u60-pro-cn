@@ -90,7 +90,7 @@ extension RouterESimInventory {
                 guard let apn = manualAPN?.apn else { return nil }
                 return "路由器设置为手动APN“\(apn)”。如果\(name)需要不同的APN，切换后请在移动网络中更改，否则可能没有数据。"
             case "roaming_off":
-                return "\(name) looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on."
+                return "\(name) 可能是旅行（漫游）配置文件；数据漫游已关闭，开启后才能使用移动数据。"
             default:
                 return nil
             }
@@ -135,7 +135,7 @@ struct RouterESimSwitchStatus: Decodable, Equatable {
 
     /// Shown while the switch runs: the eSIM refused for now and the router keeps trying.
     var progressNote: String? {
-        state == "card_busy" ? "The eSIM is busy and refused the switch for now. The router keeps trying for up to 4 minutes." : nil
+        state == "card_busy" ? "eSIM 正忙，暂时拒绝切换。路由器会持续尝试，最长 4 分钟。" : nil
     }
 
     /// Why a finished switch did not reach `connected`.

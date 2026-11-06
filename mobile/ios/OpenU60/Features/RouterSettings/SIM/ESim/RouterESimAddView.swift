@@ -149,10 +149,10 @@ struct RouterESimAddView: View {
                     }
                     Button("后来") { clearSecrets(); dismiss() }.buttonStyle(.bordered)
                 } else if viewModel.download.state == "failed" {
-                    Text(viewModel.download.error ?? "The operator couldn’t add this profile.").font(.subheadline).textSelection(.enabled)
+                    Text(viewModel.download.error ?? "运营商无法添加此配置文件。").font(.subheadline).textSelection(.enabled)
                     Button("重试") { viewModel.resetDownloadResult(); manual = true }.buttonStyle(.borderedProminent)
                 } else {
-                    Text(viewModel.download.step == "es10b_load_bound_profile_package" ? "Keep the router powered on. Installation can’t be cancelled at this stage." : "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。").font(.subheadline).foregroundStyle(.secondary)
+                    Text(viewModel.download.step == "es10b_load_bound_profile_package" ? "请保持路由器供电。此阶段无法取消安装。" : "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。").font(.subheadline).foregroundStyle(.secondary)
                 }
                 if let note = viewModel.downloadNote {
                     Text(note).font(.subheadline).foregroundStyle(.orange).textSelection(.enabled)

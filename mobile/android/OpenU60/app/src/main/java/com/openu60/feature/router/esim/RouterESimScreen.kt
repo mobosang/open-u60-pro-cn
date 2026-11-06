@@ -105,7 +105,7 @@ fun RouterESimScreen(onBack: () -> Unit, viewModel: RouterESimViewModel = hiltVi
             title = { Text("切换到${target.displayName}？") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("The router disconnects from ${state.enabledProfile?.displayName ?: "the current profile"} and connects with ${target.displayName}. Internet is down for about a minute. Wi-Fi stays on.")
+                    Text("路由器将断开 ${state.enabledProfile?.displayName ?: "the current profile"} 并连接 ${target.displayName}。互联网将暂停约一分钟，Wi-Fi 保持开启。")
                     // Advisory only: the switch itself is unchanged.
                     state.inventory.switchWarnings(target).forEach { Text(it, color = MaterialTheme.colorScheme.error) }
                 }
@@ -249,7 +249,7 @@ private fun InventoryHeading(state: RouterESimState) {
         }
         if (state.inventory.observedAt > 0) {
             val time = remember(state.inventory.observedAt) { DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(state.inventory.observedAt * 1000)) }
-            Text("最后阅读 $time", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("最后读取 $time", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -269,8 +269,8 @@ private fun ProfileCard(
     val subtitle = when {
         profile.provider.isNotEmpty() && !profile.provider.equals(profile.displayName, true) -> profile.provider
         profile.name.isNotEmpty() && !profile.name.equals(profile.displayName, true) -> profile.name
-        profile.isEnabled -> "Active on your eSIM card"
-        else -> "Stored on your eSIM card"
+        profile.isEnabled -> "已在 eSIM 卡上启用"
+        else -> "存储在 eSIM 卡上"
     }
     val shape = RoundedCornerShape(16.dp)
     val colors = CardDefaults.cardColors(containerColor = if (profile.isEnabled) accent.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surfaceContainerLow)
@@ -294,7 +294,7 @@ private fun ProfileCard(
             val canDelete = !profile.isEnabled && onDelete != null
             if (canDelete || onRename != null) {
                 Box {
-                    IconButton(onClick = { menu = true }, enabled = canEdit) { Icon(Icons.Default.MoreVert, "Profile options for ${profile.displayName}") }
+                    IconButton(onClick = { menu = true }, enabled = canEdit) { Icon(Icons.Default.MoreVert, "${profile.displayName} 的配置文件选项") }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         if (onRename != null) DropdownMenuItem(text = { Text("重命名") },
                             leadingIcon = { Icon(Icons.Default.Edit, null) }, onClick = { menu = false; onRename() }, enabled = canEdit)
@@ -326,7 +326,7 @@ private fun ConnectionCard(state: RouterESimState, refresh: () -> Unit) {
         RouterESimConnectionPhase.CONNECTED -> "移动数据已连接"
         RouterESimConnectionPhase.DISCONNECTED -> "移动数据未连接"
         RouterESimConnectionPhase.WAITING -> "连接需要处理"
-        RouterESimConnectionPhase.UNAVAILABLE -> if (state.switchingTo == null) "连接状态不可用" else "开关需要注意的地方"
+        RouterESimConnectionPhase.UNAVAILABLE -> if (state.switchingTo == null) "连接状态不可用" else "切换需要处理"
     }
     val detail = state.connectionNote ?: when (phase) {
         RouterESimConnectionPhase.SWITCHING -> "在 eSIM 上选择新的配置文件。"
@@ -424,7 +424,7 @@ private fun ReceiptsCard(count: Int, sending: Boolean, canSend: Boolean, send: (
                 if (sending) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
             }
             TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(0.dp)) {
-                Text("为什么这些人在等待？"); Spacer(Modifier.width(8.dp)); Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, Modifier.size(16.dp))
+                Text("为什么回执仍在等待？"); Spacer(Modifier.width(8.dp)); Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, Modifier.size(16.dp))
             }
             if (expanded) Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送回执。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

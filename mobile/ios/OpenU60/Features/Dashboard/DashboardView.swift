@@ -155,7 +155,7 @@ struct DashboardView: View {
                 id: "puk",
                 icon: "exclamationmark.lock.fill",
                 title: "需要 SIM PUK",
-                message: "Too many wrong PIN attempts. Go to Router > SIM Card to enter your PUK.",
+                message: "PIN 错误次数过多。请前往“路由器 > SIM 卡”输入 PUK。",
                 color: .red
             ))
         }
@@ -164,7 +164,7 @@ struct DashboardView: View {
                 id: "pin",
                 icon: "lock.fill",
                 title: "需要 SIM PIN",
-                message: "Your SIM card is locked. Go to Router > SIM Card to enter your PIN.",
+                message: "SIM 卡已锁定。请前往“路由器 > SIM 卡”输入 PIN。",
                 color: .orange
             ))
         }
@@ -182,7 +182,7 @@ struct DashboardView: View {
                 id: "data",
                 icon: "antenna.radiowaves.left.and.right.slash",
                 title: "移动数据关闭",
-                message: "Cellular radio is on but data is disabled. Go to Router > Mobile Network to enable it.",
+                message: "蜂窝无线电已开启，但移动数据已关闭。请前往“路由器 > 移动网络”开启。",
                 color: .orange
             ))
         }
@@ -440,7 +440,7 @@ private struct ConnectionOverview: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityHint("Opens connection and signal details")
+        .accessibilityHint("打开连接和信号详情")
     }
 }
 
@@ -463,7 +463,7 @@ private struct HealthOverview: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityHint("Opens CPU information and all temperature sensors")
+        .accessibilityHint("打开 CPU 信息及全部温度传感器")
     }
     private func temperature(_ label: String, value: Double?, date: Date?, now: Date) -> some View {
         HStack {
@@ -492,7 +492,7 @@ private struct WiFiOverview: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityHint("Opens Wi-Fi networks and device list")
+        .accessibilityHint("打开 Wi-Fi 网络与设备列表")
     }
 }
 

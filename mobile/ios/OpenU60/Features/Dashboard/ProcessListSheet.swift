@@ -91,7 +91,7 @@ struct ProcessListSheet: View {
                     Task { await killAll() }
                 }
             } message: {
-                Text("这将使 SIGKILL \(bloatCount) 使守护进程膨胀。他们将在重新启动后返回。")
+                Text("将使用 SIGKILL 结束 \(bloatCount) 个冗余守护进程，重启后会恢复。")
             }
             .task {
                 while !Task.isCancelled {
@@ -150,7 +150,7 @@ struct ProcessListSheet: View {
             let body = ["pids": [pid]] as [String: Any]
             let data = try await client.postJSON("/api/system/kill-bloat", body: body)
             let freed = data["freed_rss_kb"] as? Int ?? 0
-            banner = "Killed PID \(pid), freed \(formatKB(freed))"
+            banner = "已结束 PID \(pid)，释放 \(formatKB(freed))"
             await refresh()
             await refreshHost?()
         } catch {
@@ -163,7 +163,7 @@ struct ProcessListSheet: View {
             let data = try await client.postJSON("/api/system/kill-bloat", body: ["all": true])
             let freed = data["freed_rss_kb"] as? Int ?? 0
             let killedArr = data["killed"] as? [[String: Any]] ?? []
-            banner = "Killed \(killedArr.count) daemons, freed \(formatKB(freed))"
+            banner = "已结束 \(killedArr.count) 个守护进程，释放 \(formatKB(freed))"
             await refresh()
             await refreshHost?()
         } catch {

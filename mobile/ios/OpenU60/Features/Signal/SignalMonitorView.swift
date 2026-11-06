@@ -107,10 +107,10 @@ private struct DataSessionPanel: View, Equatable {
 
     private var ambrAccessibilityValue: String {
         let down = bearer.ambrDownlinkMbps.map {
-            "\(BearerInfo.formatMbps($0)) megabits per second down"
+            "下载 \(BearerInfo.formatMbps($0)) 兆比特每秒"
         } ?? "Down unavailable"
         let up = bearer.ambrUplinkMbps.map {
-            "\(BearerInfo.formatMbps($0)) megabits per second up"
+            "上传 \(BearerInfo.formatMbps($0)) 兆比特每秒"
         } ?? "Up unavailable"
         return "\(down), \(up)"
     }

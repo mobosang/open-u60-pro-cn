@@ -99,11 +99,11 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
         "<h1>eSIM 配置文件</h1>", "<a class=\"nl back\" href=\"/ui/router\">路由器</a>",
         "<a class=\"nl ic\" href=\"/ui/router/esim/add\" aria-label=\"添加 eSIM\">",
         "<a class=\"nl ic\" href=\"/ui/router/esim\" aria-label=\"刷新配置文件和连接\">",
-        "<h2>在您的 eSIM 上</h2>", "<span class=\"cnt\">4 个配置文件</span>", "最后阅读 ",
+        "<h2>在您的 eSIM 上</h2>", "<span class=\"cnt\">4 个配置文件</span>", "最后读取 ",
         "<small class=\"active\">", "已启用</small><b>GOMO u60</b><small class=\"cap\">GOMO</small><small class=\"cap num\">…0101</small>",
         "<h2 class=\"esub\">切换到其他配置文件</h2>", "<b>Klook_app</b><small class=\"cap\">Travel - PHL</small>",
         "aria-label=\"不可用\"", "添加 eSIM</a>", "切换会使互联网暂停大约一分钟。您的路由器的 Wi-Fi 保持开启状态。",
-        "<b>运营商回执</b><small class=\"cap\">2 条待处理 · 自动重试</small>", "为什么这些人在等待？",
+        "<b>运营商回执</b><small class=\"cap\">2 条待处理 · 自动重试</small>", "为什么回执仍在等待？",
         "action=\"/ui/router/esim/receipts\"", "立即发送</button>", "<b>eSIM 卡</b><small class=\"cap\">卡片详情与标识符</small>",
         "<span>固件</span><span class=\"v\">4.2.0</span>", "<span>可用内存</span><span class=\"v\">913 KB</span>",
         "•••• •••• •••• …0000", "href=\"/ui/router/esim?eid=1#chip\" aria-label=\"揭示EID\"", "@get('/ui/live/esim/",
@@ -281,7 +281,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     while let Some(f) = frame(&mut b).await {
         last.push_str(&f);
     }
-    assert!(last.contains("<b>开关需要注意的地方</b>") && last.contains("href=\"\">再次检查</a>"), "{last}");
+    assert!(last.contains("<b>切换需要处理</b>") && last.contains("href=\"\">再次检查</a>"), "{last}");
     assert!(last.contains("<p class=\"live\" id=\"live-status\"></p>") && !last.contains(ICCIDS[2]), "{last}");
     assert!(Topic::ALL.into_iter().all(|t| c.app.hub.demand(t) == 0));
     let _sw = fake::set(&c.app, json!({"state": "no_data", "reason": "roaming_off", "target_iccid": ICCIDS[2], "generation": 8}));
@@ -358,7 +358,7 @@ async fn delete_and_rename_follow_the_app() {
     assert_eq!(to(&a), to(&b));
     assert_eq!(calls(&c), [("/api/esim/delete".to_owned(), json!({"iccid": ICCIDS[1]}))]);
     let html = get_with(&c, &to(&a), peer(164, 4), &cookie).await.text();
-    assert!(html.contains("<b>配置文件已更新</b><p>DITO u60 deleted. The operator will be notified on the next eSIM change.</p>"), "{html}");
+    assert!(html.contains("<b>配置文件已更新</b><p>DITO u60 deleted.下次更改 eSIM 时将通知运营商。</p>"), "{html}");
     // Rename: the sheet.
     let r = get_with(&c, &format!("{RENAME}?p={dito}"), peer(164, 5), &cookie).await;
     r.assert_secure_html(200);

@@ -141,7 +141,7 @@ struct SignalLiveActivity: Widget {
         }
         .foregroundStyle(stale ? Color.orange : (sinr == nil ? Color.secondary : Color.blue))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(sinr.map { "Active radio SINR \(Int($0)) decibels" } ?? "Active radio SINR unavailable")
+        .accessibilityLabel(sinr.map { "当前无线电 SINR \(Int($0)) 分贝" } ?? "Active radio SINR unavailable")
     }
 
     @ViewBuilder

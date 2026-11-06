@@ -58,7 +58,7 @@ class BandLockViewModel @Inject constructor(
                 ))
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    successMessage = "NR bands locked to: $bands",
+                    successMessage = "NR 频段已锁定为：$bands",
                 )
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) applyNRLock()
@@ -83,7 +83,7 @@ class BandLockViewModel @Inject constructor(
                 ))
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    successMessage = "LTE bands locked to: $bands",
+                    successMessage = "LTE 频段已锁定为：$bands",
                 )
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) applyLTELock()

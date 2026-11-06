@@ -205,7 +205,7 @@ struct TemperatureCardView: View {
     private func freshnessText(at now: Date) -> String {
         guard let thermalUpdatedAt else { return "温度读数不可用·自动重试" }
         let seconds = max(0, Int(now.timeIntervalSince(thermalUpdatedAt)))
-        return seconds < 10 ? "Updated \(seconds)s ago · refreshes every 2s" : "Last sample \(seconds)s ago · waiting for device"
+        return seconds < 10 ? "更新于 \(seconds) 秒前 · 每 2 秒刷新" : "最后采样于 \(seconds) 秒前 · 等待设备"
     }
 
     private func temperatureRow(_ title: String, icon: String, value: Double?, fresh: Bool) -> some View {

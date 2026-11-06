@@ -49,7 +49,7 @@ fun PlaceholderScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "This feature requires a direct USB connection\nto the ZTE U60 Pro via ADB.\n\nUse the desktop Python tools instead.",
+                "此功能需要通过 USB 线缆\n直接连接 ZTE U60 Pro 并使用 ADB。\n\n请使用桌面端 Python 工具。",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

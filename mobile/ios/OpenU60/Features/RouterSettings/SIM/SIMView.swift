@@ -345,7 +345,7 @@ struct EnterPinSheet: View {
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
                         if viewModel.pinSheetAction == .verify {
-                            Text("\(viewModel.simInfo.pinAttempts) attempts remaining")
+                            Text("\(viewModel.simInfo.pinAttempts) 次尝试机会剩余")
                         }
                         SheetErrorFooter(message: viewModel.sheetError)
                     }
@@ -384,7 +384,7 @@ struct EnterPukSheet: View {
                         .keyboardType(.numberPad)
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("\(viewModel.simInfo.pukAttempts) attempts remaining")
+                        Text("\(viewModel.simInfo.pukAttempts) 次尝试机会剩余")
                         SheetErrorFooter(message: viewModel.sheetError)
                     }
                 }
@@ -428,7 +428,7 @@ struct UnlockSIMSheet: View {
                         .textInputAutocapitalization(.never)
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("\(viewModel.lockInfo.availableTrials) attempts remaining")
+                        Text("\(viewModel.lockInfo.availableTrials) 次尝试机会剩余")
                         SheetErrorFooter(message: viewModel.sheetError)
                     }
                 }

@@ -65,7 +65,7 @@ object ZTEConfigCrypto {
 
     fun decryptCBC(data: ByteArray, key: ByteArray): ByteArray {
         if (data.size < AES_CBC_IV_SIZE + AES_BLOCK_SIZE) {
-            throw ZTEConfigCryptoException("Data too short for CBC decryption")
+            throw ZTEConfigCryptoException("数据太短，无法进行 CBC 解密")
         }
         val adjustedKey = adjustKey(key, AES_256_KEY_SIZE)
         val iv = data.copyOfRange(0, AES_CBC_IV_SIZE)
@@ -137,7 +137,7 @@ object ZTEConfigCrypto {
         val result = ZTECompression.decompress(decrypted)
         val trimmed = result.dropWhile { it == ' '.code.toByte() || it == '\n'.code.toByte() || it == '\r'.code.toByte() || it == '\t'.code.toByte() }.toByteArray()
         if (trimmed.isNotEmpty() && trimmed[0] != '<'.code.toByte()) {
-            throw ZTEConfigCryptoException("Decrypted data does not appear to be XML")
+            throw ZTEConfigCryptoException("解密后的数据不是 XML")
         }
         return result
     }

@@ -76,7 +76,7 @@ final class ConfigToolViewModel {
             decryptedData = decompressed
             decryptedXML = String(data: decompressed, encoding: .utf8)
                 ?? String(data: decompressed, encoding: .ascii)
-                ?? "Binary data (\(decompressed.count) bytes)"
+                ?? "二进制数据（\(decompressed.count) 字节）"
         } catch {
             // Maybe it's already XML
             if let xml = String(data: data, encoding: .utf8), xml.contains("<") {

@@ -184,7 +184,7 @@ private fun DownloadContent(state: RouterESimState, viewModel: RouterESimViewMod
                     OutlinedButton(onClick = close) { Text("后来") }
                 }
                 "failed" -> {
-                    Text(download.error ?: "The operator couldn’t add this profile.", color = MaterialTheme.colorScheme.error)
+                    Text(download.error ?: "运营商无法添加此配置文件。", color = MaterialTheme.colorScheme.error)
                     Button(onClick = retry) { Text("重试") }
                 }
                 else -> Text(if (download.step == "es10b_load_bound_profile_package") "保持路由器电源开启。在此阶段无法取消安装。" else "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。")

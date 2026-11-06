@@ -493,8 +493,8 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         Kind::FwPfSwitch if on => {
             let what = match super::api_get(app, PF_API).map(|l| rules(&l).len()) {
                 Ok(0) => "将互联网上的开放端口添加到路由器上的设备的规则。".to_owned(),
-                Ok(1) => "1 rule opens a port from the internet to a device on the router.".to_owned(),
-                Ok(n) => format!("{n} rules open ports from the internet to devices on the router."),
+                Ok(1) => "1 条规则向互联网开放路由器上设备的端口。".to_owned(),
+                Ok(n) => format!("{n} 条规则向互联网开放路由器上设备的端口。"),
                 Err(_) => "其规则开放从互联网到路由器上的设备的端口。".to_owned(),
             };
             ask_lines("开启端口转发？".into(), vec![what], "开启端口转发", false)
@@ -512,7 +512,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             };
             let (on, ip) = (val(vals, "dmz") == "1", val(vals, "ip"));
             if on == c.dmz && (!on || ip == c.dmz_ip) {
-                let line = if on { format!("{ip} is already the DMZ host.") } else { "DMZ is already off.".to_owned() };
+                let line = if on { format!("{ip} 已是 DMZ 主机。") } else { "DMZ is already off.".to_owned() };
                 return nothing("没有什么可申请的", vec![line]);
             }
             if on {
@@ -523,13 +523,13 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
                 ask_lines(format!("将{ip}设为DMZ主机？"), lines, "申请DMZ", false)
             } else {
                 let host = if c.dmz_ip.is_empty() { "DMZ主机" } else { c.dmz_ip.as_str() };
-                ask_lines("关闭DMZ？".into(), vec![format!("{host} no longer receives connections from the internet that no other rule takes.")], "申请DMZ", false)
+                ask_lines("关闭DMZ？".into(), vec![format!("{host} 将不再接收未被其他规则处理的互联网连接。")], "申请DMZ", false)
             }
         }
         Kind::FwPfAdd => {
             let proto = PROTOCOLS.iter().find(|(v, _)| *v == val(vals, "proto")).map_or("", |(_, l)| l);
             let (wan, ip, lan) = (val(vals, "wan"), val(vals, "ip"), val(vals, "lan"));
-            let mut lines = vec![format!("{proto} WAN port {wan} goes to {ip}:{lan}: that port of the device can be reached from the internet.")];
+            let mut lines = vec![format!("{proto} WAN 端口 {wan} 将转发至 {ip}:{lan}，互联网可以访问该设备端口。")];
             if super::api_get(app, API).is_ok_and(|d| !Config::of(&d).pf) {
                 lines.push("端口转发关闭：开启后规则生效。".into());
             }
@@ -549,7 +549,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
                 None => nothing("未找到规则", vec!["可能已被删除。".into()]),
                 Some(r) => ask_lines(
                     format!("删除“{}”？", r.title()),
-                    vec![format!("{} stops: what it serves can\u{2019}t be reached from the internet any more.", r.route())],
+                    vec![format!("{} 将停止转发，对应服务将无法再从互联网访问。", r.route())],
                     "删除",
                     false,
                 ),

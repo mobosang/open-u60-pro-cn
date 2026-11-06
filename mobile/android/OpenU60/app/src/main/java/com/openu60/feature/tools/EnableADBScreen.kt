@@ -112,7 +112,7 @@ fun EnableADBScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Connect USB cable and run:\nadb shell",
+                    "连接 USB 线缆后运行：\nadb shell",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -131,7 +131,7 @@ fun EnableADBScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Sets USB mode to debug, enabling ADB shell access.\nThe device will need a USB cable connected.",
+                    "将 USB 模式设置为调试，以启用 ADB shell 访问。\n需要通过 USB 线缆连接设备。",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

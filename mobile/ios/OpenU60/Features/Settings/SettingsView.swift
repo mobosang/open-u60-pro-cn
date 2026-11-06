@@ -65,7 +65,7 @@ struct SettingsView: View {
 
                 Section {
                     VStack(alignment: .leading) {
-                        Text("Refresh interval: \(viewModel.pollInterval, specifier: "%.1f")s")
+                        Text("刷新间隔：\(viewModel.pollInterval, specifier: "%.1f")s")
                         Slider(value: $vm.pollInterval, in: 1...10, step: 0.5)
                             .accessibilityLabel("刷新间隔")
                             .accessibilityValue(String(format: "%.1f seconds", viewModel.pollInterval))

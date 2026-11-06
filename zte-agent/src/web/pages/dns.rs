@@ -75,7 +75,7 @@ fn ipv4(s: &str) -> bool {
 const NOT_A_SERVER: &str = "使用DNS服务器的地址。";
 const ROUTER_ITSELF: &str = "这是路由器’自己的地址；使用 DNS 服务器 ’ 地址。";
 /// As DMZ and port forward say when the router's network can't be read.
-const NO_LAN: &str = "Couldn’t 读取路由器’s 网络。再试一次。";
+const NO_LAN: &str = "无法读取路由器网络，请重试。";
 const URL_FORMAT: &str = "Enter an https:// URL with a server address or name, such as https://1.1.1.1/dns-query.";
 
 /// Why an address can't be a DNS server (or the DoH server): not a single
@@ -458,7 +458,7 @@ pub fn cache(pd: &PageData) -> Markup {
     let entries = entries(pd);
     let more = format!("{CACHE}?n={}", n + STEP);
     html! {
-        @if let Some(Err(e)) = pd.reads.first() { p.msg.err role="alert" { "Couldn’t 读取缓存： " (fmt::truncate(e, 120)) } }
+        @if let Some(Err(e)) = pd.reads.first() { p.msg.err role="alert" { "无法读取缓存：" (fmt::truncate(e, 120)) } }
         form.srch method="post" action=(CACHE) role="search" {
             (pd.csrf())
             input type="search" name="q" value=(q) placeholder="按域过滤" aria-label="按域过滤" autocomplete="off" maxlength="64";

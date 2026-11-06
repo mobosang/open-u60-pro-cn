@@ -37,7 +37,7 @@ struct FirewallSettingsView: View {
                     .disabled(viewModel.isLoading)
                 }
 
-                LabeledContent("万平", value: viewModel.config.wanPingFilter ? "Blocked" : "允许")
+                LabeledContent("WAN Ping", value: viewModel.config.wanPingFilter ? "Blocked" : "允许")
             }
 
             Section("网络地址转换/UPnP") {
