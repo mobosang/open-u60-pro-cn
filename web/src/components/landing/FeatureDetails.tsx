@@ -18,7 +18,7 @@ export function FeatureDetails() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
         >
-          功能深入探讨
+          功能详解
         </motion.h2>
         <motion.p
           className="mx-auto mb-12 max-w-2xl text-center text-[0.9375rem] text-text-dim"

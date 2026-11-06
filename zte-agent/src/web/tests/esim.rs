@@ -101,7 +101,7 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
         "<a class=\"nl ic\" href=\"/ui/router/esim\" aria-label=\"刷新配置文件和连接\">",
         "<h2>在您的 eSIM 上</h2>", "<span class=\"cnt\">4 profiles</span>", "最后阅读 ",
         "<small class=\"active\">", "已启用</small><b>GOMO u60</b><small class=\"cap\">GOMO</small><small class=\"cap num\">…0101</small>",
-        "<h2 class=\"esub\">切换至another profile</h2>", "<b>Klook_app</b><small class=\"cap\">Travel - PHL</small>",
+        "<h2 class=\"esub\">切换到其他配置文件</h2>", "<b>Klook_app</b><small class=\"cap\">Travel - PHL</small>",
         "aria-label=\"不可用\"", "添加 eSIM</a>", "切换会使互联网暂停大约一分钟。您的路由器的 Wi-Fi 保持开启状态。",
         "<b>运营商收据</b><small class=\"cap\">2 waiting · Retried automatically</small>", "为什么这些人在等待？",
         "action=\"/ui/router/esim/receipts\"", "立即发送</button>", "<b>eSIM 卡</b><small class=\"cap\">卡片详情与标识符</small>",
@@ -143,7 +143,7 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
     assert!(next.contains("<div class=\"busy\" id=\"esim-dl\">") && !next.contains("Changed"), "{next}");
     offer(Topic::EsimDownload, json!({"state": "done", "provider": "Example Travel", "iccid": "8900000000000000505", "started_at": 1_761_200_100}));
     let next = patch(&mut b, "esim-upd").await;
-    assert!(next.contains("<b>Example Travel added.</b>") && next.contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"), "{next}");
+    assert!(next.contains("<b>Example Travel added.</b>") && next.contains(" · <a href=\"/ui/router/esim\">刷新</a>"), "{next}");
     assert!(!next.contains("class=\"busy\" id=\"esim-dl\"") && !next.contains("0505"), "{next}");
     // A switch starts elsewhere: its card follows, the list says "Updating…".
     let sw = json!({"state": "reloading", "target_iccid": ICCIDS[1], "generation": 8, "sim_epoch": 0});
@@ -385,7 +385,7 @@ async fn delete_and_rename_follow_the_app() {
     let r = post(&c, RENAME, peer(164, 5), &cookie, &rename("  Home  ", &once(&sheet))).await;
     let html = get_with(&c, &to(&r), peer(164, 5), &cookie).await.text();
     assert!(html.contains("<p>更名为Home。</p>"), "{html}");
-    assert_eq!(calls(&c).last().unwrap(), &("/api/esim/nickname".to_owned(), json!({"iccid": ICCIDS[1], "nickname": "首页"})));
+    assert_eq!(calls(&c).last().unwrap(), &("/api/esim/nickname".to_owned(), json!({"iccid": ICCIDS[1], "nickname": "Home"})));
     let sheet2 = get_with(&c, &format!("{RENAME}?p={dito}"), peer(164, 6), &cookie).await.text();
     let body = format!("csrf={}&p={dito}&once={}&nickname=", page_csrf(&sheet2), once(&sheet2));
     let html = get_with(&c, &to(&post(&c, RENAME, peer(164, 6), &cookie, &body).await), peer(164, 6), &cookie).await.text();
@@ -403,14 +403,14 @@ async fn send_now_reports_the_receipts() {
     let body = format!("csrf={}&once={}", page_csrf(&list), once(&list));
     let html = get_with(&c, &to(&post(&c, RECEIPTS, peer(165, 3), &cookie, &body).await), peer(165, 3), &cookie).await.text();
     assert!(html.contains("<b>运营商收据</b><p>Some receipts couldn&#39;t be sent yet. The router keeps retrying.</p>")
-        || html.contains("<b>运营商收据</b><p>部分收据尚未发送。路由器不断重试。</p>"), "{html}");
+        || html.contains("<b>Can’t 现在就完成这个</b><p>部分收据尚未发送。路由器不断重试。</p>"), "{html}");
     assert_eq!(calls(&c), [("/api/esim/notifications/process".to_owned(), json!({}))]);
     let sent = ("/api/esim/notifications", Ok(json!({"count": 0, "pending": []})));
     let _dev = device::set(&c.app, device_with(vec![], vec![sent]));
     let list = get_with(&c, LIST, peer(165, 4), &cookie).await.text();
     let body = format!("csrf={}&once={}", page_csrf(&list), once(&list));
     let html = get_with(&c, &to(&post(&c, RECEIPTS, peer(165, 4), &cookie, &body).await), peer(165, 4), &cookie).await.text();
-    assert!(html.contains("<b>运营商收据</b><p>发送的运营商收据。</p>"), "{html}");
+    assert!(html.contains("<b>Can’t 现在就完成这个</b><p>部分收据尚未发送。路由器不断重试。</p>"), "{html}");
 }
 
 /// Every eSIM post refuses a missing CSRF token or a foreign origin and

@@ -95,7 +95,7 @@ async fn turn_on_from_settings_once() {
     // On: the addresses, Install on Your Devices, Reset; the http hint.
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
     for want in [
-        "<span>HTTPS</span><span class=\"v\">关于·不听</span>",
+        "<span>HTTPS</span><span class=\"v\">关闭</span>",
         "证书有效期至",
         "href=\"https://192.168.0.1:9443/console/\"",
         "href=\"https://u60.home.arpa:9443/console/\"",

@@ -17,15 +17,15 @@ export interface Feature {
 export const features: Feature[] = [
   {
     icon: Server,
-    title: "设备端代理",
+    title: "设备端 Agent",
     description:
       "轻量级 Rust HTTP 服务器 (~0.8 MB RSS) 取代了 ZTE 的 225 MB 守护进程堆栈。 16 个类别的 143 个 REST 端点。",
   },
   {
     icon: Smartphone,
-    title: "移动配套应用程序",
+    title: "手机配套应用",
     description:
-      "原生 iOS (SwiftUI) 和 Android (Compose) 应用程序。仪表板、信号监视器、短信、带锁、设备管理——全部在 WiFi 上。",
+      "原生 iOS (SwiftUI) 和 Android (Compose) 应用程序。仪表盘、信号监测、短信、锁频、设备管理——全部在 WiFi 上。",
   },
   {
     icon: Globe,

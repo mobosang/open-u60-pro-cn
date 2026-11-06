@@ -4,9 +4,9 @@ import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 
 const stats = [
-  { value: "1", label: "流程", sub: "vs 44" },
+  { value: "1", label: "进程", sub: "vs 44" },
   { value: "~0.8\u00a0MB", label: "内存", sub: "vs 225\u00a0MB" },
-  { value: "143", label: "端点", sub: "REST API" },
+  { value: "143", label: "接口", sub: "REST API" },
   { value: "16", label: "类别", sub: "全覆盖" },
 ];
 

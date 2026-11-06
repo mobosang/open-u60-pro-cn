@@ -53,7 +53,7 @@ fn grid(pd: &PageData, nr: bool, title: &str, action: &str, name: &str, list: &[
                         summary { "频段详情" }
                         ul.devs {
                             @for b in list {
-                                @if let Some((n, f)) = lock_facts(nr, *b) { li { b { "频段  " (b) " \u{2014} " (n) } small { (f) } } }
+                                @if let Some((n, f)) = lock_facts(nr, *b) { li { b { "频段 " (b) " \u{2014} " (n) } small { (f) } } }
                             }
                         }
                     }

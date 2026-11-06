@@ -69,7 +69,7 @@ const SEND: &str = "/ui/sms/send";
 const DELETE: &str = "/ui/sms/delete";
 /// Messages per page of a conversation.
 const PAGE: usize = 100;
-const EXPIRED: &str = "此表格已过期，因此消息未发送。再发送一次。";
+const EXPIRED: &str = "此表单已过期，因此消息未发送。再发送一次。";
 const CHANGED: &str = "谈话内容发生了变化。查看并重试。";
 /// The app's words for a send that failed without an error.
 const NOT_SENT: &str = "消息未发送";

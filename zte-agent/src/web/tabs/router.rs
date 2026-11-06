@@ -436,7 +436,7 @@ pub static DEVICE_RESET: Screen = Screen {
 
 /// The remote line of a change that surely cuts the connection (the same
 /// opening as `confirm::REMOTE`).
-const CUT: &str = "您已远程连接：这将切断连接，并且只有在路由器上重新打开连接后才能访问此页面。";
+const CUT: &str = "你正在远程连接：这将切断连接，并且只有在路由器上重新打开连接后才能访问此页面。";
 const AIRPLANE_LINE: &str = "蜂窝无线电关闭；电话、短信和互联网停止。";
 const ENABLE: &[Field] = &[Field { name: "enable", kind: Kind::Choice(&["0", "1"]) }];
 

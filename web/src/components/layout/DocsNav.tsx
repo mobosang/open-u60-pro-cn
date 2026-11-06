@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/docs/api-reference", label: "API参考" },
+  { href: "/docs/api-reference", label: "API 参考" },
   { href: "/docs/troubleshooting", label: "故障排除" },
   { href: "/docs/faq", label: "FAQ" },
 ];

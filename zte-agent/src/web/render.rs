@@ -365,7 +365,7 @@ pub fn not_found(nonce: &str) -> Response {
 /// A post that failed the origin or CSRF check; `form` is the page that
 /// shows the form again (a standalone window has no Back button).
 pub fn form_refused(nonce: &str, form: &str) -> Response {
-    let msg = "此表格已过期或来自其他网站。再次打开并重试。";
+    let msg = "此表单已过期或来自其他网站。再次打开并重试。";
     html(403, error_page("表格不被接受", msg, nonce, Some(form)))
 }
 

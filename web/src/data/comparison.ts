@@ -7,7 +7,7 @@ export interface ComparisonRow {
 
 export const comparisonData: ComparisonRow[] = [
   {
-    label: "流程",
+    label: "进程",
     agent: "1",
     official: "44",
     agentGood: true,

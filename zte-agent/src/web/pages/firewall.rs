@@ -352,7 +352,7 @@ fn host_error(net: Option<(Ipv4Addr, u32)>, s: &str) -> Option<String> {
     let (x, net) = (u32::from(a), u32::from(router) & m);
     let last = net | !m;
     if a == router {
-        Some("这是路由器’自己的地址；使用设备’的地址。".into())
+        Some("这是路由器自己的地址；请使用设备的地址。".into())
     } else if x & m != net || x == net || x == last {
         Some(format!("使用从 {} 到 {} 的地址。", Ipv4Addr::from(net + 1), Ipv4Addr::from(last - 1)))
     } else {
@@ -660,7 +660,7 @@ mod tests {
     fn hosts_and_ports() {
         let net = Some((Ipv4Addr::new(192, 168, 0, 1), 0xffff_ff00));
         assert_eq!(host_error(net, "192.168.0.50"), None);
-        assert!(host_error(net, "192.168.0.1").unwrap().contains("router\u{2019}s own address"));
+        assert!(host_error(net, "192.168.0.1").unwrap().contains("路由器自己的地址"));
         assert_eq!(host_error(net, "192.168.1.5").unwrap(), "使用从 192.168.0.1 到 192 的地址。168.0.254.");
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
         assert!(host_error(net, "nope").unwrap().starts_with("Enter an IPv4"));

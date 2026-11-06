@@ -7,7 +7,7 @@ import { Smartphone, Wifi, Shield, Layout, MessageSquareShare } from "lucide-rea
 import { Badge } from "@/components/ui/Badge";
 
 const appFeatures = [
-  { icon: Layout, label: "带信号卡、WiFi 状态、电池的仪表板" },
+  { icon: Layout, label: "带信号卡、WiFi 状态、电池的仪表盘" },
   { icon: Smartphone, label: "SMS, voice calls, USSD, SIM Toolkit" },
   { icon: Wifi, label: "频段锁定、小区锁定、网络模式" },
   { icon: Shield, label: "配置备份/恢复、调度程序、设备信息" },
@@ -27,7 +27,7 @@ export function MobileApps() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
         >
-          移动配套应用程序
+          手机配套应用
         </motion.h2>
         <motion.p
           className="mx-auto mb-12 max-w-lg text-center text-sm text-text-dim"

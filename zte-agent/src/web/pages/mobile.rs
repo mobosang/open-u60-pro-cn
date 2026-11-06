@@ -411,7 +411,7 @@ fn apply_question(i: &Input, remote: bool) -> Option<Question> {
     }
     if roam_off {
         head = head.or(Some(("关闭数据漫游？", "关闭数据漫游")));
-        lines.extend(["当路由器在国外时，移动数据会停止。".into(), "您已远程连接：如果路由器在国外，则只有在路由器上重新开启漫游后才能访问此页面。".into()]);
+        lines.extend(["当路由器在国外时，移动数据会停止。".into(), "你正在远程连接：如果路由器在国外，则只有在路由器上重新开启漫游后才能访问此页面。".into()]);
     }
     if auto {
         head = head.or(Some(("切换到自动网络选择？", "应用")));

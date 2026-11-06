@@ -609,7 +609,7 @@ struct Draw<'a> {
     remote: bool,
 }
 
-const REMOTE: &str = "您已远程连接：飞行模式打开和移动数据关闭在运行时会切断此连接。打开“在”处的反向动作将其恢复。";
+const REMOTE: &str = "你正在远程连接：飞行模式打开和移动数据关闭在运行时会切断此连接。打开“在”处的反向动作将其恢复。";
 
 /// A notice above the form: (success, text).
 type Note = Option<(bool, String)>;
@@ -943,7 +943,7 @@ mod tests {
         assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天 at 23:00");
         assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一–周五 at 23:00 → 06:30");
         assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 at 23:00");
-        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "Sun, Mon at 23:00");
+        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "周日, 周一 at 23:00");
         assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "Tue at ??:??");
         assert_eq!(s(json!({"type": "once"}), Value::Null), "单次");
         assert!(s(json!({"type": "once", "at": 1_790_000_000}), Value::Null).starts_with("Once: "));

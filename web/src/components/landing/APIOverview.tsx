@@ -22,10 +22,10 @@ export function APIOverview() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
         >
           <h2 className="mb-2 font-display text-[1.75rem] font-bold tracking-tight text-wrap-balance">
-            休息API
+            REST API
           </h2>
           <p className="text-sm text-text-dim">
-            {totalEndpoints} endpoints across {totalCategories} categories
+            {totalEndpoints} 个接口，分为 {totalCategories} 类
           </p>
         </motion.div>
 

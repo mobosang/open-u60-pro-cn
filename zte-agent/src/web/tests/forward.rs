@@ -182,7 +182,7 @@ async fn switches_settings_and_delete() {
     let left: Vec<u64> = config(&c).await["rules"].as_array().unwrap().iter().map(|r| r["id"].as_u64().unwrap()).collect();
     assert_eq!(left, [2, 3, 4]);
     let r = post(&c, &del, peer(82, 5), &cookie, &format!("csrf={csrf}&id=1&confirm=1")).await;
-    assert!(r.status == 404 && r.text().contains("失败：找不到规则"));
+    assert!(r.status == 404 && r.text().contains("失败：rule not found"));
     // Refused: another origin, no token; signed out, nothing changes.
     for path in [format!("{SMS_FWD}/enabled"), format!("{TOOLS_FWD}/rules/toggle")] {
         post(&c, &path, peer(82, 6), &cookie, "enabled=0&id=2").await.assert_secure_html(403);
@@ -331,7 +331,7 @@ async fn save_creates_updates_and_keeps_secrets() {
     assert_eq!(
         created,
         &json!({"id": 5, "name": "Codes", "enabled": true, "filter": {"type": "content", "keywords": ["otp", "code"]},
-                "测试可能仍在运行。再次测试之前检查目的地。": {"type": "telegram", "bot_token": "999:NEW-FAKE", "chat_id": "77", "silent": true}})
+                "destination": {"type": "telegram", "bot_token": "999:NEW-FAKE", "chat_id": "77", "silent": true}})
     );
     // Another session's draft is never used: a token of mine, my draft only.
     let other = format!("zte_ui_session={}", login(&c, 84, 9).await);
@@ -380,7 +380,7 @@ async fn test_destination() {
     let html = r.text();
     assert_no_secrets(&html);
     assert!(html.contains("<p class=\"msg ok\" role=\"status\">测试消息发送</p>") && html.contains("value=\"Changed, unsaved\""), "{html}");
-    assert_eq!(fake::tests(&c.app), [json!({"测试可能仍在运行。再次测试之前检查目的地。": {"type": "telegram", "bot_token": TOKEN, "chat_id": "-100999", "silent": false}})]);
+    assert_eq!(fake::tests(&c.app), [json!({"destination": {"type": "telegram", "bot_token": TOKEN, "chat_id": "-100999", "silent": false}})]);
     // A double click: one test.
     let again = post(&c, &test, peer(85, 2), &cookie, &b).await;
     assert!(again.status == 200 && again.text().contains("测试消息发送"));
@@ -440,7 +440,7 @@ async fn test_destination() {
         let r = post(&c, &format!("{TOOLS_FWD}/rules/test"), peer(85, 5), &cookie, &hidden("&confirm=1")).await;
         assert!(r.status == 200 && r.text().contains("测试消息发送"), "{}", r.text());
     }
-    assert_eq!(fake::tests(&c.app), [json!({"测试可能仍在运行。再次测试之前检查目的地。": {"type": "sms", "forward_number": "+15555550123"}})]);
+    assert_eq!(fake::tests(&c.app), [json!({"destination": {"type": "sms", "forward_number": "+15555550123"}})]);
     // The slow lane busy: the form again, nothing sent, the token given back.
     let mut busy = c.clone();
     busy.gate = Arc::new(Gate::new(2, 0, Duration::from_millis(20)));
@@ -512,7 +512,7 @@ async fn forward_log_in_both_tabs() {
             "<span class=\"rs\">Fake &lt;b&gt;bot&lt;/b&gt; → webhook</span><span class=\"pv\">Your code is 000000</span>",
             &format!("<div class=\"l2\"><span class=\"tm\">{}</span></div>", stamp(1_792_000_100)),
             &format!("<span class=\"tm\">{}</span><form class=\"sf\" method=\"post\" action=\"{base}/log/retry\">", stamp(1_792_000_200)),
-            "<input type=\"hidden\" name=\"i\" value=\"1\"><input type=\"hidden\" name=\"sms\" value=\"11\"><input type=\"hidden\" name=\"rule\" value=\"2\"><input type=\"hidden\" name=\"ts\" value=\"1792000200\"><button class=\"btn sm\" type=\"submit\">重试<span class=\"sr\"> ，转发自 EXAMPLE-BANK</span></button>",
+            "<input type=\"hidden\" name=\"i\" value=\"1\"><input type=\"hidden\" name=\"sms\" value=\"11\"><input type=\"hidden\" name=\"rule\" value=\"2\"><input type=\"hidden\" name=\"ts\" value=\"1792000200\"><button class=\"btn sm\" type=\"submit\">重试<span class=\"sr\">，转发自 EXAMPLE-BANK</span></button>",
         ] {
             assert!(html.contains(want), "{want} in {html}");
         }
@@ -602,7 +602,7 @@ async fn retry_once_by_fingerprint() {
     busy.gate = Arc::new(Gate::new(2, 0, Duration::from_millis(20)));
     let page = get_with(&c, &log, peer(87, 6), &cookie).await;
     let html = retried(&c, &cookie, &log, &post(&busy, &retry, peer(87, 6), &cookie, &body(&page)).await).await;
-    assert!(html.contains("重试失败：the router is busy. Try again in a few seconds."), "{html}");
+    assert!(html.contains("重试失败：路由器正忙。 Try again in a few seconds."), "{html}");
     assert_eq!(fake::retries(&c.app).len(), 3);
     let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 6), &cookie, &body(&page)).await).await;
     assert!(html.contains(OK_LINE));
@@ -665,7 +665,7 @@ async fn clear_asks_first() {
     }
 }
 
-const GONE: &str = "This form expired, so the rule was not saved. Enter the secret fields again, then save.";
+const GONE: &str = "此表单已过期, so the rule was not saved. Enter the secret fields again, then save.";
 
 /// Secrets typed into a form are kept as long as its token (an hour), and
 /// a form whose draft is gone (pushed out of the store) says so and saves
@@ -823,7 +823,7 @@ async fn config_reads_last_id_and_failures() {
     assert!(q.contains("加载失败：Failed &lt;to&gt; read") && !q.contains("name=\"confirm\""), "{q}");
     let edit = get_with(&c, &format!("{SMS_FWD}/rules/1"), peer(92, 3), &cookie).await;
     edit.assert_secure_html(503);
-    assert!(edit.text().contains("<strong>加载失败</strong><p>失败 &lt;to&gt; read</p>"), "{}", edit.text());
+    assert!(edit.text().contains("<strong>加载失败</strong><p>Failed &lt;to&gt; read</p>"), "{}", edit.text());
     for (action, want) in [("save", "失败：Failed &lt;to&gt; read"), ("test", "测试失败： 失败 &lt;to&gt; read")] {
         let b = body(&f, &[("name", "X"), ("ft", "all"), ("dt", "telegram"), ("tg_token", "999:NEW-FAKE"), ("tg_chat", "1")]);
         let r = post(&c, &format!("{SMS_FWD}/rules/{action}"), peer(92, 4), &cookie, &b).await;

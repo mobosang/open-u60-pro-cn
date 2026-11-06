@@ -234,7 +234,7 @@ pub fn parse(kind: Kind, pairs: &[(String, String)]) -> Result<Vals, Bad> {
 }
 
 const SLEEP_REMOTE: &str =
-    "您已远程连接：当路由器处于睡眠状态时，只有按下其电源按钮才能访问此页面’。";
+    "你正在远程连接：当路由器处于睡眠状态时，只有按下其电源按钮才能访问此页面。";
 
 /// Only Auto Sleep on, for a remote browser, is asked.
 pub fn question(kind: Kind, input: &Input, remote: bool) -> Option<Question> {
@@ -353,7 +353,7 @@ fn sheet(pd: &PageData, w: Power) -> Markup {
             "这将删除所有设置。输入您的路由器密码进行确认。",
             "恢复出厂设置",
             "这将清除所有设置并恢复出厂默认设置。此操作无法撤消。",
-            "您已远程连接：恢复出厂设置后，路由器可能无法返回您的尾网；然后只能通过 Wi-Fi 设备再次进行设置。",
+            "你正在远程连接：恢复出厂设置后，路由器可能无法返回您的尾网；然后只能通过 Wi-Fi 设备再次进行设置。",
         ),
         _ => ("输入您的路由器密码以确认重启。", "重启", "路由器将重新启动。这大约需要 60 秒。", REMOTE),
     };
@@ -486,7 +486,7 @@ mod tests {
         assert!(question(Kind::AutoSleep, &on, false).is_none() && question(Kind::PowerSave, &on, true).is_none());
         let q = question(Kind::AutoSleep, &on, true).unwrap();
         assert_eq!((q.title.as_str(), q.label), ("开启自动睡眠？", Some("打开自动睡眠")));
-        assert!(q.lines[0].contains("for 20 min,") && q.lines[1].starts_with("You are connected remotely:"));
+        assert!(q.lines[0].contains("20 min") && q.lines[1].starts_with("你正在远程连接："));
         assert!(question(Kind::AutoSleep, &Input::of(&[("timeout", "20")]), true).is_none());
         assert_eq!(Power::of(REBOOT).map(Power::api), Some("/api/device/reboot"));
         assert_eq!(Power::of(RESET).map(Power::api), Some("/api/device/factory-reset"));

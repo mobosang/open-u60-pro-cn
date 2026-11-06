@@ -204,7 +204,7 @@ pub fn cell_lock(pd: &PageData) -> Markup {
                 @let f = |k: &str| c[k].as_str().unwrap_or("").to_owned();
                 li.it.nb {
                     span.cvb {
-                        span.l1 { b { (f("type")) } span.muted { "频段  " (f("band")) } }
+                        span.l1 { b { (f("type")) } span.muted { "频段 " (f("band")) } }
                         small { "PCI: " (f("pci")) "\u{a0}\u{a0}EARFCN: " (f("earfcn")) "\u{a0}\u{a0}RSRP: " (f("rsrp")) }
                     }
                 }
@@ -261,7 +261,7 @@ pub fn question(kind: Kind, i: &Input, remote: bool) -> Option<Question> {
     let rereg = "它可能会重新注册，从而暂时断开连接。";
     Some(match kind {
         Kind::CellNr => asking(
-            "锁定这个NR单元格？",
+            "锁定这个NR小区？",
             vec![
                 format!("调制解调器将仅使用 PCI 为 {}、NR-ARFCN 为 {}{band} 的 5G NR 小区。", i.val("nr_pci"), i.val("nr_earfcn")),
                 "如果该小区无法在此处使用，则路由器可能会失去 5G 或所有服务，直到您解锁该小区。".into(),
@@ -271,7 +271,7 @@ pub fn question(kind: Kind, i: &Input, remote: bool) -> Option<Question> {
             true,
         ),
         Kind::CellLte => asking(
-            "锁定这个LTE单元格？",
+            "锁定这个LTE小区？",
             vec![
                 format!("调制解调器将仅使用 PCI 为 {}、EARFCN 为 {} 的 LTE 小区。", i.val("lte_pci"), i.val("lte_earfcn")),
                 "如果该单元无法在此处使用，则路由器可能会失去连接，直到您解锁该单元。".into(),
@@ -358,8 +358,8 @@ pub fn back(kind: Kind, i: &Input) -> String {
 pub fn next(kind: Kind, i: &Input, r: Result<(), &str>, now: BootInstant) -> Next {
     let sep = |to: String| if to.contains('?') { format!("{to}&") } else { format!("{to}?") };
     let ok = match kind {
-        Kind::CellNr => "NR 单元格锁定",
-        Kind::CellLte => "LTE 单元格锁定",
+        Kind::CellNr => "NR 小区锁定",
+        Kind::CellLte => "LTE 小区锁定",
         Kind::CellReset => "小区锁定已重置",
         Kind::StcOn => "STC 启用",
         Kind::StcOff => "STC 禁用",
@@ -587,7 +587,7 @@ fn results(v: &Views) -> Markup {
                     @let f = |k: &str| text(&r[k]);
                     li.it.nb {
                         span.cvb {
-                            span.l1 { b { (f("type")) } span.muted { "频段  " (f("band")) } }
+                            span.l1 { b { (f("type")) } span.muted { "频段 " (f("band")) } }
                             span.sq {
                                 span { (kit::icon(Icon::Antenna)) span.sr { "RSRP " } (f("rsrp")) }
                                 span { (kit::icon(Icon::Waveform)) span.sr { "SINR " } (f("sinr")) }
@@ -675,7 +675,7 @@ mod tests {
         let v = views(sweep(json!(100), json!(0)), start + 8_000, ours);
         assert!(message(&v).into_string().contains("检测完成"));
         let r = results(&v).into_string();
-        for want in ["<b>LTE</b><span class=\"muted\">Band 3</span>", "-90", "12", "PCI: 178\u{a0}\u{a0}EARFCN: 1300"] {
+        for want in ["<b>LTE</b><span class=\"muted\">频段 3</span>", "-90", "12", "PCI: 178\u{a0}\u{a0}EARFCN: 1300"] {
             assert!(r.contains(want), "{want} in {r}");
         }
         // A fresh page: no results, no message; after Stop: results, no message.

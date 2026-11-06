@@ -128,7 +128,7 @@ pub fn card(v: &Views, csrf: &Markup) -> Markup {
             form.fc method="post" action=(POWERBANK) {
                 (csrf)
                 input type="hidden" name="state" value="1";
-                button.btn.btn-wide.btn-or type="submit" { (kit::icon(Icon::Bolt)) " Fast Charging" }
+                button.btn.btn-wide.btn-or type="submit" { (kit::icon(Icon::Bolt)) " 快速充电" }
                 p.cap { "使用U60 Pro电池给手机充电" }
             }
             form method="post" action=(DISMISS) {
@@ -225,7 +225,7 @@ mod tests {
         assert!(card.starts_with(&format!("<section class=\"card usbc\">{text}<form class=\"fc\" method=\"post\" action=\"/ui/usb/powerbank\">")), "{card}");
         for want in [
             "<input type=\"hidden\" name=\"csrf\" value=\"t\"><input type=\"hidden\" name=\"state\" value=\"1\">",
-            "</svg> Fast 充电中</button>", "<p class=\"cap\">使用U60 Pro电池给手机充电</p>",
+            "</svg> 快速充电</button>", "<p class=\"cap\">使用U60 Pro电池给手机充电</p>",
             "<form method=\"post\" action=\"/ui/usb/dismiss\"><input type=\"hidden\" name=\"csrf\" value=\"t\"><button class=\"btn btn-quiet\" type=\"submit\">驳回</button>",
         ] {
             assert!(card.contains(want), "{want} in {card}");

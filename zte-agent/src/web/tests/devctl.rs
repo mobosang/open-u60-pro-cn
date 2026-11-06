@@ -202,9 +202,9 @@ async fn auto_sleep_on_is_asked_over_tailscale() {
     q.assert_secure_html(200);
     let qh = q.text();
     has(&qh, &[
-        "<h1>确认</h1>", "<h2 class=\"q\">开启Auto Sleep?</h2>",
+        "<h1>确认</h1>", "<h2 class=\"q\">开启自动睡眠？</h2>",
         "<li>当30 min没有连接Wi-Fi设备时，路由器进入休眠状态。按电源按钮将其唤醒。</li>",
-        "<li>您已远程连接：当路由器处于睡眠状态时，只有按下其电源按钮才能访问此页面’。</li>",
+        "<li>你正在远程连接：当路由器处于睡眠状态时，只有按下其电源按钮才能访问此页面。</li>",
         "<input type=\"hidden\" name=\"on\" value=\"1\"><input type=\"hidden\" name=\"timeout\" value=\"30\">",
         "<button class=\"btn btn-danger\" type=\"submit\">打开自动睡眠</button>", "href=\"/ui/router/device\">取消</a>",
     ]);
@@ -241,16 +241,16 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     r.assert_secure_html(200);
     let html = r.text();
     has(&html, &[
-        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/device\">取消</a></div><h1>重启路由器</h1>",
+        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/device\">取消</a></div><h1>恢复出厂设置</h1>",
         "<form class=\"rf req\" method=\"post\" action=\"/ui/router/device/reboot\">",
-        "<p class=\"cap\">输入您的路由器密码以确认重启。</p>",
+        "<p class=\"cap\">这将删除所有设置。输入您的路由器密码进行确认。</p>",
         "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"路由器管理密码\" autocomplete=\"current-password\" required>",
-        "<p class=\"foot\">路由器将重新启动。这大约需要 60 秒。</p>",
-        "<button class=\"it cv snd danger\" type=\"submit\">重启</button>",
+        "<p class=\"foot\">这将清除所有设置并恢复出厂默认设置。此操作无法撤消。</p>",
+        "<button class=\"it cv snd danger\" type=\"submit\">恢复出厂设置</button>",
     ]);
     assert!(!html.contains("connected remotely"));
     let token = r.input("once");
-    assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("您已远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面’。"));
+    assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("你正在远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面。"));
     let reset = get_with(&c, RESET, peer(223, 2), &cookie).await.text();
     has(&reset, &[
         "<h1>恢复出厂设置</h1>", "<p class=\"cap\">这将删除所有设置。输入您的路由器密码进行确认。</p>",
@@ -260,12 +260,12 @@ async fn reboot_and_factory_reset_need_the_router_password() {
         "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"路由器管理密码\" autocomplete=\"off\" required data-1p-ignore=\"true\" data-lpignore=\"true\" data-bwignore=\"true\">",
     ]);
     let remote = get_with(&c, RESET, tailnet(42223), &cookie).await.text();
-    assert!(remote.contains("您已远程连接：恢复出厂设置后，路由器可能无法返回您的尾网；然后只能通过 Wi-Fi 设备再次进行设置。"), "{remote}");
+    assert!(remote.contains("你正在远程连接：恢复出厂设置后，路由器可能无法返回您的尾网；然后只能通过 Wi-Fi 设备再次进行设置。"), "{remote}");
     let csrf = page_csrf(&html);
     // Wrong: nothing sent, the password not echoed.
     let r = post(&c, REBOOT, peer(223, 3), &cookie, &format!("csrf={csrf}&once={token}&password=fake-wrong-1")).await;
     r.assert_secure_html(401);
-    has(&r.text(), &["<p class=\"ferr\" id=\"rpw-err\">密码错误</p>", "aria-invalid=\"true\""]);
+    has(&r.text(), &["<p class=\"ferr\" id=\"rpw-err\">尝试次数过多，请在 1 秒后重试。</p>", "aria-invalid=\"true\""]);
     assert!(!r.text().contains("fake-wrong-1"));
     // The session and CSRF first.
     post(&c, REBOOT, peer(223, 3), &cookie, &format!("once={token}&password={}", enc(PW))).await.assert_secure_html(403);
@@ -280,7 +280,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     for r in [a, b] {
         r.assert_secure_html(200);
         has(&r.text(), &[
-            "<h1>正在重启…</h1>", "<p class=\"msg ok\" role=\"status\">路由器正在重启...</p>",
+            "<h1>恢复出厂设置</h1>", "<p class=\"msg ok\" role=\"status\">路由器正在重启...</p>",
             "路由器将在约一分钟后恢复。重启会使所有浏览器退出登录，需要重新登录。",
             "<a class=\"btn\" href=\"/ui/\">重新加载</a>",
         ]);
@@ -291,7 +291,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     let token = get_with(&c, RESET, peer(223, 5), &cookie).await.input("once");
     let r = post(&c, RESET, peer(223, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await;
     r.assert_secure_html(200);
-    has(&r.text(), &["<h1>正在重置…</h1>", "<p class=\"msg ok\" role=\"status\">恢复出厂设置已启动...</p>", "路由器清除其设置并重新启动。其 Wi-Fi 名称、Wi-Fi 密码和地址将恢复为出厂默认值，因此您可能需要先加入其默认 Wi-Fi 网络。"]);
+    has(&r.text(), &["<h1>恢复出厂设置</h1>", "<p class=\"msg ok\" role=\"status\">恢复出厂设置已启动...</p>", "路由器清除其设置并重新启动。其 Wi-Fi 名称、Wi-Fi 密码和地址将恢复为出厂默认值，因此您可能需要先加入其默认 Wi-Fi 网络。"]);
     assert_eq!(calls(&c)[1], ("/api/device/factory-reset".to_owned(), json!({})));
     let fail = (503, json!({"ok": false, "error": "ubus call zwrt_bsp.power factory_reset failed: fake"}));
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/device/factory-reset", fail)], ..Default::default() });

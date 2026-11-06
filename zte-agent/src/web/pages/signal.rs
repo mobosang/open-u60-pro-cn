@@ -99,7 +99,7 @@ fn sig_op(v: &Views) -> Markup {
         section #sig-op .card {
             div.op {
                 div { b { (provider.unwrap_or("无运营商")) } span.muted { (kind) } }
-                @if roaming { span.roam { (kit::icon(Icon::AntennaSlash)) " Roaming" } }
+                @if roaming { span.roam { (kit::icon(Icon::AntennaSlash)) " 漫游" } }
                 (type_pill(&kind))
                 span.sb.muted[!bars] role="img" aria-label="信号" { (kit::icon(Icon::Bars)) }
             }

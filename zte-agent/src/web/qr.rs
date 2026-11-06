@@ -104,7 +104,8 @@ mod tests {
         let n = qr.size();
         let s = svg(&qr, "Wi-Fi QR code").into_string();
         assert!(s.starts_with(&format!(
-            "<svg class=\"qr\" viewBox=\"0 0 {0} {0}\" role=\"img\" aria-label=\"Wi-Fi二维码\" shape-rendering=\"crispEdges\"><rect width=\"100%\" height=\"100%\" fill=\"#fff\"></rect><path d=\"M",
+            "<svg class=\"qr\" viewBox=\"0 0 {0} {0}\" role=\"img\" aria-label=\"Wi-Fi QR code\" shape-rendering=\"crispEdges\">\
+             <rect width=\"100%\" height=\"100%\" fill=\"#fff\"></rect><path d=\"M",
             n + 8
         )), "{s}");
         assert!(!s.contains("style"));

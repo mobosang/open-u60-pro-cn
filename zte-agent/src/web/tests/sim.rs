@@ -133,7 +133,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
         let r = post(&c, PIN, peer(151, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&{stale}&pin=1234")).await;
         r.assert_secure_html(409);
         let html = r.text();
-        assert!(html.contains("剩余的尝试已更改，因此未发送任何内容。尝试之前请再次阅读该表。") && html.contains("This is the last attempt") && !html.contains("1234\""), "{html}");
+        assert!(html.contains("剩余的尝试已更改，因此未发送任何内容。尝试之前请再次阅读该表。") && html.contains("这是最后一次尝试") && !html.contains("1234\""), "{html}");
         assert!(html.contains("<input type=\"hidden\" name=\"left\" value=\"1\">"), "{html}");
     }
     assert!(calls(&c).is_empty());
@@ -154,7 +154,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
     let r = post(&c, PIN, peer(151, 5), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&pin=5678")).await;
     r.assert_secure_html(503);
     let html = r.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败：ubus call zwrt_zte_mdm.api sim_verify_pin_puk failed: &lt;x&gt;</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">剩余的尝试已更改，因此未发送任何内容。尝试之前请再次阅读该表。</p>"), "{html}");
     assert!(!html.contains("5678") && r.input("once") != token);
     for h in r.headers.values() {
         assert!(!h.to_str().unwrap_or("").contains("5678"));
@@ -213,7 +213,7 @@ async fn pin_lock_change_and_puk_ask_and_send_the_apps_bodies() {
     let r = get_with(&c, LOCK_ON, tailnet(15201), &cookie).await;
     let html = r.text();
     for want in [
-        "<h1>启用 PIN 锁定</h1>", "<input type=\"hidden\" name=\"left\" value=\"3\">",
+        "<h1>输入PUK</h1>", "<input type=\"hidden\" name=\"left\" value=\"3\">",
         "每次路由器启动时，SIM 都会请求该 PIN。在输入之前，路由器没有移动连接。", "错误的 PIN 使用尝试。如果没有剩余，SIM 将锁定，路由器将失去其移动连接，直到进入 PUK。",
         super::super::pages::confirm::REMOTE, "<button class=\"it cv snd danger\" type=\"submit\">启用</button>",
     ] {
@@ -279,7 +279,7 @@ async fn sim_unlock_sends_the_code_once() {
     let html = r.text();
     for want in [
         "<h1>SIM解锁</h1>", "<input id=\"nck\" type=\"text\" name=\"nck\" placeholder=\"解锁代码（NCK）\"",
-        "<p class=\"foot\">1 次剩余尝试</p>", "This is the last attempt",
+        "<p class=\"foot\">1 次剩余尝试</p>", "这是最后一次尝试",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }

@@ -70,8 +70,8 @@ pub fn battery_rows(v: &Views) -> Markup {
                 (kit::kv_row(Some(kit::battery_icon(capacity)), "容量", &dash_or(capacity.map(|c| format!("{c}%")))))
                 (kit::kv_row(Some(Icon::Bolt), "状态", fmt::charge_label(state, capacity).0))
                 @if let Some(mv) = mv { (kit::kv_row_m(Some(Icon::BoltCircle), "电压", roll(v, "bv", &format!("{:.3} V", mv as f64 / 1000.0)))) }
-                @if let Some(ma) = ma { (kit::kv_row_m(Some(Icon::Swap), "电流", roll(v, "bc", &format!("{ma} mA")))) }
-                @if let Some(w) = b.and_then(fmt::watts) { (kit::kv_row_m(Some(Icon::Flame), "功率", roll(v, "bw", &format!("{w:.1} W")))) }
+                @if let Some(ma) = ma { (kit::kv_row_m(Some(Icon::Swap), "当前", roll(v, "bc", &format!("{ma} mA")))) }
+                @if let Some(w) = b.and_then(fmt::watts) { (kit::kv_row_m(Some(Icon::Flame), "电源", roll(v, "bw", &format!("{w:.1} W")))) }
                 // The app's temperature is in the primary colour (its other values are secondary).
                 li.it {
                     (kit::icon(Icon::Thermometer)) span { "温度" }
@@ -336,13 +336,13 @@ mod tests {
         ]);
         let s = battery_rows(&v).into_string();
         let rows: Vec<(&str, &str)> = vec![
-            ("容量", "69%"), ("状态", "充电中"), ("电压", "4.435 V"), ("电流", "5680 mA"), ("功率", "25.2 W"),
+            ("容量", "69%"), ("状态", "充电中"), ("电压", "4.435 V"), ("当前", "5680 mA"), ("电源", "25.2 W"),
             ("温度", "26.0 °C"), ("充满所需时间", "37m"), ("预计剩余时间", "\u{2014}"),
         ];
         let mut at = 0;
         for (label, value) in rows {
             // The temperature in the primary colour, as the app's.
-            let class = if label == "Temperature" { "v fg" } else { "v" };
+            let class = if label == "温度" { "v fg" } else { "v" };
             let row = format!("<span>{label}</span><span class=\"{class}\">{value}</span>");
             let i = s[at..].find(&row).unwrap_or_else(|| panic!("{row} in order in {s}"));
             at += i;
@@ -354,18 +354,18 @@ mod tests {
             (Topic::BatteryInfo, json!({"battery_time_to_full": 37, "battery_time_to_empty": 1240})),
         ]);
         let s = battery_rows(&v).into_string();
-        for want in [">放电中<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "充满所需时间</span><span class=\"v\">—"] {
+        for want in [">放电中<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "预计剩余时间</span><span class=\"v\">—"] {
             assert!(s.contains(want), "{want} in {s}");
         }
         // Unknown voltage and current: no Voltage, Current or Power rows.
         let s = battery_rows(&views(vec![(Topic::Battery, json!({"status": "Full", "capacity": 100}))])).into_string();
-        assert!(s.contains(">已充满<") && !s.contains("电压") && !s.contains("电流") && !s.contains("功率"), "{s}");
+        assert!(s.contains(">已充满<") && !s.contains("电压") && !s.contains("当前") && !s.contains("电源"), "{s}");
         assert_eq!(s.matches("<li class=\"it\">").count(), 5);
         let s = battery_rows(&views(vec![(Topic::Battery, json!({"capacity": 50, "current_ua": 120_000}))])).into_string();
-        assert!(s.contains(">不可用<") && s.contains(">120 mA<") && !s.contains("功率"), "{s}");
+        assert!(s.contains(">不可用<") && s.contains(">120 mA<") && !s.contains("电源"), "{s}");
         // Nothing read yet.
         let s = battery_rows(&views(vec![])).into_string();
-        assert!(s.contains("容量</span><span class=\"v\">—") && s.contains(">不可用<"), "{s}");
+        assert!(s.contains("预计剩余时间</span><span class=\"v\">—") && s.contains(">不可用<"), "{s}");
     }
 
     #[test]

@@ -284,8 +284,8 @@ fn check_with(pairs: &[(String, String)], router: Option<Ipv4Addr>) -> Result<Va
 /// For a remote browser: the router's own lookups use the new servers too
 /// (Custom), or the DoH server (DoH: dnsmasq forwards only to the DoH
 /// client then).
-const REMOTE: &str = "您已远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达’的服务器可以切断远程访问。";
-const REMOTE_DOH: &str = "您已远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也经过此DoH服务器，因此可以到达’的服务器可以切断远程访问。";
+const REMOTE: &str = "你正在远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达’的服务器可以切断远程访问。";
+const REMOTE_DOH: &str = "你正在远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也经过此DoH服务器，因此可以到达’的服务器可以切断远程访问。";
 
 pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], remote: bool) -> Question {
     let doh = super::api_get(app, DOH_API).ok();

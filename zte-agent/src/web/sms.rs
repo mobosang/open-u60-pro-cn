@@ -735,7 +735,7 @@ mod tests {
         assert_eq!(clock(t, -16 * H), "11:41 PM");
         assert_eq!(clock(NEW_YEAR, 0), "12:00 AM");
         assert_eq!(clock(NEW_YEAR + 12 * H + 5 * 60, 0), "12:05 PM");
-        assert_eq!(day(t, 0), "Jan 1, 2024");
+        assert_eq!(day(t, 0), "一月 1, 2024");
         assert_eq!(stamp(t + 7, 0), "1/1/24, 3:41:07 PM");
         assert_eq!(stamp(t, 9 * H), "1/2/24, 12:41:00 AM");
         assert_eq!(stamp(NEW_YEAR + 300 * DAY + 9 * H + 5, -H), "10/27/24, 8:00:05 AM");
@@ -770,7 +770,7 @@ mod tests {
             assert_eq!(relative(now + delta, now, 0), want, "{delta}");
         }
         // An unset router clock: the date.
-        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "Jan 1, 2024");
+        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "一月 1, 2024");
     }
 
     fn item(id: u64, number: &str, text: &str, date: &str, tag: impl Into<Value>) -> Value {
@@ -834,7 +834,7 @@ mod tests {
         ]}));
         let _g = fake::set(&app, d.clone());
         let all = read(&app, Store::All).unwrap();
-        assert_eq!(all.msgs.iter().map(|m| (m.id, m.content.as_str())).collect::<Vec<_>>(), [(2, "内部"), (1, "On the SIM")]);
+        assert_eq!(all.msgs.iter().map(|m| (m.id, m.content.as_str())).collect::<Vec<_>>(), [(2, "Internal"), (1, "On the SIM")]);
         assert!(all.partial.is_none());
         assert_eq!(read(&app, Store::Sim).unwrap().msgs.len(), 2);
         assert_eq!(read(&app, Store::Internal).unwrap().msgs.len(), 1);
@@ -854,7 +854,7 @@ mod tests {
 
     #[test]
     fn encoding_limits_and_counter() {
-        assert_eq!(encode_type("Hello @£$ ÄÖ\n"), "GSM7_默认");
+        assert_eq!(encode_type("Hello @£$ ÄÖ\n"), "GSM7_default");
         for text in ["Привет", "€", "{", "\u{1F600}", "ç"] {
             assert_eq!(encode_type(text), "UNICODE", "{text}");
         }
@@ -906,7 +906,7 @@ mod tests {
             json!({"number": "+15555550100", "sms_time": "24;01;01;10;00;00;+8", "message_body": "00480069000AD83DDE00",
                    "id": "-1", "encode_type": "UNICODE"})
         );
-        assert_eq!(send_body("+15555550100", "Hi", "t")["encode_type"], "GSM7_默认");
+        assert_eq!(send_body("+15555550100", "Hi", "t")["encode_type"], "GSM7_default");
         for ok in [json!({"result": 3}), json!({"result": "3"}), json!({}), json!({"result": null}), Value::Null] {
             assert_eq!(send_result(&ok), Ok(()), "{ok}");
         }

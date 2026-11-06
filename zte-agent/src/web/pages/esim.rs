@@ -1397,7 +1397,7 @@ mod tests {
         let l = switch_lines(&inv, &p);
         assert_eq!(l.len(), 3);
         assert_eq!(l[0], "路由器将断开 Home 并通过 Travel 连接。互联网将中断约一分钟，Wi-Fi 保持开启。");
-        assert!(l[1].starts_with("The router is set to the manual APN \u{201c}example.apn\u{201d}. If Travel needs"));
+        assert!(l[1].starts_with("路由器当前使用手动 APN“example.apn”。如果 Travel 需要"));
         assert!(l[2].starts_with("Travel looks like a travel (roaming) profile and 数据漫游 is off"));
         // No manual APN known: that warning is left out; no active profile.
         let inv = Inventory { profiles: vec![p.clone()], ..Inventory::default() };
@@ -1460,7 +1460,7 @@ mod tests {
         later.arg = v.arg;
         let html = conn(&later).into_string();
         assert!(html.contains("<b>正在重新加载 SIM</b>") && html.contains("class=\"card econn busy\""), "{html}");
-        assert!(updating(&later).into_string().contains("更新…"));
+        assert!(updating(&later).into_string().contains("更新"));
         later.set(Topic::EsimSwitch, SlotView { version: 2, at: BootInstant::ZERO, value_at: BootInstant::ZERO, value: Some(Arc::new(json!({"state": "no_data", "generation": 5}))), error: None });
         assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。"));
         assert!(updating(&later).into_string().contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"));

@@ -305,7 +305,7 @@ fn back(kind: Kind, input: &Input) -> String {
 
 /// The remote line: what a change that may cut this connection means for a
 /// browser over Tailscale (every remote line opens the same way).
-pub const REMOTE: &str = "您已远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面’。";
+pub const REMOTE: &str = "你正在远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面。";
 
 pub struct Question {
     pub title: String,
@@ -702,7 +702,7 @@ mod tests {
         let i = Input { server: None, bands: vec![3, 78], vals: vec![] };
         let q = question(Kind::Nr, &i, true, None).unwrap();
         assert_eq!((q.title.as_str(), q.label), ("应用 NR 锁定？", Some("应用 NR 频段锁定")));
-        assert!(q.lines[0].ends_with("for NSA and SA: 3, 78.") && q.lines.last().unwrap() == REMOTE);
+        assert!(q.lines[0].ends_with("对于 NSA 和 SA：3, 78。") && q.lines.last().unwrap() == REMOTE);
         assert!(!question(Kind::Nr, &i, false, None).unwrap().lines.contains(&REMOTE.to_owned()));
         assert_eq!(question(Kind::Lte, &Input::default(), false, None).unwrap().label, None);
         assert!(!question(Kind::Adb, &i, true, None).unwrap().lines.contains(&REMOTE.to_owned()));

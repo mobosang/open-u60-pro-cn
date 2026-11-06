@@ -258,7 +258,7 @@ macro_rules! mode_confirm {
             remote: Some(&[
                 REREGISTER,
                 concat!(
-                    "您已远程连接：如果 ",
+                    "你正在远程连接：如果 ",
                     $label,
                     " has no coverage here, this page can\u{2019}t be reached until the mode is changed on the router."
                 ),
@@ -384,7 +384,7 @@ mod tests {
             assert!(matches!(c.need, Need::Always));
             assert_eq!(c.title, format!("将网络模式更改为 {label}?"));
             assert_eq!(c.lines, [REREGISTER]);
-            assert!(c.remote.unwrap()[1].contains(&format!("您已远程连接：如果 {label} has no coverage here,")));
+            assert!(c.remote.unwrap()[1].contains(&format!("你正在远程连接：如果 {label} has no coverage here,")));
             // The body carries the checked value only; the operation follows it.
             let v = Valid::of(&[("mode", value)]);
             assert_eq!(mode_body(&v, &[]), Some(json!({"net_select": value})));

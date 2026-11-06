@@ -795,7 +795,7 @@ async fn drafting(ctx: Ctx, p: Principal, mut r: Req, kind: Kind, form: Form, to
     let now = ctx.app.auth.now();
     // An old copy of the form (its token used or gone): nothing to draft.
     if !is_op_id(&token) || ctx.once.get(&token, p.id, now) != Some(Token::Fresh) {
-        return note(&ctx, p.id, kind, Some(false), "此表格已过期，因此未发送任何内容。再次打开它。");
+        return note(&ctx, p.id, kind, Some(false), "此表单已过期，因此未发送任何内容。再次打开它。");
     }
     let kept: Vals = draft_of(&ctx.drafts, &token, p.id, now, kind)
         .map(|d| d.vals.into_iter().filter(|(k, v)| SECRETS.contains(k) && !v.is_empty()).collect())

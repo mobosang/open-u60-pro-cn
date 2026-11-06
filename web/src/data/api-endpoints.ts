@@ -131,7 +131,7 @@ export const apiCategories: APICategory[] = [
       { method: "GET", path: "/api/cell/neighbors/lte", description: "LTE 邻居小区" },
       { method: "POST", path: "/api/cell/band/nr", description: "锁定 NR 频段" },
       { method: "POST", path: "/api/cell/band/lte", description: "锁定 LTE 频段" },
-      { method: "POST", path: "/api/cell/band/reset", description: "重置带锁" },
+      { method: "POST", path: "/api/cell/band/reset", description: "重置锁频" },
       { method: "GET", path: "/api/cell/stc/params", description: "STC参数" },
       { method: "PUT", path: "/api/cell/stc/params", description: "设置STC参数" },
       { method: "GET", path: "/api/cell/stc/status", description: "STC状态" },

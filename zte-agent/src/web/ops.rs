@@ -525,7 +525,7 @@ mod tests {
         let m = |cm: Value, roam: Value| json!({"data": {"connect_mode": cm, "roam_enable": roam}});
         assert!(matches!(apply_status("0:1", at(2), &views_of(&m(json!("0"), json!(1)))), OpStatus::Done { .. }));
         assert_eq!(apply_status("1:1", at(9), &views_of(&m(json!(1), json!(0)))), OpStatus::Pending { step: 0 });
-        assert!(matches!(apply_status("1:1", at(10), &views_of(&m(json!(1), json!(0)))), OpStatus::TimedOut { msg } if msg.contains("not reported")));
+        assert!(matches!(apply_status("1:1", at(10), &views_of(&m(json!(1), json!(0)))), OpStatus::TimedOut { msg } if msg.contains("尚未报告")));
         let none = Views::new(BootInstant::from_duration(at(1)), vec![]);
         assert_eq!(apply_status("1:0", at(10), &none), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         assert!(APPLY.timeout_ok && APPLY_TARGETS.contains(&"0:1"));

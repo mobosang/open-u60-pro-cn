@@ -363,7 +363,7 @@ async fn a_reply_is_sent_once() {
     let sent = calls(&c);
     assert_eq!(sent.len(), 1);
     let (path, b) = &sent[0];
-    assert_eq!((*path, b["number"].as_str(), b["id"].as_str(), b["encode_type"].as_str()), ("/api/sms/send", Some("+15555550100"), Some("-1"), Some("GSM7_默认")));
+    assert_eq!((*path, b["number"].as_str(), b["id"].as_str(), b["encode_type"].as_str()), ("/api/sms/send", Some("+15555550100"), Some("-1"), Some("GSM7_default")));
     assert_eq!(b["message_body"], encode_ucs2("Hi there\nsecond line"));
     let time = b["sms_time"].as_str().unwrap();
     assert!(time.len() >= 20 && time.split(';').count() == 7, "{time}");
@@ -376,7 +376,7 @@ async fn a_reply_is_sent_once() {
     // by the browser): an expired form with the text, never "sent".
     let r = post(&c, SEND, peer(64, 3), &cookie, &body(&tok, "Hi there")).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("<span>此表格已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
+    assert!(r.text().contains("<span>此表单已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
     assert!(r.text().contains(">Hi there</textarea>") && r.input("once") != tok);
     assert_eq!((calls(&c).len(), c.once.get(&tok, sid, c.app.auth.now())), (1, Some(Token::Sent(hi))));
     // Too big a form: refused before anything is read.
@@ -403,13 +403,13 @@ async fn a_reply_is_sent_once() {
     let r = post(&c, SEND, peer(64, 4), &cookie, &body("0000000000000000", "Keep <me>")).await;
     r.assert_secure_html(400);
     let html = r.text();
-    assert!(html.contains("<span>此表格已过期，因此消息未发送。再发送一次。</span>"), "{html}");
+    assert!(html.contains("<span>此表单已过期，因此消息未发送。再发送一次。</span>"), "{html}");
     assert!(html.contains("maxlength=\"765\" required>Keep &lt;me&gt;</textarea>"), "{html}");
     // Another session's token is unknown to this one.
     let other = format!("zte_ui_session={}", login(&c, 64, 9).await);
     let theirs = get_with(&c, &format!("/ui/sms/t/{k0}"), peer(64, 9), &other).await.input("once");
     let r = post(&c, SEND, peer(64, 4), &cookie, &body(&theirs, "Hi")).await;
-    assert!(r.status == 400 && r.text().contains("This form expired"));
+    assert!(r.status == 400 && r.text().contains("此表单已过期"));
     assert_eq!(calls(&c).len(), 1);
 
     // The device rejects it: the text kept, the app's words; a replay shows
@@ -466,7 +466,7 @@ async fn a_reply_is_sent_once() {
             let tok = get_with(&c, &format!("/ui/sms/t/{k0}"), peer(64, 6), &cookie).await.input("once");
             c.once.update(&tok, sid, c.app.auth.now(), |t| *t = Token::Sending(twice));
             let r = post(&c, SEND, peer(64, 7), &cookie, &body(&tok, "Other")).await;
-            assert!(r.status == 400 && r.text().contains("This form expired") && r.text().contains(">Other</textarea>"), "{}", r.text());
+            assert!(r.status == 400 && r.text().contains("此表单已过期") && r.text().contains(">Other</textarea>"), "{}", r.text());
         }
     }
     assert_eq!(calls(&c).len(), 3);
@@ -498,7 +498,7 @@ async fn a_reply_is_sent_once() {
     let r = post(&busy, SEND, peer(64, 8), &cookie, &body(&tok, "Busy <b>")).await;
     r.assert_secure_html(503);
     let html = r.text();
-    assert!(html.contains("<span>发送失败：the router is busy. Try again in a few seconds.</span>"), "{html}");
+    assert!(html.contains("<span>发送失败：路由器正忙。几秒钟后重试。</span>"), "{html}");
     assert!(html.contains(">Busy &lt;b&gt;</textarea>") && html.contains("<h1>对话</h1>") && !html.contains("+15555550100"), "{html}");
     assert!(r.input("once") != tok && !html.contains("class=\"b ") && !html.contains("@get("));
     assert_eq!(c.once.get(&tok, sid, c.app.auth.now()), Some(Token::Fresh));
@@ -593,7 +593,7 @@ async fn a_new_message_is_sent_once() {
     for (number, text) in [("+15555550199", "Fake hello"), ("+15555550100", "Fake hello \u{1F600}")] {
         let r = post(&c, SEND, peer(65, 3), &cookie, &body(&tok, number, text)).await;
         r.assert_secure_html(400);
-        assert!(r.text().contains("<span>此表格已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
+        assert!(r.text().contains("<span>此表单已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
         assert!(r.text().contains(&format!("required>{text}</textarea>")) && r.input("number") == number);
     }
     assert_eq!(calls(&c).len(), 1);
@@ -627,7 +627,7 @@ async fn a_new_message_is_sent_once() {
     // An unknown or expired token: "This form expired", both values kept.
     let r = post(&c, SEND, peer(65, 5), &cookie, &body("0000000000000000", "+15555550100", "Keep <me>")).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("<span>此表格已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
+    assert!(r.text().contains("<span>此表单已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
     assert!(r.text().contains("required>Keep &lt;me&gt;</textarea>") && r.input("number") == "+15555550100");
     assert_eq!(calls(&c).len(), 2);
 
@@ -655,7 +655,7 @@ async fn a_new_message_is_sent_once() {
     busy.gate = Arc::new(Gate::new(0, 0, Duration::from_millis(20)));
     let r = post(&busy, SEND, peer(65, 6), &cookie, &body(&tok, "+15555550100", "Busy")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<span>发送失败：the router is busy. Try again in a few seconds.</span>") && r.text().contains(">Busy</textarea>"));
+    assert!(r.text().contains("<span>发送失败：路由器正忙。几秒钟后重试。</span>") && r.text().contains(">Busy</textarea>"));
     assert_eq!((r.input("number"), c.once.get(&tok, sid, c.app.auth.now())), ("+15555550100".to_owned(), Some(Token::Fresh)));
     assert_eq!(calls(&c).len(), 4);
 
@@ -732,9 +732,9 @@ async fn deleting_a_conversation_is_confirmed() {
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
-        "<title>删除 conversation? · U60 Pro</title>",
+        "<title>短信 · U60 Pro</title>",
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/sms\">短信</a></div><h1>确认</h1>",
-        "<h2 class=\"q\">删除 conversation?</h2>",
+        "<h2 class=\"q\">删除对话？</h2>",
         "<li>这将从 3 中删除所有 +15555550100 消息。</li>",
         "<form class=\"panel\" method=\"post\" action=\"/ui/sms/delete\">",
         &format!("<input type=\"hidden\" name=\"t\" value=\"{k0}\"><input type=\"hidden\" name=\"fp\" value=\"3-12\">\
@@ -845,7 +845,7 @@ async fn a_send_form_expires_after_an_hour() {
     clock.advance(Duration::from_secs(3600));
     let r = post(&c, SEND, peer(67, 3), &cookie, &body).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("<span>此表格已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
+    assert!(r.text().contains("<span>此表单已过期，因此消息未发送。再发送一次。</span>"), "{}", r.text());
     assert!(r.text().contains(">Late</textarea>") && r.input("number") == "+15555550100");
     assert!(calls(&c).is_empty());
 }
