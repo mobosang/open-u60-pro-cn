@@ -26,7 +26,7 @@ struct LoginView: View {
                 }
 
                 VStack(spacing: 16) {
-                    SecureField("路由器管理密码", text: $viewModel.password)
+                    SecureField("Agent 密码", text: $viewModel.password)
                         .textFieldStyle(.roundedBorder)
                         .textContentType(.password)
                         .submitLabel(.go)

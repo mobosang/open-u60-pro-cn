@@ -96,7 +96,7 @@ impl LivePage {
 pub fn live_on(page: &str, hb: &str) -> Markup {
     html! {
         p #live-status .live .on .(hb) {
-            span.ok { "直播" }
+            span.ok { "实时更新" }
             span.lost { " 15 秒未更新 · " a href=(page) { "刷新" } }
         }
     }
@@ -108,7 +108,7 @@ pub fn live_pill(page: &str, hb: &str) -> Markup {
     html! {
         p #live-status .live .on .ps .(hb) {
             span.ok { b { "已连接" } }
-            span.lost { a href=(page) { "离线" span.sr { ". Refresh" } } }
+            span.lost { a href=(page) { "离线" span.sr { "。刷新" } } }
         }
     }
 }
@@ -454,7 +454,7 @@ mod tests {
         want.push("live-status".into());
         assert_eq!(ids(&open), want);
         assert!(open.last().unwrap().starts_with(
-            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>已连接</b></span><span class=\"lost\"><a href=\"/ui/\">离线<span class=\"sr\">. 刷新</span></a></span></p>"
+            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>已连接</b></span><span class=\"lost\"><a href=\"/ui/\">离线<span class=\"sr\">。刷新</span></a></span></p>"
         ));
         // Byte-equal to the same fragment of a full page (the age badge is
         // the nav bar's).

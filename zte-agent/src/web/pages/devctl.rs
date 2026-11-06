@@ -333,8 +333,8 @@ pub fn password_field(pd: &PageData, fill: bool) -> Markup {
     let (auto, ignore) = if fill { ("current-password", None) } else { ("off", Some("true")) };
     html! {
         li.it.fld {
-            label.sr for="rpw" { "路由器管理密码" }
-            input #rpw type="password" name="password" placeholder="路由器管理密码" autocomplete=(auto) required
+            label.sr for="rpw" { "Agent 密码" }
+            input #rpw type="password" name="password" placeholder="Agent 密码" autocomplete=(auto) required
                 "data-1p-ignore"=[ignore] data-lpignore=[ignore] data-bwignore=[ignore]
                 aria-invalid=[err.map(|_| "true")] aria-describedby=[err.map(|_| "rpw-err")];
             @if let Some(e) = err { p.ferr #rpw-err { (e) } }
@@ -348,12 +348,12 @@ pub fn password_field(pd: &PageData, fill: bool) -> Markup {
 fn sheet(pd: &PageData, w: Power) -> Markup {
     let (message, label, what, remote) = match w {
         Power::Reset => (
-            "这将删除所有设置。输入您的路由器密码进行确认。",
+            "这将删除所有设置。输入你的 Agent 密码进行确认。",
             "恢复出厂设置",
             "这将清除所有设置并恢复出厂默认设置。此操作无法撤消。",
             "你正在远程连接：恢复出厂设置后，路由器可能无法返回您的尾网；然后只能通过 Wi-Fi 设备再次进行设置。",
         ),
-        _ => ("输入您的路由器密码以确认重启。", "重启", "路由器将重新启动。这大约需要 60 秒。", REMOTE),
+        _ => ("输入你的 Agent 密码以确认重启。", "重启", "路由器将重新启动。这大约需要 60 秒。", REMOTE),
     };
     html! {
         form.rf.req method="post" action=(w.path()) {

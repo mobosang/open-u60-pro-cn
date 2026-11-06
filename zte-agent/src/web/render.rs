@@ -404,7 +404,7 @@ mod tests {
     fn live_page_carries_the_nonce_in_three_places() {
         let ctx = PageCtx { title: "T", nonce: "00ff", live: Some("/ui/live/x"), ..PageCtx::default() };
         let s = page(&ctx, html! { p { "x" } }).into_string();
-        assert!(s.starts_with("<!DOCTYPE html><html lang=\"en\" data-nonce=\"00ff\">"), "{s}");
+        assert!(s.starts_with("<!DOCTYPE html><html lang=\"zh-CN\" data-nonce=\"00ff\">"), "{s}");
         assert!(s.contains(&format!(r#"<script type="module" src="{DATASTAR_JS}" nonce="00ff"></script>"#)));
         // Opened only once the page is visible (Datastar itself does not
         // check at the start); the URL is the only value in the expression.
@@ -427,7 +427,7 @@ mod tests {
         assert_eq!(s.matches("<script").count(), 1, "{s}");
         assert!(s.contains(&format!(r#"<script src="{THEME_JS}" nonce="00ff" defer></script>"#)), "{s}");
         assert!(!s.contains("datastar") && !s.contains("data-init") && !s.contains("data-nonce") && s.matches("00ff").count() == 1, "{s}");
-        assert!(s.starts_with("<!DOCTYPE html><html lang=\"en\">"));
+        assert!(s.starts_with("<!DOCTYPE html><html lang=\"zh-CN\">"));
     }
 
     #[test]

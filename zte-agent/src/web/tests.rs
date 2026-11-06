@@ -1066,7 +1066,7 @@ async fn every_action_checks_session_csrf_origin_and_confirmation() {
             // (A question about something that is gone may say so with 404.)
             let page = get_with(&c, &to, peer(29, 4), &cookie).await;
             page.assert_secure_html(if page.status == 404 { 404 } else { 200 });
-            let back = format!("<div class=\"lead\"><a class=\"nl back\" href=\"{}\">{}</a></div><h1>Confirm</h1>", a.screen.path, a.screen.title);
+            let back = format!("<div class=\"lead\"><a class=\"nl back\" href=\"{}\">{}</a></div><h1>确认</h1>", a.screen.path, a.screen.title);
             assert!(page.text().contains(&back), "{}", page.text());
         }
         for case in a.confirm.iter().filter(|c| matches!(c.need, Need::Always)) {
@@ -1077,7 +1077,7 @@ async fn every_action_checks_session_csrf_origin_and_confirmation() {
             page.assert_secure_html(200);
             // The question in the page (it wraps); the nav bar leads back to the form.
             assert!(page.text().contains(&format!("<div class=\"narrow\"><h2 class=\"q\">{}</h2>", case.title)), "{}", case.title);
-            let back = format!("<div class=\"lead\"><a class=\"nl back\" href=\"{}\">{}</a></div><h1>Confirm</h1>", a.screen.path, a.screen.title);
+            let back = format!("<div class=\"lead\"><a class=\"nl back\" href=\"{}\">{}</a></div><h1>确认</h1>", a.screen.path, a.screen.title);
             assert!(page.text().contains(&back), "{}", page.text());
         }
     }

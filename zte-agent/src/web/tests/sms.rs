@@ -532,8 +532,8 @@ async fn a_reply_is_sent_once() {
     let r = get_with(&c, &format!("/ui/sms/t/{k0}"), peer(64, 8), &cookie).await;
     r.assert_secure_html(503);
     let html = r.text();
-    assert!(html.contains(r#"<p class="msg err" role="alert">Failed: ubus down</p>"#), "{html}");
-    assert!(html.contains(&format!(r#"<p class="ctr"><a class="btn" href="/ui/sms/t/{k0}#end">Try again</a></p>"#)), "{html}");
+    assert!(html.contains(r#"<p class="msg err" role="alert">失败：ubus down</p>"#), "{html}");
+    assert!(html.contains(&format!(r#"<p class="ctr"><a class="btn" href="/ui/sms/t/{k0}#end">重试</a></p>"#)), "{html}");
     assert!(!html.contains("class=\"reply\"") && !html.contains("name=\"once\""), "{html}");
 
     // Refused before anything is read: no session, no CSRF, a bad key.

@@ -430,7 +430,7 @@ pub(crate) mod tests {
     fn full_page(v: &Views, wifi: Option<bool>) -> String {
         use crate::web::kit::Tab;
         let pc = crate::web::render::PageCtx {
-            title: "Dashboard",
+            title: "仪表盘",
             tab: Some(Tab::Dashboard),
             nonce: "00",
             lead: render::status_pill("/ui/"),
@@ -674,7 +674,7 @@ pub(crate) mod tests {
         ] {
             assert!(s.contains(&format!("<div class=\"banner {class}\"><svg")), "{class}");
             // PUK: the lock with "!" (the app's `exclamationmark.lock.fill`).
-            let icon = if class == "SIM PUK Required" { Icon::LockWarn } else if class == "SIM" { Icon::Lock } else { Icon::Airplane };
+            let icon = if class == "b-red" { Icon::LockWarn } else if class == "b-orange" { Icon::Lock } else { Icon::Airplane };
             assert!(s.contains(&format!("{}<div><strong>{title}", kit::icon(icon).into_string())), "{title}");
             assert!(s.contains(&format!("<strong>{title}</strong><span>{text}</span>")), "{title} in {s}");
         }

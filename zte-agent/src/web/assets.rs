@@ -271,6 +271,7 @@ mod tests {
         let m: serde_json::Value = serde_json::from_str(MANIFEST).unwrap();
         assert_eq!((m["start_url"].as_str(), m["display"].as_str()), (Some("/ui/"), Some("standalone")));
         assert_eq!(m["scope"], "/ui/");
+        assert_eq!(m["lang"], "zh-CN");
         let icons = m["icons"].as_array().unwrap();
         assert_eq!(icons.len(), 4);
         for icon in icons {

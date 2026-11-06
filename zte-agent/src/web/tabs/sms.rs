@@ -242,8 +242,8 @@ mod tests {
             assert_eq!(log.path, format!("{}/log", m.base));
             assert_eq!((log.tab, clear.tab), (m.tab, m.tab));
             let clear_path = format!("{}/clear", m.log);
-            assert!(matches!(log.bar, Bar::BackLink(href, "短信转发", to, "Clear") if href == m.base && to == clear_path));
-            assert!(matches!(clear.bar, Bar::Back(href, "Forward Log") if href == m.log));
+            assert!(matches!(log.bar, Bar::BackLink(href, "短信转发", to, "清除") if href == m.base && to == clear_path));
+            assert!(matches!(clear.bar, Bar::Back(href, "转发日志") if href == m.log));
             assert_eq!((clear.path, clear_action.path), (clear_path.as_str(), clear_path.as_str()));
             assert_eq!(clear_action.screen.path, m.log);
             assert_eq!(clear_action.confirm_at.unwrap()(&crate::web::action::Valid::of(&[])), clear_path);

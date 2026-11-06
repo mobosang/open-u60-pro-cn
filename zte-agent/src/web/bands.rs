@@ -255,13 +255,13 @@ const RANGES: [(u16, [u16; 4]); 31] = [
 
 /// A Band Lock band's common name ("3500 MHz") and the facts of the app's
 /// long-press popover: "TDD · Max BW 100 MHz · DL 3300–3800 MHz · UL
-/// 3300–3800 MHz" (no UL for SDL; every band in the lists is FR1).
+/// 3300–3800 MHz" (no 上行 for SDL; every band in the lists is FR1).
 pub fn lock_facts(nr: bool, band: u16) -> Option<(String, String)> {
     let sp = spec(nr, u32::from(band))?;
     let [dl0, dl1, ul0, ul1] = RANGES.iter().find(|(b, _)| *b == band)?.1;
     let mut facts = format!("{} · 最大带宽 {} MHz · 下行 {dl0}–{dl1} MHz", sp.duplex(), sp.max_bw);
     if ul0 > 0 {
-        facts.push_str(&format!(" \u{b7} UL {ul0}\u{2013}{ul1} MHz"));
+        facts.push_str(&format!(" \u{b7} 上行 {ul0}\u{2013}{ul1} MHz"));
     }
     Some((sp.name(), facts))
 }

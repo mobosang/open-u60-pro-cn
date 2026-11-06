@@ -21,7 +21,7 @@ struct PasswordConfirmView: View {
                 }
 
                 Section {
-                    SecureField("路由器管理密码", text: $password)
+                    SecureField("Agent 密码", text: $password)
                         .textContentType(.password)
                         .autocorrectionDisabled()
                 }

@@ -542,7 +542,7 @@ async fn retried(c: &Ctx, cookie: &str, log: &str, r: &Reply) -> String {
     html
 }
 
-const OK_LINE: &str = "<p class=\"msg ok\" role=\"status\">Retry succeeded</p>";
+const OK_LINE: &str = "<p class=\"msg ok\" role=\"status\">重试成功</p>";
 
 /// Retry: by the entry's fingerprint (where it is now; "The log changed.
 /// Try again." once it is gone or was retried), once per single-use token
@@ -665,7 +665,7 @@ async fn clear_asks_first() {
     }
 }
 
-const GONE: &str = "此表单已过期, so the rule was not saved. Enter the secret fields again, then save.";
+const GONE: &str = "此表单已过期, so the 条规则 was not saved. 输入 the secret fields again, then save.";
 
 /// Secrets typed into a form are kept as long as its token (an hour), and
 /// a form whose draft is gone (pushed out of the store) says so and saves

@@ -243,8 +243,8 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     has(&html, &[
         "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/device\">取消</a></div><h1>重启路由器</h1>",
         "<form class=\"rf req\" method=\"post\" action=\"/ui/router/device/reboot\">",
-        "<p class=\"cap\">输入您的路由器密码以确认重启。</p>",
-        "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"路由器管理密码\" autocomplete=\"current-password\" required>",
+        "<p class=\"cap\">输入你的 Agent 密码以确认重启。</p>",
+        "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"Agent 密码\" autocomplete=\"current-password\" required>",
         "<p class=\"foot\">路由器将重新启动。这大约需要 60 秒。</p>",
         "<button class=\"it cv snd danger\" type=\"submit\">重启</button>",
     ]);
@@ -253,11 +253,11 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("你正在远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面。"));
     let reset = get_with(&c, RESET, peer(223, 2), &cookie).await.text();
     has(&reset, &[
-        "<h1>恢复出厂设置</h1>", "<p class=\"cap\">这将删除所有设置。输入您的路由器密码进行确认。</p>",
+        "<h1>恢复出厂设置</h1>", "<p class=\"cap\">这将删除所有设置。输入你的 Agent 密码进行确认。</p>",
         "<button class=\"it cv snd danger\" type=\"submit\">恢复出厂设置</button>",
         "这将清除所有设置并恢复出厂默认设置。此操作无法撤消。",
         // Never filled by the browser or a password manager: a deliberate step.
-        "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"路由器管理密码\" autocomplete=\"off\" required data-1p-ignore=\"true\" data-lpignore=\"true\" data-bwignore=\"true\">",
+        "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"Agent 密码\" autocomplete=\"off\" required data-1p-ignore=\"true\" data-lpignore=\"true\" data-bwignore=\"true\">",
     ]);
     let remote = get_with(&c, RESET, tailnet(42223), &cookie).await.text();
     assert!(remote.contains("你正在远程连接：恢复出厂设置后，路由器可能无法返回您的尾网；然后只能通过 Wi-Fi 设备再次进行设置。"), "{remote}");
@@ -298,7 +298,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     let token = get_with(&c, RESET, peer(223, 5), &cookie).await.input("once");
     let r = post(&c, RESET, peer(223, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await;
     r.assert_secure_html(503);
-    has(&r.text(), &["<p class=\"msg err\" role=\"alert\">失败：ubus call zwrt_bsp.power factory_reset failed: fake</p>", "placeholder=\"路由器管理密码\""]);
+    has(&r.text(), &["<p class=\"msg err\" role=\"alert\">失败：ubus call zwrt_bsp.power factory_reset failed: fake</p>", "placeholder=\"Agent 密码\""]);
     assert!(!r.text().contains(PW));
     // Wrong passwords at a sheet count like logins: then even a login waits.
     let mut limited = None;

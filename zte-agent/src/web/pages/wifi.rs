@@ -159,7 +159,7 @@ pub fn wifi_card(read: Result<&Value, &str>) -> Markup {
             div.wh {
                 h2 { "WiFi" }
                 @if on && d.is_some_and(|d| yes(d, "wifi6_switch")) { span.badge.bl { "WiFi 7" } }
-                @if on && clients > 0 { span.cap { (clients) " 个客户端" @if clients != 1 { "s" } } }
+                @if on && clients > 0 { span.cap { (clients) " 个客户端" } }
                 @if d.is_some() {
                     @if on { span.c-green { "开启" } } @else { span.c-red { "关闭" } }
                 }

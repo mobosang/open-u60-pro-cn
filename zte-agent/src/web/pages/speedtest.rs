@@ -155,7 +155,7 @@ fn controls(v: &Views) -> Markup {
             p.stn {
                 @if phase == "download" { (kit::icon(Icon::ArrowDown)) }
                 @if phase == "upload" { span.c-orange { (kit::icon(Icon::ArrowUp)) } }
-                b.num { (roll(v, "mbps", &format!("{mbps:.1}"))) } " " span.muted { "兆比特/秒" }
+                b.num { (roll(v, "mbps", &format!("{mbps:.1}"))) } " " span.muted { "Mbps" }
             }
         }
     }
@@ -174,10 +174,10 @@ fn results(v: &Views) -> Markup {
             (kit::section(Some("结果"), None, html! {
                 (row("延迟测试", "ping_ms", "ms", 1).unwrap_or_default())
                 (row("抖动", "jitter_ms", "ms", 1).unwrap_or_default())
-                (row("下载", "download_mbps", "兆比特/秒", 2).unwrap_or_default())
-                (row("上传", "upload_mbps", "兆比特/秒", 2).unwrap_or_default())
+                (row("下载", "download_mbps", "Mbps", 2).unwrap_or_default())
+                (row("上传", "upload_mbps", "Mbps", 2).unwrap_or_default())
             }))
-            (kit::section(Some("转账"), None, html! {
+            (kit::section(Some("传输量"), None, html! {
                 (kit::kv_row(None, "已下载", &bytes(p["download_bytes"].as_u64().unwrap_or(0))))
                 (kit::kv_row(None, "已上传", &bytes(p["upload_bytes"].as_u64().unwrap_or(0))))
                 @if let Some(s) = p["server"].as_str().filter(|s| !s.is_empty()) { (kit::kv_row(None, "服务器", s)) }
@@ -303,7 +303,7 @@ mod tests {
         let run = controls(&v).into_string();
         assert!(run.starts_with("<li class=\"it fld run\" id=\"st-run\"><span class=\"row\"><span>正在下载...</span><span class=\"muted num\">42%</span></span>"), "{run}");
         assert!(run.contains("<progress max=\"100\" value=\"42\" aria-label=\"正在下载...\"></progress>"));
-        assert!(run.contains("<b class=\"num\">87.3</b> <span class=\"muted\">兆比特/秒</span>"), "{run}");
+        assert!(run.contains("<b class=\"num\">87.3</b> <span class=\"muted\">Mbps</span>"), "{run}");
         assert_eq!(message(&v).into_string(), "<div id=\"st-msg\"></div>");
         assert_eq!(results(&v).into_string(), "<div id=\"st-res\"></div>");
         let done = views(json!({
