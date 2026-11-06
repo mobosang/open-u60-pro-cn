@@ -67,7 +67,7 @@ struct DeviceControlView: View {
                 }
             } footer: {
                 if viewModel.chargeLimitEnabled {
-                    Text("Charging stops at \(viewModel.chargeLimit)% and resumes at \(viewModel.chargeLimit - viewModel.hysteresis)%.\n\nThe resume gap prevents the charger from rapidly switching on and off. A smaller gap (e.g. 2%) keeps the battery closer to your target but toggles the charger more often. A larger gap (e.g. 10%) means fewer charge cycles but the battery level will swing more.\n\nDefault: 5% — good balance for most users.")
+                    Text("电量达到 \(viewModel.chargeLimit)% 时停止充电，降至 \(viewModel.chargeLimit - viewModel.hysteresis)% 时恢复。\n\n恢复差值用于避免充电器频繁启停。较小的差值（如 2%）能让电量更接近目标值，但充电器启停更频繁；较大的差值（如 10%）可减少启停次数，但电量波动更大。\n\n默认值为 5%，适合大多数用户。")
                 } else {
                     Text("当电池电量达到设定水平时停止充电。延长电池寿命。")
                 }

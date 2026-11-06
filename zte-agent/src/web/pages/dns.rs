@@ -297,7 +297,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             (true, 0) => nothing("DNS 缓存为空", Vec::new()),
             _ => asking(
                 "清除DNS缓存？",
-                vec![format!("{n} 缓存的答案被删除；下一次查找再次询问 DoH 服务器。")],
+                vec![format!("{n} 条缓存记录将被清除，下次查询时会重新请求 DoH 服务器。")],
                 "清除缓存",
                 false,
                 false,

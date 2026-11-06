@@ -110,7 +110,7 @@ async fn firewall_page_switches_and_level() {
     let q = get_with(&c, "/ui/router/firewall/switch?on=0", peer(210, 2), &cookie).await;
     q.assert_secure_html(200);
     has(&q.text(), &[
-        "<h2 class=\"q\">关闭防火墙？</h2>", "路由器上的设备失去防火墙’ 的互联网保护。",
+        "<h2 class=\"q\">关闭防火墙？</h2>", "路由器上的设备将失去防火墙的互联网保护。",
         "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。",
         "<input type=\"hidden\" name=\"on\" value=\"0\">", ">禁用防火墙</button>", "href=\"/ui/router/firewall\">取消</a>",
     ]);
@@ -330,7 +330,7 @@ async fn telemetry_blocker() {
     let r = post(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie, &body(&csrf, &once, &[("domain", "  ")])).await;
     assert!(r.text().contains("输入域名<"), "{}", r.text());
     let line = to(&post(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie, &body(&csrf, &once, &[("domain", "Ads.Example.com")])).await);
-    has(&get_with(&c, &line, peer(213, 2), &cookie).await.text(), &["<p class=\"msg info\" role=\"status\">ads.example.com is already blocked</p>"]);
+    has(&get_with(&c, &line, peer(213, 2), &cookie).await.text(), &["<p class=\"msg info\" role=\"status\">ads.example.com 已被拦截</p>"]);
     assert_eq!(calls(&c).len(), 1);
     let done = to(&post(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie, &body(&csrf, &once, &[("domain", "tracker.example.net")])).await);
     assert_eq!(calls(&c)[1], ("/api/router/domain-filter".to_owned(), json!({"action": "add", "domain": "tracker.example.net", "enabled": "1", "fqdn": "tracker.example.net"})));

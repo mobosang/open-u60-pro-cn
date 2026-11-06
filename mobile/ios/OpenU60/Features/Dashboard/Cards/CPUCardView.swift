@@ -95,7 +95,7 @@ struct CPUDetailSheet: View {
         do {
             let result: ProcessListResponse = try await client.get("/api/system/top")
             if result.bloatCount > 0 {
-                bloatSummary = "\(result.bloatCount) bloat \(String(format: "%.0f", result.bloatCpuPct))%"
+                bloatSummary = "\(result.bloatCount) 个冗余进程，占用 \(String(format: "%.0f", result.bloatCpuPct))%"
             }
         } catch {
             // Silently ignore — summary is optional

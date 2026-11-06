@@ -20,12 +20,12 @@ object ZTEConfigCrypto {
     fun readHeader(data: ByteArray): ConfigHeader {
         if (data.size < ConfigHeader.HEADER_SIZE) {
             throw ZTEConfigCryptoException(
-                "File too small (${data.size} bytes) for a valid ZTE config header"
+                "文件太小（${data.size} 字节），不包含有效的 ZTE 配置头"
             )
         }
         val magic = String(data, 0, 4, Charsets.US_ASCII)
         if (magic != ConfigHeader.HEADER_MAGIC) {
-            throw ZTEConfigCryptoException("Invalid header magic: $magic (expected ${ConfigHeader.HEADER_MAGIC})")
+            throw ZTEConfigCryptoException("配置头标识无效：$magic（应为 ${ConfigHeader.HEADER_MAGIC}）")
         }
         val payloadType = ByteBuffer.wrap(data, ConfigHeader.PAYLOAD_TYPE_OFFSET, 4).int
         val sigRaw = data.sliceArray(ConfigHeader.SIGNATURE_OFFSET until ConfigHeader.SIGNATURE_OFFSET + ConfigHeader.SIGNATURE_MAX_LEN)
@@ -113,7 +113,7 @@ object ZTEConfigCrypto {
                 lastError = e
             }
         }
-        throw ZTEConfigCryptoException("Failed to decrypt config with any known key. Last error: ${lastError?.message}")
+        throw ZTEConfigCryptoException("所有已知密钥均无法解密配置。最后错误：${lastError?.message}")
     }
 
     fun encryptConfig(

@@ -126,7 +126,7 @@ fun MobileNetworkScreen(
 
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Status: ${state.config.connectStatus.ifBlank { "--" }}",
+                            "状态：${state.config.connectStatus.ifBlank { "--" }}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

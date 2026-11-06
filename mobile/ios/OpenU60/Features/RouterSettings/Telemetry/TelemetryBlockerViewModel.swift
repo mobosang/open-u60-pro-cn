@@ -108,7 +108,7 @@ final class TelemetryBlockerViewModel {
         }
 
         if added > 0 {
-            showMessage("Blocked \(added) telemetry domain\(added == 1 ? "" : "s")", isError: false)
+            showMessage("已拦截 \(added) 个遥测域名", isError: false)
         } else {
             showMessage("所有遥测域已被阻止", isError: false)
         }

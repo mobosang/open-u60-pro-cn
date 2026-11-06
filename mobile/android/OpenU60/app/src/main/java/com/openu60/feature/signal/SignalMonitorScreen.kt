@@ -73,7 +73,7 @@ fun SignalMonitorScreen(
                 val op = state.operatorInfo
                 if (op.provider.isNotBlank()) {
                     Text(
-                        "${op.provider} | ${op.displayNetworkType(state.nr.isConnected, state.lte)} | Signal: ${op.signalBar}/5",
+                        "${op.provider} | ${op.displayNetworkType(state.nr.isConnected, state.lte)} | 信号：${op.signalBar}/5",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -96,7 +96,7 @@ fun SignalMonitorScreen(
                             SignalRow("小区 ID", nr.cellID.ifBlank { "--" }),
                             SignalRow("ARFCN", nr.channel.ifBlank { "--" }),
                             SignalRow("带宽", nr.bandwidth.ifBlank { "--" }),
-                            SignalRow("CA", if (nrCaActive) "Active (${1 + nr.sccCarriers.size} CC)" else "未启用"),
+                            SignalRow("CA", if (nrCaActive) "已连接（${1 + nr.sccCarriers.size} CC）" else "未启用"),
                         ),
                         sccCarriers = nr.sccCarriers,
                     )
@@ -122,7 +122,7 @@ fun SignalMonitorScreen(
                             SignalRow("小区 ID", lte.cellID.ifBlank { "--" }),
                             SignalRow("EARFCN", lte.earfcn.ifBlank { "--" }),
                             SignalRow("带宽", lte.bandwidth.ifBlank { "--" }),
-                            SignalRow("CA", if (lteCaActive) "Active (${1 + lte.sccCarriers.size} CC)" else "未启用"),
+                            SignalRow("CA", if (lteCaActive) "已连接（${1 + lte.sccCarriers.size} CC）" else "未启用"),
                         ),
                         sccCarriers = lte.sccCarriers,
                     )

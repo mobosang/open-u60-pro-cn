@@ -127,7 +127,7 @@ async fn wifi_form_question_and_reconnect_page() {
     let q = get_with(&c, &to(&r), peer(200, 3), &cookie).await;
     q.assert_secure_html(200);
     let html = q.text();
-    let cancel = format!("href=\"{WIFI}?t={once}\">Cancel</a>");
+    let cancel = format!("href=\"{WIFI}?t={once}\">取消</a>");
     for want in [
         "<h1>确认</h1>", "<h2 class=\"q\">应用WiFi设置？</h2>",
         "在2.4 GHz上，设备必须再次加入“Fake-Net-New”，使用新密码。",
@@ -371,7 +371,7 @@ async fn guest_wifi_form_and_apply() {
     let once = get_with(&c, GUEST, peer(202, 2), &cookie).await.input("once");
     let r = post(&c, GUEST_APPLY, peer(202, 2), &cookie, &body(&csrf, &once, &[("g5", "1"), ("gssid", "Fake&Guest"), ("gkey", "short"), ("genc", "sae"), ("gtime", "0")])).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("The router can&#39;t store these 个字符") || r.text().contains("The router can't store these 个字符"), "{}", r.text());
+    assert!(r.text().contains("路由器无法保存以下字符") || r.text().contains("路由器无法保存以下字符"), "{}", r.text());
     assert!(r.text().contains("使用 8 至 63 个字符（字母、数字、空格或符号）或 64 个十六进制数字。"));
 }
 
@@ -630,7 +630,7 @@ async fn dns_modes_presets_cache_and_clear() {
     assert!(found.text().contains("<h1>DNS 缓存（11）</h1>") && !found.text().contains("site4.fake.example"), "{}", found.text());
     // Clear: asked, then the app's call and line.
     let q = get_with(&c, "/ui/router/dns/cache-clear", peer(205, 2), &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">清除DNS缓存？</h2>") && q.text().contains("The 60 cached answers are removed"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">清除DNS缓存？</h2>") && q.text().contains("60 条缓存记录将被清除"), "{}", q.text());
     let r = post(&c, "/ui/router/dns/cache-clear", peer(205, 2), &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     assert!(get_with(&c, &to(&r), peer(205, 2), &cookie).await.text().contains("DNS 缓存清除"));
     assert_eq!(calls(&c).last().unwrap().0, "/api/doh/cache/clear");

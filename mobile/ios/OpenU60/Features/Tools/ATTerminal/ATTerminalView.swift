@@ -158,7 +158,7 @@ struct ATTerminalView: View {
                 viewModel.confirmDangerousSend()
             }
         } message: {
-            Text("The command \"\(viewModel.pendingDangerousCommand ?? "")\" may disrupt connectivity or require a reboot. Are you sure?")
+            Text("命令“\(viewModel.pendingDangerousCommand ?? "")”可能中断连接或要求重启，确定继续？")
         }
     }
 

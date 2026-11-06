@@ -147,7 +147,7 @@ private fun ConversationItem(
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("删除对话？") },
-            text = { Text("这将从 ${conversation.number} 中删除所有 ${conversation.messages.size} 消息。") },
+            text = { Text("这将删除与 ${conversation.number} 的全部 ${conversation.messages.size} 条消息。") },
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteDialog = false

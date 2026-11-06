@@ -168,10 +168,10 @@ fun DeviceControlScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                             if (state.chargeLimitEnabled) {
                                 Text(
-                                    "Charging stops at ${state.chargeLimit}% and resumes at ${state.chargeLimit - state.hysteresis}%.\n\n" +
-                                        "The resume gap prevents the charger from rapidly switching on and off. " +
-                                        "A smaller gap keeps the battery closer to your target but toggles more often. " +
-                                        "A larger gap means fewer cycles but more swing.\n\nDefault: 5%",
+                                    "电量达到 ${state.chargeLimit}% 时停止充电，降至 ${state.chargeLimit - state.hysteresis}% 时恢复。\n\n" +
+                                        "恢复差值用于避免充电器频繁启停。" +
+                                        "较小的差值能让电量更接近目标值，但启停更频繁。" +
+                                        "较大的差值可减少启停次数，但电量波动更大。\n\n默认值：5%",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

@@ -208,7 +208,7 @@ fun ATTerminalScreen(
             onDismissRequest = { viewModel.dismissDangerConfirm() },
             title = { Text("危险命令") },
             text = {
-                Text("\"${state.pendingDangerousCommand}\" may disable the modem, reset settings, or disconnect the network. Are you sure?")
+                Text("命令“${state.pendingDangerousCommand}”可能关闭调制解调器、重置设置或断开网络，确定继续？")
             },
             confirmButton = {
                 TextButton(
