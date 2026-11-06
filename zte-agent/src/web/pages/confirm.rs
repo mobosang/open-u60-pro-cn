@@ -681,7 +681,7 @@ mod tests {
         assert_eq!(back(Kind::Unlock, &i), "/ui/tools/band-lock");
         assert_eq!(back(Kind::Nr, &i), "/ui/tools/band-lock?nr=1&nr=3&nr=78");
         let app = AppState::new();
-        assert!(matches!(next(Kind::Nr, &i, Ok(()), &app), Next::Line(to, Some(true), l) if l == "NR bands locked: 1,3,78" && to == "/ui/tools/band-lock?nr=1&nr=3&nr=78"));
+        assert!(matches!(next(Kind::Nr, &i, Ok(()), &app), Next::Line(to, Some(true), l) if l == "NR 频段已锁定：1,3,78" && to == "/ui/tools/band-lock?nr=1&nr=3&nr=78"));
     }
 
     /// The lanes are the calls' (`server::lane`): only Enable ADB, Mobile

@@ -314,7 +314,7 @@ async fn band_lock_grids_questions_and_bodies() {
     let to = r.header("location").unwrap().to_owned();
     assert!(to.starts_with("/ui/tools/band-lock?nr=1&nr=78&r="), "{to}");
     let html = get_with(&c, &to, peer(114, 5), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg ok\" role=\"status\">NR bands locked: 1,78</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg ok\" role=\"status\">NR 频段已锁定：1,78</p>"), "{html}");
     assert!(html.contains("name=\"nr\" value=\"78\" checked>") && html.contains("name=\"nr\" value=\"1\" checked>"));
     assert_eq!(
         calls(&c),
@@ -349,7 +349,7 @@ async fn band_lock_grids_questions_and_bodies() {
     let q = get_with(&c, "/ui/tools/band-lock/nr?nr=41&nr=1", peer(114, 6), &cookie).await;
     let r = post(&c, "/ui/tools/band-lock/nr", peer(114, 6), &cookie, &format!("csrf={csrf}&nr=41&nr=1&once={}&confirm=1", q.input("once"))).await;
     let html = get_with(&c, r.header("location").unwrap(), peer(114, 6), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">NR bands locked for NSA only: 1,41. SA lock failed: sa down</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">NR 频段仅限 NSA 锁定：1,41。 SA锁定失败：sa down</p>"), "{html}");
     assert_eq!(device::calls(&c.app).len(), 2);
     // A band the app does not list is refused, also in a post.
     post(&c, "/ui/tools/band-lock/nr", peer(114, 7), &cookie, &format!("csrf={csrf}&nr=4&once={once}&confirm=1")).await.assert_secure_html(400);

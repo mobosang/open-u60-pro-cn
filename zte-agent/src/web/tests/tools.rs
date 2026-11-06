@@ -181,7 +181,7 @@ async fn connected_devices_and_their_search() {
     assert!(!html.contains("/ui/live/") && !html.contains("/ui/a/datastar-"));
     assert_eq!(c.app.hub.demand(Topic::Clients), 0);
     let html = post(&c, DEVICES, peer(103, 3), &cookie, &format!("csrf={csrf}&q=aa%3Abb")).await.text();
-    assert!(html.contains("No 结果 for “aa:bb”"), "{html}");
+    assert!(html.contains("“aa:bb” 没有结果"), "{html}");
     // Refused without the token or a session; the text never in a URL.
     post(&c, DEVICES, peer(103, 4), &cookie, "q=tv").await.assert_secure_html(403);
     let r = post(&c, DEVICES, peer(103, 4), "", &format!("csrf={csrf}&q=tv")).await;

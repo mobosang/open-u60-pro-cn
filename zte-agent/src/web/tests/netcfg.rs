@@ -130,7 +130,7 @@ async fn wifi_form_question_and_reconnect_page() {
     let cancel = format!("href=\"{WIFI}?t={once}\">Cancel</a>");
     for want in [
         "<h1>确认</h1>", "<h2 class=\"q\">应用WiFi设置？</h2>",
-        "On 2.4 GHz, 设备 must join “Fake-Net-New” again ，使用新密码.",
+        "在2.4 GHz上，设备必须再次加入“Fake-Net-New” with the new password。",
         "“Fake-Net-New” is hidden: 设备 must type its name to join.", "WiFi restarts to apply the changes",
         "<button class=\"btn btn-danger\" type=\"submit\">应用</button>", cancel.as_str(),
     ] {

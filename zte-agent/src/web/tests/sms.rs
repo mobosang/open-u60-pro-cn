@@ -159,7 +159,7 @@ async fn messages_follow_the_app() {
     // No hits: the app's header with 0, then its empty state.
     let none = search(&c, &cookie, &csrf, "", "%3Cnothing%3E").await.text();
     assert!(none.contains("<h2>0 Conversations</h2>") && !none.contains("暂无短信"), "{none}");
-    assert!(none.contains("<strong>No 结果 for “&lt;nothing&gt;”</strong><p>检查拼写或尝试新的搜索。</p>"), "{none}");
+    assert!(none.contains("<strong>“&lt;nothing&gt;” 没有结果</strong><p>检查拼写或尝试新的搜索。</p>"), "{none}");
     // Refused: no CSRF token, another origin; signed out, the login leads to Messages.
     post(&c, "/ui/sms", peer(60, 5), &cookie, "q=hello").await.assert_secure_html(403);
     let b = format!("csrf={csrf}&q=hello");
