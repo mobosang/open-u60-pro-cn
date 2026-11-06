@@ -384,7 +384,7 @@ fn switch_note(state: &str, reason: Option<&str>) -> Option<&'static str> {
             "此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。"
         }
         ("no_data", Some("data_off")) => "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。",
-        ("no_data", _) => "配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。",
+        ("no_data", _) => "配置文件处于活动状态，但移动数据尚未连接。检查套餐或网络覆盖范围。",
         ("modem_unconfirmed", _) => "eSIM已更换，但路由器仍使用之前的SIM。重新启动路由器即可完成。",
         ("card_unconfirmed", _) => "切换后无法读取eSIM。一会儿刷新一下。",
         ("not_applied", Some("card_busy")) => {
@@ -1462,7 +1462,7 @@ mod tests {
         assert!(html.contains("<b>正在重新加载 SIM</b>") && html.contains("class=\"card econn busy\""), "{html}");
         assert!(updating(&later).into_string().contains("更新"));
         later.set(Topic::EsimSwitch, SlotView { version: 2, at: BootInstant::ZERO, value_at: BootInstant::ZERO, value: Some(Arc::new(json!({"state": "no_data", "generation": 5}))), error: None });
-        assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。"));
+        assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("配置文件处于活动状态，但移动数据尚未连接。检查套餐或网络覆盖范围。"));
         assert!(updating(&later).into_string().contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"));
         // Offline and unread.
         let off = views(vec![(Topic::Modem, json!({"data": {"connect_status": "disconnected"}}))]);

@@ -168,7 +168,7 @@ data class RouterESimSwitchStatus(
             "no_data" -> when (reason) {
                 "roaming_off" -> "此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。"
                 "data_off" -> "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。"
-                else -> "配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。"
+                else -> "配置文件处于活动状态，但移动数据尚未连接。检查套餐或网络覆盖范围。"
             }
             "modem_unconfirmed" -> "eSIM已更换，但路由器仍使用之前的SIM。重新启动路由器即可完成。"
             "card_unconfirmed" -> "切换后无法读取eSIM。一会儿刷新一下。"
@@ -328,7 +328,7 @@ data class RouterESimDownloadStatus(
         state == "failed" -> "无法添加配置文件"
         state == "cancelled" -> "下载已取消"
         step in setOf("es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client") -> "连接到运营商..."
-        step == "es8p_metadata_parse" -> "阅读配置文件详细信息..."
+        step == "es8p_metadata_parse" -> "读取配置文件详细信息..."
         step in setOf("es10b_prepare_download", "es9p_get_bound_profile_package") -> "正在下载配置文件..."
         step == "es10b_load_bound_profile_package" -> "在 eSIM 上安装..."
         else -> "准备eSIM……"

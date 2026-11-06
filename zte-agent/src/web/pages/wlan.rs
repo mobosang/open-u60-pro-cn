@@ -454,7 +454,7 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)]) -> Question {
     };
     let b = body(vals, &cur);
     if b.is_empty() {
-        return nothing("没有什么可申请的", vec!["这些已经是 router’ 的设置。".into()]);
+        return nothing("没有需要应用的更改", vec!["当前已使用这些设置。".into()]);
     }
     if val(vals, "wifi") != "1" {
         let lines = vec![
@@ -723,7 +723,7 @@ pub fn guest_question(app: &AppState, vals: &[(&'static str, String)]) -> Questi
     };
     let b = guest_body(vals, &cur);
     if b.is_empty() {
-        return nothing("没有什么可申请的", vec!["这些已经是 router’ 的设置。".into()]);
+        return nothing("没有需要应用的更改", vec!["当前已使用这些设置。".into()]);
     }
     let was = !truthy(&cur["disabled_2g"]) || !truthy(&cur["disabled_5g"]);
     let now = val(vals, "g2") == "1" || val(vals, "g5") == "1";

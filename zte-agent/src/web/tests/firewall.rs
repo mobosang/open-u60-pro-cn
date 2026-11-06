@@ -95,7 +95,7 @@ async fn firewall_page_switches_and_level() {
         "<a class=\"sw\" href=\"/ui/router/firewall/nat?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"NAT\">",
         "<a class=\"sw\" href=\"/ui/router/firewall/upnp?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"通用即插即用\">",
         "<form class=\"rf dmz\" method=\"post\" action=\"/ui/router/firewall/dmz\" autocomplete=\"off\">",
-        "<input class=\"sr\" id=\"dmz\" type=\"checkbox\" role=\"switch\" name=\"dmz\" value=\"1\">", "DMZ主机IP", ">申请DMZ</button>",
+        "<input class=\"sr\" id=\"dmz\" type=\"checkbox\" role=\"switch\" name=\"dmz\" value=\"1\">", "DMZ主机IP", ">应用 DMZ</button>",
         "<h2>端口转发</h2>", "<a class=\"it bt\" href=\"/ui/router/firewall/port-forward/new\">", "添加规则",
         "<b class=\"nm\">Web</b><small class=\"c-green\">已启用</small>", "TCP WAN:8080 → 192.168.0.50:80",
         "<b class=\"nm\">规则</b><small>未启用</small>", "UDP WAN:3074 → 192.168.0.60:3074",
@@ -182,7 +182,7 @@ async fn dmz_and_new_port_forward() {
     let r = post(&c, DMZ, peer(211, 2), &cookie, &body(&csrf, &once, &[("dmz", "1"), ("ip", "192.168.0.77")])).await;
     assert_eq!(to(&r), format!("{DMZ}?t={once}"));
     let q = get_with(&c, &to(&r), peer(211, 2), &cookie).await;
-    has(&q.text(), &["<h2 class=\"q\">将192.168.0.77设为DMZ主机？</h2>", "该设备的所有端口都可能从互联网访问", ">申请DMZ</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">将192.168.0.77设为DMZ主机？</h2>", "该设备的所有端口都可能从互联网访问", ">应用 DMZ</button>"]);
     let confirm = format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"));
     let done = to(&post(&c, DMZ, peer(211, 2), &cookie, &confirm).await);
     assert_eq!(calls(&c), vec![("/api/router/firewall/dmz".to_owned(), json!({"dmz_enabled": "1", "dmz_ip": "192.168.0.77", "dmz_enable": 1}))]);

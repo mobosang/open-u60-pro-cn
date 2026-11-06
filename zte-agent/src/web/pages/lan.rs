@@ -213,7 +213,7 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)], port: &str, rem
         && text(&cur["dhcp_end"]) == val(vals, "end")
         && text(&cur["dhcp_lease_time"]) == val(vals, "lease");
     if unchanged {
-        return nothing("没有什么可申请的", vec!["这些已经是 router’ 的设置。".into()]);
+        return nothing("没有需要应用的更改", vec!["当前已使用这些设置。".into()]);
     }
     let mut lines = Vec::new();
     if old != new && remote {

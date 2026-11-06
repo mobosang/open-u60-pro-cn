@@ -89,7 +89,7 @@ final class APNViewModel {
 
     func saveAPN() async {
         guard !formProfile.name.isEmpty, !formProfile.apn.isEmpty else {
-            showMessage("姓名和APN为必填项", isError: true)
+            showMessage("名称和 APN 为必填项", isError: true)
             return
         }
 

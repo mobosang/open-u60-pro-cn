@@ -64,7 +64,7 @@ struct FirewallSettingsView: View {
                 Button {
                     Task { await viewModel.applyDMZ() }
                 } label: {
-                    Text("申请DMZ")
+                    Text("应用 DMZ")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading)

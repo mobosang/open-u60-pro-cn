@@ -134,7 +134,7 @@ async fn add_esim_follows_the_app() {
         "从照片中选择二维码</span><input type=\"file\" name=\"photo\" accept=\"image/jpeg,image/png\">",
         "手动输入代码</summary>", "<input id=\"code\" type=\"password\" name=\"code\" placeholder=\"LPA:1$…\" maxlength=\"512\" autocomplete=\"one-time-code\"",
         "<input id=\"cc\" type=\"password\" name=\"cc\" placeholder=\"运营商确认码\" maxlength=\"64\" autocomplete=\"one-time-code\"",
-        "输入运营商提供的单独确认码（最多 64 个字符）。</small>", ">阅读配置文件详细信息</button>",
+        "输入运营商提供的单独确认码（最多 64 个字符）。</small>", ">读取配置文件详细信息</button>",
         "您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10–60 秒。",
         "激活码是私密的一次性凭据，只会发送至你的路由器，OpenU60 不会保存它。",
     ] {
@@ -439,7 +439,7 @@ async fn the_download_card_follows_the_app() {
         assert!(html.contains(want), "{want} in {html}");
     }
     assert!(!html.contains("@get(") && !html.contains("0505") && !html.contains("eaddf\" formaction"), "{html}");
-    assert!(get_with(&c, ADD, peer(174, 5), &cookie).await.text().contains("阅读配置文件详细信息"));
+    assert!(get_with(&c, ADD, peer(174, 5), &cookie).await.text().contains("读取配置文件详细信息"));
     // The switch question for it, by its key; the ICCID in no page.
     let q = get_with(&c, "/ui/router/esim/switch?new=1", peer(174, 6), &cookie).await;
     q.assert_secure_html(200);

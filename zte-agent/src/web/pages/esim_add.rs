@@ -366,7 +366,7 @@ fn entry(pd: &PageData) -> Markup {
                     small.cap { "输入运营商提供的单独确认码（最多 64 个字符）。" }
                 }
             }
-            button.btn.btn-wide.teal type="submit" disabled[switching] { "阅读配置文件详细信息" }
+            button.btn.btn-wide.teal type="submit" disabled[switching] { "读取配置文件详细信息" }
         }
         ul.hints {
             li { (kit::icon(Icon::Wifi)) "您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10–60 秒。" }

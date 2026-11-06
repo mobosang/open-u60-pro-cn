@@ -173,7 +173,7 @@ class RouterESimParserTest {
         val roaming = json.decodeFromString<RouterESimSwitchStatus>("""{"state":"no_data","reason":"roaming_off","note":null}""")
         assertTrue(roaming.outcomeNote!!.contains("打开数据漫游"))
         assertTrue(RouterESimSwitchStatus("no_data", reason = "data_off").outcomeNote!!.contains("移动数据已关闭"))
-        assertTrue(RouterESimSwitchStatus("no_data").outcomeNote!!.contains("计划或承保范围"))
+        assertTrue(RouterESimSwitchStatus("no_data").outcomeNote!!.contains("套餐或网络覆盖范围"))
         val busy = RouterESimSwitchStatus("card_busy")
         assertTrue(busy.isRunning && !busy.cardConfirmed)
         assertEquals(RouterESimConnectionPhase.SWITCHING, busy.phase)

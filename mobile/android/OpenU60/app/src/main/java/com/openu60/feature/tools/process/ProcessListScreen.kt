@@ -140,8 +140,8 @@ fun ProcessListScreen(
     if (showKillAllConfirm) {
         AlertDialog(
             onDismissRequest = { showKillAllConfirm = false },
-            title = { Text("结束所有膨胀守护进程？") },
-            text = { Text("这将 SIGKILL ${state.bloatCount} 膨胀守护进程。他们将在重新启动后返回。") },
+            title = { Text("结束所有冗余守护进程？") },
+            text = { Text("将使用 SIGKILL 结束 ${state.bloatCount} 个冗余守护进程，重启后会恢复。") },
             confirmButton = {
                 TextButton(
                     onClick = {

@@ -99,7 +99,7 @@ struct RouterESimAddView: View {
                             SecureField("运营商确认码", text: $confirmationCode).textInputAutocapitalization(.never).autocorrectionDisabled().textFieldStyle(.roundedBorder)
                             Text("输入运营商提供的单独确认码（最多 64 个字符）。").font(.caption).foregroundStyle(.secondary)
                         }
-                        Button("阅读配置文件详细信息") {
+                        Button("读取配置文件详细信息") {
                             guard let parsed else { inputError = RouterESimActivationCode.invalidMessage; return }
                             guard !parsed.needsConfirmationCode || RouterESimActivationCode.validConfirmationCode(confirmationCode) else {
                                 inputError = "请输入运营商提供的确认码（最多 64 个字符）。"; return

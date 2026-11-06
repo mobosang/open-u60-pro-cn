@@ -332,7 +332,7 @@ private fun ConnectionCard(state: RouterESimState, refresh: () -> Unit) {
         RouterESimConnectionPhase.SWITCHING -> "在 eSIM 上选择新的配置文件。"
         RouterESimConnectionPhase.RELOADING -> "调制解调器正在加载 SIM。该卡可能在 5-25 秒内无法读取。"
         RouterESimConnectionPhase.REGISTERING -> "新的配置文件已加载。等待移动数据连接。"
-        RouterESimConnectionPhase.WAITING -> "移动数据尚未连接。检查计划或承保范围，或选择下面的其他配置文件。"
+        RouterESimConnectionPhase.WAITING -> "移动数据尚未连接。检查套餐或网络覆盖范围，或选择下面的其他配置文件。"
         RouterESimConnectionPhase.DISCONNECTED -> "您的路由器的 Wi-Fi 保持连接。您仍然可以切换配置文件。"
         RouterESimConnectionPhase.CHECKING -> "正在读取路由器实时状态。"
         RouterESimConnectionPhase.UNAVAILABLE -> "再次查看路由器的连接状态。"

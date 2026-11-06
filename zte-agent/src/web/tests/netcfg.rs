@@ -193,7 +193,7 @@ async fn wifi_off_tx_power_failures_and_nothing_to_apply() {
         }
     };
     let (_, q) = ask(wifi_fields(&[])).await;
-    assert!(q.text().contains("<h2 class=\"q\">没有什么可申请的</h2>") && !q.text().contains("name=\"confirm\""), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">没有需要应用的更改</h2>") && !q.text().contains("name=\"confirm\""), "{}", q.text());
     let (_, q) = ask(wifi_fields(&[("wifi", "")])).await;
     assert!(q.text().contains("<h2 class=\"q\">关闭WiFi？</h2>") && q.text().contains(">关闭WiFi</button>"), "{}", q.text());
     // TX power alone: no restart, no reconnect page.
@@ -584,7 +584,7 @@ async fn dns_modes_presets_cache_and_clear() {
         }
     };
     let q = ask(vec![("mode", "doh"), ("dns1", "9.9.9.9"), ("dns2", ""), ("url", "https://1.1.1.1/dns-query")]).await;
-    assert!(q.contains("<h2 class=\"q\">没有什么可申请的</h2>") && !q.contains("name=\"confirm\""), "{q}");
+    assert!(q.contains("<h2 class=\"q\">没有需要应用的更改</h2>") && !q.contains("name=\"confirm\""), "{q}");
     let q = ask(vec![("mode", "doh"), ("dns1", "1.1.1.1"), ("dns2", ""), ("url", "https://1.1.1.1/dns-query")]).await;
     assert!(q.contains("<h2 class=\"q\">更换DNS服务器？</h2>") && q.contains("路由器的 DNS 服务器将改为 1.1.1.1。") && !q.contains("加密"), "{q}");
     // A remote browser: the router's own lookups use the new servers too.

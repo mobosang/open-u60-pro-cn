@@ -267,7 +267,7 @@ pub fn page(pd: &PageData) -> Markup {
                 (switch("dmz", "启用DMZ", dmz_on, "it", "sr"))
                 // Shown while Enable DMZ is on (CSS; without `:has()` always).
                 (text_row("ip", "DMZ主机IP", &dmz_ip, f.and_then(|f| f.error("ip")), "it fld dip", 15, Some("decimal")))
-                li { button.it.cv.snd type="submit" { "申请DMZ" } }
+                li { button.it.cv.snd type="submit" { "应用 DMZ" } }
             }))
         }
         (kit::section(Some("端口转发"), None, html! {
@@ -520,10 +520,10 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
                 if c.dmz && !c.dmz_ip.is_empty() {
                     lines.push(format!("{} stops receiving them.", c.dmz_ip));
                 }
-                ask_lines(format!("将{ip}设为DMZ主机？"), lines, "申请DMZ", false)
+                ask_lines(format!("将{ip}设为DMZ主机？"), lines, "应用 DMZ", false)
             } else {
                 let host = if c.dmz_ip.is_empty() { "DMZ主机" } else { c.dmz_ip.as_str() };
-                ask_lines("关闭DMZ？".into(), vec![format!("{host} 将不再接收未被其他规则处理的互联网连接。")], "申请DMZ", false)
+                ask_lines("关闭DMZ？".into(), vec![format!("{host} 将不再接收未被其他规则处理的互联网连接。")], "应用 DMZ", false)
             }
         }
         Kind::FwPfAdd => {

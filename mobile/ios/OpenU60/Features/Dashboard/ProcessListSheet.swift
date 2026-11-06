@@ -86,7 +86,7 @@ struct ProcessListSheet: View {
                     }
                 }
             }
-            .confirmationDialog("结束所有膨胀守护进程？", isPresented: $showKillAllConfirm, titleVisibility: .visible) {
+            .confirmationDialog("结束所有冗余守护进程？", isPresented: $showKillAllConfirm, titleVisibility: .visible) {
                 Button("结束所有冗余进程", role: .destructive) {
                     Task { await killAll() }
                 }

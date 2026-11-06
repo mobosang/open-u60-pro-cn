@@ -148,7 +148,7 @@ struct RouterESimTests {
         let roaming = try! JSONDecoder().decode(RouterESimSwitchStatus.self, from: Data(#"{"state":"no_data","reason":"roaming_off","note":null}"#.utf8))
         precondition(roaming.outcomeNote?.contains("打开数据漫游") == true, "a roaming profile names the fix")
         precondition(RouterESimSwitchStatus(state: "no_data", reason: "data_off").outcomeNote?.contains("移动数据已关闭") == true)
-        precondition(RouterESimSwitchStatus(state: "no_data").outcomeNote?.contains("计划或承保范围") == true)
+        precondition(RouterESimSwitchStatus(state: "no_data").outcomeNote?.contains("套餐或网络覆盖范围") == true)
         let busy = RouterESimSwitchStatus(state: "card_busy")
         precondition(busy.isRunning && !busy.cardConfirmed && busy.phase == .switching, "a busy retry is still a switch in progress")
         precondition(busy.progressNote?.contains("持续尝试") == true && busy.outcomeNote == nil)

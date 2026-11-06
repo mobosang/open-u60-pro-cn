@@ -138,7 +138,7 @@ fun RouterESimAddScreen(viewModel: RouterESimViewModel, onClose: () -> Unit) {
                                     if (parsed == null) error = RouterESimActivationCode.INVALID_MESSAGE
                                     else if (parsed.needsConfirmationCode && !RouterESimActivationCode.validConfirmationCode(confirmationCode)) error = "请输入运营商提供的确认码（最多 64 个字符）。"
                                     else viewModel.startDownload(parsed.value, confirmationCode)
-                                }, enabled = code.isNotBlank() && !state.blocksSwitching && !reading) { Text("阅读配置文件详细信息") }
+                                }, enabled = code.isNotBlank() && !state.blocksSwitching && !reading) { Text("读取配置文件详细信息") }
                             }
                         }
                     }
