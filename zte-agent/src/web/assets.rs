@@ -81,7 +81,7 @@ fn status_only(status: StatusCode) -> Response {
 }
 
 fn not_found() -> Response {
-    let mut resp = Response::new(Body::from("Not found"));
+    let mut resp = Response::new(Body::from("未找到"));
     *resp.status_mut() = StatusCode::NOT_FOUND;
     resp.headers_mut()
         .insert(CONTENT_TYPE, HeaderValue::from_static("text/plain; charset=utf-8"));
@@ -271,6 +271,7 @@ mod tests {
         let m: serde_json::Value = serde_json::from_str(MANIFEST).unwrap();
         assert_eq!((m["start_url"].as_str(), m["display"].as_str()), (Some("/ui/"), Some("standalone")));
         assert_eq!(m["scope"], "/ui/");
+        assert_eq!(m["lang"], "zh-CN");
         let icons = m["icons"].as_array().unwrap();
         assert_eq!(icons.len(), 4);
         for icon in icons {

@@ -14,23 +14,23 @@ struct VPNPassthroughView: View {
                 }
             }
 
-            Section("VPN Passthrough") {
+            Section("VPN 穿透") {
                 Toggle("L2TP", isOn: $viewModel.editL2tp)
                 Toggle("PPTP", isOn: $viewModel.editPptp)
-                Toggle("IPSec", isOn: $viewModel.editIpsec)
+                Toggle("IP安全", isOn: $viewModel.editIpsec)
             }
 
             Section {
                 Button {
                     Task { await viewModel.apply() }
                 } label: {
-                    Text("Apply")
+                    Text("应用")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading)
             }
         }
-        .navigationTitle("VPN Passthrough")
+        .navigationTitle("VPN 穿透")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

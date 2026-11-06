@@ -30,15 +30,15 @@ fun GuestWiFiSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Guest WiFi") },
+                title = { Text("访客 WiFi") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     TextButton(onClick = { viewModel.save() }, enabled = !state.isLoading) {
-                        Text("Save")
+                        Text("保存")
                     }
                 },
             )
@@ -75,7 +75,7 @@ fun GuestWiFiSettingsScreen(
                 // Toggles
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Enable Guest Network", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("启用访客网络", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         ToggleRow("2.4 GHz", state.config.enabled2g) {
                             viewModel.updateConfig(state.config.copy(enabled2g = it))
@@ -89,7 +89,7 @@ fun GuestWiFiSettingsScreen(
                 // Settings
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Settings", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("设置", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         OutlinedTextField(
@@ -103,7 +103,7 @@ fun GuestWiFiSettingsScreen(
                         OutlinedTextField(
                             value = state.config.key,
                             onValueChange = { viewModel.updateConfig(state.config.copy(key = it)) },
-                            label = { Text("Password") },
+                            label = { Text("密码") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                         )
@@ -117,7 +117,7 @@ fun GuestWiFiSettingsScreen(
                             OutlinedTextField(
                                 value = state.config.encryption,
                                 onValueChange = {},
-                                label = { Text("Encryption") },
+                                label = { Text("加密") },
                                 readOnly = true,
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(encExpanded) },
                                 modifier = Modifier.menuAnchor().fillMaxWidth(),
@@ -137,10 +137,10 @@ fun GuestWiFiSettingsScreen(
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
-                        ToggleRow("Hidden Network", state.config.hidden) {
+                        ToggleRow("隐藏网络", state.config.hidden) {
                             viewModel.updateConfig(state.config.copy(hidden = it))
                         }
-                        ToggleRow("Client Isolation", state.config.isolate) {
+                        ToggleRow("客户端隔离", state.config.isolate) {
                             viewModel.updateConfig(state.config.copy(isolate = it))
                         }
                     }
@@ -149,11 +149,11 @@ fun GuestWiFiSettingsScreen(
                 // Active Time
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Active Time", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("活跃时间", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         var timeExpanded by remember { mutableStateOf(false) }
-                        val selectedLabel = GuestWiFiConfig.activeTimeOptions.firstOrNull { it.second == state.config.activeTime }?.first ?: "No Limit"
+                        val selectedLabel = GuestWiFiConfig.activeTimeOptions.firstOrNull { it.second == state.config.activeTime }?.first ?: "没有限制"
                         ExposedDropdownMenuBox(
                             expanded = timeExpanded,
                             onExpandedChange = { timeExpanded = it },
@@ -161,7 +161,7 @@ fun GuestWiFiSettingsScreen(
                             OutlinedTextField(
                                 value = selectedLabel,
                                 onValueChange = {},
-                                label = { Text("Duration") },
+                                label = { Text("持续时间") },
                                 readOnly = true,
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(timeExpanded) },
                                 modifier = Modifier.menuAnchor().fillMaxWidth(),
@@ -185,7 +185,7 @@ fun GuestWiFiSettingsScreen(
                             val mins = state.remainingSeconds / 60
                             val secs = state.remainingSeconds % 60
                             Text(
-                                "Remaining: %d:%02d".format(mins, secs),
+                                "剩余：%d:%02d".format(mins, secs),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontFamily = FontFamily.Monospace,
                                 fontWeight = FontWeight.Medium,

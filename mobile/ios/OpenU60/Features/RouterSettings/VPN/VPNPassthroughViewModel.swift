@@ -31,7 +31,7 @@ final class VPNPassthroughViewModel {
             editPptp = config.pptp
             editIpsec = config.ipsec
         } catch {
-            showMessage("Failed to load VPN: \(error.localizedDescription)", isError: true)
+            showMessage("加载VPN失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -46,10 +46,10 @@ final class VPNPassthroughViewModel {
                 "pptp_passthrough": editPptp ? "1" : "0",
                 "ipsec_passthrough": editIpsec ? "1" : "0"
             ])
-            showMessage("VPN passthrough updated", isError: false)
+            showMessage("VPN 直通已更新", isError: false)
             config = VPNPassthroughConfig(l2tp: editL2tp, pptp: editPptp, ipsec: editIpsec)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false

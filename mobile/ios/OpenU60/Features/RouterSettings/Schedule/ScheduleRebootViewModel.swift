@@ -31,7 +31,7 @@ final class ScheduleRebootViewModel {
             editTime = parseTime(config.time)
             editDays = Set(config.days.split(separator: ",").map(String.init))
         } catch {
-            showMessage("Failed to load schedule: \(error.localizedDescription)", isError: true)
+            showMessage("加载时间表失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -51,10 +51,10 @@ final class ScheduleRebootViewModel {
                 "auto_reboot_time": timeStr,
                 "auto_reboot_days": daysStr
             ])
-            showMessage("Schedule updated", isError: false)
+            showMessage("日程已更新", isError: false)
             config = ScheduleRebootConfig(enabled: editEnabled, time: timeStr, days: daysStr)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false

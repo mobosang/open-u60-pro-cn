@@ -42,7 +42,7 @@ pub const API: &str = "/api/router/domain-filter";
 /// The app's `knownTelemetryDomains`.
 const KNOWN: [&str; 5] = ["dclient.ztems.com", "dconfig.ztems.com", "iot.ztems.com", "mcs-cloud.ztems.com", "update.ztems.com"];
 
-const STALE: &str = "The domain list was out of date and has been reloaded. Try again.";
+const STALE: &str = "域名列表已过时，已重新加载。再试一次。";
 
 /// A blocked domain (the app's `DomainFilterRule`).
 struct Rule {
@@ -80,7 +80,7 @@ fn post_button(pd: &PageData, action: &str, fields: &[(&str, &str)], label: &str
 pub fn page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "Failed to load filters: " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载过滤器失败：" (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     let on = truthy(&d["enable"]);
@@ -90,46 +90,46 @@ pub fn page(pd: &PageData) -> Markup {
     let typed = f.and_then(|f| f.value("domain")).unwrap_or("");
     let err = f.and_then(|f| f.error("domain"));
     html! {
-        (kit::section(Some("Domain Filter"), None, html! {
-            li.it { span { "Status" } @if on { span.c-green { "Enabled" } } @else { span.v { "Disabled" } } }
-            (post_button(pd, SWITCH, &[("on", if on { "0" } else { "1" })], if on { "Disable Filter" } else { "Enable Filter" }))
+        (kit::section(Some("域过滤器"), None, html! {
+            li.it { span { "状态" } @if on { span.c-green { "已启用" } } @else { span.v { "已禁用" } } }
+            (post_button(pd, SWITCH, &[("on", if on { "0" } else { "1" })], if on { "禁用过滤器" } else { "启用过滤器" }))
         }))
-        (kit::section(Some("Quick Actions"), None, html! {
-            (post_button(pd, BLOCK_ALL, &[], "Block All ZTE Telemetry"))
+        (kit::section(Some("快速行动"), None, html! {
+            (post_button(pd, BLOCK_ALL, &[], "阻止所有 ZTE 遥测"))
             @for domain in KNOWN {
                 li.it {
                     span.dom { (domain) }
                     @if blocked(&list, domain) {
-                        span.c-green { (kit::icon(Icon::Check)) span.sr { "Blocked" } }
+                        span.c-green { (kit::icon(Icon::Check)) span.sr { "被封锁" } }
                     } @else {
-                        span.v { (kit::icon(Icon::Circle)) span.sr { "Not blocked" } }
+                        span.v { (kit::icon(Icon::Circle)) span.sr { "未被封锁" } }
                     }
                 }
             }
         }))
-        (kit::section(Some("Add Custom Domain"), None, html! {
+        (kit::section(Some("添加自定义域"), None, html! {
             li.it.tdom {
                 form.rf method="post" action=(ADD) autocomplete="off" {
                     (pd.csrf())
                     (once_field(&pd.once()))
-                    label.sr for="domain" { "Domain to block" }
-                    input #domain type="text" name="domain" value=(typed) placeholder="Domain to block" maxlength="253" inputmode="url"
+                    label.sr for="domain" { "要阻止的域" }
+                    input #domain type="text" name="domain" value=(typed) placeholder="要阻止的域" maxlength="253" inputmode="url"
                         autocomplete="off" autocapitalize="off" spellcheck="false" aria-invalid=[err.map(|_| "true")]
                         aria-describedby=[err.map(|_| "domain-err")];
-                    button.btn.sm type="submit" { "Add" }
+                    button.btn.sm type="submit" { "添加" }
                 }
                 @if let Some(e) = err { p.ferr #domain-err { (e) } }
             }
         }))
         @if !list.is_empty() {
-            (kit::section(Some("Blocked Domains"), None, html! {
+            (kit::section(Some("被阻止的域"), None, html! {
                 @for r in &list {
                     li.it.pf {
                         span.cvb {
                             span.dom { (r.domain) }
-                            @if r.enabled { small.c-green { "Active" } } @else { small { "Inactive" } }
+                            @if r.enabled { small.c-green { "已启用" } } @else { small { "未启用" } }
                         }
-                        a.del href=(format!("{DELETE}?id={}&g={g}", percent_encode(&r.id))) aria-label=(format!("Remove {}", r.domain)) {
+                        a.del href=(format!("{DELETE}?id={}&g={g}", percent_encode(&r.id))) aria-label=(format!("删除{}", r.domain)) {
                             (kit::icon(Icon::Trash))
                         }
                     }
@@ -152,9 +152,9 @@ pub fn add_fields(pairs: &[(String, String)]) -> Result<Vals, Bad> {
     let typed: String = field(pairs, "domain").unwrap_or("").trim().chars().take(254).collect();
     let domain = typed.to_ascii_lowercase();
     let error = if domain.is_empty() {
-        "Enter a domain name"
+        "输入域名"
     } else if !domain_ok(&domain) {
-        "Enter a domain name such as ads.example.com: letters, digits, hyphens and dots."
+        "输入域名，例如 ads.example.com：字母、数字、连字符和点。"
     } else {
         return Ok(vec![("domain", domain)]);
     };
@@ -165,14 +165,14 @@ pub fn add_fields(pairs: &[(String, String)]) -> Result<Vals, Bad> {
 pub fn question(app: &AppState, vals: &[(&'static str, String)]) -> Question {
     let d = match super::api_get(app, API) {
         Ok(d) => d,
-        Err(e) => return nothing("Failed to load filters", vec![fmt::truncate(&e, 120)]),
+        Err(e) => return nothing("加载过滤器失败", vec![fmt::truncate(&e, 120)]),
     };
     if generation(&d) != val(vals, "g") {
-        return nothing("The domain list changed", vec!["It changed since this page was loaded. Go back and choose the domain again.".into()]);
+        return nothing("域名列表已更改", vec!["自该页面加载以来，它发生了变化。返回并再次选择域。".into()]);
     }
     match rules(&d).into_iter().find(|r| r.id == val(vals, "id")) {
-        None => nothing("Domain not found", vec!["It may have been removed.".into()]),
-        Some(r) => asking(format!("Remove {}?", r.domain), vec![format!("Devices on the router can reach {} again.", r.domain)], "Remove", false, false),
+        None => nothing("未找到域名", vec!["它可能已被删除。".into()]),
+        Some(r) => asking(format!("删除{}？", r.domain), vec![format!("路由器上的设备可以再次到达{}。", r.domain)], "移除", false, false),
     }
 }
 
@@ -188,22 +188,22 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
             let on = val(vals, "on") == "1";
             claim.disarm();
             put(json!({"enable": i64::from(on)}))?;
-            Ok(Done::Line(Some(true), format!("Domain filter {}", if on { "enabled" } else { "disabled" })))
+            Ok(Done::Line(Some(true), format!("域过滤器{}", if on { "已启用" } else { "已禁用" })))
         }
         Kind::TmAdd => {
             let domain = val(vals, "domain");
             if blocked(&rules(&read()?), domain) {
-                return Ok(Done::Line(None, format!("{domain} is already blocked")));
+                return Ok(Done::Line(None, format!("{domain} 已被拦截")));
             }
             claim.disarm();
             put(add_body(domain))?;
-            Ok(Done::Line(Some(true), format!("Added {domain}")))
+            Ok(Done::Line(Some(true), format!("新增{domain}")))
         }
         Kind::TmBlockAll => {
             let list = rules(&read()?);
             let missing: Vec<&str> = KNOWN.into_iter().filter(|d| !blocked(&list, d)).collect();
             if missing.is_empty() {
-                return Ok(Done::Line(Some(true), "All telemetry domains already blocked".into()));
+                return Ok(Done::Line(Some(true), "所有遥测域已被阻止".into()));
             }
             claim.disarm();
             // The app's: one add per domain, on past a failure.
@@ -217,11 +217,11 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
                     }
                 }
             }
-            let blocked_n = |n: usize| format!("Blocked {n} telemetry domain{}", if n == 1 { "" } else { "s" });
+            let blocked_n = |n: usize| format!("已拦截 {n} 个遥测域名");
             match failure {
                 None => Ok(Done::Line(Some(true), blocked_n(added))),
                 Some(e) if added == 0 => Err(e),
-                Some((_, e)) => Ok(Done::Line(None, format!("{}; {} could not be added. {e}", blocked_n(added), missing.len() - added))),
+                Some((_, e)) => Ok(Done::Line(None, format!("{}；无法添加 {}。{e}", blocked_n(added), missing.len() - added))),
             }
         }
         _ => {
@@ -230,10 +230,10 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
                 return Err((409, STALE.into()));
             }
             let id = val(vals, "id");
-            let Some(r) = rules(&d).into_iter().find(|r| r.id == id) else { return Err((404, "Domain not found".into())) };
+            let Some(r) = rules(&d).into_iter().find(|r| r.id == id) else { return Err((404, "未找到域名".into())) };
             claim.disarm();
             put(json!({"action": "delete", "id": id, "section_id": [id]}))?;
-            Ok(Done::Line(Some(true), format!("Removed {}", r.domain)))
+            Ok(Done::Line(Some(true), format!("删除{}", r.domain)))
         }
     }
 }
@@ -253,7 +253,7 @@ mod tests {
         let pairs = |v: &str| vec![("domain".to_owned(), v.to_owned())];
         assert_eq!(add_fields(&pairs("  Ads.Example.COM ")).ok().unwrap(), vec![("domain", "ads.example.com".to_owned())]);
         match add_fields(&pairs("   ")) {
-            Err(Bad::Fields(fs)) => assert_eq!(fs.error("domain"), Some("Enter a domain name")),
+            Err(Bad::Fields(fs)) => assert_eq!(fs.error("domain"), Some("输入域名")),
             _ => panic!("empty"),
         }
         let r = rules(&json!({"rule_list": [{"domain": "a.example", "enabled": "1"}, {"section_id": "cfg01", "fqdn": "b.example"}]}));

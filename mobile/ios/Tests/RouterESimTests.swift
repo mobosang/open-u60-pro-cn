@@ -61,14 +61,14 @@ struct RouterESimTests {
         precondition(!RouterESimActivationCode.validConfirmationCode("123\n"))
         let status = try! JSONDecoder().decode(RouterESimDownloadStatus.self, from: Data(#"{"state":"confirm","step":"es8p_metadata_parse","provider":"GOMO","name":"Globe","iccid":"8963000000000000002","error":null,"started_at":123}"#.utf8))
         precondition(status.iccid == "8963000000000000002" && status.isBusy && status.canCancel)
-        precondition(status.progressText == "Ready to install")
+        precondition(status.progressText == "准备安装")
         var install = status
         install.state = "running"; install.step = "es10b_load_bound_profile_package"
-        precondition(install.isBusy && !install.canCancel && install.progressText == "Installing on the eSIM…")
+        precondition(install.isBusy && !install.canCancel && install.progressText == "在 eSIM 上安装...")
         install.state = "cancelling"
-        precondition(install.isBusy && !install.canCancel && install.progressText == "Cancelling…")
+        precondition(install.isBusy && !install.canCancel && install.progressText == "取消...")
         install.state = "done"
-        precondition(!install.isBusy && !install.canCancel && install.progressText == "GOMO added.")
+        precondition(!install.isBusy && !install.canCancel && install.progressText == "已添加 GOMO。")
         let inv = RouterESimParser.parseInventory(data(#"""
         {"agent_instance":1792300000000,"generation":3,"observed_at":1792300100,"updating":false,"stale":true,
          "error":{"kind":"sim_reloading","message":"euicc_init","at":1792300110},"pending_receipts":1,
@@ -76,7 +76,7 @@ struct RouterESimTests {
         """#))
         precondition(inv.agentInstance == 1792300000000 && inv.generation == 3 && inv.observedAt == 1792300100)
         precondition(inv.stale && !inv.updating && inv.pendingReceipts == 1 && inv.profiles.count == 1)
-        precondition(inv.errorText == "The eSIM is still settling after the switch.")
+        precondition(inv.errorText == "切换后 eSIM 仍在准备中。")
         var older = inv; older.generation = 2
         precondition(older.isOlder(than: inv) && !inv.isOlder(than: older))
         var sameGenEarlier = inv; sameGenEarlier.observedAt -= 1
@@ -114,8 +114,8 @@ struct RouterESimTests {
         precondition(warned.profiles[1].switchWarnings == ["manual_apn", "roaming_off", "future_code"])
         let travel = warned.switchWarnings(for: warned.profiles[1])
         precondition(travel == [
-            "The router is set to the manual APN “internet.example”. If Trip needs a different APN, change it in Mobile Network after switching, or it may have no data.",
-            "Trip looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on."
+            "路由器设置为手动APN“internet.example”。如果Trip需要不同的APN，切换后请在移动网络中更改，否则可能没有数据。",
+            "Trip 可能是旅行（漫游）配置文件；数据漫游已关闭，开启后才能使用移动数据。"
         ], "Both known codes name the APN and the target; the unknown one is skipped")
         precondition(warned.switchWarnings(for: warned.profiles[2]).count == 1)
         precondition(warned.switchWarnings(for: warned.profiles[0]).isEmpty)
@@ -127,7 +127,7 @@ struct RouterESimTests {
         """#))
         precondition(apnOff.manualAPN == nil)
         precondition(apnOff.switchWarnings(for: apnOff.profiles[0]) == [
-            "Travel looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on."
+            "Travel 可能是旅行（漫游）配置文件；数据漫游已关闭，开启后才能使用移动数据。"
         ], "manual_apn without the APN itself is skipped")
         let olderAgent = RouterESimParser.parseInventory(data(#"""
         {"agent_instance":5,"generation":2,"observed_at":100,
@@ -144,16 +144,16 @@ struct RouterESimTests {
             precondition(st.phase == phase && st.isRunning == running, state)
         }
         precondition(!RouterESimSwitchStatus(state: "reloading").cardConfirmed && RouterESimSwitchStatus(state: "connected").outcomeNote == nil)
-        precondition(RouterESimSwitchStatus(state: "modem_unconfirmed").outcomeNote?.contains("Restart the router") == true)
+        precondition(RouterESimSwitchStatus(state: "modem_unconfirmed").outcomeNote?.contains("重新启动路由器") == true)
         let roaming = try! JSONDecoder().decode(RouterESimSwitchStatus.self, from: Data(#"{"state":"no_data","reason":"roaming_off","note":null}"#.utf8))
-        precondition(roaming.outcomeNote?.contains("Turn on Data Roaming") == true, "a roaming profile names the fix")
-        precondition(RouterESimSwitchStatus(state: "no_data", reason: "data_off").outcomeNote?.contains("Mobile Data is off") == true)
-        precondition(RouterESimSwitchStatus(state: "no_data").outcomeNote?.contains("plan or coverage") == true)
+        precondition(roaming.outcomeNote?.contains("打开数据漫游") == true, "a roaming profile names the fix")
+        precondition(RouterESimSwitchStatus(state: "no_data", reason: "data_off").outcomeNote?.contains("移动数据已关闭") == true)
+        precondition(RouterESimSwitchStatus(state: "no_data").outcomeNote?.contains("套餐或网络覆盖范围") == true)
         let busy = RouterESimSwitchStatus(state: "card_busy")
         precondition(busy.isRunning && !busy.cardConfirmed && busy.phase == .switching, "a busy retry is still a switch in progress")
-        precondition(busy.progressNote?.contains("keeps trying") == true && busy.outcomeNote == nil)
-        precondition(RouterESimSwitchStatus(state: "not_applied", reason: "card_busy").outcomeNote?.contains("stayed busy") == true)
-        precondition(RouterESimSwitchStatus(state: "not_applied").outcomeNote?.contains("didn't happen") == true)
+        precondition(busy.progressNote?.contains("持续尝试") == true && busy.outcomeNote == nil)
+        precondition(RouterESimSwitchStatus(state: "not_applied", reason: "card_busy").outcomeNote?.contains("保持忙碌状态") == true)
+        precondition(RouterESimSwitchStatus(state: "not_applied").outcomeNote?.contains("没有发生") == true)
         precondition(RouterESimSwitchStatus(state: "connected").progressNote == nil)
 
         print("RouterESimTests: identifiers, reconnection, activation codes, download stages, read ordering, and switch warnings passed")

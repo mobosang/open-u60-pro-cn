@@ -204,7 +204,7 @@ class DeviceControlViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 agentClient.postJSON("/api/device/reboot")
-                _state.value = _state.value.copy(isLoading = false, message = "Rebooting...", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "重新启动...", messageIsError = false)
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) reboot() else setError(e.message)
             } catch (e: Exception) {
@@ -218,7 +218,7 @@ class DeviceControlViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 agentClient.postJSON("/api/device/factory-reset")
-                _state.value = _state.value.copy(isLoading = false, message = "Factory reset initiated...", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "恢复出厂设置已启动...", messageIsError = false)
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) factoryReset() else setError(e.message)
             } catch (e: Exception) {

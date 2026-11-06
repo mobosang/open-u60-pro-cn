@@ -24,7 +24,7 @@ final class ConfigToolViewModel {
         error = nil
 
         guard let parsedHeader = ZTEConfigCrypto.parseHeader(data: data) else {
-            error = "Not a valid ZXHN config file (missing magic header)"
+            error = "不是有效的 ZXHN 配置文件（缺少魔术头）"
             return
         }
         header = parsedHeader
@@ -32,7 +32,7 @@ final class ConfigToolViewModel {
 
     func decrypt() {
         guard let data = rawFileData, let header = header else {
-            error = "No file loaded"
+            error = "未加载文件"
             return
         }
 
@@ -41,14 +41,14 @@ final class ConfigToolViewModel {
 
         let payloadStart = Int(header.payloadOffset)
         guard payloadStart < data.count else {
-            error = "Payload offset beyond file size"
+            error = "负载偏移超出文件大小"
             isProcessing = false
             return
         }
         let payload = data.subdata(in: payloadStart..<data.count)
 
         if header.payloadType == .plain {
-            finishDecrypt(payload, key: KnownKey(description: "Unencrypted", keyBytes: Data()))
+            finishDecrypt(payload, key: KnownKey(description: "未加密", keyBytes: Data()))
             return
         }
 
@@ -61,7 +61,7 @@ final class ConfigToolViewModel {
             serial: ser,
             signature: sig
         ) else {
-            error = "Could not decrypt with any known key. Try entering the device serial number."
+            error = "无法使用任何已知密钥解密。尝试输入设备序列号。"
             isProcessing = false
             return
         }
@@ -76,14 +76,14 @@ final class ConfigToolViewModel {
             decryptedData = decompressed
             decryptedXML = String(data: decompressed, encoding: .utf8)
                 ?? String(data: decompressed, encoding: .ascii)
-                ?? "Binary data (\(decompressed.count) bytes)"
+                ?? "二进制数据（\(decompressed.count) 字节）"
         } catch {
             // Maybe it's already XML
             if let xml = String(data: data, encoding: .utf8), xml.contains("<") {
                 decryptedData = data
                 decryptedXML = xml
             } else {
-                self.error = "Decryption succeeded but decompression failed: \(error.localizedDescription)"
+                self.error = "解密成功但解压失败：\(error.localizedDescription)"
             }
         }
         usedKey = key
@@ -109,7 +109,7 @@ final class ConfigToolViewModel {
             }
 
             guard let payload = encrypted else {
-                error = "Encryption failed"
+                error = "加密失败"
                 return nil
             }
 
@@ -120,7 +120,7 @@ final class ConfigToolViewModel {
             )
             return newHeader + payload
         } catch {
-            self.error = "Re-encryption failed: \(error.localizedDescription)"
+            self.error = "重新加密失败：\(error.localizedDescription)"
             return nil
         }
     }

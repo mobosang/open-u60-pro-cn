@@ -24,7 +24,7 @@ final class QoSViewModel {
             let data = try await client.getJSON("/api/router/qos")
             config = QoSParser.parse(data)
         } catch {
-            showMessage("Failed to load QoS: \(error.localizedDescription)", isError: true)
+            showMessage("加载QoS失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -38,7 +38,7 @@ final class QoSViewModel {
             showMessage("QoS \(enabled ? "enabled" : "disabled")", isError: false)
             config = QoSConfig(enabled: enabled)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false

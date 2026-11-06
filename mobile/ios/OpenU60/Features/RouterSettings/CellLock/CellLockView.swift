@@ -14,48 +14,48 @@ struct CellLockView: View {
                 }
             }
 
-            Section("Current Cell") {
+            Section("当前小区") {
                 LabeledContent("NR PCI", value: viewModel.status.nrPCI.isEmpty ? "—" : viewModel.status.nrPCI)
                 LabeledContent("NR EARFCN", value: viewModel.status.nrEARFCN.isEmpty ? "—" : viewModel.status.nrEARFCN)
-                LabeledContent("NR Band", value: viewModel.status.nrBand.isEmpty ? "—" : viewModel.status.nrBand)
+                LabeledContent("NR 频段", value: viewModel.status.nrBand.isEmpty ? "—" : viewModel.status.nrBand)
                 LabeledContent("LTE PCI", value: viewModel.status.ltePCI.isEmpty ? "—" : viewModel.status.ltePCI)
                 LabeledContent("LTE EARFCN", value: viewModel.status.lteEARFCN.isEmpty ? "—" : viewModel.status.lteEARFCN)
-                LabeledContent("Locked") {
+                LabeledContent("锁定") {
                     Text(viewModel.status.locked ? "Yes" : "No")
                         .foregroundStyle(viewModel.status.locked ? .orange : .green)
                 }
             }
 
-            Section("Lock NR Cell") {
+            Section("锁定 NR 小区") {
                 TextField("PCI", text: $viewModel.nrPCI)
                     .keyboardType(.numberPad)
                 TextField("EARFCN", text: $viewModel.nrEARFCN)
                     .keyboardType(.numberPad)
-                TextField("Band (optional)", text: $viewModel.nrBand)
+                TextField("频段（可选）", text: $viewModel.nrBand)
                     .keyboardType(.numberPad)
-                Button("Lock NR") {
+                Button("锁NR") {
                     Task { await viewModel.lockNR() }
                 }
                 .disabled(viewModel.isLoading || viewModel.nrPCI.isEmpty || viewModel.nrEARFCN.isEmpty)
             }
 
-            Section("Lock LTE Cell") {
+            Section("锁定 LTE 小区") {
                 TextField("PCI", text: $viewModel.ltePCI)
                     .keyboardType(.numberPad)
                 TextField("EARFCN", text: $viewModel.lteEARFCN)
                     .keyboardType(.numberPad)
-                Button("Lock LTE") {
+                Button("锁LTE") {
                     Task { await viewModel.lockLTE() }
                 }
                 .disabled(viewModel.isLoading || viewModel.ltePCI.isEmpty || viewModel.lteEARFCN.isEmpty)
             }
 
-            Section("Neighbor Scan") {
+            Section("邻区扫描") {
                 Button {
                     Task { await viewModel.scanNeighbors() }
                 } label: {
                     HStack {
-                        Text("Scan Neighbors")
+                        Text("扫描邻区")
                         if viewModel.isScanning {
                             Spacer()
                             ProgressView()
@@ -69,11 +69,11 @@ struct CellLockView: View {
                         HStack {
                             Text(cell.type)
                                 .font(.headline)
-                            Text("Band \(cell.band)")
+                            Text("频段 \(cell.band)")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
-                        Text("PCI: \(cell.pci)  EARFCN: \(cell.earfcn)  RSRP: \(cell.rsrp)")
+                        Text("PCI：\(cell.pci) EARFCN：\(cell.earfcn) RSRP：\(cell.rsrp)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -83,14 +83,14 @@ struct CellLockView: View {
 
             if viewModel.status.locked {
                 Section {
-                    Button("Unlock Cell", role: .destructive) {
+                    Button("解除小区锁定", role: .destructive) {
                         Task { await viewModel.unlock() }
                     }
                     .disabled(viewModel.isLoading)
                 }
             }
         }
-        .navigationTitle("Cell Lock")
+        .navigationTitle("小区锁定")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

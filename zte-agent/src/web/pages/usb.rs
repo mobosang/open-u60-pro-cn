@@ -87,7 +87,7 @@ pub fn mode_body(v: &Valid, _: &[Value]) -> Option<Value> {
 
 /// The app's result lines (green).
 pub fn switched(v: &Valid, _: &Value) -> (Option<bool>, String) {
-    (Some(true), if v.get("state") == "1" { "Fast charging enabled" } else { "Fast charging disabled" }.to_owned())
+    (Some(true), if v.get("state") == "1" { "启用快速充电" } else { "禁用快速充电" }.to_owned())
 }
 
 /// "Fast Charging"'s check before sending: a cable is attached now.
@@ -98,7 +98,7 @@ pub fn cable_read(app: &AppState, _: Option<&str>) -> Result<Value, String> {
     }
     let d = v["data"].take();
     if d["typec_cc"].as_str().unwrap_or("no_cc") == "no_cc" {
-        return Err("No USB-C cable is attached.".to_owned());
+        return Err("未连接 USB-C 电缆。".to_owned());
     }
     Ok(d)
 }
@@ -112,9 +112,9 @@ pub fn fragment(v: &Views) -> Markup {
         div #card-usb class=[class] {
             @if on {
                 (kit::icon(Icon::UsbC))
-                h2 { "USB-C Connected" }
-                p.cap { "A USB-C cable is attached to your U60 Pro." }
-                @if pb { p.c-orange { (kit::icon(Icon::Bolt)) " Fast charging is active" } }
+                h2 { "USB-C 已连接" }
+                p.cap { "U60 Pro 上连接有一条 USB-C 电缆。" }
+                @if pb { p.c-orange { (kit::icon(Icon::Bolt)) " 快速充电已开启" } }
             }
         }
     }
@@ -128,12 +128,12 @@ pub fn card(v: &Views, csrf: &Markup) -> Markup {
             form.fc method="post" action=(POWERBANK) {
                 (csrf)
                 input type="hidden" name="state" value="1";
-                button.btn.btn-wide.btn-or type="submit" { (kit::icon(Icon::Bolt)) " Fast Charging" }
-                p.cap { "Charge your phone using the U60 Pro battery" }
+                button.btn.btn-wide.btn-or type="submit" { (kit::icon(Icon::Bolt)) " 快速充电" }
+                p.cap { "使用U60 Pro电池给手机充电" }
             }
             form method="post" action=(DISMISS) {
                 (csrf)
-                button.btn.btn-quiet type="submit" { "Dismiss" }
+                button.btn.btn-quiet type="submit" { "驳回" }
             }
         }
     }
@@ -150,19 +150,19 @@ pub fn mode_page(pd: &PageData) -> Markup {
     let post = |value| Act::Post { action: MODE_POWERBANK, name: "state", value };
     let (on, off) = if cable { (post("1"), post("0")) } else { (Act::Off, Act::Off) };
     let foot = html! {
-        p.foot { "When enabled, the U60 Pro battery will charge your connected device. This will drain the router's battery faster." }
+        p.foot { "启用后，U60 Pro 电池将为您连接的设备充电。这会更快地耗尽路由器的电池。" }
     };
     html! {
         (render::error_line(v, &[Topic::Usb, Topic::Charger]))
-        (kit::section(Some("USB Status"), None, html! {
+        (kit::section(Some("USB状态"), None, html! {
             li.it {
-                span { "Cable" }
-                span.v { @if cable { span.c-green { "Connected" } } @else { "Disconnected" } }
+                span { "电缆" }
+                span.v { @if cable { span.c-green { "已连接" } } @else { "未连接" } }
             }
             (kit::kv_row(None, "USB-C CC", usb.and_then(|u| u["typec_cc"].as_str()).unwrap_or("no_cc")))
-            (kit::kv_row(None, "Mode", mode))
+            (kit::kv_row(None, "模式", mode))
         }))
-        (kit::section(None, Some(foot), kit::switch_row(&pd.csrf(), "Fast Charging (Powerbank)", pb, on, off)))
+        (kit::section(None, Some(foot), kit::switch_row(&pd.csrf(), "快速充电（移动电源）", pb, on, off)))
     }
 }
 
@@ -206,17 +206,17 @@ mod tests {
         let off = Some(json!({"otg_powerbank_state": 0}));
         let s = fragment(&views(cable(), off)).into_string();
         assert!(s.starts_with("<div id=\"card-usb\" class=\"on\"><svg"), "{s}");
-        for want in ["<h2>USB-C Connected</h2>", "<p class=\"cap\">A USB-C cable is attached to your U60 Pro.</p>"] {
+        for want in ["<h2>USB-C 已连接</h2>", "<p class=\"cap\">U60 Pro 上连接有一条 USB-C 电缆。</p>"] {
             assert!(s.contains(want), "{want} in {s}");
         }
-        assert!(!s.contains("Fast charging is active"));
+        assert!(!s.contains("快速充电已开启"));
         // Powerbank on (a number or a string): the orange line, and the
         // class that hides "Fast Charging".
         for on in [json!({"otg_powerbank_state": 1}), json!({"otg_powerbank_state": "1"})] {
             let s = fragment(&views(cable(), Some(on))).into_string();
             assert!(s.starts_with("<div id=\"card-usb\" class=\"on pb\">"), "{s}");
             assert!(s.contains("<p class=\"c-orange\"><svg"), "{s}");
-            assert!(s.contains("</svg> Fast charging is active</p>"), "{s}");
+            assert!(s.contains("</svg> 快速充电已开启</p>"), "{s}");
         }
         // The forms follow the fragment, outside it; the button posts the one value.
         let csrf = html! { input type="hidden" name="csrf" value="t"; };
@@ -225,8 +225,8 @@ mod tests {
         assert!(card.starts_with(&format!("<section class=\"card usbc\">{text}<form class=\"fc\" method=\"post\" action=\"/ui/usb/powerbank\">")), "{card}");
         for want in [
             "<input type=\"hidden\" name=\"csrf\" value=\"t\"><input type=\"hidden\" name=\"state\" value=\"1\">",
-            "</svg> Fast Charging</button>", "<p class=\"cap\">Charge your phone using the U60 Pro battery</p>",
-            "<form method=\"post\" action=\"/ui/usb/dismiss\"><input type=\"hidden\" name=\"csrf\" value=\"t\"><button class=\"btn btn-quiet\" type=\"submit\">Dismiss</button>",
+            "</svg> 快速充电</button>", "<p class=\"cap\">使用U60 Pro电池给手机充电</p>",
+            "<form method=\"post\" action=\"/ui/usb/dismiss\"><input type=\"hidden\" name=\"csrf\" value=\"t\"><button class=\"btn btn-quiet\" type=\"submit\">驳回</button>",
         ] {
             assert!(card.contains(want), "{want} in {card}");
         }
@@ -239,7 +239,7 @@ mod tests {
     #[test]
     fn the_body_is_built_here() {
         assert_eq!(powerbank_body(&Valid::of(&[("state", "1")]), &[]), Some(json!({"state": 1})));
-        for (state, n, line) in [("0", 0, "Fast charging disabled"), ("1", 1, "Fast charging enabled")] {
+        for (state, n, line) in [("0", 0, "禁用快速充电"), ("1", 1, "启用快速充电")] {
             let v = Valid::of(&[("state", state)]);
             assert_eq!(mode_body(&v, &[]), Some(json!({"state": n})));
             assert_eq!(switched(&v, &Value::Null), (Some(true), line.to_owned()));
@@ -262,11 +262,11 @@ mod tests {
         let on = Some(json!({"otg_powerbank_state": 1}));
         let s = mode_html(&views(cable(), on.clone()));
         for want in [
-            "<h2>USB Status</h2>", "<span>Cable</span><span class=\"v\"><span class=\"c-green\">Connected</span></span>",
-            "<span>USB-C CC</span><span class=\"v\">cc1</span>", "<span>Mode</span><span class=\"v\">rndis</span>",
-            "<span>Fast Charging (Powerbank)</span><form class=\"sf\" method=\"post\" action=\"/ui/tools/usb/powerbank\">",
+            "<h2>USB状态</h2>", "<span>电缆</span><span class=\"v\"><span class=\"c-green\">已连接</span></span>",
+            "<span>USB-C CC</span><span class=\"v\">cc1</span>", "<span>模式</span><span class=\"v\">rndis</span>",
+            "<span>快速充电（移动电源）</span><form class=\"sf\" method=\"post\" action=\"/ui/tools/usb/powerbank\">",
             "<input type=\"hidden\" name=\"state\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\"",
-            "<p class=\"foot\">When enabled, the U60 Pro battery will charge your connected device. This will drain the router's battery faster.</p>",
+            "<p class=\"foot\">启用后，U60 Pro 电池将为您连接的设备充电。这会更快地耗尽路由器的电池。</p>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -274,7 +274,7 @@ mod tests {
         assert!(s.contains("name=\"state\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\""), "{s}");
         // No cable: "Disconnected", the switch disabled (as the app's), no form.
         let s = mode_html(&views(Some(json!({"typec_cc": "no_cc", "mode": ""})), on));
-        assert!(s.contains("<span>Cable</span><span class=\"v\">Disconnected</span>") && s.contains("<span>Mode</span><span class=\"v\">—</span>"), "{s}");
+        assert!(s.contains("<span>电缆</span><span class=\"v\">未连接</span>") && s.contains("<span>模式</span><span class=\"v\">—</span>"), "{s}");
         assert!(s.contains("aria-disabled=\"true\"") && !s.contains("<form"), "{s}");
     }
 

@@ -136,7 +136,7 @@ class DashboardViewModel @Inject constructor(
                     error.value = "Authentication failed"
                 }
             } else {
-                error.value = "Session expired. Please log in again."
+                error.value = "会话已过期，请重新登录。"
             }
         } catch (e: Exception) {
             error.value = e.message ?: "Unknown error"

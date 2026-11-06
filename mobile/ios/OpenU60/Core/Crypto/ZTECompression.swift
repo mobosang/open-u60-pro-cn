@@ -154,8 +154,8 @@ enum ZTECompression {
 
         var errorDescription: String? {
             switch self {
-            case .decompressionFailed: return "Failed to decompress data"
-            case .compressionFailed: return "Failed to compress data"
+            case .decompressionFailed: return "解压数据失败"
+            case .compressionFailed: return "压缩数据失败"
             }
         }
     }

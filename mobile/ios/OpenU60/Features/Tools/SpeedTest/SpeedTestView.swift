@@ -19,9 +19,9 @@ struct SpeedTestView: View {
                 }
             }
 
-            Section("Server") {
-                Picker("Server", selection: $viewModel.selectedServerId) {
-                    Text("Select a server").tag(nil as Int?)
+            Section("服务器") {
+                Picker("服务器", selection: $viewModel.selectedServerId) {
+                    Text("选择服务器").tag(nil as Int?)
                     ForEach(viewModel.servers) { server in
                         Text("\(server.sponsor) - \(server.name), \(server.country)")
                             .tag(server.id as Int?)
@@ -30,7 +30,7 @@ struct SpeedTestView: View {
                 .disabled(viewModel.isRunning)
             }
 
-            Section("Controls") {
+            Section("控制") {
                 if viewModel.isRunning {
                     HStack {
                         Text(phaseLabel)
@@ -59,21 +59,21 @@ struct SpeedTestView: View {
                             .font(.system(size: 48, weight: .bold, design: .rounded))
                             .contentTransition(.numericText())
                             .animation(.default, value: viewModel.progress.liveSpeedMbps)
-                        Text("Mbps")
+                        Text("兆比特/秒")
                             .font(.title3)
                             .foregroundStyle(.secondary)
                         Spacer()
                     }
                     .padding(.vertical, 8)
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("Current speed")
+                    .accessibilityLabel("当前速度")
                     .accessibilityValue(String(format: "%.1f megabits per second", viewModel.progress.liveSpeedMbps))
 
-                    Button("Stop Test", role: .destructive) {
+                    Button("停止测试", role: .destructive) {
                         Task { await viewModel.stopTest() }
                     }
                 } else {
-                    Button("Start Speed Test") {
+                    Button("启动速度测试") {
                         Task { await viewModel.startTest() }
                     }
                     .disabled(viewModel.isLoading || viewModel.selectedServerId == nil)
@@ -81,31 +81,31 @@ struct SpeedTestView: View {
             }
 
             if viewModel.progress.phase == "complete" {
-                Section("Results") {
+                Section("结果") {
                     if let ping = viewModel.progress.pingMs {
-                        LabeledContent("Ping", value: String(format: "%.1f ms", ping))
+                        LabeledContent("延迟测试", value: String(format: "%.1f ms", ping))
                     }
                     if let jitter = viewModel.progress.jitterMs {
-                        LabeledContent("Jitter", value: String(format: "%.1f ms", jitter))
+                        LabeledContent("抖动", value: String(format: "%.1f ms", jitter))
                     }
                     if let download = viewModel.progress.downloadMbps {
-                        LabeledContent("Download", value: String(format: "%.2f Mbps", download))
+                        LabeledContent("下载", value: String(format: "%.2f Mbps", download))
                     }
                     if let upload = viewModel.progress.uploadMbps {
-                        LabeledContent("Upload", value: String(format: "%.2f Mbps", upload))
+                        LabeledContent("上传", value: String(format: "%.2f Mbps", upload))
                     }
                 }
 
-                Section("Transfer") {
-                    LabeledContent("Downloaded", value: formatBytes(viewModel.progress.downloadBytes))
-                    LabeledContent("Uploaded", value: formatBytes(viewModel.progress.uploadBytes))
+                Section("转账") {
+                    LabeledContent("已下载", value: formatBytes(viewModel.progress.downloadBytes))
+                    LabeledContent("已上传", value: formatBytes(viewModel.progress.uploadBytes))
                     if !viewModel.progress.server.isEmpty {
-                        LabeledContent("Server", value: viewModel.progress.server)
+                        LabeledContent("服务器", value: viewModel.progress.server)
                     }
                 }
             }
         }
-        .navigationTitle("Speed Test")
+        .navigationTitle("速度测试")
         .task {
             await viewModel.loadServers()
             await viewModel.resumeIfRunning()
@@ -122,9 +122,9 @@ struct SpeedTestView: View {
 
     private var phaseLabel: String {
         switch viewModel.progress.phase {
-        case "latency": return "Testing Latency..."
-        case "download": return "Downloading..."
-        case "upload": return "Uploading..."
+        case "latency": return "测试延迟..."
+        case "download": return "正在下载..."
+        case "upload": return "正在上传..."
         default: return viewModel.progress.phase.capitalized
         }
     }

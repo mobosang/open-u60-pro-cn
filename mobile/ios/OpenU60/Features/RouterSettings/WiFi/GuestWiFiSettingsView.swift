@@ -18,44 +18,44 @@ struct GuestWiFiSettingsView: View {
                 Toggle("2.4 GHz", isOn: $viewModel.editEnabled2g)
                 Toggle("5 GHz", isOn: $viewModel.editEnabled5g)
             } header: {
-                Text("Radio Bands")
+                Text("无线电频段")
             } footer: {
                 if viewModel.isTimerExpired {
-                    Text("Timer expired — guest WiFi was automatically disabled")
+                    Text("计时器到期 — 访客 WiFi 被自动禁用")
                         .foregroundStyle(.orange)
                 }
             }
 
             if viewModel.isAnyBandEnabled {
-                Section("Network") {
+                Section("网络") {
                     TextField("SSID", text: $viewModel.editSsid)
                         .autocorrectionDisabled()
-                    SecureField("Password", text: $viewModel.editKey)
+                    SecureField("密码", text: $viewModel.editKey)
 
-                    Picker("Encryption", selection: $viewModel.editEncryption) {
+                    Picker("加密", selection: $viewModel.editEncryption) {
                         ForEach(WiFiConfig.encryptionOptions, id: \.self) { enc in
                             Text(encryptionLabel(enc)).tag(enc)
                         }
                     }
 
-                    Toggle("Hidden SSID", isOn: $viewModel.editHidden)
-                    Toggle("Client Isolation", isOn: $viewModel.editIsolate)
+                    Toggle("隐藏SSID", isOn: $viewModel.editHidden)
+                    Toggle("客户端隔离", isOn: $viewModel.editIsolate)
                 }
             }
 
             if viewModel.isAnyBandEnabled || viewModel.isTimerExpired || viewModel.remainingSeconds > 0 {
                 Section {
-                    Picker("Auto-Shutoff", selection: $viewModel.editActiveTime) {
+                    Picker("自动关闭", selection: $viewModel.editActiveTime) {
                         ForEach(GuestWiFiConfig.activeTimeOptions, id: \.minutes) { option in
                             Text(option.label).tag(option.minutes)
                         }
                     }
                 } header: {
-                    Text("Timer")
+                    Text("计时器")
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
                         if viewModel.editActiveTime > 0 {
-                            Text("Guest WiFi will automatically turn off after \(activeTimeLabel(viewModel.editActiveTime))")
+                            Text("访客 WiFi 将在 \(activeTimeLabel(viewModel.editActiveTime)) 后自动关闭")
                         }
                         if let remaining = viewModel.remainingTimeText {
                             Text(remaining)
@@ -69,13 +69,13 @@ struct GuestWiFiSettingsView: View {
                 Button {
                     Task { await viewModel.apply() }
                 } label: {
-                    Text("Apply")
+                    Text("应用")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading)
             }
         }
-        .navigationTitle("Guest WiFi")
+        .navigationTitle("访客 WiFi")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {
@@ -89,13 +89,13 @@ struct GuestWiFiSettingsView: View {
 
     private func encryptionLabel(_ enc: String) -> String {
         switch enc {
-        case "none": return "None"
+        case "none": return "无"
         case "psk+tkip": return "WPA-PSK (TKIP)"
         case "psk+ccmp": return "WPA-PSK (AES)"
         case "psk2+ccmp": return "WPA2-PSK (AES)"
-        case "psk-mixed+ccmp": return "WPA/WPA2 Mixed"
+        case "psk-mixed+ccmp": return "WPA/WPA2 混合"
         case "sae": return "WPA3-SAE"
-        case "sae-mixed": return "WPA2/WPA3 Mixed"
+        case "sae-mixed": return "WPA2/WPA3 混合"
         default: return enc
         }
     }

@@ -30,10 +30,10 @@ fun SMSForwardLogScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Forward Log") },
+                title = { Text("转发日志") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -75,7 +75,7 @@ fun SMSForwardLogScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("No log entries", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("没有日志条目", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -133,12 +133,12 @@ private fun LogEntryItem(entry: ForwardLogEntry) {
                 )
                 // Held while the router had no link; the agent sends it on its own.
                 entry.pending -> Text(
-                    "Held, will retry",
+                    "已暂存，将重试",
                     color = MaterialTheme.colorScheme.tertiary,
                     style = MaterialTheme.typography.labelSmall,
                 )
                 else -> Text(
-                    entry.error ?: "Failed",
+                    entry.error ?: "失败",
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.labelSmall,
                 )

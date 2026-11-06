@@ -31,10 +31,10 @@ fun SchedulerListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Scheduler") },
+                title = { Text("调度程序") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -78,7 +78,7 @@ fun SchedulerListScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("No scheduled jobs")
+                        Text("没有预定的工作")
                     }
                 } else {
                     LazyColumn(
@@ -125,7 +125,7 @@ private fun JobCard(
             }
             Switch(checked = job.enabled, onCheckedChange = onToggle)
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.error)
             }
         }
     }

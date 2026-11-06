@@ -182,7 +182,7 @@ fn validate(a: &Action, form: &Form) -> Result<Valid, Invalid> {
                 let typed = raw.unwrap_or("").trim();
                 match typed.parse::<i64>().ok().filter(|n| (min..=max).contains(n)) {
                     Some(n) => valid.push((f.name, n.to_string())),
-                    None => fs.errors.push((f.name, format!("Enter a whole number from {min} to {max}."))),
+                    None => fs.errors.push((f.name, format!("输入从 {min} 到 {max} 的整数。"))),
                 }
                 fs.values.push((f.name, raw.unwrap_or("").chars().take(8).collect()));
             }
@@ -304,8 +304,8 @@ pub async fn post(ctx: Ctx, req: Request, a: &'static Action) -> Response {
         After::Op(spec) => match ctx.app.auth.random_hex(8) {
             Ok(id) => Some((id, spec(&valid))),
             Err(_) => {
-                let msg = "The router could not start this change right now. Nothing was changed.";
-                return render::error(503, "Try again", msg, &nonce);
+                let msg = "路由器现在无法启动此更改。一切都没有改变。";
+                return render::error(503, "重试", msg, &nonce);
             }
         },
         After::Session(change) => {
@@ -324,7 +324,7 @@ pub async fn post(ctx: Ctx, req: Request, a: &'static Action) -> Response {
         // Failed twice (`Action::again`): its fallback page says so.
         if let (Err(Fail::Call(_, e)), Some(again)) = (&done, &a.again) {
             if valid.get(again.when.0) == again.when.1 {
-                let line = (Some(false), format!("Failed: {}", super::fmt::truncate(e, 120)));
+                let line = (Some(false), format!("失败：{}", super::fmt::truncate(e, 120)));
                 return flashed(app, &flash, p.id, again.then, "?", line, None);
             }
         }
@@ -398,7 +398,7 @@ async fn once(ctx: &Ctx, p: Principal, r: Req, a: &'static Action, valid: Valid,
         }
         if let (Err(Fail::Call(_, e)), Some(again)) = (&done, &a.again) {
             if valid.get(again.when.0) == again.when.1 {
-                let line = (Some(false), format!("Failed: {}", super::fmt::truncate(e, 120)));
+                let line = (Some(false), format!("失败：{}", super::fmt::truncate(e, 120)));
                 return flashed(app, &flash, owner, again.then, "?", line, Some(&token_w));
             }
         }
@@ -433,10 +433,10 @@ async fn once(ctx: &Ctx, p: Principal, r: Req, a: &'static Action, valid: Valid,
             session::see_other(&format!("{then}?r={token}"))
         }
         Sent::Done(Ok(())) => session::see_other(&done_url(a)),
-        Sent::Done(Err((_, e))) => note((Some(false), format!("Failed: {}", super::fmt::truncate(&e, 120)))),
-        Sent::Expired => note((Some(false), "This page expired, so nothing was sent. Try again.".to_owned())),
-        Sent::Unknown => note((None, "The router may still be working on it. Check before trying again.".to_owned())),
-        Sent::Busy => note((Some(false), "Failed: the router is busy. Try again in a few seconds.".to_owned())),
+        Sent::Done(Err((_, e))) => note((Some(false), format!("失败：{}", super::fmt::truncate(&e, 120)))),
+        Sent::Expired => note((Some(false), "该页面已过期，因此未发送任何内容。再试一次。".to_owned())),
+        Sent::Unknown => note((None, "路由器可能仍在处理它。重试前请检查。".to_owned())),
+        Sent::Busy => note((Some(false), "失败：路由器正忙。几秒钟后重试。".to_owned())),
     }
 }
 
@@ -471,10 +471,10 @@ pub fn ask(csrf: Markup, q: &Ask) -> Markup {
                     input type="hidden" name="confirm" value="1";
                     p.actions {
                         button.btn.btn-danger[q.danger] type="submit" { (label) }
-                        a.btn.btn-quiet href=(q.cancel) { "Cancel" }
+                        a.btn.btn-quiet href=(q.cancel) { "取消" }
                     }
                 },
-                None => p.actions { a.btn.btn-quiet href=(q.cancel) { "Cancel" } },
+                None => p.actions { a.btn.btn-quiet href=(q.cancel) { "取消" } },
             }
         }
     }
@@ -508,7 +508,7 @@ pub fn confirm_page(ctx: &Ctx, p: &Principal, req: &Request, a: &'static Action)
         tab: Some(a.screen.tab),
         nonce: &nonce,
         lead: kit::back(a.screen.path, a.screen.title),
-        heading: Some(html! { h1 { "Confirm" } }),
+        heading: Some(html! { h1 { "确认" } }),
         ..PageCtx::default()
     };
     render::html(200, render::page(&pc, body))

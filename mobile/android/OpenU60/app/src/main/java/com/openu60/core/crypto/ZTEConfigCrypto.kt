@@ -20,12 +20,12 @@ object ZTEConfigCrypto {
     fun readHeader(data: ByteArray): ConfigHeader {
         if (data.size < ConfigHeader.HEADER_SIZE) {
             throw ZTEConfigCryptoException(
-                "File too small (${data.size} bytes) for a valid ZTE config header"
+                "文件太小（${data.size} 字节），不包含有效的 ZTE 配置头"
             )
         }
         val magic = String(data, 0, 4, Charsets.US_ASCII)
         if (magic != ConfigHeader.HEADER_MAGIC) {
-            throw ZTEConfigCryptoException("Invalid header magic: $magic (expected ${ConfigHeader.HEADER_MAGIC})")
+            throw ZTEConfigCryptoException("配置头标识无效：$magic（应为 ${ConfigHeader.HEADER_MAGIC}）")
         }
         val payloadType = ByteBuffer.wrap(data, ConfigHeader.PAYLOAD_TYPE_OFFSET, 4).int
         val sigRaw = data.sliceArray(ConfigHeader.SIGNATURE_OFFSET until ConfigHeader.SIGNATURE_OFFSET + ConfigHeader.SIGNATURE_MAX_LEN)
@@ -65,7 +65,7 @@ object ZTEConfigCrypto {
 
     fun decryptCBC(data: ByteArray, key: ByteArray): ByteArray {
         if (data.size < AES_CBC_IV_SIZE + AES_BLOCK_SIZE) {
-            throw ZTEConfigCryptoException("Data too short for CBC decryption")
+            throw ZTEConfigCryptoException("数据太短，无法进行 CBC 解密")
         }
         val adjustedKey = adjustKey(key, AES_256_KEY_SIZE)
         val iv = data.copyOfRange(0, AES_CBC_IV_SIZE)
@@ -113,7 +113,7 @@ object ZTEConfigCrypto {
                 lastError = e
             }
         }
-        throw ZTEConfigCryptoException("Failed to decrypt config with any known key. Last error: ${lastError?.message}")
+        throw ZTEConfigCryptoException("所有已知密钥均无法解密配置。最后错误：${lastError?.message}")
     }
 
     fun encryptConfig(
@@ -137,7 +137,7 @@ object ZTEConfigCrypto {
         val result = ZTECompression.decompress(decrypted)
         val trimmed = result.dropWhile { it == ' '.code.toByte() || it == '\n'.code.toByte() || it == '\r'.code.toByte() || it == '\t'.code.toByte() }.toByteArray()
         if (trimmed.isNotEmpty() && trimmed[0] != '<'.code.toByte()) {
-            throw ZTEConfigCryptoException("Decrypted data does not appear to be XML")
+            throw ZTEConfigCryptoException("解密后的数据不是 XML")
         }
         return result
     }

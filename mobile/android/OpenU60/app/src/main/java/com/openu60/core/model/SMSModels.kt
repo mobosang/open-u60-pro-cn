@@ -17,8 +17,8 @@ enum class SMSTag(val value: Int) {
 // MARK: - Storage Filter
 
 enum class SMSStorageFilter(val memStoreValue: Int, val label: String) {
-    ALL(2, "All"),
-    INTERNAL(1, "Internal"),
+    ALL(2, "全部"),
+    INTERNAL(1, "内部"),
     SIM(0, "SIM");
 }
 

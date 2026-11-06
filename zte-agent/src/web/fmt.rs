@@ -94,13 +94,13 @@ pub fn rsrp(data: &Value, key: &str) -> Option<f64> {
 
 pub fn quality(rsrp: f64) -> &'static str {
     if rsrp >= -80.0 {
-        "Excellent"
+        "极佳"
     } else if rsrp >= -100.0 {
-        "Good"
+        "良好"
     } else if rsrp >= -110.0 {
-        "Fair"
+        "一般"
     } else {
-        "Poor"
+        "较差"
     }
 }
 
@@ -178,11 +178,11 @@ pub fn capacity(battery: &Value) -> Option<i64> {
 /// The status label and its colour class.
 pub fn charge_label(state: Charge, capacity: Option<i64>) -> (&'static str, &'static str) {
     match state {
-        Charge::Stopped => ("Charge Stopped", "c-orange"),
-        Charge::Charging if capacity == Some(100) => ("Full", "c-green"),
-        Charge::Charging => ("Charging", "c-green"),
-        Charge::Discharging => ("Discharging", level_class(capacity)),
-        Charge::Unknown => ("Unavailable", "muted"),
+        Charge::Stopped => ("已停止充电", "c-orange"),
+        Charge::Charging if capacity == Some(100) => ("已充满", "c-green"),
+        Charge::Charging => ("充电中", "c-green"),
+        Charge::Discharging => ("放电中", level_class(capacity)),
+        Charge::Unknown => ("不可用", "muted"),
     }
 }
 
@@ -199,9 +199,9 @@ pub fn status_line(
 ) -> (String, &'static str) {
     let (label, class) = charge_label(state, capacity);
     let text = match (state, to_full.filter(|m| *m > 0), to_empty.filter(|m| *m > 0)) {
-        (Charge::Charging, Some(m), _) if capacity != Some(100) && !current_known => format!("Charging \u{b7} {}", eta(m)),
+        (Charge::Charging, Some(m), _) if capacity != Some(100) && !current_known => format!("充电 · {}", eta(m)),
         (Charge::Discharging, _, Some(m)) if current_known => eta(m),
-        (Charge::Discharging, _, Some(m)) => format!("{} left", eta(m)),
+        (Charge::Discharging, _, Some(m)) => format!("剩余 {}", eta(m)),
         _ => label.to_owned(),
     };
     (text, class)
@@ -309,12 +309,12 @@ mod tests {
         }
         assert_eq!(rsrp(&d, "f"), Some(-20.0));
         let cases = [
-            (-80.0, "Excellent", "q-good"),
-            (-80.1, "Good", "q-good"),
-            (-100.0, "Good", "q-good"),
-            (-100.1, "Fair", "q-fair"),
-            (-110.0, "Fair", "q-fair"),
-            (-110.1, "Poor", "q-poor"),
+            (-80.0, "极佳", "q-good"),
+            (-80.1, "良好", "q-good"),
+            (-100.0, "良好", "q-good"),
+            (-100.1, "一般", "q-fair"),
+            (-110.0, "一般", "q-fair"),
+            (-110.1, "较差", "q-poor"),
         ];
         for (v, q, c) in cases {
             assert_eq!((quality(v), quality_class(v)), (q, c), "{v}");
@@ -348,13 +348,13 @@ mod tests {
         assert_eq!(charge(Some(&b("Discharging")), Some(&charging)), Charge::Charging);
         let unplugged = json!({"charger_connect": 0, "charge_status": 0});
         assert_eq!(charge(Some(&b("Charging")), Some(&unplugged)), Charge::Discharging);
-        assert_eq!(charge_label(Charge::Charging, Some(100)), ("Full", "c-green"));
-        assert_eq!(charge_label(Charge::Charging, Some(99)), ("Charging", "c-green"));
-        assert_eq!(charge_label(Charge::Stopped, Some(10)), ("Charge Stopped", "c-orange"));
+        assert_eq!(charge_label(Charge::Charging, Some(100)), ("已充满", "c-green"));
+        assert_eq!(charge_label(Charge::Charging, Some(99)), ("充电中", "c-green"));
+        assert_eq!(charge_label(Charge::Stopped, Some(10)), ("已停止充电", "c-orange"));
         assert_eq!(charge_label(Charge::Discharging, Some(50)).1, "c-green");
         assert_eq!(charge_label(Charge::Discharging, Some(20)).1, "c-orange");
         assert_eq!(charge_label(Charge::Discharging, Some(19)).1, "c-red");
-        assert_eq!(charge_label(Charge::Unknown, None).0, "Unavailable");
+        assert_eq!(charge_label(Charge::Unknown, None).0, "不可用");
     }
 
     #[test]
@@ -362,7 +362,7 @@ mod tests {
         let b = json!({"capacity": 101, "temperature": 260, "voltage_uv": 4_435_000, "current_ua": -5_680_000});
         assert_eq!(capacity(&b), None);
         assert_eq!(capacity(&json!({"capacity": "69"})), Some(69));
-        assert_eq!(battery_celsius(&b).map(celsius).as_deref(), Some("26.0 \u{b0}C"));
+        assert_eq!(battery_celsius(&b).map(celsius).as_deref(), Some("26.0 °C"));
         assert_eq!(battery_celsius(&json!({"temperature": 1600})), None);
         assert_eq!(format!("{:.1}", watts(&b).unwrap()), "25.2");
         assert_eq!(watts(&json!({"voltage_uv": 4_000_000})), None);
@@ -371,16 +371,16 @@ mod tests {
     #[test]
     fn battery_status_line_follows_the_app() {
         let line = |state, cap, current, full, empty| status_line(state, cap, current, full, empty);
-        assert_eq!(line(Charge::Stopped, Some(80), true, Some(30), None), ("Charge Stopped".into(), "c-orange"));
-        assert_eq!(line(Charge::Charging, Some(100), false, Some(30), None), ("Full".into(), "c-green"));
+        assert_eq!(line(Charge::Stopped, Some(80), true, Some(30), None), ("已停止充电".into(), "c-orange"));
+        assert_eq!(line(Charge::Charging, Some(100), false, Some(30), None), ("已充满".into(), "c-green"));
         // With the current known (this device): no time to full.
-        assert_eq!(line(Charge::Charging, Some(69), true, Some(65), None), ("Charging".into(), "c-green"));
-        assert_eq!(line(Charge::Charging, Some(69), false, Some(65), None), ("Charging \u{b7} 1h 5m".into(), "c-green"));
-        assert_eq!(line(Charge::Charging, Some(69), false, Some(0), None), ("Charging".into(), "c-green"));
-        assert_eq!(line(Charge::Unknown, None, true, None, None), ("Unavailable".into(), "muted"));
+        assert_eq!(line(Charge::Charging, Some(69), true, Some(65), None), ("充电中".into(), "c-green"));
+        assert_eq!(line(Charge::Charging, Some(69), false, Some(65), None), ("充电 · 1h 5m".into(), "c-green"));
+        assert_eq!(line(Charge::Charging, Some(69), false, Some(0), None), ("充电中".into(), "c-green"));
+        assert_eq!(line(Charge::Unknown, None, true, None, None), ("不可用".into(), "muted"));
         assert_eq!(line(Charge::Discharging, Some(69), true, None, Some(1240)), ("20h 40m".into(), "c-green"));
-        assert_eq!(line(Charge::Discharging, Some(30), false, None, Some(90)), ("1h 30m left".into(), "c-orange"));
-        assert_eq!(line(Charge::Discharging, Some(10), true, None, Some(-1)), ("Discharging".into(), "c-red"));
+        assert_eq!(line(Charge::Discharging, Some(30), false, None, Some(90)), ("剩余 1h 30m".into(), "c-orange"));
+        assert_eq!(line(Charge::Discharging, Some(10), true, None, Some(-1)), ("放电中".into(), "c-red"));
         let b = |mv: Option<i64>, ua: Option<i64>| power(&json!({"voltage_uv": mv, "current_ua": ua}));
         assert_eq!(b(Some(4_435_000), Some(5_680_000)).as_deref(), Some("25.2W"));
         assert_eq!(b(Some(3_900_000), Some(-480_000)).as_deref(), Some("1.9W"));
@@ -402,8 +402,8 @@ mod tests {
 
     #[test]
     fn truncation() {
-        assert_eq!(truncate("abcdef", 3), "abc\u{2026}");
+        assert_eq!(truncate("abcdef", 3), "abc…");
         assert_eq!(truncate("abc", 3), "abc");
-        assert_eq!(truncate("ééé", 2), "éé\u{2026}");
+        assert_eq!(truncate("ééé", 2), "éé…");
     }
 }

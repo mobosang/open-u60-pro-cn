@@ -27,10 +27,10 @@ fun STCScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Smart Tower Connect") },
+                title = { Text("智能基站连接") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -70,19 +70,19 @@ fun STCScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("STC Enabled", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("STC 启用", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Switch(checked = state.config.enabled, onCheckedChange = { viewModel.toggle(it) })
                     }
                 }
 
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Configuration", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("配置", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
-                        InfoRow("LTE Collect Timer", state.config.lteCollectTimer.ifBlank { "--" })
-                        InfoRow("NRSA Collect Timer", state.config.nrsaCollectTimer.ifBlank { "--" })
-                        InfoRow("LTE Whitelist Max", state.config.lteWhitelistMax.ifBlank { "--" })
-                        InfoRow("NRSA Whitelist Max", state.config.nrsaWhitelistMax.ifBlank { "--" })
+                        InfoRow("LTE 采集定时器", state.config.lteCollectTimer.ifBlank { "--" })
+                        InfoRow("NRSA 收集定时器", state.config.nrsaCollectTimer.ifBlank { "--" })
+                        InfoRow("LTE 白名单最大值", state.config.lteWhitelistMax.ifBlank { "--" })
+                        InfoRow("NRSA 白名单上限", state.config.nrsaWhitelistMax.ifBlank { "--" })
                     }
                 }
             }

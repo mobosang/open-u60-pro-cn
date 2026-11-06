@@ -44,18 +44,18 @@ struct DoHCacheInspectorView: View {
                 }
 
                 if visible.count < filtered.count {
-                    Button("Load More") {
+                    Button("加载更多") {
                         visibleCount += 50
                     }
                     .frame(maxWidth: .infinity)
                 }
             }
-            .searchable(text: $searchText, prompt: "Filter by domain")
-            .navigationTitle("DNS Cache (\(filtered.count))")
+            .searchable(text: $searchText, prompt: "按域过滤")
+            .navigationTitle("DNS 缓存（\(filtered.count)）")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+                    Button("完成") { dismiss() }
                 }
             }
             .refreshable { onRefresh() }

@@ -86,7 +86,7 @@ fn on_off(v: &Value) -> Option<bool> {
 }
 
 /// The app's idle timeouts (minutes) and their labels.
-const TIMEOUTS: [(&str, &str); 6] = [("5", "5 min"), ("10", "10 min"), ("20", "20 min"), ("30", "30 min"), ("60", "1 hour"), ("120", "2 hours")];
+const TIMEOUTS: [(&str, &str); 6] = [("5", "5 分钟"), ("10", "10 分钟"), ("20", "20 分钟"), ("30", "30 分钟"), ("60", "1 小时"), ("120", "2 小时")];
 
 /// A timeout the agent takes: 1–1440 minutes.
 fn timeout_ok(t: &str) -> bool {
@@ -94,7 +94,7 @@ fn timeout_ok(t: &str) -> bool {
 }
 
 fn timeout_label(t: &str) -> String {
-    TIMEOUTS.iter().find(|(v, _)| *v == t).map_or_else(|| format!("{t} min"), |(_, l)| (*l).to_owned())
+    TIMEOUTS.iter().find(|(v, _)| *v == t).map_or_else(|| format!("{t} 分钟"), |(_, l)| (*l).to_owned())
 }
 
 /// The router's idle timeout, else the app's default (5 minutes).
@@ -120,8 +120,8 @@ fn percent_row(pd: &PageData, name: &str, label: &str, list: &[&str], shown: &st
 fn charge(pd: &PageData) -> Markup {
     // Unread: no form (the app sends nothing until it has read the limit).
     if let Some(Err(_)) = pd.reads.first() {
-        return kit::section(None, Some(foot("Stops charging when battery reaches the set level. Extends battery lifespan.")), html! {
-            li.it { span { "Charge Limit" } span.v { "Unavailable" } }
+        return kit::section(None, Some(foot("当电池电量达到设定水平时停止充电。延长电池寿命。")), html! {
+            li.it { span { "充电上限" } span.v { "不可用" } }
         });
     }
     let d = pd.read(0);
@@ -133,13 +133,11 @@ fn charge(pd: &PageData) -> Markup {
     let checked = pd.form.map_or(on, |f| f.value("enabled") == Some("1"));
     let footer = html! {
         @if on {
-            (foot(&format!("Charging stops at {limit}% and resumes at {}%.", limit - hysteresis)))
-            (foot("The resume gap prevents the charger from rapidly switching on and off. A smaller gap (e.g. 2%) keeps \
-                   the battery closer to your target but toggles the charger more often. A larger gap (e.g. 10%) means \
-                   fewer charge cycles but the battery level will swing more."))
-            (foot("Default: 5% \u{2014} good balance for most users."))
+            (foot(&format!("充电在 {limit}% 处停止，并在 {}% 处恢复。", limit - hysteresis)))
+            (foot("恢复充电差值可避免充电器频繁启停。差值较小（例如 2%）时电量更接近目标值，但充电器启停更频繁；差值较大（例如 10%）时充电次数较少，但电量波动更大。"))
+            (foot("默认值：5% — 对于大多数用户来说是一个很好的平衡。"))
         } @else {
-            (foot("Stops charging when battery reaches the set level. Extends battery lifespan."))
+            (foot("当电池电量达到设定水平时停止充电。延长电池寿命。"))
         }
     };
     html! {
@@ -147,10 +145,10 @@ fn charge(pd: &PageData) -> Markup {
             (pd.csrf())
             (once_field(&pd.once()))
             (kit::section(None, Some(footer), html! {
-                (switch("enabled", "Charge Limit", checked, "it", "sr"))
-                (percent_row(pd, "limit", "Stop at", &STOPS, &typed("limit", limit)))
-                (percent_row(pd, "hysteresis", "Resume gap", &GAPS, &typed("hysteresis", hysteresis)))
-                li { button.it.cv.snd type="submit" { "Save" } }
+                (switch("enabled", "充电上限", checked, "it", "sr"))
+                (percent_row(pd, "limit", "停止充电阈值", &STOPS, &typed("limit", limit)))
+                (percent_row(pd, "hysteresis", "恢复充电差值", &GAPS, &typed("hysteresis", hysteresis)))
+                li { button.it.cv.snd type="submit" { "保存" } }
             }))
         }
     }
@@ -160,7 +158,7 @@ fn charge(pd: &PageData) -> Markup {
 fn load_error(pd: &PageData, i: usize, what: &str) -> Markup {
     html! {
         @if let Some(Err(e)) = pd.reads.get(i) {
-            p.msg.err role="alert" { "Failed to load " (what) ": " (fmt::truncate(e, 120)) }
+            p.msg.err role="alert" { "加载失败 " (what) ": " (fmt::truncate(e, 120)) }
         }
     }
 }
@@ -188,30 +186,30 @@ pub fn page(pd: &PageData) -> Markup {
             (load_error(pd, i, what))
         }
         (charge(pd))
-        (kit::section(None, Some(foot("Restricts data communication speed to reduce consumption and extend battery life.")),
-            kit::switch_row(&hidden, "Power-save Mode", power, post(POWER_SAVE, "1"), post(POWER_SAVE, "0"))))
-        (kit::section(None, Some(foot("When enabled, powering off suspends to RAM for near-instant boot. Disabling uses full shutdown (saves battery when off).")),
-            kit::switch_row(&hidden, "Fast Boot", fast, post(FAST_BOOT, "1"), post(FAST_BOOT, "0"))))
-        (kit::section(None, Some(foot("Automatically enters low-power sleep when no WiFi clients are connected and the idle timeout expires. Press the power button to wake.")), html! {
-            (kit::switch_row(&with_timeout, "Auto Sleep", asleep, sleep_on, post(AUTO_SLEEP, "0")))
+        (kit::section(None, Some(foot("限制数据通信速度以减少功耗并延长电池寿命。")),
+            kit::switch_row(&hidden, "省电模式", power, post(POWER_SAVE, "1"), post(POWER_SAVE, "0"))))
+        (kit::section(None, Some(foot("启用后，断电后将暂停至 RAM，以实现近乎即时的启动。禁用使用完全关闭（关闭时节省电池）。")),
+            kit::switch_row(&hidden, "快速启动", fast, post(FAST_BOOT, "1"), post(FAST_BOOT, "0"))))
+        (kit::section(None, Some(foot("当没有 WiFi 客户端连接并且空闲超时到期时，自动进入低功耗睡眠。按电源按钮唤醒。")), html! {
+            (kit::switch_row(&with_timeout, "自动睡眠", asleep, sleep_on, post(AUTO_SLEEP, "0")))
             @if asleep == Some(true) {
                 li.it {
-                    label for="tmo" { "Idle Timeout" }
+                    label for="tmo" { "空闲超时" }
                     form.sf method="post" action=(AUTO_SLEEP) {
                         (hidden)
                         select #tmo name="timeout" {
                             @for (v, l) in &timeouts { option value=(v) selected[*v == timeout] { (l) } }
                         }
-                        button.btn.sm type="submit" { "Save" }
+                        button.btn.sm type="submit" { "保存" }
                     }
                 }
             }
         }))
-        (kit::section(None, Some(foot("The router will restart. This takes about 60 seconds.")), html! {
-            li { a.it.bt href=(REBOOT) { "Reboot Router" } }
+        (kit::section(None, Some(foot("路由器将重新启动。这大约需要 60 秒。")), html! {
+            li { a.it.bt href=(REBOOT) { "重启路由器" } }
         }))
-        (kit::section(None, Some(foot("This will erase all settings and restore factory defaults. This cannot be undone.")), html! {
-            li { a.it.bt.danger href=(RESET) { "Factory Reset" } }
+        (kit::section(None, Some(foot("这将清除所有设置并恢复出厂默认设置。此操作无法撤消。")), html! {
+            li { a.it.bt.danger href=(RESET) { "恢复出厂设置" } }
         }))
     }
 }
@@ -234,7 +232,7 @@ pub fn parse(kind: Kind, pairs: &[(String, String)]) -> Result<Vals, Bad> {
 }
 
 const SLEEP_REMOTE: &str =
-    "You are connected remotely: while the router sleeps, this page can\u{2019}t be reached until its power button is pressed.";
+    "你正在远程连接：当路由器处于睡眠状态时，只有按下其电源按钮才能访问此页面。";
 
 /// Only Auto Sleep on, for a remote browser, is asked.
 pub fn question(kind: Kind, input: &Input, remote: bool) -> Option<Question> {
@@ -243,12 +241,12 @@ pub fn question(kind: Kind, input: &Input, remote: bool) -> Option<Question> {
     }
     let lines = vec![
         format!(
-            "When no Wi-Fi device has been connected for {}, the router goes to sleep. Press its power button to wake it.",
+            "当{}没有连接Wi-Fi设备时，路由器进入休眠状态。按电源按钮将其唤醒。",
             timeout_label(input.val("timeout"))
         ),
         SLEEP_REMOTE.into(),
     ];
-    Some(super::confirm::asking("Turn on Auto Sleep?", lines, "Turn On Auto Sleep", remote, false))
+    Some(super::confirm::asking("开启自动睡眠？", lines, "打开自动睡眠", remote, false))
 }
 
 /// The app's bodies; a failure in its words.
@@ -261,7 +259,7 @@ pub fn send(app: &AppState, kind: Kind, input: &Input, claim: &mut Claim) -> Res
         _ => (AUTO_SLEEP_API, json!({"enabled": true, "timeout": input.val("timeout")})),
     };
     claim.disarm();
-    super::call(app, Method::Put, path, &body).map(|_| ()).map_err(|(status, e)| (status, format!("Failed: {}", fmt::truncate(&e, 120))))
+    super::call(app, Method::Put, path, &body).map(|_| ()).map_err(|(status, e)| (status, format!("失败：{}", fmt::truncate(&e, 120))))
 }
 
 /// Back to the page, which reads the new state (the app shows no line);
@@ -335,8 +333,8 @@ pub fn password_field(pd: &PageData, fill: bool) -> Markup {
     let (auto, ignore) = if fill { ("current-password", None) } else { ("off", Some("true")) };
     html! {
         li.it.fld {
-            label.sr for="rpw" { "Router Password" }
-            input #rpw type="password" name="password" placeholder="Router Password" autocomplete=(auto) required
+            label.sr for="rpw" { "Agent 密码" }
+            input #rpw type="password" name="password" placeholder="Agent 密码" autocomplete=(auto) required
                 "data-1p-ignore"=[ignore] data-lpignore=[ignore] data-bwignore=[ignore]
                 aria-invalid=[err.map(|_| "true")] aria-describedby=[err.map(|_| "rpw-err")];
             @if let Some(e) = err { p.ferr #rpw-err { (e) } }
@@ -350,12 +348,12 @@ pub fn password_field(pd: &PageData, fill: bool) -> Markup {
 fn sheet(pd: &PageData, w: Power) -> Markup {
     let (message, label, what, remote) = match w {
         Power::Reset => (
-            "This will erase ALL settings. Enter your router password to confirm.",
-            "Factory Reset",
-            "This will erase all settings and restore factory defaults. This cannot be undone.",
-            "You are connected remotely: after a factory reset the router may not come back on your tailnet; it can then only be set up again from a device on its Wi-Fi.",
+            "这将删除所有设置。输入你的 Agent 密码进行确认。",
+            "恢复出厂设置",
+            "这将清除所有设置并恢复出厂默认设置。此操作无法撤消。",
+            "你正在远程连接：恢复出厂设置后，路由器可能无法返回您的尾网；然后只能通过 Wi-Fi 设备再次进行设置。",
         ),
-        _ => ("Enter your router password to confirm reboot.", "Reboot", "The router will restart. This takes about 60 seconds.", REMOTE),
+        _ => ("输入你的 Agent 密码以确认重启。", "重启", "路由器将重新启动。这大约需要 60 秒。", REMOTE),
     };
     html! {
         form.rf.req method="post" action=(w.path()) {
@@ -377,17 +375,17 @@ fn done(nonce: &str, w: Power) -> Response {
         div.narrow.rbt {
             (kit::icon(Icon::Power))
             @if reset {
-                p.msg.ok role="status" { "Factory reset initiated..." }
-                p { "The router erases its settings and restarts. Its Wi-Fi name, Wi-Fi password and address go back to the factory defaults, so you may need to join its default Wi-Fi network first." }
-                p { "If this web UI doesn\u{2019}t come back within a few minutes, the reset may have removed the agent; install it again as the README describes." }
+                p.msg.ok role="status" { "恢复出厂设置已启动..." }
+                p { "路由器清除其设置并重新启动。其 Wi-Fi 名称、Wi-Fi 密码和地址将恢复为出厂默认值，因此您可能需要先加入其默认 Wi-Fi 网络。" }
+                p { "如果几分钟后管理网页仍无法打开，重置可能已删除 Agent，请按 README 说明重新安装。" }
             } @else {
-                p.msg.ok role="status" { "Router is rebooting..." }
-                p { "The router comes back in about a minute. A restart logs every browser out, so you will log in again." }
+                p.msg.ok role="status" { "路由器正在重启..." }
+                p { "路由器将在约一分钟后恢复。重启会使所有浏览器退出登录，需要重新登录。" }
             }
-            p.actions { a.btn href="/ui/" { "Reload" } }
+            p.actions { a.btn href="/ui/" { "重新加载" } }
         }
     };
-    let pc = PageCtx { title: if reset { "Resetting\u{2026}" } else { "Rebooting\u{2026}" }, tab: Some(Tab::Router), nonce, ..PageCtx::default() };
+    let pc = PageCtx { title: if reset { "正在重置…" } else { "正在重启…" }, tab: Some(Tab::Router), nonce, ..PageCtx::default() };
     render::html(200, render::page(&pc, body))
 }
 
@@ -418,13 +416,13 @@ pub async fn post(ctx: Ctx, req: Request, w: Power) -> Response {
         Ok(()) => {}
         Err(LoginError::RateLimited { retry_after }) => {
             let secs = retry_after_secs(retry_after);
-            r.typed = Some(refused(format!("Too many attempts. Try again in {secs} s.")));
+            r.typed = Some(refused(format!("尝试次数过多，请在 {secs} 秒后重试。")));
             let mut resp = screen::show(&ctx, p, r, s, None, 429).await;
             resp.headers_mut().insert(RETRY_AFTER, HeaderValue::from(secs));
             return resp;
         }
         Err(_) => {
-            r.typed = Some(refused("Incorrect password".into()));
+            r.typed = Some(refused("密码错误".into()));
             return screen::show(&ctx, p, r, s, None, 401).await;
         }
     }
@@ -448,10 +446,10 @@ pub async fn post(ctx: Ctx, req: Request, w: Power) -> Response {
         Sent::Ran(resp) => resp,
         Sent::Done(Ok(())) => done(&nonce, w),
         Sent::Done(Err((status, e))) => screen::show(&ctx, p, shown, s, Some(Notice::Failed(e)), status).await,
-        Sent::Expired => screen::show(&ctx, p, shown, s, again("This page expired, so nothing was sent. Try again."), 409).await,
-        Sent::Busy => screen::show(&ctx, p, shown, s, again("Failed: the router is busy. Try again in a few seconds."), 503).await,
+        Sent::Expired => screen::show(&ctx, p, shown, s, again("该页面已过期，因此未发送任何内容。再试一次。"), 409).await,
+        Sent::Busy => screen::show(&ctx, p, shown, s, again("失败：路由器正忙。几秒钟后重试。"), 503).await,
         Sent::Unknown => {
-            let line = Notice::Flash(None, "The router may still be working on it. Check before trying again.".into());
+            let line = Notice::Flash(None, "路由器可能仍在处理它。重试前请检查。".into());
             screen::show(&ctx, p, shown, s, Some(line), 202).await
         }
     }
@@ -477,7 +475,7 @@ mod tests {
         for bad in ["on=1", "on=1&timeout=0", "timeout=1441", "timeout=+5", "timeout=05000", "on=x&timeout=5", ""] {
             assert_eq!(vals(Kind::AutoSleep, bad), None, "{bad}");
         }
-        assert_eq!((timeout_label("60"), timeout_label("15")), ("1 hour".to_owned(), "15 min".to_owned()));
+        assert_eq!((timeout_label("60"), timeout_label("15")), ("1 小时".to_owned(), "15 分钟".to_owned()));
         assert_eq!(timeout_of(Some(&json!({"timeout": "-1"}))), "5");
         assert_eq!(timeout_of(Some(&json!({"timeout": "30"}))), "30");
         assert_eq!((on_off(&json!("1")), on_off(&json!("0")), on_off(&json!(""))), (Some(true), Some(false), None));
@@ -485,8 +483,8 @@ mod tests {
         let on = Input::of(&[("on", "1"), ("timeout", "20")]);
         assert!(question(Kind::AutoSleep, &on, false).is_none() && question(Kind::PowerSave, &on, true).is_none());
         let q = question(Kind::AutoSleep, &on, true).unwrap();
-        assert_eq!((q.title.as_str(), q.label), ("Turn on Auto Sleep?", Some("Turn On Auto Sleep")));
-        assert!(q.lines[0].contains("for 20 min,") && q.lines[1].starts_with("You are connected remotely:"));
+        assert_eq!((q.title.as_str(), q.label), ("开启自动睡眠？", Some("打开自动睡眠")));
+        assert!(q.lines[0].contains("20 分钟") && q.lines[1].starts_with("你正在远程连接："));
         assert!(question(Kind::AutoSleep, &Input::of(&[("timeout", "20")]), true).is_none());
         assert_eq!(Power::of(REBOOT).map(Power::api), Some("/api/device/reboot"));
         assert_eq!(Power::of(RESET).map(Power::api), Some("/api/device/factory-reset"));

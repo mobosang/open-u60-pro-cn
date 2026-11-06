@@ -28,7 +28,7 @@ fun STKScreen(
                 title = { Text("STK / USSD") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -67,7 +67,7 @@ fun STKScreen(
                     OutlinedTextField(
                         value = state.ussdCode,
                         onValueChange = { viewModel.updateUssdCode(it) },
-                        label = { Text("USSD Code (e.g. *#06#)") },
+                        label = { Text("USSD 代码（例如*#06#）") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -76,7 +76,7 @@ fun STKScreen(
                         onClick = { viewModel.sendUSSD() },
                         enabled = !state.isLoading && state.ussdCode.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text("Send USSD") }
+                    ) { Text("发送USSD") }
 
                     if (state.showUssdResponse) {
                         Spacer(modifier = Modifier.height(12.dp))
@@ -85,7 +85,7 @@ fun STKScreen(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Response", fontWeight = FontWeight.Medium)
+                                Text("回应", fontWeight = FontWeight.Medium)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(state.ussdResponse.response.ifBlank { state.ussdResponse.rawResponse })
 
@@ -94,7 +94,7 @@ fun STKScreen(
                                     OutlinedTextField(
                                         value = state.ussdReply,
                                         onValueChange = { viewModel.updateUssdReply(it) },
-                                        label = { Text("Reply") },
+                                        label = { Text("回复") },
                                         modifier = Modifier.fillMaxWidth(),
                                         singleLine = true,
                                     )
@@ -104,12 +104,12 @@ fun STKScreen(
                                             onClick = { viewModel.respondUSSD() },
                                             enabled = !state.isLoading && state.ussdReply.isNotBlank(),
                                             modifier = Modifier.weight(1f),
-                                        ) { Text("Reply") }
+                                        ) { Text("回复") }
                                         OutlinedButton(
                                             onClick = { viewModel.cancelUSSD() },
                                             enabled = !state.isLoading,
                                             modifier = Modifier.weight(1f),
-                                        ) { Text("Cancel") }
+                                        ) { Text("取消") }
                                     }
                                 }
                             }
@@ -132,7 +132,7 @@ fun STKScreen(
                                 fontWeight = FontWeight.Bold,
                             )
                             if (!state.stkRootMenu && state.stkType != "status") {
-                                TextButton(enabled = !state.isLoading && !state.stkBusy, onClick = { viewModel.goBackSTK() }) { Text("Back") }
+                                TextButton(enabled = !state.isLoading && !state.stkBusy, onClick = { viewModel.goBackSTK() }) { Text("返回") }
                             }
                         }
 
@@ -150,14 +150,14 @@ fun STKScreen(
                             if (state.stkYesNo) {
                                 Row {
                                     TextButton(enabled = !state.isLoading && !state.stkBusy,
-                                        onClick = { viewModel.respondSTK(true) }) { Text("Yes") }
+                                        onClick = { viewModel.respondSTK(true) }) { Text("是的") }
                                     TextButton(enabled = !state.isLoading && !state.stkBusy,
                                         onClick = { viewModel.respondSTK(false) }) { Text("No") }
                                 }
                             } else {
                                 OutlinedTextField(value = state.stkReply,
                                     onValueChange = viewModel::updateStkReply,
-                                    label = { Text("SIM response") },
+                                    label = { Text("SIM 回应") },
                                     enabled = !state.isLoading && !state.stkBusy,
                                     visualTransformation = if (state.stkHidden)
                                         androidx.compose.ui.text.input.PasswordVisualTransformation()
@@ -167,21 +167,21 @@ fun STKScreen(
                                             androidx.compose.ui.text.input.KeyboardType.Phone
                                             else androidx.compose.ui.text.input.KeyboardType.Text),
                                 )
-                                Text("Enter ${state.stkMin}–${state.stkMax} characters")
+                                Text("输入${state.stkMin}–${state.stkMax}字符")
                                 TextButton(enabled = !state.isLoading && !state.stkBusy,
-                                    onClick = { viewModel.respondSTK() }) { Text("Send Response") }
+                                    onClick = { viewModel.respondSTK() }) { Text("发送响应") }
                             }
                         } else if (state.stkType == "display") {
                             TextButton(enabled = !state.isLoading && !state.stkBusy,
-                                onClick = { viewModel.respondSTK() }) { Text("Continue") }
+                                onClick = { viewModel.respondSTK() }) { Text("继续") }
                         }
                         if (!state.stkRootMenu && state.stkType != "status") {
                             TextButton(enabled = !state.isLoading && !state.stkBusy,
-                                onClick = { viewModel.cancelSTK() }) { Text("End SIM Session") }
+                                onClick = { viewModel.cancelSTK() }) { Text("结束 SIM 会话") }
                         }
                         if (state.stkType == "status") {
                             TextButton(enabled = !state.isLoading && !state.stkBusy,
-                                onClick = { viewModel.loadSTKMenu() }) { Text("Reload SIM Menu") }
+                                onClick = { viewModel.loadSTKMenu() }) { Text("重新加载SIM菜单") }
                         }
                         state.stkMenu.items.forEach { item ->
                             Card(

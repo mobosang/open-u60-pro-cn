@@ -24,7 +24,7 @@ object ZTECompression {
             }
         }
 
-        throw ZTEConfigCryptoException("Failed to decompress data: not valid ZLIB or chunked ZLIB format")
+        throw ZTEConfigCryptoException("解压失败：数据不是有效的 ZLIB 或分块 ZLIB 格式")
     }
 
     fun compress(data: ByteArray, chunked: Boolean = false, chunkSize: Int = 65536): ByteArray {

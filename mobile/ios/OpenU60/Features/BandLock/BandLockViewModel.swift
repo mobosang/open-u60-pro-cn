@@ -34,7 +34,7 @@ final class BandLockViewModel {
 
     func applyNRLock() async {
         guard !config.nrBands.isEmpty else {
-            showMessage("Select at least one NR band", isError: true)
+            showMessage("至少选择一个 NR 频段", isError: true)
             return
         }
         isLoading = true
@@ -45,16 +45,16 @@ final class BandLockViewModel {
             let _ = try await client.postJSON("/api/cell/band/nr", body: ["nr5g_type": "nsa", "nr5g_band": bandStr])
             // Lock SA bands
             let _ = try await client.postJSON("/api/cell/band/nr", body: ["nr5g_type": "sa", "nr5g_band": bandStr])
-            showMessage("NR bands locked: \(bandStr)", isError: false)
+            showMessage("NR 频段锁定：\(bandStr)", isError: false)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
 
     func applyLTELock() async {
         guard !config.lteBands.isEmpty else {
-            showMessage("Select at least one LTE band", isError: true)
+            showMessage("至少选择一个 LTE 频段", isError: true)
             return
         }
         isLoading = true
@@ -66,9 +66,9 @@ final class BandLockViewModel {
                 "is_gw_band": "0",
                 "gw_band_mask": ""
             ])
-            showMessage("LTE bands locked: \(config.lteBandString)", isError: false)
+            showMessage("LTE 频段锁定：\(config.lteBandString)", isError: false)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -79,9 +79,9 @@ final class BandLockViewModel {
         do {
             let _ = try await client.postJSON("/api/cell/band/reset")
             config = .empty
-            showMessage("All bands unlocked", isError: false)
+            showMessage("所有频段已解锁", isError: false)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }

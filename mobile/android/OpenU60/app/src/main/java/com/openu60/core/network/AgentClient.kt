@@ -180,7 +180,7 @@ class AgentClient @Inject constructor() {
         } catch (e: java.net.ConnectException) {
             throw AgentError.ServerUnreachable()
         } catch (e: Exception) {
-            throw AgentError.NetworkError(e.message ?: "Unknown", e)
+            throw AgentError.NetworkError(e.message ?: "未知", e)
         }
     }
 
@@ -193,7 +193,7 @@ class AgentClient @Inject constructor() {
             if (!ok) {
                 throw AgentError.ServerError(obj["error"]?.jsonPrimitive?.contentOrNull ?: "Unknown error")
             }
-            val dataElement = obj["data"] ?: throw AgentError.DecodingError("Response ok but data is null")
+            val dataElement = obj["data"] ?: throw AgentError.DecodingError("响应成功，但数据为空")
             return json.decodeFromJsonElement(dataElement)
         } catch (e: AgentError) {
             throw e

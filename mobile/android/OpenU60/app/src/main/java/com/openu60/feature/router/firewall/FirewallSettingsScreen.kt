@@ -30,10 +30,10 @@ fun FirewallSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Firewall") },
+                title = { Text("防火墙") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -70,18 +70,18 @@ fun FirewallSettingsScreen(
                 // Firewall toggles
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("General", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("概述", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
-                        ToggleRow("Firewall", state.config.enabled) { viewModel.toggleFirewall(it) }
+                        ToggleRow("防火墙", state.config.enabled) { viewModel.toggleFirewall(it) }
                         ToggleRow("NAT", state.config.nat) { viewModel.toggleNAT(it) }
-                        ToggleRow("Port Forwarding", state.config.portForwardEnabled) { viewModel.togglePortForward(it) }
+                        ToggleRow("端口转发", state.config.portForwardEnabled) { viewModel.togglePortForward(it) }
                     }
                 }
 
                 // Firewall level
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Firewall Level", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("防火墙级别", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         listOf("low", "medium", "high").forEach { level ->
                             Row(
@@ -112,7 +112,7 @@ fun FirewallSettingsScreen(
                         OutlinedTextField(
                             value = dmzHost,
                             onValueChange = { dmzHost = it },
-                            label = { Text("DMZ Host IP") },
+                            label = { Text("DMZ主机IP") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                         )
@@ -120,7 +120,7 @@ fun FirewallSettingsScreen(
                         Button(
                             onClick = { viewModel.setDMZ(state.config.dmzEnabled, dmzHost) },
                             enabled = !state.isLoading,
-                        ) { Text("Save DMZ") }
+                        ) { Text("保存非军事区") }
                     }
                 }
 
@@ -132,13 +132,13 @@ fun FirewallSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Port Forward Rules", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("端口转发规则", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             IconButton(onClick = { viewModel.showAddForm() }) {
                                 Icon(Icons.Default.Add, contentDescription = "Add rule")
                             }
                         }
                         if (state.portForwardRules.isEmpty()) {
-                            Text("No rules configured", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("未配置规则", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         } else {
                             state.portForwardRules.forEach { rule ->
                                 Row(
@@ -146,7 +146,7 @@ fun FirewallSettingsScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(rule.name.ifBlank { "Unnamed" }, fontWeight = FontWeight.Medium)
+                                        Text(rule.name.ifBlank { "未命名" }, fontWeight = FontWeight.Medium)
                                         Text(
                                             "${rule.protocol.uppercase()} WAN:${rule.wanPort} -> ${rule.lanIP}:${rule.lanPort}",
                                             style = MaterialTheme.typography.bodySmall,
@@ -154,7 +154,7 @@ fun FirewallSettingsScreen(
                                         )
                                     }
                                     IconButton(onClick = { viewModel.deletePortForwardRule(rule.id) }) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+                                        Icon(Icons.Default.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.error)
                                     }
                                 }
                                 HorizontalDivider()
@@ -204,8 +204,8 @@ private fun PortForwardFormInline(
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Add Port Forward Rule", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            Text("添加端口转发规则", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("名称") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("tcp", "udp", "both").forEach { proto ->
                     FilterChip(
@@ -215,15 +215,15 @@ private fun PortForwardFormInline(
                     )
                 }
             }
-            OutlinedTextField(value = wanPort, onValueChange = { wanPort = it }, label = { Text("WAN Port") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(value = wanPort, onValueChange = { wanPort = it }, label = { Text("广域网端口") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(value = lanIP, onValueChange = { lanIP = it }, label = { Text("LAN IP") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-            OutlinedTextField(value = lanPort, onValueChange = { lanPort = it }, label = { Text("LAN Port") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(value = lanPort, onValueChange = { lanPort = it }, label = { Text("局域网接口") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = { onSubmit(name, protocol, wanPort, lanIP, lanPort) },
                     enabled = !isLoading && name.isNotBlank() && wanPort.isNotBlank() && lanIP.isNotBlank() && lanPort.isNotBlank(),
-                ) { Text("Add") }
-                OutlinedButton(onClick = onCancel) { Text("Cancel") }
+                ) { Text("添加") }
+                OutlinedButton(onClick = onCancel) { Text("取消") }
             }
         }
     }

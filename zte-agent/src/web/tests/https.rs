@@ -1,4 +1,4 @@
-//! Settings › HTTPS & Install as App through the whole router: the
+//! Settings › HTTPS 与安装为应用 through the whole router: the
 //! section, the questions and their single-use posts, the install page,
 //! the public downloads and the http hints. The manager runs on a
 //! temporary directory with fake clocks (`tls::tests::World`).
@@ -58,7 +58,7 @@ async fn turn_on_from_settings_once() {
     let cookie = format!("zte_ui_session={}", login(&c, 230, 1).await);
     let p = peer(230, 2);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    for want in ["<h2>HTTPS &amp; Install as App</h2>", "<span>HTTPS</span><span class=\"v\">Off</span>", "href=\"/ui/settings/https/on\"", "Turn On HTTPS", "on port 9443"] {
+    for want in ["<h2>HTTPS 与安装为应用</h2>", "<span>HTTPS</span><span class=\"v\">关闭</span>", "href=\"/ui/settings/https/on\"", "开启HTTPS", "端口 9443"] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // The question: what happens, the router's clock (not checked), the token.
@@ -66,13 +66,13 @@ async fn turn_on_from_settings_once() {
     q.assert_secure_html(200);
     let html = q.text();
     for want in [
-        "Turn on HTTPS?",
-        "its LAN address and u60.home.arpa",
-        "never for other websites",
-        "It could not be checked over the internet",
-        "Plain http on port 9090 keeps working",
+        "开启 HTTPS？",
+        "其 LAN 地址和 u60.home.arpa",
+        "不能为其他网站",
+        "无法通过互联网进行检查",
+        "端口 9090 上的纯 http 继续工作",
         "name=\"confirm\" value=\"1\"",
-        ">Turn On HTTPS</button>",
+        ">开启HTTPS</button>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -82,53 +82,53 @@ async fn turn_on_from_settings_once() {
     r.assert_see_other(ON);
     assert!(!c.app.tls.is_on());
     let (r, body) = confirm(&c, ON, p, &cookie).await;
-    assert!(line(&c, &r, p, &cookie).await.contains("<p class=\"msg ok\" role=\"status\">HTTPS is on. Next: Install on Your Devices (a device that already trusts"));
+    assert!(line(&c, &r, p, &cookie).await.contains("<p class=\"msg ok\" role=\"status\">HTTPS 已开启。下一步：在你的设备上安装。已信任路由器证书颁发机构的设备无需重新设置。"));
     assert!(c.app.tls.is_on());
     let ca = c.app.tls.ca_der().unwrap();
     // A replay of the same post: the same line, nothing new.
     let again = post(&c, ON, p, &cookie, &body).await;
-    assert!(line(&c, &again, p, &cookie).await.contains("HTTPS is on."));
+    assert!(line(&c, &again, p, &cookie).await.contains("HTTPS 已开启。下一步：在你的设备上安装。已信任路由器证书颁发机构的设备无需重新设置。"));
     assert_eq!(c.app.tls.ca_der().unwrap(), ca);
     // Another session's token, or none: expired, nothing done.
     let r = post(&c, ON, p, &cookie, &format!("csrf={}&once=00112233aabbccdd&confirm=1", get_with(&c, SETTINGS, p, &cookie).await.input("csrf"))).await;
-    assert!(line(&c, &r, p, &cookie).await.contains("This page expired, so nothing was changed."));
+    assert!(line(&c, &r, p, &cookie).await.contains("该页面已过期，因此没有任何更改。再试一次。"));
     // On: the addresses, Install on Your Devices, Reset; the http hint.
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
     for want in [
-        "<span>HTTPS</span><span class=\"v\">On \u{b7} not listening</span>",
-        "Certificate valid until",
+        "<span>HTTPS</span><span class=\"v\">已开启 · 未监听</span>",
+        "证书有效期至",
         "href=\"https://192.168.0.1:9443/console/\"",
         "href=\"https://u60.home.arpa:9443/console/\"",
         "href=\"/ui/settings/https\"",
-        "Install on Your Devices",
+        "在您的设备上安装",
         "href=\"/ui/settings/https/reset\"",
-        "This page is plain http. Once this device trusts the router\u{2019}s certificate authority (Install on Your Devices), open <a href=\"https://192.168.0.1:9443/console/\" rel=\"noreferrer\">",
-        ">Try Again</span>",
+        "此页面使用明文 HTTP。请先按“在你的设备上安装”说明信任路由器证书颁发机构，然后打开  <a href=\"https://192.168.0.1:9443/console/\" rel=\"noreferrer\">",
+        ">重试</span>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
     assert!(!html.contains(RENEW));
     // Over HTTPS: no hint; over Tailscale (loopback): no hint either.
     let html = get_secure(&c, SETTINGS, p, &cookie).await.text();
-    assert!(html.contains("You are using HTTPS.") && !html.contains("This page is plain http"));
+    assert!(html.contains("你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。") && !html.contains("此页面使用明文 HTTP"));
     let html = get_with(&c, SETTINGS, Peer(SocketAddr::from(([127, 0, 0, 1], 40100))), &cookie).await.text();
-    assert!(!html.contains("This page is plain http") && !html.contains("You are using HTTPS."));
+    assert!(!html.contains("此页面使用明文 HTTP") && !html.contains("你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。"));
     // On but not listening (a bind that failed): the question offers to
     // listen again, and its post tells the listener.
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("Listen again?") && html.contains(">Try Again</button>"), "{html}");
+    assert!(html.contains("重新开始监听？") && html.contains(">重试</button>"), "{html}");
     let mut on = c.app.tls.subscribe();
     on.borrow_and_update();
     let (r, _) = confirm(&c, ON, p, &cookie).await;
-    assert!(line(&c, &r, p, &cookie).await.contains("HTTPS is on."));
+    assert!(line(&c, &r, p, &cookie).await.contains("HTTPS 已开启。下一步：在你的设备上安装。已信任路由器证书颁发机构的设备无需重新设置。"));
     assert!(on.has_changed().unwrap());
     assert_eq!(c.app.tls.ca_der().unwrap(), ca);
     // Listening: nothing to do.
     c.app.tls.set_listening(Ok("0.0.0.0:9443".parse().unwrap()));
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    assert!(html.contains("<span class=\"v\">On</span>") && !html.contains("Try Again"));
+    assert!(html.contains("<span class=\"v\">开启</span>") && !html.contains("重试"));
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("HTTPS is already on") && !html.contains("name=\"once\""));
+    assert!(html.contains("HTTPS 已开启") && !html.contains("name=\"once\""));
 }
 
 /// A CA kept at start (its server pair lost, no verified clock): Settings
@@ -146,15 +146,15 @@ async fn a_kept_ca_is_turned_on_again() {
     let cookie = format!("zte_ui_session={}", login(&c, 235, 1).await);
     let p = peer(235, 2);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    for want in ["is still on the router: Turn On HTTPS issues a new certificate from it", "issues a new one from the same certificate authority", "href=\"/ui/settings/https/reset\""] {
+    for want in ["仍保存在路由器上。开启 HTTPS 会由它签发新证书", "issues a new one from the same certificate authority", "href=\"/ui/settings/https/reset\""] {
         assert!(html.contains(want), "{want} in {html}");
     }
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("Devices that trust it need nothing new") && html.contains(">Turn On HTTPS</button>"), "{html}");
+    assert!(html.contains("已信任该机构的设备无需重新设置。") && html.contains(">开启HTTPS</button>"), "{html}");
     let html = get_with(&c, RESET, p, &cookie).await.text();
-    assert!(html.contains("This deletes the certificate files left on the router (U60 Pro local CA ") && html.contains(">Reset HTTPS</button>"), "{html}");
+    assert!(html.contains("这将删除路由器 (U60 Pro local CA ") && html.contains(">复位HTTPS</button>"), "{html}");
     let (r, _) = confirm(&c, ON, p, &cookie).await;
-    assert!(line(&c, &r, p, &cookie).await.contains("HTTPS is on."));
+    assert!(line(&c, &r, p, &cookie).await.contains("HTTPS 已开启。下一步：在你的设备上安装。已信任路由器证书颁发机构的设备无需重新设置。"));
     assert_eq!(c.app.tls.ca_der().unwrap(), ca);
 }
 
@@ -167,15 +167,15 @@ async fn questions_follow_the_clock_and_the_state() {
     // The clock is not set: no button.
     w.wall.store(CLOCK_FLOOR - 1, Ordering::SeqCst);
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("The router\u{2019}s clock isn\u{2019}t set yet") && !html.contains("name=\"once\""), "{html}");
+    assert!(html.contains("路由器时钟尚未设置") && !html.contains("name=\"once\""), "{html}");
     // Checked over the internet: said so.
     *w.verified.lock().unwrap() = Some(crate::tls::tests::NOW);
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("checked over the internet: Oct 26, 2026, 07:33 UTC."), "{html}");
+    assert!(html.contains("通过互联网检查：十月 26, 2026, 07:33 UTC。"), "{html}");
     // Off: Renew and Reset have nothing to do.
     for uri in [RENEW, RESET] {
         let html = get_with(&c, uri, p, &cookie).await.text();
-        assert!(html.contains("HTTPS is off") && !html.contains("name=\"once\""), "{uri}");
+        assert!(html.contains("HTTPS 已关闭") && !html.contains("name=\"once\""), "{uri}");
     }
     confirm(&c, ON, p, &cookie).await;
     // Renew shows once fewer than 30 days are left by the router's clock.
@@ -183,18 +183,18 @@ async fn questions_follow_the_clock_and_the_state() {
     *w.verified.lock().unwrap() = None;
     w.wall.store(end - 10 * 86_400, Ordering::SeqCst);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    assert!(html.contains("Certificate expires") && html.contains("href=\"/ui/settings/https/renew\""), "{html}");
+    assert!(html.contains("证书过期") && html.contains("href=\"/ui/settings/https/renew\""), "{html}");
     let (r, _) = confirm(&c, RENEW, p, &cookie).await;
-    assert!(line(&c, &r, p, &cookie).await.contains("Certificate renewed."));
+    assert!(line(&c, &r, p, &cookie).await.contains("证书更新。"));
     assert!(c.app.tls.status().not_after.unwrap() > end);
     // Reset: the question says what devices must do; over HTTPS that the
     // page stops working.
     let html = get_secure(&c, RESET, p, &cookie).await.text();
-    for want in ["Reset HTTPS?", "Remove that certificate authority from every device", "must trust the new one", "This page is open over HTTPS", "btn btn-danger"] {
+    for want in ["重置HTTPS？", "从信任它的每个设备中删除该证书颁发机构", "每台设备都必须信任新的证书颁发机构", "此页面通过 HTTPS 打开", "btn btn-danger"] {
         assert!(html.contains(want), "{want} in {html}");
     }
     let (r, _) = confirm(&c, RESET, p, &cookie).await;
-    assert!(line(&c, &r, p, &cookie).await.contains("HTTPS was reset. Remove the old certificate authority from your devices."));
+    assert!(line(&c, &r, p, &cookie).await.contains("HTTPS 已重置，请从你的设备上移除旧的证书颁发机构。"));
     assert!(!c.app.tls.is_on() && !w.dir().exists());
     // Signed out: a post goes to the login, back to Settings, nothing done.
     let r = post(&c, ON, p, "", "csrf=x&once=y&confirm=1").await;
@@ -209,7 +209,7 @@ async fn install_page_shows_the_ca_and_the_steps() {
     let p = peer(232, 2);
     let r = get_with(&c, INSTALL, p, &cookie).await;
     r.assert_secure_html(200);
-    assert!(r.text().contains("HTTPS is off"));
+    assert!(r.text().contains("HTTPS 已关闭"));
     c.app.tls.turn_on().unwrap();
     let s = c.app.tls.status();
     let r = get_with(&c, INSTALL, p, &cookie).await;
@@ -217,35 +217,34 @@ async fn install_page_shows_the_ca_and_the_steps() {
     let html = r.text();
     for want in [
         &format!("<span class=\"v\">{}</span>", s.ca_name),
-        "<span>Can vouch for</span><span class=\"v\">192.168.0.1 and u60.home.arpa</span>",
+        "<span>证书约束范围</span><span class=\"v\">192.168.0.1 和 u60.home.arpa</span>",
         &format!("<span class=\"sr\">{}</span><small class=\"mono fp\" translate=\"no\" aria-hidden=\"true\">", s.sha256),
         &s.sha256.replace(':', ":<wbr>"),
-        "came over plain http, so someone on your network could change it",
+        "此页面使用明文 HTTP，同一网络上的人可能同时篡改页面和下载内容",
         "sha256sum /data/zte-agent-tls/ca.crt",
-        "letter case, spaces and colons do not matter",
-        "More Details",
-        "Firefox 120 and later uses the certificates you add",
-        "View More",
+        "设备显示位置：iPhone 和 iPad：设置 › 配置文件已下载 › 更多详细信息 › 证书，然后点击安装； Mac：Keychain 访问›证书； Android：安装后，设置 › 受信任凭据 › 用户 › 证书（如果不同，请将其删除）。",
+        "Firefox 120 及更高版本使用您添加到 Windows、macOS 或 Android 的证书。在 Linux 上，或关闭该设置： 设置 › 隐私和安全 › 证书 › 查看证书 … › 权限 › 导入 …，并信任它的网站。",
+        "查看更多",
         &s.sha1.replace(':', "").to_ascii_lowercase(),
         &format!("href=\"{DOWNLOAD_PROFILE}\""),
         &format!("href=\"{DOWNLOAD_CRT}\""),
-        "<h2>iPhone and iPad</h2>",
-        "Certificate Trust Settings",
-        "<h2>Android</h2>",
-        "Install a certificate",
+        "<h2>iPhone 和 iPad</h2>",
+        "证书信任设置",
+        "<h2>安卓</h2>",
+        "安装证书",
         "<h2>Mac</h2>",
-        "Always Trust",
+        "使用此证书时：始终信任",
         "<h2>Windows</h2>",
-        "Trusted Root Certification Authorities",
+        "受信任的根证书颁发机构",
         "href=\"https://u60.home.arpa:9443/console/\"",
-        "Add to Home Screen",
+        "添加到主屏幕",
         "Private DNS",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // Over HTTPS the fingerprint came from the router itself.
     let html = get_secure(&c, INSTALL, p, &cookie).await.text();
-    assert!(html.contains("This page came over HTTPS from the router") && !html.contains("came over plain http"));
+    assert!(html.contains("本页通过路由器的 HTTPS 连接提供，以下是其证书指纹。请核对设备上显示的 SHA-256 指纹是否一致，大小写、空格和冒号可忽略。") && !html.contains("此页面使用明文 HTTP"));
     // Never a key.
     let key = std::fs::read(w.dir().join("issuing.key")).unwrap();
     use base64::Engine;
@@ -295,14 +294,14 @@ async fn downloads_are_public_with_their_types() {
 async fn login_page_hint() {
     let w = world("web-hint");
     let c = ctx_with(&w, Some(PW));
-    let hint = "To install this web UI as an app, trust the router\u{2019}s certificate authority on this device (Settings \u{203a} HTTPS &amp; Install as App \u{203a} Install on Your Devices), then open <a href=\"https://192.168.0.1:9443/console/\" rel=\"noreferrer\">https://192.168.0.1:9443/console/</a>.";
-    assert!(!get(&c, "/ui/login", peer(234, 1)).await.text().contains("To install"));
+    let hint = "要将此管理网页安装为应用，请在此设备上信任路由器的证书颁发机构（设置 › HTTPS 与安装为应用 › 在您的设备上安装），然后打开 <a href=\"https://192.168.0.1:9443/console/\" rel=\"noreferrer\">https://192.168.0.1:9443/console/</a>.";
+    assert!(!get(&c, "/ui/login", peer(234, 1)).await.text().contains("要将此管理网页安装为应用"));
     c.app.tls.turn_on().unwrap();
     let r = get(&c, "/ui/login", peer(234, 2)).await;
     r.assert_secure_html(200);
     assert!(r.text().contains(hint), "{}", r.text());
-    assert!(!get_secure(&c, "/ui/login", peer(234, 3), "").await.text().contains("To install"));
-    assert!(!get(&c, "/ui/login", Peer(SocketAddr::from(([127, 0, 0, 1], 40101)))).await.text().contains("To install"));
+    assert!(!get_secure(&c, "/ui/login", peer(234, 3), "").await.text().contains("要将此管理网页安装为应用"));
+    assert!(!get(&c, "/ui/login", Peer(SocketAddr::from(([127, 0, 0, 1], 40101)))).await.text().contains("要将此管理网页安装为应用"));
     // The local name answers only over HTTPS (another network's DNS can
     // answer for it over http).
     let by_name = |secure: bool| {
@@ -312,7 +311,7 @@ async fn login_page_hint() {
     let r = send(&c, by_name(false)).await;
     assert_eq!((r.status, r.text().as_str()), (403, "Host not allowed"));
     let r = send(&c, by_name(true)).await;
-    assert!(r.status == 200 && !r.text().contains("To install"));
+    assert!(r.status == 200 && !r.text().contains("要将此管理网页安装为应用"));
     // A failed login keeps it.
     let (pre, token) = login_form(&c, peer(234, 4)).await;
     let r = post(&c, "/ui/login", peer(234, 4), &format!("zte_ui_pre={pre}"), &format!("login_csrf={}&password=wrong", enc(&token))).await;

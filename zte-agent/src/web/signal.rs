@@ -281,13 +281,13 @@ pub fn ecio_class(v: f64) -> &'static str {
 /// RSCP quality label (-75 / -85 / -95).
 pub fn rscp_quality(v: f64) -> &'static str {
     if v >= -75.0 {
-        "Excellent"
+        "极佳"
     } else if v >= -85.0 {
-        "Good"
+        "良好"
     } else if v >= -95.0 {
-        "Fair"
+        "一般"
     } else {
-        "Poor"
+        "较差"
     }
 }
 
@@ -435,6 +435,6 @@ mod tests {
         assert_eq!(mbps(1.23456), "1.235");
         assert_eq!((rsrq_class(-15.0), rsrq_class(-20.0), rsrq_class(-20.5)), ("q-good", "q-fair", "q-poor"));
         assert_eq!((sinr_class(10.0), sinr_class(0.0), sinr_class(-1.0)), ("q-good", "q-fair", "q-poor"));
-        assert_eq!((rscp_quality(-75.0), rscp_quality(-85.0), rscp_quality(-95.0), rscp_quality(-96.0)), ("Excellent", "Good", "Fair", "Poor"));
+        assert_eq!((rscp_quality(-75.0), rscp_quality(-85.0), rscp_quality(-95.0), rscp_quality(-96.0)), ("极佳", "良好", "一般", "较差"));
     }
 }

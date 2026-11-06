@@ -27,10 +27,10 @@ fun SignalDetectScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Signal Detect") },
+                title = { Text("信号检测") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -71,7 +71,7 @@ fun SignalDetectScreen(
                             onClick = { viewModel.startDetect() },
                             enabled = !state.isLoading && !state.status.running,
                             modifier = Modifier.fillMaxWidth(),
-                        ) { Text("Start Signal Scan") }
+                        ) { Text("开始信号扫描") }
 
                         if (state.status.running) {
                             Spacer(modifier = Modifier.height(8.dp))
@@ -92,7 +92,7 @@ fun SignalDetectScreen(
                 if (state.status.results.isNotEmpty()) {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Results (${state.status.results.size})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("结果 (${state.status.results.size})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(8.dp))
 
                             Row(
@@ -101,8 +101,8 @@ fun SignalDetectScreen(
                                 Column {
                                     // Header
                                     Row {
-                                        TableCell("Type", FontWeight.Bold)
-                                        TableCell("Band", FontWeight.Bold)
+                                        TableCell("类型", FontWeight.Bold)
+                                        TableCell("频段", FontWeight.Bold)
                                         TableCell("EARFCN", FontWeight.Bold)
                                         TableCell("PCI", FontWeight.Bold)
                                         TableCell("RSRP", FontWeight.Bold)

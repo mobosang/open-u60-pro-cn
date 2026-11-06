@@ -49,7 +49,7 @@ struct SignalCardView: View, Equatable {
 
         CardView {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Signal")
+                Text("信号")
                     .font(.headline)
 
                 if showNR {
@@ -104,11 +104,11 @@ struct SignalCardView: View, Equatable {
 
                 if !showNR && !showLTE && !show3G {
                     if isAirplaneMode {
-                        Label("Airplane Mode", systemImage: "airplane")
+                        Label("飞行模式", systemImage: "airplane")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .foregroundStyle(.secondary)
                     } else {
-                        Text("No signal data")
+                        Text("无信号数据")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .foregroundStyle(.secondary)
                     }
@@ -194,9 +194,9 @@ struct SignalCardView: View, Equatable {
     private func bandwidthText(bandwidth: String, spec: BandSpec?) -> String? {
         let bwNum = Int(bandwidth.trimmingCharacters(in: .letters.union(.whitespaces)))
         if let bwNum, let spec {
-            return "BW \(bwNum) MHz \u{00B7} Max \(spec.maxBandwidthMHz) MHz"
+            return "带宽 \(bwNum) MHz \u{00B7} 最大 \(spec.maxBandwidthMHz) MHz"
         } else if let bwNum {
-            return "BW \(bwNum) MHz"
+            return "带宽 \(bwNum) MHz"
         }
         return nil
     }

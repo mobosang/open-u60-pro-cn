@@ -45,7 +45,7 @@ fun SMSListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Messages") },
+                title = { Text("短信") },
                 actions = {
                     IconButton(onClick = onNavigateToForwardConfig) {
                         Icon(Icons.Default.Settings, contentDescription = "Forwarding settings")
@@ -56,7 +56,7 @@ fun SMSListScreen(
         floatingActionButton = {
             if (authState == AuthState.LOGGED_IN) {
                 FloatingActionButton(onClick = onNavigateToCompose) {
-                    Icon(Icons.Default.Edit, contentDescription = "New message")
+                    Icon(Icons.Default.Edit, contentDescription = "新消息")
                 }
             }
         },
@@ -69,9 +69,9 @@ fun SMSListScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Login to view messages", style = MaterialTheme.typography.bodyLarge)
+                    Text("登录查看消息", style = MaterialTheme.typography.bodyLarge)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Button(onClick = onNavigateToLogin) { Text("Login") }
+                    Button(onClick = onNavigateToLogin) { Text("登录") }
                 }
             }
             return@Scaffold
@@ -113,7 +113,7 @@ fun SMSListScreen(
 
                 if (conversations.isEmpty() && !isLoading) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No messages", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("没有消息", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -146,16 +146,16 @@ private fun ConversationItem(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete conversation?") },
-            text = { Text("This will delete all ${conversation.messages.size} messages from ${conversation.number}.") },
+            title = { Text("删除对话？") },
+            text = { Text("这将删除与 ${conversation.number} 的全部 ${conversation.messages.size} 条消息。") },
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteDialog = false
                     onDelete()
-                }) { Text("Delete", color = MaterialTheme.colorScheme.error) }
+                }) { Text("删除", color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text("取消") }
             },
         )
     }
@@ -196,7 +196,7 @@ private fun ConversationItem(
                 ) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Delete",
+                        contentDescription = "删除",
                         modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

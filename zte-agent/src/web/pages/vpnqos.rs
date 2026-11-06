@@ -36,22 +36,22 @@ const QOS_API: &str = "/api/router/qos";
 
 /// The app's switches: (field, label, the API's key).
 const PASSTHROUGH: [(&str, &str, &str); 3] =
-    [("l2tp", "L2TP", "l2tp_passthrough"), ("pptp", "PPTP", "pptp_passthrough"), ("ipsec", "IPSec", "ipsec_passthrough")];
+    [("l2tp", "L2TP", "l2tp_passthrough"), ("pptp", "PPTP", "pptp_passthrough"), ("ipsec", "IP安全", "ipsec_passthrough")];
 
 pub fn vpn_page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "Failed to load VPN: " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载VPN失败：" (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     html! {
         form.rf method="post" action=(VPN_APPLY) {
             (pd.csrf())
             (once_field(&pd.once()))
-            (kit::section(Some("VPN Passthrough"), None, html! {
+            (kit::section(Some("VPN 穿透"), None, html! {
                 @for (name, label, key) in PASSTHROUGH { (switch(name, label, truthy(&d[key]), "it", "sr")) }
             }))
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Apply" } } }))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "应用" } } }))
         }
     }
 }
@@ -64,8 +64,8 @@ pub fn qos_page(pd: &PageData) -> Markup {
     let hidden = html! { (pd.csrf()) (once_field(&pd.once())) };
     let act = |on: &'static str| Act::Post { action: QOS_SWITCH, name: "on", value: on };
     html! {
-        @if let Some(Err(e)) = pd.reads.first() { p.msg.err role="alert" { "Failed to load QoS: " (fmt::truncate(e, 120)) } }
-        (kit::section(Some("Quality of Service"), None, kit::switch_row(&hidden, "Enable QoS", state, act("1"), act("0"))))
+        @if let Some(Err(e)) = pd.reads.first() { p.msg.err role="alert" { "加载QoS失败：" (fmt::truncate(e, 120)) } }
+        (kit::section(Some("服务质量"), None, kit::switch_row(&hidden, "启用服务质量", state, act("1"), act("0"))))
     }
 }
 
@@ -81,10 +81,10 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
         let on = val(vals, "on") == "1";
         claim.disarm();
         put(QOS_API, json!({"qos_switch": bit(on)}))?;
-        return Ok(Done::Line(Some(true), format!("QoS {}", if on { "enabled" } else { "disabled" })));
+        return Ok(Done::Line(Some(true), format!("服务质量 {}", if on { "enabled" } else { "disabled" })));
     }
     let body: Map<String, Value> = PASSTHROUGH.iter().map(|(name, _, key)| ((*key).to_owned(), bit(val(vals, name) == "1").into())).collect();
     claim.disarm();
     put(VPN_API, Value::Object(body))?;
-    Ok(Done::Line(Some(true), "VPN passthrough updated".into()))
+    Ok(Done::Line(Some(true), "VPN 直通已更新".into()))
 }

@@ -206,7 +206,7 @@ pub fn mhz(raw: &str) -> Option<u32> {
 /// "50 / 100 MHz max" when the band is known, else the raw value or "—".
 pub fn bandwidth(raw: &str, band_raw: &str, nr: bool) -> String {
     match (mhz(raw), number(band_raw).and_then(|n| spec(nr, n))) {
-        (Some(v), Some(sp)) => format!("{v} / {} MHz max", sp.max_bw),
+        (Some(v), Some(sp)) => format!("{v} / {} MHz（最大值）", sp.max_bw),
         _ if raw.trim().is_empty() => "--".into(),
         _ => raw.trim().to_owned(),
     }
@@ -255,13 +255,13 @@ const RANGES: [(u16, [u16; 4]); 31] = [
 
 /// A Band Lock band's common name ("3500 MHz") and the facts of the app's
 /// long-press popover: "TDD · Max BW 100 MHz · DL 3300–3800 MHz · UL
-/// 3300–3800 MHz" (no UL for SDL; every band in the lists is FR1).
+/// 3300–3800 MHz" (no 上行 for SDL; every band in the lists is FR1).
 pub fn lock_facts(nr: bool, band: u16) -> Option<(String, String)> {
     let sp = spec(nr, u32::from(band))?;
     let [dl0, dl1, ul0, ul1] = RANGES.iter().find(|(b, _)| *b == band)?.1;
-    let mut facts = format!("{} \u{b7} Max BW {} MHz \u{b7} DL {dl0}\u{2013}{dl1} MHz", sp.duplex(), sp.max_bw);
+    let mut facts = format!("{} · 最大带宽 {} MHz · 下行 {dl0}–{dl1} MHz", sp.duplex(), sp.max_bw);
     if ul0 > 0 {
-        facts.push_str(&format!(" \u{b7} UL {ul0}\u{2013}{ul1} MHz"));
+        facts.push_str(&format!(" \u{b7} 上行 {ul0}\u{2013}{ul1} MHz"));
     }
     Some((sp.name(), facts))
 }
@@ -291,12 +291,12 @@ mod tests {
         assert!(RANGES.windows(2).all(|w| w[0].0 < w[1].0));
         assert_eq!(
             lock_facts(true, 78),
-            Some(("3500 MHz".into(), "TDD \u{b7} Max BW 100 MHz \u{b7} DL 3300\u{2013}3800 MHz \u{b7} UL 3300\u{2013}3800 MHz".into()))
+            Some(("3500 MHz".into(), "TDD · 最大带宽 100 MHz · 下行 3300–3800 MHz · 上行 3300–3800 MHz".into()))
         );
-        assert_eq!(lock_facts(false, 29).unwrap().1, "SDL \u{b7} Max BW 10 MHz \u{b7} DL 717\u{2013}728 MHz");
+        assert_eq!(lock_facts(false, 29).unwrap().1, "SDL · 最大带宽 10 MHz · 下行 717–728 MHz");
         assert_eq!(lock_facts(false, 66).unwrap().0, "AWS-3");
-        assert_eq!(lock_facts(true, 41).unwrap().1, "TDD \u{b7} Max BW 100 MHz \u{b7} DL 2496\u{2013}2690 MHz \u{b7} UL 2496\u{2013}2690 MHz");
-        assert_eq!(lock_facts(false, 41).unwrap().1, "TDD \u{b7} Max BW 20 MHz \u{b7} DL 2496\u{2013}2690 MHz \u{b7} UL 2496\u{2013}2690 MHz");
+        assert_eq!(lock_facts(true, 41).unwrap().1, "TDD · 最大带宽 100 MHz · 下行 2496–2690 MHz · 上行 2496–2690 MHz");
+        assert_eq!(lock_facts(false, 41).unwrap().1, "TDD · 最大带宽 20 MHz · 下行 2496–2690 MHz · 上行 2496–2690 MHz");
         assert_eq!(lock_facts(true, 99), None);
     }
 
@@ -314,19 +314,19 @@ mod tests {
     fn strings_match_the_app() {
         assert_eq!(band("41", true, false), "n41 (2500 MHz, TDD)");
         assert_eq!(band("1", false, false), "B1 (2100 MHz, FDD)");
-        assert_eq!(band("78", true, true), "n78 (3500 MHz, TDD) \u{b7} PCC");
+        assert_eq!(band("78", true, true), "n78 (3500 MHz, TDD) · PCC");
         assert_eq!(band("48", false, false), "B48 (3500 MHz (CBRS), TDD)");
         assert_eq!(band("66", false, false), "B66 (AWS-3, FDD)");
         assert_eq!(band("29", false, false), "B29 (700 MHz, SDL)");
         assert_eq!(band("14", true, false), "n14 (700 MHz (PS), FDD)");
         assert_eq!(band("46", false, false), "B46 (5200 MHz (LAA), TDD)");
         assert_eq!(band("258", true, false), "n258 (26 GHz, TDD)");
-        assert_eq!(band("99", false, true), "B99 \u{b7} PCC");
+        assert_eq!(band("99", false, true), "B99 · PCC");
         assert_eq!(band("", true, false), "--");
         assert_eq!(carrier_band("3", false), "B3 (1800 MHz)");
         assert_eq!(carrier_band("200", true), "n200");
-        assert_eq!(bandwidth("50", "41", true), "50 / 100 MHz max");
-        assert_eq!(bandwidth("10MHz", "1", false), "10 / 20 MHz max");
+        assert_eq!(bandwidth("50", "41", true), "50 / 100 MHz（最大值）");
+        assert_eq!(bandwidth("10MHz", "1", false), "10 / 20 MHz（最大值）");
         assert_eq!(bandwidth("15", "99", false), "15");
         assert_eq!(bandwidth("", "1", false), "--");
         assert_eq!(mhz("BW 100"), Some(100));

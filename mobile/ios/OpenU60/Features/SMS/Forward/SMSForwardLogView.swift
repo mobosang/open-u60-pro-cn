@@ -22,13 +22,13 @@ struct SMSForwardLogView: View {
                         Spacer()
                         if entry.pending {
                             // Held while the router had no link; the agent sends it on its own.
-                            Label("Held, will retry", systemImage: "clock.arrow.circlepath")
+                            Label("已暂存，将重试", systemImage: "clock.arrow.circlepath")
                                 .font(.caption)
                                 .foregroundStyle(.orange)
                         } else {
                             Image(systemName: entry.success ? "checkmark.circle.fill" : "xmark.circle.fill")
                                 .foregroundStyle(entry.success ? .green : .red)
-                                .accessibilityLabel(entry.success ? "Forwarded" : "Failed")
+                                .accessibilityLabel(entry.success ? "Forwarded" : "失败")
                         }
                     }
                     Text("\(entry.ruleName) → \(entry.destinationType)")
@@ -53,23 +53,23 @@ struct SMSForwardLogView: View {
                         Button {
                             Task { await viewModel.retryForward(index: index) }
                         } label: {
-                            Label("Retry", systemImage: "arrow.clockwise")
+                            Label("重试", systemImage: "arrow.clockwise")
                         }
                         .tint(.orange)
                     }
                 }
             }
         }
-        .navigationTitle("Forward Log")
+        .navigationTitle("转发日志")
         .toolbar {
-            Button("Clear") {
+            Button("清除") {
                 Task { await viewModel.clearLog() }
             }
         }
         .overlay {
             if viewModel.log.isEmpty && !viewModel.isLoading {
-                ContentUnavailableView("No Log Entries", systemImage: "doc.text",
-                                       description: Text("Forwarded messages will appear here"))
+                ContentUnavailableView("无日志条目", systemImage: "doc.text",
+                                       description: Text("转发的消息将出现在这里"))
             }
         }
         .task { await viewModel.fetchLog() }

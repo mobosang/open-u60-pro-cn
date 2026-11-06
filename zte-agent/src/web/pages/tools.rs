@@ -86,14 +86,14 @@ pub fn device_info(pd: &PageData) -> Markup {
         .map(|a| a.iter().filter_map(|e| e["address"].as_str()).filter(|a| !a.starts_with("fe80")).collect())
         .unwrap_or_default();
     html! {
-        (kit::section(Some("Device"), None, info_row("IMEI", &s("imei"))))
-        (kit::section(Some("Network"), None, html! {
+        (kit::section(Some("设备"), None, info_row("IMEI", &s("imei"))))
+        (kit::section(Some("网络"), None, html! {
             li.it {
-                span.muted { "Roaming" }
-                @if roaming { span.c-orange { "Roaming" } } @else { span.c-green { "Home" } }
+                span.muted { "漫游" }
+                @if roaming { span.c-orange { "漫游" } } @else { span.c-green { "本地网络" } }
             }
             li.it {
-                span.muted { "Signal" }
+                span.muted { "信号" }
                 span class=(bars_class(bars)) { (kit::icon(Icon::Bars)) }
                 span.muted.num { (bars) "/5" }
             }
@@ -103,7 +103,7 @@ pub fn device_info(pd: &PageData) -> Markup {
             @for a in &v6 { (info_row("IPv6", a)) }
             @if v6.is_empty() { (info_row("IPv6", "")) }
         }))
-        (kit::section(Some("LAN"), None, info_row("Gateway", &s("lan"))))
+        (kit::section(Some("LAN"), None, info_row("网关", &s("lan"))))
     }
 }
 
@@ -114,9 +114,9 @@ pub fn device_info(pd: &PageData) -> Markup {
 pub fn adb(pd: &PageData) -> Markup {
     html! {
         div.adb {
-            (kit::empty_state(Icon::Cable, "Enable ADB Debug", "Sets the USB mode to debug, enabling ADB access over USB-C."))
+            (kit::empty_state(Icon::Cable, "启用 ADB调试", "设置 USB 模式进行调试，允许通过 USB-C 进行 ADB 访问。"))
             @if let Some(n) = &pd.notice { (n) }
-            p.ctr { a.btn.btn-wide href=(super::confirm::ADB_ENABLE) { (kit::icon(Icon::Power)) " Enable ADB" } }
+            p.ctr { a.btn.btn-wide href=(super::confirm::ADB_ENABLE) { (kit::icon(Icon::Power)) " 启用 ADB" } }
         }
     }
 }
@@ -152,9 +152,9 @@ fn list(v: &Views, q: &str) -> Markup {
                     }
                 }))
             } @else if !q.is_empty() && !all.is_empty() {
-                (kit::empty_state(Icon::Search, &format!("No Results for \u{201c}{q}\u{201d}"), "Check the spelling or try a new search."))
+                (kit::empty_state(Icon::Search, &format!("“{q}” 没有结果"), "检查拼写或尝试新的搜索。"))
             } @else if !error {
-                (kit::empty_state(Icon::Wifi, "No Devices", "Nothing is connected to the router right now."))
+                (kit::empty_state(Icon::Wifi, "没有设备", "现在没有任何东西连接到路由器。"))
             }
         }
     }
@@ -168,9 +168,9 @@ pub fn devices(pd: &PageData) -> Markup {
         (render::live_snapshot(DEVICES))
         form.srch method="post" action=(DEVICES) role="search" {
             (pd.csrf())
-            input type="search" name="q" value=(q) placeholder="Search devices" aria-label="Search devices" autocomplete="off" maxlength="64";
-            button.btn.sm type="submit" { "Search" }
-            @if !q.is_empty() { a.nl href=(DEVICES) { "Cancel" } }
+            input type="search" name="q" value=(q) placeholder="搜索设备" aria-label="搜索设备" autocomplete="off" maxlength="64";
+            button.btn.sm type="submit" { "搜索" }
+            @if !q.is_empty() { a.nl href=(DEVICES) { "取消" } }
         }
         (list(pd.views, q))
     }
@@ -195,7 +195,7 @@ mod tests {
     #[test]
     fn only_the_imei_tail_is_kept() {
         let v = info(&json!({"imei": "000000000000042"}), &json!({"ipv4-address": [{"address": "192.168.0.1"}]}));
-        assert_eq!(v, json!({"imei": "\u{2026}0042", "lan": "192.168.0.1"}));
+        assert_eq!(v, json!({"imei": "…0042", "lan": "192.168.0.1"}));
         assert!(!v.to_string().contains("000000000000042"));
         assert_eq!(info(&json!({"imei": "12a"}), &Value::Null), json!({"imei": "", "lan": ""}));
         assert_eq!(info(&Value::Null, &Value::Null)["imei"], "");
@@ -233,13 +233,13 @@ mod tests {
         assert!(list(&v, "0.10").into_string().contains(">tv<"));
         // The hidden octets never match.
         let s = list(&v, "aa:bb").into_string();
-        assert!(s.contains("No Results for \u{201c}aa:bb\u{201d}") && !s.contains("Devices</h2>"), "{s}");
+        assert!(s.contains("“aa:bb” 没有结果") && !s.contains("Devices</h2>"), "{s}");
         // A failed read: the error row first.
         let slot = SlotView { version: 1, at: NOW, value_at: NOW, value: None, error: Some("ubus timed out".into()) };
         let s = list(&Views::new(NOW, vec![(Topic::Clients, slot)]), "").into_string();
         assert!(s.starts_with("<div id=\"cd-list\"><p") && s.contains("timed out"), "{s}");
         let none = views(&[(Topic::Clients, json!({"hosts": {}}))]);
-        assert!(list(&none, "").into_string().contains("No Devices"));
-        assert!(list(&none, "x").into_string().contains("No Devices"));
+        assert!(list(&none, "").into_string().contains("没有设备"));
+        assert!(list(&none, "x").into_string().contains("没有设备"));
     }
 }

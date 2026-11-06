@@ -127,7 +127,7 @@ final class AgentClient {
             authenticated: false
         ) { data -> String in
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                throw AgentError.decodingError("Expected JSON object from login")
+                throw AgentError.decodingError("登录响应不是 JSON 对象")
             }
             guard let ok = json["ok"] as? Bool, ok,
                   let dataDict = json["data"] as? [String: Any],
@@ -278,7 +278,7 @@ final class AgentClient {
                 throw AgentError.serverError(wrapper.error ?? "Unknown error")
             }
             guard let result = wrapper.data else {
-                throw AgentError.decodingError("Response ok but data is null")
+                throw AgentError.decodingError("响应成功，但数据为空")
             }
             return result
         } catch let error as AgentError {

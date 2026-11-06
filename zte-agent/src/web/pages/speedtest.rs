@@ -89,9 +89,9 @@ pub fn refresh(pd: &PageData) -> Option<String> {
 /// The app's `phaseLabel`.
 fn phase_label(phase: &str) -> String {
     match phase {
-        "latency" => "Testing Latency...".into(),
-        "download" => "Downloading...".into(),
-        "upload" => "Uploading...".into(),
+        "latency" => "测试延迟...".into(),
+        "download" => "正在下载...".into(),
+        "upload" => "正在上传...".into(),
         p => {
             let mut c = p.chars();
             c.next().map(|f| f.to_uppercase().chain(c).collect()).unwrap_or_default()
@@ -118,10 +118,10 @@ fn message(v: &Views) -> Markup {
     let watched = v.arg & 1 == 0 && v.slot(Topic::Speedtest).is_some_and(|s| s.version > v.arg >> 1);
     let p = progress(v).filter(|_| watched);
     let note = match p.and_then(|p| p["phase"].as_str()) {
-        Some("complete") => Some((true, "Speed test complete".to_owned())),
-        Some("cancelled") => Some((true, "Speed test cancelled".to_owned())),
+        Some("complete") => Some((true, "速度测试完成".to_owned())),
+        Some("cancelled") => Some((true, "速度测试取消".to_owned())),
         Some("error") => {
-            let e = p.and_then(|p| p["error"].as_str()).filter(|e| !e.is_empty()).unwrap_or("Speed test failed");
+            let e = p.and_then(|p| p["error"].as_str()).filter(|e| !e.is_empty()).unwrap_or("速度测试失败");
             Some((false, fmt::truncate(e, 120)))
         }
         _ => None,
@@ -171,16 +171,16 @@ fn results(v: &Views) -> Markup {
     };
     html! {
         div #st-res {
-            (kit::section(Some("Results"), None, html! {
-                (row("Ping", "ping_ms", "ms", 1).unwrap_or_default())
-                (row("Jitter", "jitter_ms", "ms", 1).unwrap_or_default())
-                (row("Download", "download_mbps", "Mbps", 2).unwrap_or_default())
-                (row("Upload", "upload_mbps", "Mbps", 2).unwrap_or_default())
+            (kit::section(Some("结果"), None, html! {
+                (row("延迟测试", "ping_ms", "ms", 1).unwrap_or_default())
+                (row("抖动", "jitter_ms", "ms", 1).unwrap_or_default())
+                (row("下载", "download_mbps", "Mbps", 2).unwrap_or_default())
+                (row("上传", "upload_mbps", "Mbps", 2).unwrap_or_default())
             }))
-            (kit::section(Some("Transfer"), None, html! {
-                (kit::kv_row(None, "Downloaded", &bytes(p["download_bytes"].as_u64().unwrap_or(0))))
-                (kit::kv_row(None, "Uploaded", &bytes(p["upload_bytes"].as_u64().unwrap_or(0))))
-                @if let Some(s) = p["server"].as_str().filter(|s| !s.is_empty()) { (kit::kv_row(None, "Server", s)) }
+            (kit::section(Some("传输量"), None, html! {
+                (kit::kv_row(None, "已下载", &bytes(p["download_bytes"].as_u64().unwrap_or(0))))
+                (kit::kv_row(None, "已上传", &bytes(p["upload_bytes"].as_u64().unwrap_or(0))))
+                @if let Some(s) = p["server"].as_str().filter(|s| !s.is_empty()) { (kit::kv_row(None, "服务器", s)) }
             }))
         }
     }
@@ -209,18 +209,18 @@ pub fn page(pd: &PageData) -> Markup {
     html! {
         (render::live_snapshot(PATH))
         @if let Some(Err(e)) = pd.reads.first() {
-            p.msg.err role="alert" { "Failed to load servers: " (fmt::truncate(e, 120)) }
+            p.msg.err role="alert" { "加载服务器失败：" (fmt::truncate(e, 120)) }
         }
         (message(v))
         @if let Some(n) = &pd.notice { (n) }
         // The picker and Start belong to this GET form (`form=`), which
         // asks first; Stop has a form of its own.
         form #st-go method="get" action=(START) {}
-        (kit::section(Some("Server"), None, html! {
+        (kit::section(Some("服务器"), None, html! {
             li.it {
-                label for="srv" { "Server" }
+                label for="srv" { "服务器" }
                 select #srv name="server" form="st-go" {
-                    option value="" selected[chosen.is_none()] { "Select a server" }
+                    option value="" selected[chosen.is_none()] { "选择服务器" }
                     @for s in &servers {
                         @if let Some(id) = id_of(s) { option value=(id) selected[Some(id) == chosen] { (server_label(s)) } }
                     }
@@ -228,15 +228,15 @@ pub fn page(pd: &PageData) -> Markup {
             }
         }))
         section.group {
-            h2 { "Controls" }
+            h2 { "控制" }
             ul.list {
                 (controls(v))
-                li.go { button.it.cv.snd type="submit" form="st-go" { "Start Speed Test" } }
+                li.go { button.it.cv.snd type="submit" form="st-go" { "启动速度测试" } }
                 li.halt {
                     form.sf method="post" action=(STOP) {
                         (pd.csrf())
                         input type="hidden" name="server" value=(chosen.unwrap_or(0));
-                        button.it.cv.snd.danger type="submit" { "Stop Test" }
+                        button.it.cv.snd.danger type="submit" { "停止测试" }
                     }
                 }
             }
@@ -262,9 +262,9 @@ pub fn stop_at(v: &Valid) -> String {
 /// The app's "Speed test stopped"; a test that had already ended: said so.
 pub fn stopped(_: &Valid, data: &Value) -> (Option<bool>, String) {
     if data["status"] == "stopping" {
-        (Some(true), "Speed test stopped".into())
+        (Some(true), "速度测试停止".into())
     } else {
-        (None, "No speed test is running.".into())
+        (None, "没有运行速度测试。".into())
     }
 }
 
@@ -289,8 +289,8 @@ mod tests {
         assert_eq!(bytes(1536), "1.5 KB");
         assert_eq!(bytes(10_000_000), "9.5 MB");
         assert_eq!(bytes(3 * 1024 * 1024 * 1024), "3.00 GB");
-        assert_eq!(phase_label("latency"), "Testing Latency...");
-        assert_eq!(phase_label("upload"), "Uploading...");
+        assert_eq!(phase_label("latency"), "测试延迟...");
+        assert_eq!(phase_label("upload"), "正在上传...");
         assert_eq!(phase_label("idle"), "Idle");
         assert_eq!(phase_label(""), "");
     }
@@ -301,8 +301,8 @@ mod tests {
     fn fragments_follow_the_phase() {
         let v = views(json!({"phase": "download", "progress": 42, "live_speed_mbps": 87.26, "server": "S (N)"}));
         let run = controls(&v).into_string();
-        assert!(run.starts_with("<li class=\"it fld run\" id=\"st-run\"><span class=\"row\"><span>Downloading...</span><span class=\"muted num\">42%</span></span>"), "{run}");
-        assert!(run.contains("<progress max=\"100\" value=\"42\" aria-label=\"Downloading...\"></progress>"));
+        assert!(run.starts_with("<li class=\"it fld run\" id=\"st-run\"><span class=\"row\"><span>正在下载...</span><span class=\"muted num\">42%</span></span>"), "{run}");
+        assert!(run.contains("<progress max=\"100\" value=\"42\" aria-label=\"正在下载...\"></progress>"));
         assert!(run.contains("<b class=\"num\">87.3</b> <span class=\"muted\">Mbps</span>"), "{run}");
         assert_eq!(message(&v).into_string(), "<div id=\"st-msg\"></div>");
         assert_eq!(results(&v).into_string(), "<div id=\"st-res\"></div>");
@@ -311,17 +311,17 @@ mod tests {
             "upload_mbps": 20.0, "download_bytes": 240_000_000u64, "upload_bytes": 10_000_000, "server": "Example <b>Net</b> (Town)",
         }));
         assert_eq!(controls(&done).into_string(), "<li class=\"it\" id=\"st-run\"></li>");
-        assert!(message(&done).into_string().contains("<p class=\"msg ok\" role=\"status\">Speed test complete</p>"));
+        assert!(message(&done).into_string().contains("<p class=\"msg ok\" role=\"status\">速度测试完成</p>"));
         let r = results(&done).into_string();
-        for want in ["<span>Ping</span><span class=\"v\">21.5 ms</span>", "<span>Download</span><span class=\"v\">123.46 Mbps</span>",
-            "<span>Downloaded</span><span class=\"v\">228.9 MB</span>", "<span>Uploaded</span><span class=\"v\">9.5 MB</span>",
+        for want in ["<span>延迟测试</span><span class=\"v\">21.5 ms</span>", "<span>下载</span><span class=\"v\">123.46 Mbps</span>",
+            "<span>已下载</span><span class=\"v\">228.9 MB</span>", "<span>已上传</span><span class=\"v\">9.5 MB</span>",
             "<span class=\"v\">Example &lt;b&gt;Net&lt;/b&gt; (Town)</span>"] {
             assert!(r.contains(want), "{want} in {r}");
         }
         let err = views(json!({"phase": "error", "error": "all ping attempts failed"}));
         assert!(message(&err).into_string().contains("<p class=\"msg err\" role=\"alert\">all ping attempts failed</p>"));
-        assert!(message(&views(json!({"phase": "error"}))).into_string().contains(">Speed test failed<"));
-        assert!(message(&views(json!({"phase": "cancelled"}))).into_string().contains(">Speed test cancelled<"));
+        assert!(message(&views(json!({"phase": "error"}))).into_string().contains(">速度测试失败<"));
+        assert!(message(&views(json!({"phase": "cancelled"}))).into_string().contains(">速度测试取消<"));
         // Only an end after the watch point (version 1 here) shows; never
         // on the page Stop led to.
         for arg in [2, 1, 3] {

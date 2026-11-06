@@ -39,7 +39,7 @@ struct CPUDetailSheet: View {
         NavigationStack {
             List {
                 HStack {
-                    Label("CPU Usage", systemImage: "cpu")
+                    Label("CPU 使用率", systemImage: "cpu")
                     Spacer()
                     if cpuAvailable {
                         CPUUsageValue(value: systemInfo.cpuUsagePercent, font: .body, color: .secondary)
@@ -48,25 +48,25 @@ struct CPUDetailSheet: View {
                 if systemInfo.cpuUsagePercent > 0 && systemInfo.cpuUsageIsEstimate {
                     row("Usage Source", icon: "info.circle", value: "Estimated")
                 }
-                row("CPU Cores", icon: "square.grid.2x2", value: "\(systemInfo.cpuCores)")
+                row("CPU 核心", icon: "square.grid.2x2", value: "\(systemInfo.cpuCores)")
                 HStack {
-                    Label("CPU · hottest sensor", systemImage: "thermometer.medium")
+                    Label("CPU·最热传感器", systemImage: "thermometer.medium")
                     Spacer()
                     TemperatureValueText(value: thermal.cpuTemp).foregroundStyle(.secondary)
                 }
-                row("Uptime", icon: "clock", value: formatUptime(systemInfo.uptime))
-                row("Memory Total", icon: "memorychip", value: formatBytes(systemInfo.memTotal))
-                row("Memory Free", icon: "memorychip", value: formatBytes(systemInfo.memFree))
+                row("正常运行时间", icon: "clock", value: formatUptime(systemInfo.uptime))
+                row("内存总量", icon: "memorychip", value: formatBytes(systemInfo.memTotal))
+                row("可用内存", icon: "memorychip", value: formatBytes(systemInfo.memFree))
                 if systemInfo.memTotal > 0 {
                     let used = Double(systemInfo.memTotal - systemInfo.memFree) / Double(systemInfo.memTotal) * 100
-                    row("Memory Used", icon: "chart.bar", value: String(format: "%.0f%%", used))
+                    row("已用内存", icon: "chart.bar", value: String(format: "%.0f%%", used))
                 }
 
                 Button {
                     showProcessList = true
                 } label: {
                     HStack {
-                        Label("Processes", systemImage: "list.number")
+                        Label("进程", systemImage: "list.number")
                         Spacer()
                         if !bloatSummary.isEmpty {
                             Text(bloatSummary)
@@ -80,7 +80,7 @@ struct CPUDetailSheet: View {
                 }
                 .foregroundStyle(.primary)
             }
-            .navigationTitle("CPU & Memory")
+            .navigationTitle("中央处理器和内存")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showProcessList) {
                 ProcessListSheet(client: client)
@@ -95,7 +95,7 @@ struct CPUDetailSheet: View {
         do {
             let result: ProcessListResponse = try await client.get("/api/system/top")
             if result.bloatCount > 0 {
-                bloatSummary = "\(result.bloatCount) bloat \(String(format: "%.0f", result.bloatCpuPct))%"
+                bloatSummary = "\(result.bloatCount) 个冗余进程，占用 \(String(format: "%.0f", result.bloatCpuPct))%"
             }
         } catch {
             // Silently ignore — summary is optional
@@ -143,13 +143,13 @@ struct TemperatureCardView: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: 16) {
-                Label("Temperatures", systemImage: "thermometer.medium")
+                Label("温度", systemImage: "thermometer.medium")
                     .font(.headline)
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     VStack(alignment: .leading, spacing: 12) {
-                        temperatureRow("CPU · hottest sensor", icon: "cpu",
+                        temperatureRow("CPU·最热传感器", icon: "cpu",
                             value: thermal.cpuTemp, fresh: isFresh(thermalUpdatedAt, at: context.date))
-                        temperatureRow("Battery", icon: "battery.100",
+                        temperatureRow("电池", icon: "battery.100",
                             value: battery.temperature,
                             fresh: isFresh(batteryUpdatedAt, at: context.date))
                         ForEach(summarySensors) { sensor in
@@ -162,7 +162,7 @@ struct TemperatureCardView: View {
                     }
                 }
                 if !thermal.sensors.isEmpty {
-                    DisclosureGroup("All sensors", isExpanded: $showAllSensors) {
+                    DisclosureGroup("所有传感器", isExpanded: $showAllSensors) {
                         VStack(alignment: .leading, spacing: 12) {
                             ForEach(thermal.sensors) { sensor in
                                 HStack(alignment: .firstTextBaseline) {
@@ -176,7 +176,7 @@ struct TemperatureCardView: View {
                                     if let temperature = sensor.temperatureC {
                                         TemperatureValueText(value: temperature)
                                     } else {
-                                        Text("Unavailable").font(.caption).foregroundStyle(.secondary)
+                                        Text("不可用").font(.caption).foregroundStyle(.secondary)
                                     }
                                 }
                                 .accessibilityElement(children: .combine)
@@ -186,7 +186,7 @@ struct TemperatureCardView: View {
                     }
                     .font(.subheadline)
                 }
-                Text("CPU shows the hottest CPU zone. Board numbers follow the device’s sensor names. Unavailable means the device is not reporting a valid temperature.")
+                Text("CPU 显示最热的 CPU 区域。板号遵循设备的传感器名称。不可用意味着设备未报告有效的温度。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -203,9 +203,9 @@ struct TemperatureCardView: View {
     }
 
     private func freshnessText(at now: Date) -> String {
-        guard let thermalUpdatedAt else { return "Temperature readings unavailable · retrying automatically" }
+        guard let thermalUpdatedAt else { return "温度读数不可用·自动重试" }
         let seconds = max(0, Int(now.timeIntervalSince(thermalUpdatedAt)))
-        return seconds < 10 ? "Updated \(seconds)s ago · refreshes every 2s" : "Last sample \(seconds)s ago · waiting for device"
+        return seconds < 10 ? "更新于 \(seconds) 秒前 · 每 2 秒刷新" : "最后采样于 \(seconds) 秒前 · 等待设备"
     }
 
     private func temperatureRow(_ title: String, icon: String, value: Double?, fresh: Bool) -> some View {
@@ -213,7 +213,7 @@ struct TemperatureCardView: View {
             Label(title, systemImage: icon).font(.subheadline)
             Spacer()
             if fresh && value == nil {
-                Text("Unavailable").font(.caption).foregroundStyle(.secondary)
+                Text("不可用").font(.caption).foregroundStyle(.secondary)
             } else {
                 TemperatureValueText(value: fresh ? value : nil).font(.body.weight(.semibold))
             }

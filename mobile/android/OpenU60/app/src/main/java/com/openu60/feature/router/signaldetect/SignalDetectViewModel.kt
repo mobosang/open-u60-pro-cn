@@ -65,7 +65,7 @@ class SignalDetectViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     status = _state.value.status.copy(results = results),
                     isLoading = false,
-                    message = "Scan complete: ${results.size} results",
+                    message = "扫描完成：${results.size} 结果",
                     messageIsError = false,
                 )
             } catch (e: AgentError.Unauthorized) {

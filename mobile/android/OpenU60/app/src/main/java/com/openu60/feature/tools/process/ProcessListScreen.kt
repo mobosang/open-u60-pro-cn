@@ -41,10 +41,10 @@ fun ProcessListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Processes") },
+                title = { Text("进程") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -55,7 +55,7 @@ fun ProcessListScreen(
                                 contentColor = MaterialTheme.colorScheme.error,
                             ),
                         ) {
-                            Text("Kill All Bloat")
+                            Text("结束所有冗余进程")
                         }
                     }
                 },
@@ -140,8 +140,8 @@ fun ProcessListScreen(
     if (showKillAllConfirm) {
         AlertDialog(
             onDismissRequest = { showKillAllConfirm = false },
-            title = { Text("Kill All Bloat Daemons?") },
-            text = { Text("This will SIGKILL ${state.bloatCount} bloat daemons. They will return on reboot.") },
+            title = { Text("结束所有冗余守护进程？") },
+            text = { Text("将使用 SIGKILL 结束 ${state.bloatCount} 个冗余守护进程，重启后会恢复。") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -152,12 +152,12 @@ fun ProcessListScreen(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text("Kill All")
+                    Text("结束所有")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showKillAllConfirm = false }) {
-                    Text("Cancel")
+                    Text("取消")
                 }
             },
         )
@@ -169,7 +169,7 @@ fun ProcessListScreen(
         AlertDialog(
             onDismissRequest = { killSinglePid = null },
             title = { Text("Kill ${proc?.name ?: "PID $pid"}?") },
-            text = { Text("SIGKILL PID $pid. It will return on reboot.") },
+            text = { Text("SIGKILL PID $pid。它将在重新启动时返回。") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -180,12 +180,12 @@ fun ProcessListScreen(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text("Kill")
+                    Text("结束进程")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { killSinglePid = null }) {
-                    Text("Cancel")
+                    Text("取消")
                 }
             },
         )
@@ -247,7 +247,7 @@ private fun ProcessRow(
                 IconButton(onClick = onKill, modifier = Modifier.size(32.dp)) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Kill",
+                        contentDescription = "结束进程",
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp),
                     )

@@ -26,7 +26,7 @@ struct ClientsView: View {
             }
 
             if !filteredDevices.isEmpty {
-                Section("\(filteredDevices.count) Devices") {
+                Section("\(filteredDevices.count) 台设备") {
                     ForEach(filteredDevices) { device in
                         VStack(alignment: .leading, spacing: 4) {
                             Text(device.displayName)
@@ -46,8 +46,8 @@ struct ClientsView: View {
                 }
             }
         }
-        .navigationTitle("Connected Devices")
-        .searchable(text: $searchText, prompt: "Search devices")
+        .navigationTitle("已连接设备")
+        .searchable(text: $searchText, prompt: "搜索设备")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.devices.isEmpty {
@@ -55,9 +55,9 @@ struct ClientsView: View {
                     ProgressView()
                 } else if viewModel.error == nil {
                     ContentUnavailableView {
-                        Label("No Devices", systemImage: "wifi.slash")
+                        Label("没有设备", systemImage: "wifi.slash")
                     } description: {
-                        Text("Nothing is connected to the router right now.")
+                        Text("现在没有任何东西连接到路由器。")
                     }
                 }
             } else if filteredDevices.isEmpty {

@@ -14,17 +14,17 @@ struct USBModeSheetView: View {
                     .foregroundStyle(.blue)
                     .accessibilityHidden(true)
 
-                Text("USB-C Connected")
+                Text("USB-C 已连接")
                     .font(.title2.bold())
 
-                Text("A USB-C cable is attached to your U60 Pro.")
+                Text("U60 Pro 上连接有一条 USB-C 电缆。")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
 
                 if viewModel.usbStatus.powerbankActive {
-                    Label("Fast charging is active", systemImage: "bolt.fill")
+                    Label("快速充电已启动", systemImage: "bolt.fill")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.orange)
                         .padding(.horizontal, 32)
@@ -49,7 +49,7 @@ struct USBModeSheetView: View {
                                 ProgressView()
                                     .tint(.white)
                             } else {
-                                Label("Fast Charging", systemImage: "bolt.fill")
+                                Label("快速充电", systemImage: "bolt.fill")
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -59,14 +59,14 @@ struct USBModeSheetView: View {
                     .tint(.orange)
                     .padding(.horizontal, 40)
                     .disabled(viewModel.isLoading)
-                    .accessibilityLabel("Fast Charging")
+                    .accessibilityLabel("快速充电")
 
-                    Text("Charge your phone using the U60 Pro battery")
+                    Text("使用U60 Pro电池给手机充电")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
-                Button("Dismiss") {
+                Button("驳回") {
                     dismiss()
                 }
                 .padding(.top, 8)
@@ -74,11 +74,11 @@ struct USBModeSheetView: View {
                 Spacer()
                 Spacer()
             }
-            .navigationTitle("USB Mode")
+            .navigationTitle("USB 模式")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
+                    Button("关闭") { dismiss() }
                 }
             }
         }

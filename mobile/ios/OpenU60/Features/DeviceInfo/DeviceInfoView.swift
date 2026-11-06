@@ -5,11 +5,11 @@ struct DeviceInfoView: View {
 
     var body: some View {
         List {
-            Section("Device") {
+            Section("设备") {
                 infoRow("IMEI", viewModel.identity.imei)
             }
 
-            Section("Network") {
+            Section("网络") {
                 roamingRow
                 signalBarsRow
             }
@@ -25,10 +25,10 @@ struct DeviceInfoView: View {
             }
 
             Section("LAN") {
-                infoRow("Gateway", viewModel.identity.lanIP)
+                infoRow("网关", viewModel.identity.lanIP)
             }
         }
-        .navigationTitle("Device Info")
+        .navigationTitle("设备信息")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {
@@ -55,10 +55,10 @@ struct DeviceInfoView: View {
     private var roamingRow: some View {
         let roaming = viewModel.operatorInfo.roaming
         return HStack {
-            Text("Roaming")
+            Text("漫游")
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(roaming ? "Roaming" : "Home")
+            Text(roaming ? "漫游" : "本地网络")
                 .font(.body.monospacedDigit())
                 .foregroundStyle(roaming ? .orange : .green)
         }
@@ -68,7 +68,7 @@ struct DeviceInfoView: View {
         let bars = viewModel.operatorInfo.signalBar
         let maxBars = 5
         return HStack {
-            Text("Signal")
+            Text("信号")
                 .foregroundStyle(.secondary)
             Spacer()
             Image(systemName: "cellularbars")

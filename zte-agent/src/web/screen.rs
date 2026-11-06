@@ -374,7 +374,7 @@ fn notice_markup(s: &Screen, n: Notice) -> Markup {
         // The app's result lines are green.
         Notice::Flash(Some(true), msg) => html! { p.msg.ok role="status" { (msg) } },
         Notice::Flash(ok, msg) => kit::notice(ok.is_none(), &msg),
-        Notice::Failed(e) => kit::notice(false, &format!("Failed: {}", super::fmt::truncate(&e, 120))),
+        Notice::Failed(e) => kit::notice(false, &format!("失败：{}", super::fmt::truncate(&e, 120))),
     }
 }
 
@@ -436,7 +436,7 @@ fn build(
         Bar::Back(href, label) => (kit::back(href, label), html! {}),
         Bar::BackLink(href, label, to, text) => (kit::back(href, label), html! { a.nl href=(to) { (text) } }),
         Bar::Done(href) => (html! {}, kit::done(href)),
-        Bar::Cancel(href) => (html! { a.nl href=(href) { "Cancel" } }, html! {}),
+        Bar::Cancel(href) => (html! { a.nl href=(href) { "取消" } }, html! {}),
         Bar::AgeDone(age, href) => (age(&views), kit::done(href)),
         Bar::DoneTrail(href, trail) => (kit::done(href), trail(&views)),
         Bar::Status(trail) => (render::status_pill(s.path), html! { (trail(&views)) (render::snapshot_age()) }),

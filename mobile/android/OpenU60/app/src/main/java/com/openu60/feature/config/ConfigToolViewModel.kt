@@ -104,7 +104,7 @@ class ConfigToolViewModel @Inject constructor(
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    error = "Decryption failed: ${e.message}",
+                    error = "解密失败：${e.message}",
                 )
             }
         }
@@ -138,7 +138,7 @@ class ConfigToolViewModel @Inject constructor(
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    error = "Encryption failed: ${e.message}",
+                    error = "加密失败：${e.message}",
                 )
             }
         }
@@ -152,7 +152,7 @@ class ConfigToolViewModel @Inject constructor(
                     context.contentResolver.openOutputStream(uri)?.use { it.write(data) }
                 }
             } catch (e: Exception) {
-                _state.value = _state.value.copy(error = "Export failed: ${e.message}")
+                _state.value = _state.value.copy(error = "导出失败：${e.message}")
             }
         }
     }

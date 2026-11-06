@@ -21,55 +21,55 @@ const fn to(href: &'static str, label: &'static str, icon: Icon, sub: &'static s
     Item { label, icon, href, sub }
 }
 
-const SHELL: &str = "Requires ADB USB connection";
+const SHELL: &str = "需要 ADB USB 连接";
 
 pub static TOOLS: Screen = Screen {
     path: "/ui/tools",
     id: "tools",
-    title: "Tools",
+    title: "工具",
     tab: Tab::Tools,
     blocks: &[
         Block::Links(
-            "Automation",
+            "自动化任务",
             &[
-                to(automations::LIST, "Automations", Icon::ClockArrow, "Schedule automated tasks"),
-                to("/ui/tools/sms-forward", "SMS Forwarding", Icon::EnvelopeBranch, "Auto-forward SMS to Telegram, webhooks, etc."),
+                to(automations::LIST, "自动化", Icon::ClockArrow, "安排自动化任务"),
+                to("/ui/tools/sms-forward", "短信转发", Icon::EnvelopeBranch, "自动转发短信到Telegram、webhooks等。"),
             ],
         ),
         Block::Links(
-            "Network Tools",
+            "网络工具",
             &[
-                to(speedtest::PATH, "Speed Test", Icon::Gauge, "Test WAN throughput"),
-                to("/ui/tools/lan-speedtest", "LAN Speed Test", Icon::Wifi, "Test WiFi link to router"),
-                to(confirm::ADB, "Enable ADB", Icon::Cable, "Enable USB debug mode"),
-                to(usb::MODE, "USB Mode", Icon::UsbC, "USB mode and powerbank control"),
-                to(bandlock::PATH, "Band Lock", Icon::Lock, "Lock NR/LTE bands"),
-                to(at::PATH, "AT Terminal", Icon::Terminal, "Send raw AT commands to modem"),
-                to(tools::DEVICE_INFO, "Device Info", Icon::Info, "SIM, IMEI, WAN IPs"),
-                to(tools::DEVICES, "Connected Devices", Icon::Laptop, "View connected clients and DHCP leases"),
+                to(speedtest::PATH, "速度测试", Icon::Gauge, "测试 WAN 吞吐量"),
+                to("/ui/tools/lan-speedtest", "局域网速度测试", Icon::Wifi, "测试 WiFi 到路由器的链路"),
+                to(confirm::ADB, "启用 ADB", Icon::Cable, "启用USB调试模式"),
+                to(usb::MODE, "USB 模式", Icon::UsbC, "USB 模式和移动电源控制"),
+                to(bandlock::PATH, "频段锁定", Icon::Lock, "锁定NR/LTE频段"),
+                to(at::PATH, "AT 终端", Icon::Terminal, "发送原始 AT 命令到调制解调器"),
+                to(tools::DEVICE_INFO, "设备信息", Icon::Info, "SIM, IMEI, WAN IPs"),
+                to(tools::DEVICES, "已连接设备", Icon::Laptop, "查看已连接的客户端和 DHCP 租约"),
             ],
         ),
-        Block::Links("Config", &[to("/ui/tools/config", "Config Decrypt/Encrypt", Icon::Doc, "Offline ZXHN config file tool")]),
+        Block::Links("配置", &[to("/ui/tools/config", "配置解密/加密", Icon::Doc, "离线ZXHN配置文件工具")]),
         Block::Links(
-            "Shell Access Required",
+            "需要 Shell 访问",
             &[
-                to("/ui/tools/ttl", "TTL Settings", Icon::Number, SHELL),
-                to("/ui/tools/ssh", "Enable SSH", Icon::Terminal, SHELL),
-                to("/ui/tools/explorer", "Device Explorer", Icon::Folder, SHELL),
+                to("/ui/tools/ttl", "TTL设置", Icon::Number, SHELL),
+                to("/ui/tools/ssh", "启用SSH", Icon::Terminal, SHELL),
+                to("/ui/tools/explorer", "设备资源管理器", Icon::Folder, SHELL),
             ],
         ),
     ],
     ..Screen::BLANK
 };
 
-const BACK: Bar = Bar::Back("/ui/tools", "Tools");
+const BACK: Bar = Bar::Back("/ui/tools", "工具");
 const PUSHED: Screen = Screen { tab: Tab::Tools, bar: BACK, ..Screen::BLANK };
 
 /// The app's USB Mode, read at page load (as the app's, which reads it once).
 pub static USB_MODE: Screen = Screen {
     path: usb::MODE,
     id: "usbmode",
-    title: "USB Mode",
+    title: "USB 模式",
     topics: &[Topic::Usb, Topic::Charger],
     blocks: &[Block::Custom(usb::mode_page)],
     ..PUSHED
@@ -100,7 +100,7 @@ pub static USB_POWERBANK: Action = Action {
 pub static SPEEDTEST: Screen = Screen {
     path: speedtest::PATH,
     id: "speedtest",
-    title: "Speed Test",
+    title: "速度测试",
     topics: &[Topic::Speedtest],
     reads: &[Read::Api(speedtest::SERVERS)],
     live: &speedtest::FRAGMENTS,
@@ -132,7 +132,7 @@ pub static SPEEDTEST_STOP: Action = Action {
 pub static ADB: Screen = Screen {
     path: confirm::ADB,
     id: "adb",
-    title: "Enable ADB",
+    title: "启用 ADB",
     blocks: &[Block::Custom(tools::adb)],
     own_notice: true,
     ..PUSHED
@@ -142,7 +142,7 @@ pub static ADB: Screen = Screen {
 pub static BAND_LOCK: Screen = Screen {
     path: bandlock::PATH,
     id: "bandlock",
-    title: "Band Lock",
+    title: "频段锁定",
     blocks: &[Block::Custom(bandlock::page)],
     ..PUSHED
 };
@@ -151,7 +151,7 @@ pub static BAND_LOCK: Screen = Screen {
 pub static AT: Screen = Screen {
     path: at::PATH,
     id: "at",
-    title: "AT Terminal",
+    title: "AT 终端",
     reads: &[Read::Api("/api/at/port")],
     blocks: &[Block::Custom(at::page)],
     ..PUSHED
@@ -179,7 +179,7 @@ pub static AT_CLEAR: Action = Action {
 pub static DEVICE_INFO: Screen = Screen {
     path: tools::DEVICE_INFO,
     id: "deviceinfo",
-    title: "Device Info",
+    title: "设备信息",
     topics: &[Topic::Wan, Topic::Signal],
     reads: &[Read::Fn(tools::info_read)],
     blocks: &[Block::Custom(tools::device_info)],
@@ -190,7 +190,7 @@ pub static DEVICE_INFO: Screen = Screen {
 pub static DEVICES: Screen = Screen {
     path: tools::DEVICES,
     id: "devices",
-    title: "Connected Devices",
+    title: "已连接设备",
     topics: &[Topic::Clients],
     live: &tools::FRAGMENTS,
     blocks: &[Block::Custom(tools::devices)],
@@ -203,12 +203,12 @@ pub static DEVICES: Screen = Screen {
 pub static LAN_SPEED: Screen = Screen {
     path: "/ui/tools/lan-speedtest",
     id: "lanspeed",
-    title: "LAN Speed Test",
+    title: "局域网速度测试",
     blocks: &[Block::Empty(
         Icon::Wifi,
-        "LAN Speed Test",
-        "Measures WiFi link speed between this device and the router. Does not use internet data.",
-        "LAN Speed Test is in the OpenU60 app.",
+        "局域网速度测试",
+        "测量该设备和路由器之间的 WiFi 链路速度。不使用互联网数据。",
+        "LAN 速度测试位于 OpenU60 应用程序中。",
     )],
     ..PUSHED
 };
@@ -217,32 +217,32 @@ pub static LAN_SPEED: Screen = Screen {
 pub static CONFIG: Screen = Screen {
     path: "/ui/tools/config",
     id: "configtool",
-    title: "Config Tool",
-    blocks: &[Block::Empty(Icon::Doc, "Config Tool", "Offline ZXHN config file tool.", "Config Decrypt/Encrypt is in the OpenU60 app.")],
+    title: "配置工具",
+    blocks: &[Block::Empty(Icon::Doc, "配置工具", "离线ZXHN配置文件工具。", "配置解密/加密位于 OpenU60 应用程序中。")],
     ..PUSHED
 };
 
 pub static TTL: Screen = Screen {
     path: "/ui/tools/ttl",
     id: "ttl",
-    title: "TTL Settings",
-    blocks: &[Block::Empty(Icon::Number, "TTL Settings", "Set TTL override via iptables. Requires shell access.", "")],
+    title: "TTL设置",
+    blocks: &[Block::Empty(Icon::Number, "TTL设置", "通过 iptables 设置 TTL 覆盖。需要外壳访问权限。", "")],
     ..PUSHED
 };
 
 pub static SSH: Screen = Screen {
     path: "/ui/tools/ssh",
     id: "ssh",
-    title: "Enable SSH",
-    blocks: &[Block::Empty(Icon::Terminal, "Enable SSH", "Install and start dropbear SSH server. Requires ADB USB connection.", "")],
+    title: "启用SSH",
+    blocks: &[Block::Empty(Icon::Terminal, "启用SSH", "安装并启动dropbear SSH服务器。需要 ADB USB 连接。", "")],
     ..PUSHED
 };
 
 pub static EXPLORER: Screen = Screen {
     path: "/ui/tools/explorer",
     id: "explorer",
-    title: "Device Explorer",
-    blocks: &[Block::Empty(Icon::Folder, "Device Explorer", "Browse filesystem and collect device info. Requires ADB USB connection.", "")],
+    title: "设备资源管理器",
+    blocks: &[Block::Empty(Icon::Folder, "设备资源管理器", "浏览文件系统并收集设备信息。需要 ADB USB 连接。", "")],
     ..PUSHED
 };
 
@@ -253,7 +253,7 @@ const JOBS: &[Read] = &[Read::Api(automations::JOBS)];
 pub static AUTOMATIONS: Screen = Screen {
     path: automations::LIST,
     id: "automations",
-    title: "Automations",
+    title: "自动化",
     reads: JOBS,
     saved: &automations::SAVED,
     saved_ok: true,
@@ -266,8 +266,8 @@ pub static AUTOMATIONS: Screen = Screen {
 pub static AUTO_DELETE: Screen = Screen {
     path: automations::DELETE,
     id: "autodelete",
-    title: "Confirm",
-    bar: Bar::Back(automations::LIST, "Automations"),
+    title: "确认",
+    bar: Bar::Back(automations::LIST, "自动化"),
     reads: JOBS,
     blocks: &[Block::Custom(automations::ask_delete)],
     status: Some(automations::ask_status),

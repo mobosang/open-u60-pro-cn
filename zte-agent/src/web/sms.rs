@@ -20,7 +20,7 @@
 //! - **Times**: one offset for every SMS page, the router's local time
 //!   zone (the zone its schedules use). Message dates carry their own
 //!   offset and are converted; list labels count from the router clock,
-//!   in the app's abbreviated words ("5 min. ago", "in 2 min."), or the
+//!   in the app's abbreviated words ("5分钟前", "in 2 min."), or the
 //!   date while the router clock is unset.
 
 use serde_json::{json, Value};
@@ -95,7 +95,7 @@ pub enum Store {
 impl Store {
     /// The segmented control: value, label (iOS `SMSStorageFilter`).
     pub const OPTIONS: [(Store, &'static str, &'static str); 3] =
-        [(Store::All, "all", "All"), (Store::Internal, "internal", "Internal"), (Store::Sim, "sim", "SIM")];
+        [(Store::All, "all", "全部"), (Store::Internal, "internal", "内部"), (Store::Sim, "sim", "SIM")];
 
     /// `store=`: none or empty is All; an unknown value is `None`.
     pub fn parse(v: Option<&str>) -> Option<Store> {
@@ -196,11 +196,11 @@ pub fn length(text: &str) -> (usize, usize, usize) {
 /// addition; the app does not check).
 pub fn check_text(text: &str) -> Result<(), String> {
     if text.trim().is_empty() {
-        return Err("Enter a message.".into());
+        return Err("输入消息。".into());
     }
     match length(text) {
-        (n, max, _) if n > max && max == 765 => Err("Enter at most 765 characters.".into()),
-        (n, max, _) if n > max => Err(format!("Enter at most {max} characters (this text needs Unicode).")),
+        (n, max, _) if n > max && max == 765 => Err("最多输入 765 个字符。".into()),
+        (n, max, _) if n > max => Err(format!("最多输入{max}个字符（此文本需要Unicode）。")),
         _ => Ok(()),
     }
 }
@@ -224,9 +224,9 @@ pub fn clean_number(n: &str) -> String {
 /// blank, at most 32 digits, letters, `+ * #`.
 pub fn check_number(n: &str) -> Result<(), String> {
     if n.is_empty() {
-        Err("Enter a phone number.".into())
+        Err("输入电话号码。".into())
     } else if n.chars().count() > 32 || !n.chars().all(|c| c.is_ascii_alphanumeric() || "+*#".contains(c)) {
-        Err("Enter at most 32 digits, letters, spaces, +, * or #.".into())
+        Err("最多输入 32 个数字、字母、空格、+、* 或 #。".into())
     } else {
         Ok(())
     }
@@ -292,7 +292,7 @@ pub fn local_offset(now: i64) -> i64 {
     }
 }
 
-const MONTHS: [&str; 12] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS: [&str; 12] = ["一月", "二月", "三月", "四月", "五月", "君", "七月", "八月", "九月", "十月", "十一月", "十二月"];
 
 /// (civil date, seconds into the day) at `t` in the offset `off`.
 pub fn local(t: i64, off: i64) -> ((i64, i64, i64), i64) {
@@ -334,8 +334,8 @@ fn months_between(a: i64, b: i64, off: i64) -> i64 {
 }
 
 /// The app's list time (`RelativeDateTimeFormatter`, abbreviated): the
-/// largest whole unit, "5 sec. ago" … "2 yr. ago", "in 3 min." for a time
-/// ahead of the router clock (as the app, "in 0 sec." for now). While the
+/// largest whole unit, "5秒前" … "2 yr. ago", "in 3 min." for a time
+/// ahead of the router clock (as the app, "0秒后" for now). While the
 /// router clock is unset, the date.
 pub fn relative(t: i64, now: i64, off: i64) -> String {
     if now < CLOCK_SET {
@@ -344,23 +344,23 @@ pub fn relative(t: i64, now: i64, off: i64) -> String {
     let (a, b) = if t < now { (t, now) } else { (now, t) };
     let secs = b - a;
     let (n, unit) = if secs < 60 {
-        (secs, "sec.")
+        (secs, "秒")
     } else if secs < 3600 {
-        (secs / 60, "min.")
+        (secs / 60, "分钟")
     } else if secs < 86_400 {
-        (secs / 3600, "hr.")
+        (secs / 3600, "小时")
     } else {
         match months_between(a, b, off) {
-            m if m >= 12 => (m / 12, "yr."),
-            m if m >= 1 => (m, "mo."),
-            _ if secs >= 7 * 86_400 => (secs / (7 * 86_400), "wk."),
-            _ => (secs / 86_400, if secs < 2 * 86_400 { "day" } else { "days" }),
+            m if m >= 12 => (m / 12, "年"),
+            m if m >= 1 => (m, "个月"),
+            _ if secs >= 7 * 86_400 => (secs / (7 * 86_400), "周"),
+            _ => (secs / 86_400, "天"),
         }
     };
     if t < now {
-        format!("{n} {unit} ago")
+        format!("{n}{unit}前")
     } else {
-        format!("in {n} {unit}")
+        format!("{n}{unit}后")
     }
 }
 
@@ -506,7 +506,7 @@ pub fn read(app: &AppState, store: Store) -> Result<Listing, String> {
         Some((_, e)) if failed.len() == store.mem_stores().len() => Err(e.clone()),
         Some((mem, e)) => {
             let which = if *mem == 0 { "SIM" } else { "internal" };
-            Ok(Listing { msgs, partial: Some(format!("Couldn't read {which} messages: {e}")) })
+            Ok(Listing { msgs, partial: Some(format!("无法读取 {which} 消息：{e}")) })
         }
         None => Ok(Listing { msgs, partial: None }),
     }
@@ -675,14 +675,14 @@ mod tests {
     fn ucs2_keeps_emoji_and_never_panics_on_raw_text() {
         assert_eq!(decode_ucs2("00480069"), "Hi");
         // A surrogate pair is one emoji; lower-case hex works too.
-        assert_eq!(decode_ucs2("D83DDE00"), "\u{1F600}");
-        assert_eq!(decode_ucs2("d83dde000021"), "\u{1F600}!");
+        assert_eq!(decode_ucs2("D83DDE00"), "😀");
+        assert_eq!(decode_ucs2("d83dde000021"), "😀!");
         // A lone surrogate is the replacement character, not a dropped unit.
-        assert_eq!(decode_ucs2("D83D0041"), "\u{FFFD}A");
+        assert_eq!(decode_ucs2("D83D0041"), "�A");
         // Groups that are not hex are skipped; a trailing partial group too.
         assert_eq!(decode_ucs2("0041zz4200420"), "AB");
         // Raw text, even non-ASCII (bytes, not chars): nothing, so shown raw.
-        for raw in ["aéé", "Hello", "Код 1234", "\u{1F600}\u{1F600}", "é"] {
+        for raw in ["aéé", "Hello", "Код 1234", "😀😀", "é"] {
             assert_eq!(decode_ucs2(raw), "", "{raw}");
             assert_eq!(content(raw), raw);
         }
@@ -695,11 +695,11 @@ mod tests {
         }
         // Control characters other than tab and line breaks are dropped;
         // nothing left: the raw text (without them).
-        assert_eq!(content("0041000D000A00090007"), "A\r\n\t");
-        assert_eq!(content("Fake\u{0}code\u{7}\n1"), "Fakecode\n1");
-        assert_eq!((content("0000"), content("\u{0}")), ("0000".to_owned(), String::new()));
+        assert_eq!(content("0041000D000A00090007"), "A\r\n	");
+        assert_eq!(content("Fake\x00code\x07\n1"), "Fakecode\n1");
+        assert_eq!((content("0000"), content("\x00")), ("0000".to_owned(), String::new()));
         // Round trip, emoji included.
-        let text = "Hi \u{1F600} Ж\n€";
+        let text = "Hi 😀 Ж\n€";
         assert_eq!(encode_ucs2(text), "004800690020D83DDE0000200416000A20AC");
         assert_eq!(content(&encode_ucs2(text)), text);
     }
@@ -735,11 +735,11 @@ mod tests {
         assert_eq!(clock(t, -16 * H), "11:41 PM");
         assert_eq!(clock(NEW_YEAR, 0), "12:00 AM");
         assert_eq!(clock(NEW_YEAR + 12 * H + 5 * 60, 0), "12:05 PM");
-        assert_eq!(day(t, 0), "Jan 1, 2024");
+        assert_eq!(day(t, 0), "一月 1, 2024");
         assert_eq!(stamp(t + 7, 0), "1/1/24, 3:41:07 PM");
         assert_eq!(stamp(t, 9 * H), "1/2/24, 12:41:00 AM");
         assert_eq!(stamp(NEW_YEAR + 300 * DAY + 9 * H + 5, -H), "10/27/24, 8:00:05 AM");
-        assert_eq!(day(t, 9 * H), "Jan 2, 2024");
+        assert_eq!(day(t, 9 * H), "一月 2, 2024");
         assert_eq!(sms_time(t, 8 * H), "24;01;01;23;41;00;+8");
         assert_eq!(sms_time(t, -5 * H - 1800), "24;01;01;10;11;00;-5");
         assert_eq!(sms_time(t, 0), "24;01;01;15;41;00;+0");
@@ -749,28 +749,28 @@ mod tests {
     fn relative_labels_follow_the_app() {
         let now = NEW_YEAR + 200 * DAY + 12 * H;
         let cases: [(i64, &str); 16] = [
-            (0, "in 0 sec."),
-            (-5, "5 sec. ago"),
-            (-59, "59 sec. ago"),
-            (-60, "1 min. ago"),
-            (-300, "5 min. ago"),
-            (-2 * H - 59, "2 hr. ago"),
-            (-23 * H, "23 hr. ago"),
-            (-DAY, "1 day ago"),
-            (-3 * DAY, "3 days ago"),
-            (-8 * DAY, "1 wk. ago"),
-            (-27 * DAY, "3 wk. ago"),
-            (-40 * DAY, "1 mo. ago"),
-            (-200 * DAY, "6 mo. ago"),
-            (-400 * DAY, "1 yr. ago"),
-            (90, "in 1 min."),
-            (3 * H, "in 3 hr."),
+            (0, "0秒后"),
+            (-5, "5秒前"),
+            (-59, "59秒前"),
+            (-60, "1分钟前"),
+            (-300, "5分钟前"),
+            (-2 * H - 59, "2小时前"),
+            (-23 * H, "23小时前"),
+            (-DAY, "1天前"),
+            (-3 * DAY, "3天前"),
+            (-8 * DAY, "1周前"),
+            (-27 * DAY, "3周前"),
+            (-40 * DAY, "1个月前"),
+            (-200 * DAY, "6个月前"),
+            (-400 * DAY, "1年前"),
+            (90, "1分钟后"),
+            (3 * H, "3小时后"),
         ];
         for (delta, want) in cases {
             assert_eq!(relative(now + delta, now, 0), want, "{delta}");
         }
         // An unset router clock: the date.
-        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "Jan 1, 2024");
+        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "一月 1, 2024");
     }
 
     fn item(id: u64, number: &str, text: &str, date: &str, tag: impl Into<Value>) -> Value {
@@ -841,7 +841,7 @@ mod tests {
         // One store failing: the other's messages and a note.
         let _g = fake::set(&app, fake::Device { sim: Err("ubus timeout".into()), ..d.clone() });
         let all = read(&app, Store::All).unwrap();
-        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("Couldn't read SIM messages: ubus timeout")));
+        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("无法读取 SIM 消息：ubus timeout")));
         assert_eq!(read(&app, Store::Sim).err().as_deref(), Some("ubus timeout"));
         // Both failing: the first error, never an empty list.
         let _g = fake::set(&app, fake::Device { internal: Err("first".into()), sim: Err("second".into()), ..d });
@@ -855,17 +855,17 @@ mod tests {
     #[test]
     fn encoding_limits_and_counter() {
         assert_eq!(encode_type("Hello @£$ ÄÖ\n"), "GSM7_default");
-        for text in ["Привет", "€", "{", "\u{1F600}", "ç"] {
+        for text in ["Привет", "€", "{", "😀", "ç"] {
             assert_eq!(encode_type(text), "UNICODE", "{text}");
         }
         assert!(check_text(&"a".repeat(765)).is_ok());
-        assert_eq!(check_text(&"a".repeat(766)).unwrap_err(), "Enter at most 765 characters.");
+        assert_eq!(check_text(&"a".repeat(766)).unwrap_err(), "最多输入 765 个字符。");
         assert!(check_text(&"Ж".repeat(335)).is_ok());
-        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("at most 335 characters"));
+        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("最多输入335个字符"));
         // An emoji is two UTF-16 units.
-        assert!(check_text(&"\u{1F600}".repeat(168)).is_err() && check_text(&"\u{1F600}".repeat(167)).is_ok());
-        for blank in ["", "  ", "\n\t"] {
-            assert_eq!(check_text(blank).unwrap_err(), "Enter a message.");
+        assert!(check_text(&"😀".repeat(168)).is_err() && check_text(&"😀".repeat(167)).is_ok());
+        for blank in ["", "  ", "\n	"] {
+            assert_eq!(check_text(blank).unwrap_err(), "输入消息。");
         }
         // The app's counter: 0 SMS while empty, then by 153 / 67.
         for (text, want) in [
@@ -882,25 +882,25 @@ mod tests {
         for (typed, sent) in [
             ("+15555550100", "+15555550100"),
             ("+1 (555) 555-0100", "+15555550100"),
-            (" 555.555.0100\u{a0}", "5555550100"),
+            (" 555.555.0100 ", "5555550100"),
             ("*100#", "*100#"),
             ("EXAMPLE", "EXAMPLE"),
         ] {
             assert_eq!((clean_number(typed).as_str(), check_number(&clean_number(typed))), (sent, Ok(())), "{typed}");
         }
-        assert_eq!(check_number(&clean_number(" - ")).unwrap_err(), "Enter a phone number.");
-        for bad in ["555<0100>", "555/0100", "\u{0660}1", &*"5".repeat(33)] {
-            assert_eq!(check_number(&clean_number(bad)).unwrap_err(), "Enter at most 32 digits, letters, spaces, +, * or #.", "{bad}");
+        assert_eq!(check_number(&clean_number(" - ")).unwrap_err(), "输入电话号码。");
+        for bad in ["555<0100>", "555/0100", "٠1", &*"5".repeat(33)] {
+            assert_eq!(check_number(&clean_number(bad)).unwrap_err(), "最多输入 32 个数字、字母、空格、+、* 或 #。", "{bad}");
         }
         assert!(check_number(&"5".repeat(32)).is_ok());
         assert_eq!(length(""), (0, 765, 153));
         assert_eq!(length(&"a".repeat(154)), (154, 765, 153));
-        assert_eq!(length("Ж\u{1F600}"), (3, 335, 67));
+        assert_eq!(length("Ж😀"), (3, 335, 67));
     }
 
     #[test]
     fn send_body_result_and_capacity() {
-        let body = send_body("+15555550100", "Hi\n\u{1F600}", "24;01;01;10;00;00;+8");
+        let body = send_body("+15555550100", "Hi\n😀", "24;01;01;10;00;00;+8");
         assert_eq!(
             body,
             json!({"number": "+15555550100", "sms_time": "24;01;01;10;00;00;+8", "message_body": "00480069000AD83DDE00",
@@ -933,7 +933,7 @@ mod tests {
             x ^= x << 17;
             x
         };
-        const PIECES: [&str; 18] = ["D83D", "DE00", "00", "0", "F", "zz", "é", "\u{1F600}", ",", ";", "+", "-", "\0", " ", "24", "1", "Ж", "#"];
+        const PIECES: [&str; 18] = ["D83D", "DE00", "00", "0", "F", "zz", "é", "😀", ",", ";", "+", "-", "\x00", " ", "24", "1", "Ж", "#"];
         for _ in 0..3000 {
             let n = (next() % 24) as usize;
             let s: String = (0..n).map(|_| PIECES[(next() % 18) as usize]).collect();

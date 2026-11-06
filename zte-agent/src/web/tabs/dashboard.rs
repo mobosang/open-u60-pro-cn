@@ -22,7 +22,7 @@ use crate::web::screen::{Bar, Block, PageData, Read, Screen};
 pub static DASHBOARD: Screen = Screen {
     path: "/ui/",
     id: "dashboard",
-    title: "Dashboard",
+    title: "仪表盘",
     tab: Tab::Dashboard,
     bar: Bar::Status(dashboard::age_badge),
     topics: &dashboard::TOPICS,
@@ -69,7 +69,7 @@ pub static USB_DISMISS: Action = Action {
 pub static SIGNAL: Screen = Screen {
     path: "/ui/signal",
     id: "signal",
-    title: "Connection & signal",
+    title: "连接与信号",
     tab: Tab::Dashboard,
     bar: Bar::AgeDone(dashboard::read_badge, "/ui/"),
     topics: &signal::TOPICS,
@@ -82,7 +82,7 @@ pub static SIGNAL: Screen = Screen {
 pub static TRAFFIC: Screen = Screen {
     path: "/ui/traffic",
     id: "traffic",
-    title: "Live traffic",
+    title: "实时流量",
     tab: Tab::Dashboard,
     bar: Bar::Done("/ui/"),
     topics: &[Topic::Traffic],
@@ -94,7 +94,7 @@ pub static TRAFFIC: Screen = Screen {
 pub static BATTERY: Screen = Screen {
     path: "/ui/battery",
     id: "battery",
-    title: "Battery Details",
+    title: "电池详情",
     tab: Tab::Dashboard,
     bar: Bar::Done("/ui/"),
     topics: &[Topic::Battery, Topic::Charger, Topic::BatteryInfo],
@@ -106,7 +106,7 @@ pub static BATTERY: Screen = Screen {
 pub static HEALTH: Screen = Screen {
     path: "/ui/health",
     id: "health",
-    title: "CPU & temperatures",
+    title: "CPU 和温度",
     tab: Tab::Dashboard,
     bar: Bar::Done("/ui/"),
     topics: &[Topic::Health, Topic::Battery],
@@ -119,9 +119,9 @@ pub static HEALTH: Screen = Screen {
 pub static CPU: Screen = Screen {
     path: "/ui/health/cpu",
     id: "cpu",
-    title: "CPU & Memory",
+    title: "CPU 和内存",
     tab: Tab::Dashboard,
-    bar: Bar::Back("/ui/health", "CPU & temperatures"),
+    bar: Bar::Back("/ui/health", "CPU 和温度"),
     topics: &[Topic::Health],
     // The bloat summary as the app reads it: the API's tracker, once.
     reads: &[Read::Api("/api/device/system"), Read::Api("/api/system/top")],
@@ -135,7 +135,7 @@ pub static CPU: Screen = Screen {
 pub static WIFI: Screen = Screen {
     path: wifi::PATH,
     id: "wifi",
-    title: "Wi-Fi & devices",
+    title: "Wi-Fi 和设备",
     tab: Tab::Dashboard,
     bar: Bar::Done("/ui/"),
     topics: &[Topic::Clients],
@@ -149,9 +149,9 @@ pub static WIFI: Screen = Screen {
 pub static SHARE: Screen = Screen {
     path: wifi::SHARE,
     id: "wifishare",
-    title: "WiFi Credentials",
+    title: "WiFi 凭证",
     tab: Tab::Dashboard,
-    bar: Bar::Back(wifi::PATH, "Wi-Fi & devices"),
+    bar: Bar::Back(wifi::PATH, "Wi-Fi 和设备"),
     reads: &[Read::Fn(wifi::share_read)],
     blocks: &[Block::Custom(wifi::share)],
     ..Screen::BLANK
@@ -164,7 +164,7 @@ pub static SHARE: Screen = Screen {
 pub static PROCESSES: Screen = Screen {
     path: processes::PATH,
     id: "processes",
-    title: "Processes",
+    title: "进程",
     tab: Tab::Dashboard,
     bar: Bar::DoneTrail("/ui/health/cpu", processes::kill_all_link),
     topics: &[Topic::Processes],
@@ -175,7 +175,7 @@ pub static PROCESSES: Screen = Screen {
 
 /// The confirmations read the process names, so they are screens; their
 /// forms post to the actions of the same path.
-const KILL_CONFIRM: Screen = Screen { title: "Confirm", bar: Bar::Back(processes::PATH, "Processes"), ..Screen::BLANK };
+const KILL_CONFIRM: Screen = Screen { title: "确认", bar: Bar::Back(processes::PATH, "进程"), ..Screen::BLANK };
 
 pub static KILL_ONE: Screen = Screen {
     path: processes::KILL,
@@ -235,16 +235,16 @@ pub static KILL_ALL_BLOAT: Action = Action {
 
 /// The app's modes (`NetworkModeConfig.netSelectOptions`): value, label.
 pub const NET_MODES: [(&str, &str); 6] = [
-    ("WL_AND_5G", "Auto"),
+    ("WL_AND_5G", "自动"),
     ("LTE_AND_5G", "5G NSA (LTE + NR)"),
-    ("Only_5G", "5G SA Only"),
-    ("Only_LTE", "4G Only"),
+    ("Only_5G", "仅 5G SA"),
+    ("Only_LTE", "仅 4G"),
     ("WCDMA_AND_LTE", "4G + 3G"),
-    ("Only_WCDMA", "3G Only"),
+    ("Only_WCDMA", "仅 3G"),
 ];
 const MODE_VALUES: [&str; 6] = ["WL_AND_5G", "LTE_AND_5G", "Only_5G", "Only_LTE", "WCDMA_AND_LTE", "Only_WCDMA"];
 
-const REREGISTER: &str = "The modem re-registers on the network. Mobile data drops for a few seconds.";
+const REREGISTER: &str = "调制解调器在网络上重新注册。移动数据下降几秒钟。";
 
 /// Every mode is confirmed (the app has no dialog): it re-registers the
 /// modem, and a mode without coverage here can strand a remote browser.
@@ -253,37 +253,37 @@ macro_rules! mode_confirm {
         Confirm {
             when: ("mode", $value),
             need: Need::Always,
-            title: concat!("Change network mode to ", $label, "?"),
+            title: concat!("将网络模式更改为 ", $label, "?"),
             lines: &[REREGISTER],
             remote: Some(&[
                 REREGISTER,
                 concat!(
-                    "You are connected remotely: if ",
+                    "你正在远程连接：如果 ",
                     $label,
-                    " has no coverage here, this page can\u{2019}t be reached until the mode is changed on the router."
+                    " 在此处没有覆盖，则在路由器上更改模式之前将无法访问此页面。"
                 ),
             ]),
-            label: "Change mode",
+            label: "改变模式",
         }
     };
 }
 
 static MODE_CONFIRMS: [Confirm; 6] = [
-    mode_confirm!("WL_AND_5G", "Auto"),
+    mode_confirm!("WL_AND_5G", "自动"),
     mode_confirm!("LTE_AND_5G", "5G NSA (LTE + NR)"),
-    mode_confirm!("Only_5G", "5G SA Only"),
-    mode_confirm!("Only_LTE", "4G Only"),
+    mode_confirm!("Only_5G", "仅 5G SA"),
+    mode_confirm!("Only_LTE", "仅 4G"),
     mode_confirm!("WCDMA_AND_LTE", "4G + 3G"),
-    mode_confirm!("Only_WCDMA", "3G Only"),
+    mode_confirm!("Only_WCDMA", "仅 3G"),
 ];
 
 /// The two mounts differ in path, tab, way back and form target.
-const NET_MODE_BASE: Screen = Screen { title: "Network Mode", topics: &[Topic::Signal], ..Screen::BLANK };
+const NET_MODE_BASE: Screen = Screen { title: "网络模式", topics: &[Topic::Signal], ..Screen::BLANK };
 
 pub static NET_MODE: Screen = Screen {
     path: "/ui/signal/network-mode",
     id: "netmode",
-    bar: Bar::Back("/ui/signal", "Connection & signal"),
+    bar: Bar::Back("/ui/signal", "连接与信号"),
     blocks: &[Block::Custom(|pd| net_mode(pd, &SET_NET_MODE))],
     ..NET_MODE_BASE
 };
@@ -292,7 +292,7 @@ pub static ROUTER_NET_MODE: Screen = Screen {
     path: "/ui/router/network-mode",
     id: "routernetmode",
     tab: Tab::Router,
-    bar: Bar::Back("/ui/router", "Router"),
+    bar: Bar::Back("/ui/router", "路由器"),
     blocks: &[Block::Custom(|pd| net_mode(pd, &SET_ROUTER_NET_MODE))],
     ..NET_MODE_BASE
 };
@@ -351,15 +351,15 @@ fn net_mode(pd: &PageData, a: &Action) -> Markup {
     let current = label.map_or_else(|| if cur.is_empty() { DASH.into() } else { fmt::truncate(cur, 32) }, str::to_owned);
     html! {
         @if let Some(e) = slot.and_then(|s| s.error.as_deref()) {
-            (kit::notice(false, &format!("Failed to load network mode: {}", fmt::truncate(e, 120))))
+            (kit::notice(false, &format!("加载网络模式失败：{}", fmt::truncate(e, 120))))
         }
-        (kit::section(Some("Current"), None, kit::kv_row(None, "Network Mode", &current)))
+        (kit::section(Some("当前"), None, kit::kv_row(None, "网络模式", &current)))
         form method="post" action=(a.path) {
             (pd.csrf())
             input type="hidden" name="cur" value=(if label.is_some() { cur } else { "" });
-            (kit::section(Some("Network Mode"), None, html! {
+            (kit::section(Some("网络模式"), None, html! {
                 li.it {
-                    label for="mode" { "Mode" }
+                    label for="mode" { "模式" }
                     select #mode name="mode" {
                         @for (value, text) in NET_MODES {
                             option value=(value) selected[value == cur] { (text) }
@@ -367,7 +367,7 @@ fn net_mode(pd: &PageData, a: &Action) -> Markup {
                     }
                 }
             }))
-            p.actions { button.btn.btn-wide type="submit" { "Apply" } }
+            p.actions { button.btn.btn-wide type="submit" { "应用" } }
         }
     }
 }
@@ -382,9 +382,9 @@ mod tests {
         for ((value, label), c) in NET_MODES.iter().zip(&MODE_CONFIRMS) {
             assert_eq!(c.when, ("mode", *value));
             assert!(matches!(c.need, Need::Always));
-            assert_eq!(c.title, format!("Change network mode to {label}?"));
+            assert_eq!(c.title, format!("将网络模式更改为 {label}?"));
             assert_eq!(c.lines, [REREGISTER]);
-            assert!(c.remote.unwrap()[1].contains(&format!("You are connected remotely: if {label} has no coverage here,")));
+            assert!(c.remote.unwrap()[1].contains(&format!("你正在远程连接：如果 {label} 在此处没有覆盖")));
             // The body carries the checked value only; the operation follows it.
             let v = Valid::of(&[("mode", value)]);
             assert_eq!(mode_body(&v, &[]), Some(json!({"net_select": value})));

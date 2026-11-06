@@ -24,7 +24,7 @@ struct OperatorCardView: View, Equatable {
                 }
                 Spacer()
                 if operatorInfo.roaming {
-                    Label("Roaming", systemImage: "antenna.radiowaves.left.and.right.slash")
+                    Label("漫游", systemImage: "antenna.radiowaves.left.and.right.slash")
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
@@ -32,7 +32,7 @@ struct OperatorCardView: View, Equatable {
                 Image(systemName: "cellularbars")
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(operatorInfo.signalBar > 0 ? .primary : .secondary)
-                    .accessibilityLabel(Text("Signal"))
+                    .accessibilityLabel(Text("信号"))
             }
         }
     }

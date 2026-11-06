@@ -29,10 +29,10 @@ export function CopyButton({ text, className }: CopyButtonProps) {
         "inline-flex items-center gap-1 rounded-md border border-border bg-bg-card px-2 py-1 text-[0.6875rem] text-text-dim transition-colors hover:border-text-dim hover:text-text",
         className
       )}
-      aria-label="Copy to clipboard"
+      aria-label="复制到剪贴板"
     >
       {copied ? <Check size={12} /> : <Copy size={12} />}
-      {copied ? "Copied!" : "Copy"}
+      {copied ? "已复制！" : "复制"}
     </button>
   );
 }

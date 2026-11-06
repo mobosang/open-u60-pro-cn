@@ -59,7 +59,7 @@ fn auth_label(v: &str) -> String {
     match v {
         "1" => "PAP",
         "2" => "CHAP",
-        _ => "None",
+        _ => "无",
     }
     .to_owned()
 }
@@ -140,14 +140,14 @@ fn str_of<'a>(p: &'a Value, k: &str) -> &'a str {
 
 fn row(p: &Value, manual: bool) -> Markup {
     let id = percent_encode(str_of(p, "id"));
-    let name = Some(str_of(p, "name")).filter(|n| !n.is_empty()).unwrap_or("Unnamed");
+    let name = Some(str_of(p, "name")).filter(|n| !n.is_empty()).unwrap_or("未命名");
     let active = p["active"] == true;
     let href = format!("{}?id={id}", if manual { EDIT } else { AUTO });
     html! {
         li.it.ap {
             a href=(href) {
                 span.cvb {
-                    span.l1 { b.nm { (name) } @if active { small.c-green { "Active" } } }
+                    span.l1 { b.nm { (name) } @if active { small.c-green { "已启用" } } }
                     small { (str_of(p, "apn")) }
                     small { (pdp_label(str_of(p, "pdp"))) " / " (auth_label(str_of(p, "auth"))) }
                 }
@@ -155,10 +155,10 @@ fn row(p: &Value, manual: bool) -> Markup {
             // The app's swipes (Activate; Delete, disabled for the active one).
             @if manual && !active {
                 details.pmenu {
-                    summary aria-label=(format!("Options for {name}")) { (kit::icon(Icon::Ellipsis)) }
+                    summary aria-label=(format!("{name} 的选项")) { (kit::icon(Icon::Ellipsis)) }
                     div {
-                        a href=(format!("{ACTIVATE}?id={id}")) { (kit::icon(Icon::Check)) "Activate" }
-                        a.danger href=(format!("{DELETE}?id={id}")) { (kit::icon(Icon::Trash)) "Delete" }
+                        a href=(format!("{ACTIVATE}?id={id}")) { (kit::icon(Icon::Check)) "激活" }
+                        a.danger href=(format!("{DELETE}?id={id}")) { (kit::icon(Icon::Trash)) "删除" }
                     }
                 }
             }
@@ -169,7 +169,7 @@ fn row(p: &Value, manual: bool) -> Markup {
 pub fn page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "Failed to load APN: " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载APN失败：" (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     let manual = d["manual"] == true;
@@ -182,14 +182,14 @@ pub fn page(pd: &PageData) -> Markup {
     let (on, off) = (format!("{MODE}?manual=1"), format!("{MODE}?manual=0"));
     html! {
         @if let Some(n) = current {
-            (kit::section(Some("Current APN"), None, html! { li.it { span { b { (n) } } span.c-green { (kit::icon(Icon::Check)) } } }))
+            (kit::section(Some("当前APN"), None, html! { li.it { span { b { (n) } } span.c-green { (kit::icon(Icon::Check)) } } }))
         }
-        (kit::section(Some("APN Mode"), None, kit::switch_row(&html! {}, "Manual APN", Some(manual), Act::Link(&on), Act::Link(&off))))
+        (kit::section(Some("APN模式"), None, kit::switch_row(&html! {}, "手动 APN", Some(manual), Act::Link(&on), Act::Link(&off))))
         @if manual {
-            (kit::section(Some("Manual Profiles"), None, html! { li { a.it.bt href=(NEW) { (kit::icon(Icon::Plus)) span { "Add APN" } } } }))
+            (kit::section(Some("手动配置文件"), None, html! { li { a.it.bt href=(NEW) { (kit::icon(Icon::Plus)) span { "添加APN" } } } }))
             @if !profiles.is_empty() { (kit::section(None, None, html! { @for p in &profiles { (row(p, true)) } })) }
         } @else if !auto.is_empty() {
-            (kit::section(Some("Auto Profiles"), None, html! { @for p in &auto { (row(p, false)) } }))
+            (kit::section(Some("自动配置文件"), None, html! { @for p in &auto { (row(p, false)) } }))
         }
     }
 }
@@ -228,7 +228,7 @@ pub fn edit_form(pd: &PageData) -> Markup {
 }
 
 fn not_found() -> Markup {
-    html! { (kit::empty_state(Icon::SimCard, "APN not found", "It may have been deleted.")) p.ctr { a.nl href=(PATH) { "Back to APN Settings" } } }
+    html! { (kit::empty_state(Icon::SimCard, "APN 未找到", "可能已被删除。")) p.ctr { a.nl href=(PATH) { "返回APN设置" } } }
 }
 
 /// New APN and Edit APN (the app's sheet; "Cancel" leads back).
@@ -237,7 +237,7 @@ pub fn form(pd: &PageData) -> Markup {
     let blank = json!({"pdp": "3", "auth": "0"});
     let p = if editing {
         match (pd.reads.first(), asked(pd, "profiles")) {
-            (Some(Err(e)), _) => return html! { p.msg.err role="alert" { "Failed to load APN: " (fmt::truncate(e, 120)) } },
+            (Some(Err(e)), _) => return html! { p.msg.err role="alert" { "加载APN失败：" (fmt::truncate(e, 120)) } },
             (_, Some(p)) => p,
             _ => return not_found(),
         }
@@ -254,23 +254,23 @@ pub fn form(pd: &PageData) -> Markup {
             (pd.csrf())
             (once_field(&pd.once()))
             @if editing { input type="hidden" name="id" value=(str_of(p, "id")); }
-            (kit::section(Some("Profile"), None, html! {
-                (text_row("name", "Name", &typed("name", "name"), err("name"), "it fld", 64, None))
+            (kit::section(Some("配置文件"), None, html! {
+                (text_row("name", "名称", &typed("name", "name"), err("name"), "it fld", 64, None))
                 (text_row("apn", "APN", &typed("apn", "apn"), err("apn"), "it fld", 100, None))
             }))
             (kit::section(Some("Connection"), None, html! {
-                (select_row("pdp", "PDP Type", &options(&PDP, pdp0, pdp_label), &typed("pdp", "pdp"), None, "it"))
-                (select_row("auth", "Auth Mode", &options(&AUTH, auth0, auth_label), &typed("auth", "auth"), None, "it"))
+                (select_row("pdp", "PDP 类型", &options(&PDP, pdp0, pdp_label), &typed("pdp", "pdp"), None, "it"))
+                (select_row("auth", "认证模式", &options(&AUTH, auth0, auth_label), &typed("auth", "auth"), None, "it"))
             }))
             // Shown while Auth Mode is not None (CSS; without `:has()` always).
             div.apc {
-                (kit::section(Some("Credentials"), None, html! {
-                    (text_row("user", "Username", &typed("user", "user"), err("user"), "it fld", 64, None))
-                    (password_row("pass", "Password", p["has_pass"] == true, f.and_then(|f| f.value("pass")) == Some(KEPT), err("pass"), "it fld"))
+                (kit::section(Some("身份凭据"), None, html! {
+                    (text_row("user", "用户名", &typed("user", "user"), err("user"), "it fld", 64, None))
+                    (password_row("pass", "密码", p["has_pass"] == true, f.and_then(|f| f.value("pass")) == Some(KEPT), err("pass"), "it fld"))
                 }))
             }
-            (kit::section(None, None, switch("def", "Set as Default", f.map_or(p["active"] == true, |f| f.value("def") == Some("1")), "it", "sr")))
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { (if editing { "Save" } else { "Add APN" }) } } }))
+            (kit::section(None, None, switch("def", "设为默认", f.map_or(p["active"] == true, |f| f.value("def") == Some("1")), "it", "sr")))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { (if editing { "保存" } else { "添加APN" }) } } }))
         }
     }
 }
@@ -279,19 +279,19 @@ pub fn form(pd: &PageData) -> Markup {
 pub fn auto_page(pd: &PageData) -> Markup {
     let Some(p) = asked(pd, "auto") else {
         return match pd.reads.first() {
-            Some(Err(e)) => html! { p.msg.err role="alert" { "Failed to load APN: " (fmt::truncate(e, 120)) } },
-            _ => html! { (kit::empty_state(Icon::SimCard, "APN not found", "It may have been removed.")) },
+            Some(Err(e)) => html! { p.msg.err role="alert" { "加载APN失败：" (fmt::truncate(e, 120)) } },
+            _ => html! { (kit::empty_state(Icon::SimCard, "APN 未找到", "它可能已被删除。")) },
         };
     };
     let or_dash = |k: &str| Some(str_of(p, k)).filter(|v| !v.is_empty()).unwrap_or("\u{2014}").to_owned();
     html! {
-        (kit::section(Some("Profile"), None, html! { (kit::kv_row(None, "Name", &or_dash("name"))) (kit::kv_row(None, "APN", &or_dash("apn"))) }))
+        (kit::section(Some("配置文件"), None, html! { (kit::kv_row(None, "名称", &or_dash("name"))) (kit::kv_row(None, "APN", &or_dash("apn"))) }))
         (kit::section(Some("Connection"), None, html! {
-            (kit::kv_row(None, "PDP Type", &pdp_label(str_of(p, "pdp"))))
-            (kit::kv_row(None, "Auth Mode", &auth_label(str_of(p, "auth"))))
+            (kit::kv_row(None, "PDP 类型", &pdp_label(str_of(p, "pdp"))))
+            (kit::kv_row(None, "认证模式", &auth_label(str_of(p, "auth"))))
         }))
-        @if str_of(p, "auth") != "0" { (kit::section(Some("Credentials"), None, kit::kv_row(None, "Username", &or_dash("user")))) }
-        (kit::section(None, None, kit::kv_row(None, "Status", if p["active"] == true { "Active" } else { "Inactive" })))
+        @if str_of(p, "auth") != "0" { (kit::section(Some("身份凭据"), None, kit::kv_row(None, "用户名", &or_dash("user")))) }
+        (kit::section(None, None, kit::kv_row(None, "状态", if p["active"] == true { "已启用" } else { "未启用" })))
     }
 }
 
@@ -333,30 +333,30 @@ pub fn check(app: &AppState, pairs: &[(String, String)], kept: &Vals) -> Result<
     let mut errors: Vec<(&'static str, String)> = Vec::new();
     for (k, v) in [("name", &name), ("apn", &apn)] {
         if v.is_empty() {
-            errors.push((k, "Name and APN are required".into()));
+            errors.push((k, "名称和 APN 为必填项".into()));
         }
     }
     if !line_ok(&name, 64) {
-        errors.push(("name", "Use one line, up to 64 characters.".into()));
+        errors.push(("name", "使用一行，最多 64 个字符。".into()));
     }
     if apn.len() > 100 || !apn.bytes().all(|b| b.is_ascii_alphanumeric() || b".-_".contains(&b)) {
-        errors.push(("apn", "Use up to 100 letters, digits, dots, hyphens and underscores.".into()));
+        errors.push(("apn", "最多使用 100 个字母、数字、点、连字符和下划线。".into()));
     }
     if !line_ok(&user, 64) {
-        errors.push(("user", "Use one line, up to 64 characters.".into()));
+        errors.push(("user", "使用一行，最多 64 个字符。".into()));
     }
     let pass = if typed_pass.is_empty() { val(kept, "pass") } else { typed_pass };
     let pass = if line_ok(pass, 64) {
         pass.to_owned()
     } else {
-        errors.push(("pass", "Use one line, up to 64 characters.".into()));
+        errors.push(("pass", "使用一行，最多 64 个字符。".into()));
         String::new()
     };
     match &list {
-        Err(e) => errors.push(("form", format!("Failed to load APN: {}", fmt::truncate(e, 120)))),
-        Ok(_) if !id.is_empty() && editing.is_none() => errors.push(("form", "This APN no longer exists.".into())),
+        Err(e) => errors.push(("form", format!("加载APN失败：{}", fmt::truncate(e, 120)))),
+        Ok(_) if !id.is_empty() && editing.is_none() => errors.push(("form", "这个APN已经不存在了。".into())),
         Ok(l) if !name.is_empty() && l.iter().any(|p| p.name == name && p.id != id) => {
-            errors.push(("name", "An APN with this name already exists".into()));
+            errors.push(("name", "同名的 APN 已存在".into()));
         }
         Ok(_) => {}
     }
@@ -377,54 +377,54 @@ pub fn check(app: &AppState, pairs: &[(String, String)], kept: &Vals) -> Result<
     }
 }
 
-const RECONNECT: &str = "Mobile data may reconnect, which drops the connection for a moment.";
-const NO_DATA: &str = "If the operator does not accept it, the router has no mobile data until another APN is chosen.";
+const RECONNECT: &str = "移动数据可能会重新连接，从而暂时断开连接。";
+const NO_DATA: &str = "如果运营商不接受，则路由器没有移动数据，直到选择另一个 APN。";
 
 pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], remote: bool) -> Question {
     if kind == Kind::ApnMode {
         let manual = val(vals, "manual") == "1";
         let (title, what, label) = if manual {
-            ("Switch to manual APN?", "The router connects with the APN you activate under Manual Profiles.", "Use Manual APN")
+            ("切换到手动APN？", "路由器与您在手动配置文件下激活的 APN 连接。", "使用手动 APN")
         } else {
-            ("Switch to automatic APN?", "The router chooses the APN for your SIM by itself.", "Use Automatic APN")
+            ("切换到自动APN？", "路由器自行为您的SIM选择APN。", "使用自动 APN")
         };
         return asking(title, vec![what.into(), RECONNECT.into()], label, remote, true);
     }
     let list = match manual(app) {
         Ok(l) => l,
-        Err(e) => return nothing("Failed to load APN", vec![fmt::truncate(&e, 120)]),
+        Err(e) => return nothing("加载APN失败", vec![fmt::truncate(&e, 120)]),
     };
     let id = val(vals, "id");
     let found = list.iter().find(|p| p.id == id);
     match (kind, found) {
         (Kind::ApnSave, None) if id.is_empty() => {
-            let mut lines = vec![format!("A new APN profile with the APN {} is added.", val(vals, "apn"))];
+            let mut lines = vec![format!("添加了带有 APN {} 的新 APN 配置文件。", val(vals, "apn"))];
             let def = val(vals, "def") == "1";
             if def {
-                lines.extend(["It becomes the default: mobile data reconnects with it, which drops the connection for a moment.".into(), NO_DATA.into()]);
+                lines.extend(["成为默认设置：移动数据重新与其连接，这会暂时断开连接。".into(), NO_DATA.into()]);
             }
-            asking(format!("Add \u{201c}{}\u{201d}?", val(vals, "name")), lines, "Add APN", remote, def)
+            asking(format!("添加“{}”？", val(vals, "name")), lines, "添加APN", remote, def)
         }
-        (_, None) => nothing("APN not found", vec!["It may have been deleted.".into()]),
+        (_, None) => nothing("APN 未找到", vec!["可能已被删除。".into()]),
         (Kind::ApnSave, Some(p)) => {
             let live = p.active || val(vals, "def") == "1";
             let lines = if live {
-                vec!["Mobile data reconnects with the new settings, which drops the connection for a moment.".into(), NO_DATA.into()]
+                vec!["移动数据使用新设置重新连接，这会暂时断开连接。".into(), NO_DATA.into()]
             } else {
-                vec!["Nothing changes on the connection until this APN is activated.".into()]
+                vec!["在激活此 APN 之前，连接不会发生任何变化。".into()]
             };
-            asking(format!("Save \u{201c}{}\u{201d}?", val(vals, "name")), lines, "Save", remote, live)
+            asking(format!("保存“{}”？", val(vals, "name")), lines, "保存", remote, live)
         }
-        (Kind::ApnUse, Some(p)) if p.active => nothing(format!("\u{201c}{}\u{201d} is already active", p.shown()), Vec::new()),
+        (Kind::ApnUse, Some(p)) if p.active => nothing(format!("“{}”已处于启用状态", p.shown()), Vec::new()),
         (Kind::ApnUse, Some(p)) => asking(
-            format!("Use \u{201c}{}\u{201d}?", p.shown()),
-            vec![format!("Mobile data reconnects with the APN {}, which drops the connection for a moment.", p.apn), NO_DATA.into()],
-            "Activate",
+            format!("使用“{}”？", p.shown()),
+            vec![format!("移动数据与 APN {} 重新连接，连接暂时断开。", p.apn), NO_DATA.into()],
+            "激活",
             remote,
             true,
         ),
-        (_, Some(p)) if p.active => nothing("Cannot delete the active APN", vec!["Activate another APN first.".into()]),
-        (_, Some(p)) => asking(format!("Delete \u{201c}{}\u{201d}?", p.shown()), vec!["The APN profile is removed from the router.".into()], "Delete", remote, false),
+        (_, Some(p)) if p.active => nothing("无法删除活动的APN", vec!["先激活另一个APN。".into()]),
+        (_, Some(p)) => asking(format!("删除“{}”？", p.shown()), vec!["APN 配置文件已从路由器中删除。".into()], "删除", remote, false),
     }
 }
 
@@ -439,7 +439,7 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
         let manual = val(vals, "manual") == "1";
         claim.disarm();
         call(Method::Put, MODE_API, json!({"apn_mode": i64::from(manual)}))?;
-        return Ok(Done::Line(Some(true), format!("APN mode set to {}", if manual { "manual" } else { "auto" })));
+        return Ok(Done::Line(Some(true), format!("APN 模式设置为 {}", if manual { "manual" } else { "auto" })));
     }
     let list = manual(app).map_err(|e| (503, failed(&e)))?;
     let id = val(vals, "id");
@@ -458,14 +458,14 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
                     // The app's: read the list again, find the new profile, activate it.
                     let new = manual(app).ok().and_then(|l| l.into_iter().find(|p| p.name == name && p.apn == apn));
                     return Ok(match new.map(|p| activate(app, &p.id)) {
-                        Some(Ok(_)) => Done::Line(Some(true), "APN added".into()),
-                        Some(Err((_, e))) => Done::Line(None, format!("APN added. Setting it as default failed: {}", fmt::truncate(&e, 120))),
-                        None => Done::Line(None, "APN added. It could not be found to set it as default.".into()),
+                        Some(Ok(_)) => Done::Line(Some(true), "添加APN".into()),
+                        Some(Err((_, e))) => Done::Line(None, format!("添加APN。将其设置为默认失败：{}", fmt::truncate(&e, 120))),
+                        None => Done::Line(None, "添加 APN。找不到将其设置为默认值。".into()),
                     });
                 }
-                return Ok(Done::Line(Some(true), "APN added".into()));
+                return Ok(Done::Line(Some(true), "添加APN".into()));
             }
-            let Some(p) = found else { return Err((404, "APN not found".into())) };
+            let Some(p) = found else { return Err((404, "APN 未找到".into())) };
             body["profileId"] = id.into();
             if val(vals, "pass").is_empty() {
                 // Left empty: the stored password, merged here (never in a page).
@@ -475,26 +475,26 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
             call(Method::Put, LIST_API, body)?;
             if def && !p.active {
                 if let Err((_, e)) = activate(app, id) {
-                    return Ok(Done::Line(None, format!("APN updated. Activating it failed: {}", fmt::truncate(&e, 120))));
+                    return Ok(Done::Line(None, format!("APN 更新。激活失败：{}", fmt::truncate(&e, 120))));
                 }
             }
-            Ok(Done::Line(Some(true), "APN updated".into()))
+            Ok(Done::Line(Some(true), "APN更新".into()))
         }
         Kind::ApnUse => {
             if found.is_none() {
-                return Err((404, "APN not found".into()));
+                return Err((404, "APN 未找到".into()));
             }
             claim.disarm();
             activate(app, id).map_err(|(status, e)| (status, failed(&e)))?;
-            Ok(Done::Line(Some(true), "APN activated".into()))
+            Ok(Done::Line(Some(true), "APN 已激活".into()))
         }
         _ => match found {
-            None => Err((404, "APN not found".into())),
-            Some(p) if p.active => Err((409, "Cannot delete the active APN".into())),
+            None => Err((404, "APN 未找到".into())),
+            Some(p) if p.active => Err((409, "无法删除活动的APN".into())),
             Some(_) => {
                 claim.disarm();
                 call(Method::Post, "/api/router/apn/profiles/delete", json!({"profileId": id}))?;
-                Ok(Done::Line(Some(true), "APN deleted".into()))
+                Ok(Done::Line(Some(true), "APN 已删除".into()))
             }
         },
     }

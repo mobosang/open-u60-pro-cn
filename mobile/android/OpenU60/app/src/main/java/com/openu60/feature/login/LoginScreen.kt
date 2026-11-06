@@ -42,10 +42,10 @@ fun LoginScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Login") },
+                title = { Text("登录") },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -72,7 +72,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "Connect to your router",
+                "连接到您的路由器",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -80,7 +80,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = gateway,
                 onValueChange = viewModel::updateGateway,
-                label = { Text("Gateway IP") },
+                label = { Text("网关IP") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -92,7 +92,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = viewModel::updatePassword,
-                label = { Text("Password") },
+                label = { Text("密码") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -100,7 +100,7 @@ fun LoginScreen(
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                            contentDescription = if (passwordVisible) "隐藏密码" else "显示密码",
                         )
                     }
                 },
@@ -134,7 +134,7 @@ fun LoginScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text("Login")
+                Text("登录")
             }
         }
     }

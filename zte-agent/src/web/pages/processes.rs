@@ -110,7 +110,7 @@ pub fn kill_all_link(v: &Views) -> Markup {
     let kept = |d: &Value| d["processes"].as_array().map_or(0, |l| l.iter().filter(|p| KEEP.contains(&p["name"].as_str().unwrap_or(""))).count());
     let any = v.value(Topic::Processes).is_some_and(|d| bloat_count(d) as usize > kept(d));
     html! {
-        span #pr-all { @if any { a.nl.c-red href=(KILL_ALL) { "Kill All Bloat" } } }
+        span #pr-all { @if any { a.nl.c-red href=(KILL_ALL) { "结束所有冗余进程" } } }
     }
 }
 
@@ -124,16 +124,16 @@ fn summary(v: &Views) -> Markup {
         div #pr-sum {
             @match d {
                 None => {
-                    @if error.is_none() { p.cap.ctr { "Loading processes..." } }
+                    @if error.is_none() { p.cap.ctr { "加载过程..." } }
                 }
                 Some(d) => {
                     @if bloat_count(d) > 0 {
                     section.group {
                         ul.list {
                             li.it {
-                                span.c-orange { (kit::icon(Icon::Warn)) " Bloat Daemons" }
+                                span.c-orange { (kit::icon(Icon::Warn)) " 个冗余守护进程" }
                                 span.v {
-                                    small.fg { (bloat_count(d)) " processes" }
+                                    small.fg { (bloat_count(d)) " 个进程" }
                                     small {
                                         (format!("{:.1}% CPU, ", d["bloat_cpu_pct"].as_f64().unwrap_or(0.0)))
                                         (kb(d["bloat_rss_kb"].as_u64().unwrap_or(0))) " RSS"
@@ -160,7 +160,7 @@ fn list(v: &Views) -> Markup {
     let rows = d["processes"].as_array().map(Vec::as_slice).unwrap_or_default();
     html! {
         section #pr-list .group {
-            h2 { "Top Processes" }
+            h2 { "顶级进程" }
             ul.list.pr {
                 @for p in rows {
                     @let name = p["name"].as_str().unwrap_or("");
@@ -178,7 +178,7 @@ fn list(v: &Views) -> Markup {
                             small { (kb(p["rss_kb"].as_u64().unwrap_or(0))) }
                         }
                         @if bloat && pid > 0 {
-                            a.kl href=(format!("{KILL}?pid={pid}")) aria-label=(format!("Kill {name}")) { "Kill" }
+                            a.kl href=(format!("{KILL}?pid={pid}")) aria-label=(format!("结束{name}")) { "结束进程" }
                         }
                     }
                 }
@@ -268,16 +268,15 @@ fn warnings(name: &str, remote: bool) -> Vec<String> {
     let mut out = Vec::new();
     if name == SMS {
         out.push(
-            "zte_topsw_wms handles SMS: until it restarts or the router reboots, messages stop arriving and the SMS \
-             tab, sending and forwarding stop working."
+            "zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。"
                 .to_owned(),
         );
     } else if KEEP.contains(&name) {
         out.push(format!(
-            "{name} is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."
+            "{name} 是 daemon.conf 中的关键固件守护进程，结束它可能导致路由器异常，直到该进程重启。"
         ));
         if remote {
-            out.push("You are connected remotely: if the router stops answering, this page can\u{2019}t be reached until it restarts.".into());
+            out.push("你正在远程连接：如果路由器停止应答，则在重新启动之前无法访问此页面。".into());
         }
     }
     out
@@ -288,20 +287,20 @@ fn warnings(name: &str, remote: bool) -> Vec<String> {
 pub fn kill_page(pd: &PageData) -> Markup {
     let csrf = pd.csrf();
     let Some((pid, name)) = pd.read(0).and_then(|p| Some((p["pid"].as_u64()?, p["name"].as_str()?))) else {
-        let q = Ask { title: "This process is no longer running.", lines: &[], label: None, ..ask(PATH) };
+        let q = Ask { title: "该进程不再运行。", lines: &[], label: None, ..ask(PATH) };
         return action::ask(csrf, &q);
     };
     if !is_bloat(name) {
-        let title = format!("{name} is not a bloat daemon.");
-        let q = Ask { title: &title, lines: &["Only bloat daemons can be killed here."], label: None, ..ask(PATH) };
+        let title = format!("{name} 不是冗余守护进程。");
+        let q = Ask { title: &title, lines: &["这里只能结束冗余守护进程。"], label: None, ..ask(PATH) };
         return action::ask(csrf, &q);
     }
-    let title = format!("Kill {name}?");
-    let mut lines = vec![format!("SIGKILL PID {pid}. It will return on reboot.")];
+    let title = format!("结束{name}？");
+    let mut lines = vec![format!("将向 PID {pid} 发送 SIGKILL，重启后该进程会恢复。")];
     lines.extend(warnings(name, pd.remote));
     let lines: Vec<&str> = lines.iter().map(String::as_str).collect();
     let pid = pid.to_string();
-    let q = Ask { title: &title, lines: &lines, hidden: &[("pid", &pid), ("name", name)], label: Some("Kill"), ..ask(KILL) };
+    let q = Ask { title: &title, lines: &lines, hidden: &[("pid", &pid), ("name", name)], label: Some("结束进程"), ..ask(KILL) };
     action::ask(csrf, &q)
 }
 
@@ -324,21 +323,20 @@ pub fn kill_all_page(pd: &PageData) -> Markup {
     let (kill, keep) = (names("kill", Some(1)), names("keep", None));
     let mut lines = Vec::new();
     if n > 0 {
-        lines.push(format!("This will SIGKILL {n} bloat daemons. They will return on reboot."));
+        lines.push(format!("这将使用 SIGKILL 结束 {n} 个冗余守护进程，重启后会恢复。"));
         lines.push(kill.join(", "));
     } else {
-        lines.push("No bloat daemons that are safe to kill are running.".to_owned());
+        lines.push("没有可以安全结束的冗余守护进程正在运行。".to_owned());
     }
     if !keep.is_empty() {
         lines.push(format!(
-            "Left running: {}. The SMS daemon and the boot-critical daemons of daemon.conf are never killed all at \
-             once; kill one from the list if you must.",
+            "保留运行：{}。批量结束不会停止短信服务和 daemon.conf 中的关键守护进程；如确有需要，请在列表中逐个结束。",
             keep.join(", ")
         ));
     }
     let lines: Vec<&str> = lines.iter().map(String::as_str).collect();
-    let label = (n > 0).then_some("Kill All Bloat");
-    let q = Ask { title: "Kill all bloat daemons?", lines: &lines, label, ..ask(KILL_ALL) };
+    let label = (n > 0).then_some("结束所有冗余进程");
+    let q = Ask { title: "结束所有冗余守护进程？", lines: &lines, label, ..ask(KILL_ALL) };
     action::ask(pd.csrf(), &q)
 }
 
@@ -369,11 +367,11 @@ pub fn killed_one(v: &Valid, d: &Value) -> (Option<bool>, String) {
     let pid = v.int("pid");
     let killed = d["killed"].as_array().is_some_and(|k| k.iter().any(|p| p["pid"].as_i64() == Some(pid)));
     if killed {
-        (Some(true), format!("Killed PID {pid}, freed {}", kb(d["freed_rss_kb"].as_u64().unwrap_or(0))))
+        (Some(true), format!("结束PID {pid}，释放{}", kb(d["freed_rss_kb"].as_u64().unwrap_or(0))))
     } else if d.is_null() {
-        (Some(false), format!("PID {pid} is no longer {}. Nothing was killed.", v.get("name")))
+        (Some(false), format!("PID {pid} 已不再属于 {}，未结束任何进程。", v.get("name")))
     } else {
-        (Some(false), format!("PID {pid} was not killed."))
+        (Some(false), format!("未结束 PID {pid}。"))
     }
 }
 
@@ -381,10 +379,10 @@ pub fn killed_one(v: &Valid, d: &Value) -> (Option<bool>, String) {
 /// the post): a neutral line, not a success.
 pub fn killed_all(_: &Valid, d: &Value) -> (Option<bool>, String) {
     if d.is_null() {
-        return (None, "No bloat daemons that are safe to kill are running. Nothing was killed.".to_owned());
+        return (None, "没有可以安全结束的冗余守护进程正在运行。未结束任何进程。".to_owned());
     }
     let n = d["killed"].as_array().map_or(0, Vec::len);
-    (Some(true), format!("Killed {n} daemons, freed {}", kb(d["freed_rss_kb"].as_u64().unwrap_or(0))))
+    (Some(true), format!("结束{n}守护进程，释放{}", kb(d["freed_rss_kb"].as_u64().unwrap_or(0))))
 }
 
 /// CPU & Memory's "Processes" row: the app's orange "N bloat P%" when
@@ -394,9 +392,9 @@ pub fn summary_row(top: Option<&Value>) -> Markup {
     html! {
         li {
             a.it href=(PATH) {
-                (kit::icon(Icon::ListNumber)) span { "Processes" }
+                (kit::icon(Icon::ListNumber)) span { "进程" }
                 @if let (Some(n), Some(d)) = (bloat, top) {
-                    span.v.c-orange { (format!("{n} bloat {:.0}%", d["bloat_cpu_pct"].as_f64().unwrap_or(0.0))) }
+                    span.v.c-orange { (format!("{n} 个冗余进程，占用 {:.0}%", d["bloat_cpu_pct"].as_f64().unwrap_or(0.0))) }
                 }
             }
         }
@@ -457,11 +455,11 @@ mod tests {
     fn rows_follow_the_app() {
         let v = views(Some(fixture()), None);
         let s = list(&v).into_string();
-        assert!(s.starts_with("<section class=\"group\" id=\"pr-list\"><h2>Top Processes</h2><ul class=\"list pr\">"), "{s}");
+        assert!(s.starts_with("<section class=\"group\" id=\"pr-list\"><h2>顶级进程</h2><ul class=\"list pr\">"), "{s}");
         for want in [
             "<span class=\"c-orange\">zte_topsw_diag</span><small>PID 812 · running</small>",
             "<span class=\"c-red\">12.0%</span><small>2.0 MB</small>",
-            "<a class=\"kl\" href=\"/ui/health/processes/kill?pid=812\" aria-label=\"Kill zte_topsw_diag\">Kill</a>",
+            "<a class=\"kl\" href=\"/ui/health/processes/kill?pid=812\" aria-label=\"结束zte_topsw_diag\">结束进程</a>",
             "<span>&lt;b&gt;odd&lt;/b&gt;</span><small>PID 90 · sleeping</small>",
             "<span class=\"c-orange\">2.5%</span><small>1000 KB</small>",
             "<small>1023 KB</small>",
@@ -475,36 +473,36 @@ mod tests {
         assert_eq!(s.matches("class=\"kl\"").count(), 2);
         assert!(!s.contains("<form") && !s.contains("<input"));
         let sum = summary(&v).into_string();
-        assert!(sum.contains("Bloat Daemons") && sum.contains("<small class=\"fg\">3 processes</small><small>4.2% CPU, 22.6 MB RSS</small>"), "{sum}");
-        assert!(kill_all_link(&v).into_string().contains("<a class=\"nl c-red\" href=\"/ui/health/processes/kill-all\">Kill All Bloat</a>"));
+        assert!(sum.contains("个冗余守护进程") && sum.contains("<small class=\"fg\">3 个进程</small><small>4.2% CPU, 22.6 MB RSS</small>"), "{sum}");
+        assert!(kill_all_link(&v).into_string().contains("<a class=\"nl c-red\" href=\"/ui/health/processes/kill-all\">结束所有冗余进程</a>"));
         // Only bloat Kill All leaves (all of it in the list): no Kill All
         // Bloat; one more bloat daemon outside the top 50: it is back.
         let rows = json!([{"pid": 6, "name": SMS}, {"pid": 7, "name": "zte_topsw_mc"}, {"pid": 8, "name": "init"}]);
         let kept = views(Some(json!({"bloat_count": 2, "processes": rows.clone()})), None);
         assert_eq!(kill_all_link(&kept).into_string(), "<span id=\"pr-all\"></span>");
-        assert!(summary(&kept).into_string().contains("Bloat Daemons"));
+        assert!(summary(&kept).into_string().contains("个冗余守护进程"));
         let more = views(Some(json!({"bloat_count": 3, "processes": rows})), None);
-        assert!(kill_all_link(&more).into_string().contains(">Kill All Bloat</a>"));
+        assert!(kill_all_link(&more).into_string().contains(">结束所有冗余进程</a>"));
         // No bloat: no summary, no Kill All Bloat.
         let none = views(Some(json!({"bloat_count": 0, "processes": []})), None);
         assert_eq!(summary(&none).into_string(), "<div id=\"pr-sum\"></div>");
         assert_eq!(kill_all_link(&none).into_string(), "<span id=\"pr-all\"></span>");
         // Before the first reading, and a failed one.
         let empty = views(None, None);
-        assert!(summary(&empty).into_string().contains("Loading processes..."));
+        assert!(summary(&empty).into_string().contains("加载过程..."));
         assert_eq!(list(&empty).into_string(), "<section id=\"pr-list\" hidden></section>");
         let failed = summary(&views(None, Some("no /proc"))).into_string();
         assert!(failed.contains("role=\"alert\">no /proc<") && !failed.contains("Loading"), "{failed}");
         // The app's order: the bloat summary, then the error.
         let both = summary(&views(Some(fixture()), Some("no /proc"))).into_string();
-        assert!(both.find("Bloat Daemons").unwrap() < both.find("no /proc").unwrap(), "{both}");
+        assert!(both.find("个冗余守护进程").unwrap() < both.find("no /proc").unwrap(), "{both}");
     }
 
     #[test]
     fn kb_and_summary_row() {
         assert_eq!((kb(0), kb(1023), kb(1024), kb(23_142)), ("0 KB".into(), "1023 KB".into(), "1.0 MB".into(), "22.6 MB".into()));
         let row = summary_row(Some(&fixture())).into_string();
-        assert!(row.contains("<a class=\"it\" href=\"/ui/health/processes\">") && row.contains("<span class=\"v c-orange\">3 bloat 4%</span>"), "{row}");
+        assert!(row.contains("<a class=\"it\" href=\"/ui/health/processes\">") && row.contains("<span class=\"v c-orange\">3 个冗余进程，占用 4%</span>"), "{row}");
         assert!(!summary_row(Some(&json!({"bloat_count": 0}))).into_string().contains("bloat"));
         assert!(!summary_row(None).into_string().contains("bloat"));
     }
@@ -530,18 +528,18 @@ mod tests {
             assert_eq!(kill_body(&Valid::of(&[("pid", &me.to_string()), ("name", "zte_topsw_diag")]), &[]), None);
         }
         let freed = json!({"killed": [{"pid": 5}, {"pid": 8}], "skipped": [], "freed_rss_kb": 2048});
-        assert_eq!(killed_all(&v, &freed), (Some(true), "Killed 2 daemons, freed 2.0 MB".into()));
+        assert_eq!(killed_all(&v, &freed), (Some(true), "结束2守护进程，释放2.0 MB".into()));
         // Nothing to kill by the time of the post: nothing sent, a neutral line.
-        let none = "No bloat daemons that are safe to kill are running. Nothing was killed.";
+        let none = "没有可以安全结束的冗余守护进程正在运行。未结束任何进程。";
         assert_eq!(killed_all(&v, &Value::Null), (None, none.into()));
         // The app's line only for a PID the agent reports killed.
         let one = Valid::of(&[("pid", "812"), ("name", "zte_topsw_diag")]);
         let d = json!({"killed": [{"pid": 812, "name": "zte_topsw_diag"}], "skipped": [], "freed_rss_kb": 900});
-        assert_eq!(killed_one(&one, &d), (Some(true), "Killed PID 812, freed 900 KB".into()));
+        assert_eq!(killed_one(&one, &d), (Some(true), "结束PID 812，释放900 KB".into()));
         let gone = json!({"killed": [], "skipped": [{"pid": 812, "name": "zte_topsw_diag"}], "freed_rss_kb": 0});
-        assert_eq!(killed_one(&one, &gone), (Some(false), "PID 812 was not killed.".into()));
-        assert_eq!(killed_one(&one, &json!({"killed": [{"pid": 9}]})), (Some(false), "PID 812 was not killed.".into()));
-        assert_eq!(killed_one(&one, &Value::Null), (Some(false), "PID 812 is no longer zte_topsw_diag. Nothing was killed.".into()));
+        assert_eq!(killed_one(&one, &gone), (Some(false), "未结束 PID 812。".into()));
+        assert_eq!(killed_one(&one, &json!({"killed": [{"pid": 9}]})), (Some(false), "未结束 PID 812。".into()));
+        assert_eq!(killed_one(&one, &Value::Null), (Some(false), "PID 812 已不再属于 zte_topsw_diag，未结束任何进程。".into()));
     }
 
     #[test]
@@ -549,9 +547,9 @@ mod tests {
         assert!(warnings("zte_topsw_diag", true).is_empty());
         let w = warnings(SMS, true);
         assert_eq!(w.len(), 1);
-        assert!(w[0].starts_with("zte_topsw_wms handles SMS") && w[0].contains("SMS tab, sending and forwarding"));
-        assert_eq!(warnings("zte_dm", false), ["zte_dm is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."]);
-        assert!(warnings("zte_dm", true)[1].starts_with("You are connected remotely: "));
+        assert!(w[0].starts_with("zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。") && w[0].contains("zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。"));
+        assert_eq!(warnings("zte_dm", false), ["zte_dm 是 daemon.conf 中的关键固件守护进程，结束它可能导致路由器异常，直到该进程重启。"]);
+        assert!(warnings("zte_dm", true)[1].starts_with("你正在远程连接："));
     }
 
     /// Render a confirmation block from a read, as a page would.
@@ -570,39 +568,38 @@ mod tests {
     fn kill_confirmations_name_the_daemons() {
         let s = confirm(kill_page, Ok(json!({"pid": 812, "name": "zte_topsw_diag"})), false);
         for want in [
-            "<h2 class=\"q\">Kill zte_topsw_diag?</h2>", "<li>SIGKILL PID 812. It will return on reboot.</li>",
+            "<h2 class=\"q\">结束zte_topsw_diag？</h2>", "<li>将向 PID 812 发送 SIGKILL，重启后该进程会恢复。</li>",
             "<form class=\"panel\" method=\"post\" action=\"/ui/health/processes/kill\">",
-            "<input type=\"hidden\" name=\"pid\" value=\"812\"><input type=\"hidden\" name=\"name\" value=\"zte_topsw_diag\">\
-             <input type=\"hidden\" name=\"confirm\" value=\"1\">",
-            "<button class=\"btn btn-danger\" type=\"submit\">Kill</button>",
-            "<a class=\"btn btn-quiet\" href=\"/ui/health/processes\">Cancel</a>",
+            "<input type=\"hidden\" name=\"pid\" value=\"812\"><input type=\"hidden\" name=\"name\" value=\"zte_topsw_diag\"><input type=\"hidden\" name=\"confirm\" value=\"1\">",
+            "<button class=\"btn btn-danger\" type=\"submit\">结束进程</button>",
+            "<a class=\"btn btn-quiet\" href=\"/ui/health/processes\">取消</a>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
         assert_eq!(s.matches("<li>").count(), 1);
         // The SMS daemon and a daemon.conf one: warned, still possible.
         let s = confirm(kill_page, Ok(json!({"pid": 400, "name": SMS})), false);
-        assert!(s.contains("<li>zte_topsw_wms handles SMS:") && s.contains(">Kill</button>"), "{s}");
+        assert!(s.contains("<li>zte_topsw_wms 负责短信。") && s.contains(">结束进程</button>"), "{s}");
         let s = confirm(kill_page, Ok(json!({"pid": 401, "name": "zte_topsw_mc"})), true);
-        assert!(s.contains("boot-critical firmware daemon (daemon.conf)") && s.contains("connected remotely"), "{s}");
+        assert!(s.contains("daemon.conf 中的关键固件守护进程") && s.contains("你正在远程连接"), "{s}");
         // Not bloat, or gone: no form.
         let s = confirm(kill_page, Ok(json!({"pid": 1, "name": "<b>init</b>"})), false);
-        assert!(s.contains("&lt;b&gt;init&lt;/b&gt; is not a bloat daemon.") && !s.contains("<form"), "{s}");
+        assert!(s.contains("&lt;b&gt;init&lt;/b&gt; 不是冗余守护进程。") && !s.contains("<form"), "{s}");
         assert!(!confirm(kill_page, Err("not running".into()), false).contains("<form"));
         // Kill All: the app's question for the daemons it kills, named once,
         // and the SMS and daemon.conf daemons left running.
         let read = split(&[(5, "zte_topsw_diag".into()), (6, SMS.into()), (8, "zte_topsw_diag".into()), (9, "zte_dua".into()), (11, "zte_dm".into())]);
         let s = confirm(kill_all_page, Ok(read), false);
         for want in [
-            "<h2 class=\"q\">Kill all bloat daemons?</h2>", "<li>This will SIGKILL 3 bloat daemons. They will return on reboot.</li>",
-            "<li>zte_topsw_diag, zte_dua</li>", "<li>Left running: zte_topsw_wms, zte_dm. The SMS daemon",
-            "action=\"/ui/health/processes/kill-all\"", ">Kill All Bloat</button>",
+            "<h2 class=\"q\">结束所有冗余守护进程？</h2>", "<li>这将使用 SIGKILL 结束 3 个冗余守护进程，重启后会恢复。</li>",
+            "<li>zte_topsw_diag, zte_dua</li>", "<li>保留运行：zte_topsw_wms, zte_dm。批量结束不会停止短信服务",
+            "action=\"/ui/health/processes/kill-all\"", ">结束所有冗余进程</button>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
         assert!(!s.contains("name=\"pid\"") && !s.contains("name=\"name\""));
         let s = confirm(kill_all_page, Ok(split(&[(6, SMS.into())])), false);
-        assert!(s.contains("No bloat daemons that are safe to kill are running.") && s.contains("Left running: zte_topsw_wms.") && !s.contains("<form"), "{s}");
+        assert!(s.contains("没有可以安全结束的冗余守护进程正在运行。") && s.contains("保留运行：zte_topsw_wms。") && !s.contains("<form"), "{s}");
     }
 
     #[test]

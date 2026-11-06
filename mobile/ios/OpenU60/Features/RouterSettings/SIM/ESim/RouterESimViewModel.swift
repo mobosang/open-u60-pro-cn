@@ -57,7 +57,7 @@ final class RouterESimViewModel {
     }
 
     /// Shown, not as an error, when a confirmed switch or delete finds the card still in use.
-    static let busyText = "The eSIM is busy; try again in a moment."
+    static let busyText = "eSIM 忙；稍后再试。"
 
     var enabledProfile: RouterESimProfile? { profiles.first(where: \.isEnabled) }
     var blocksSwitching: Bool { isLoading || isSwitching || operationInFlight || download.isBusy || connectionPhase.blocksSwitching }
@@ -167,14 +167,14 @@ final class RouterESimViewModel {
             if outcomeUnknown(error) {
                 // The card command failed or timed out, but the card may have switched: the agent checks.
                 beginFollowingSwitch(to: target)
-                showMessage("The router is checking whether the switch happened.", isError: false)
+                showMessage("路由器正在检查是否发生切换。", isError: false)
                 return
             }
             connectionPhase = .unavailable
             switchingTo = nil
             reconnectTracker = nil
             switchedAt = nil
-            showMessage("Switch failed: \(errorText(error))", isError: true)
+            showMessage("切换失败：\(errorText(error))", isError: true)
         }
     }
 
@@ -198,7 +198,7 @@ final class RouterESimViewModel {
         let nickname = name.trimmingCharacters(in: .whitespacesAndNewlines)
         pendingRename = nil
         guard nickname.utf8.count <= 64 else {
-            showMessage("Nicknames can be up to 64 bytes.", isError: true)
+            showMessage("昵称最长可达 64 个字节。", isError: true)
             return
         }
         guard !blocksSwitching, nickname != target.nickname else { return }
@@ -209,7 +209,7 @@ final class RouterESimViewModel {
             while downloadInFlight { try await Task.sleep(for: .milliseconds(50)) }
             _ = try await client.postJSON("/api/esim/nickname", body: ["iccid": target.iccid, "nickname": nickname])
             await loadProfiles()
-            showMessage(nickname.isEmpty ? "Nickname cleared." : "Renamed to \(nickname).", isError: false)
+            showMessage(nickname.isEmpty ? "Nickname cleared." : "已重命名为 \(nickname)。", isError: false)
         } catch { if !error.isCancellation { showMessage(errorText(error), isError: true) } }
     }
 
@@ -223,8 +223,8 @@ final class RouterESimViewModel {
             try await Task.sleep(for: .seconds(8))
             let data = try await client.getJSON("/api/esim/notifications")
             if let count = data["count"] as? Int { pendingReceipts = count }
-            showMessage(pendingReceipts == 0 ? "Operator receipts sent."
-                        : "Some receipts couldn't be sent yet. The router keeps retrying.", isError: pendingReceipts != 0)
+            showMessage(pendingReceipts == 0 ? "发送的运营商回执。"
+                        : "部分回执尚未发送。路由器不断重试。", isError: pendingReceipts != 0)
         } catch { if !error.isCancellation { showMessage(errorText(error), isError: true) } }
     }
 
@@ -250,15 +250,15 @@ final class RouterESimViewModel {
             await loadProfiles()
             await loadChip()
             let suffix = result["operator_notified"] as? Bool == false
-                ? " The operator will be notified on the next eSIM change." : ""
-            showMessage("\(target.displayName) deleted." + suffix, isError: false)
+                ? "下次更改 eSIM 时将通知运营商。" : ""
+            showMessage("已删除 \(target.displayName)。" + suffix, isError: false)
         } catch { if !error.isCancellation { showMessage(errorText(error), isError: true) } }
     }
 
     func startDownload(code: String, confirmationCode: String) async {
         guard !blocksSwitching, let parsed = RouterESimActivationCode.parse(code) else { return }
         guard !parsed.needsConfirmationCode || RouterESimActivationCode.validConfirmationCode(confirmationCode) else {
-            downloadNote = "Enter the confirmation code from your operator (up to 64 characters)."
+            downloadNote = "请输入运营商提供的确认码（最多 64 个字符）。"
             return
         }
         var body: [String: Any] = ["activation_code": parsed.value, "preview": true]
@@ -359,7 +359,7 @@ final class RouterESimViewModel {
                 let simState = (sim["sim_states"] as? String ?? "").lowercased()
                 if simState == "wait pin" || simState == "wait puk" {
                     connectionPhase = .waiting
-                    connectionNote = "The SIM needs to be unlocked. Open SIM Card to continue."
+                    connectionNote = "需要先解锁 SIM 卡。请打开“SIM 卡”页面继续。"
                 } else {
                     connectionPhase = tracker.phase(simICCID: sim["sim_iccid"] as? String ?? "",
                                                     status: status, elapsed: Date().timeIntervalSince(switchedAt))
@@ -433,15 +433,15 @@ final class RouterESimViewModel {
             inventory = fresh
             profiles = fresh.profiles
             pendingReceipts = fresh.pendingReceipts
-            listError = fresh.errorText.map { "\($0) Showing the list read at \(Self.clock(fresh.observedAt))." }
+            listError = fresh.errorText.map { "\($0) 当前显示 \(Self.clock(fresh.observedAt)) 读取的列表。" }
         } catch {
             guard !error.isCancellation else { return }
-            listError = "Couldn't read eSIM profiles: \(errorText(error))"
+            listError = "无法读取 eSIM 配置文件：\(errorText(error))"
         }
     }
 
     private static func clock(_ unix: UInt64) -> String {
-        guard unix > 0 else { return "an earlier time" }
+        guard unix > 0 else { return "此前的时间" }
         return Date(timeIntervalSince1970: TimeInterval(unix)).formatted(date: .omitted, time: .shortened)
     }
 

@@ -144,7 +144,7 @@ class STKViewModel @Inject constructor(
         pollingStopped = true
         _state.value = _state.value.copy(stkMenu = STKMenu.empty, commandId = "",
             stkType = "status", stkText = "", stkReply = "", stkBusy = false,
-            stkReason = "Reload the SIM menu to reconnect.")
+            stkReason = "重新加载SIM菜单以重新连接。")
         setError(error.message)
     }
 
@@ -200,7 +200,7 @@ class STKViewModel @Inject constructor(
                     ussdResponse = USSDResponse.empty,
                     ussdReply = "",
                     isLoading = false,
-                    message = "USSD session cancelled",
+                    message = "USSD会话取消",
                     messageIsError = false,
                 )
             } catch (e: AgentError.Unauthorized) {

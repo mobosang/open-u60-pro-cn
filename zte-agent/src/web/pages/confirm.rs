@@ -305,7 +305,7 @@ fn back(kind: Kind, input: &Input) -> String {
 
 /// The remote line: what a change that may cut this connection means for a
 /// browser over Tailscale (every remote line opens the same way).
-pub const REMOTE: &str = "You are connected remotely: if the connection drops, this page can\u{2019}t be reached until the router is back online.";
+pub const REMOTE: &str = "你正在远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面。";
 
 pub struct Question {
     pub title: String,
@@ -346,58 +346,58 @@ fn question(kind: Kind, input: &Input, remote: bool, read: Option<(&Result<Value
     };
     Some(match kind {
         Kind::Speed => {
-            let Some(id) = input.server else { return Some(nothing("Select a server first", Vec::new())) };
+            let Some(id) = input.server else { return Some(nothing("先选择服务器", Vec::new())) };
             let (servers, progress) = read.unwrap_or((&Ok(Value::Null), &Value::Null));
             let servers = match servers {
                 Ok(s) => s,
-                Err(e) => return Some(nothing("Failed to load servers", vec![fmt::truncate(e, 120)])),
+                Err(e) => return Some(nothing("加载服务器失败", vec![fmt::truncate(e, 120)])),
             };
             let Some(server) = servers.as_array().and_then(|a| a.iter().find(|s| speedtest::id_of(s) == Some(id))) else {
-                return Some(nothing("This server is no longer in the list.", vec!["Choose another one.".into()]));
+                return Some(nothing("该服务器已不在列表中。", vec!["选择另一项。".into()]));
             };
             if speedtest::running(progress) {
-                return Some(nothing("A speed test is already running.", Vec::new()));
+                return Some(nothing("速度测试已经在运行。", Vec::new()));
             }
             let lines = vec![
-                format!("Server: {}", speedtest::server_label(server)),
-                "It downloads for 15 seconds and uploads 10 MB over the mobile connection: about 200 MB at 100 Mbit/s, more on a faster link.".into(),
-                "Your plan may count this data.".into(),
+                format!("服务器：{}", speedtest::server_label(server)),
+                "下载时间为 15 秒，并通过移动连接上传 10 MB：以 100 Mbit/s 的速度上传约 200 MB，如果链接速度更快，则上传量会更多。".into(),
+                "您的计划可能会计算此数据。".into(),
             ];
-            ask("Start the speed test?", lines, "Start Speed Test", false)
+            ask("开始速度测试？", lines, "启动速度测试", false)
         }
         Kind::Adb => ask(
-            "Enable ADB?",
+            "启用 ADB？",
             vec![
-                "Anything plugged into the USB-C port gets a root shell on the router, without a password.".into(),
-                "A computer that uses the USB-C cable for its network connection may lose it while the USB mode changes.".into(),
+                "任何插入 USB-C 端口的设备都会在路由器上获得 root shell，无需密码。".into(),
+                "使用 USB-C 电缆进行网络连接的计算机可能会在 USB 模式更改时丢失该电缆。".into(),
             ],
-            "Enable ADB",
+            "启用 ADB",
             true,
         ),
-        Kind::Nr if input.bands.is_empty() => nothing("Select at least one NR band", Vec::new()),
-        Kind::Lte if input.bands.is_empty() => nothing("Select at least one LTE band", Vec::new()),
+        Kind::Nr if input.bands.is_empty() => nothing("至少选择一个 NR 频段", Vec::new()),
+        Kind::Lte if input.bands.is_empty() => nothing("至少选择一个 LTE 频段", Vec::new()),
         Kind::Nr => ask(
-            "Apply NR Lock?",
+            "应用 NR 锁定？",
             vec![
-                format!("The modem will use only these 5G NR bands, for NSA and SA: {}.", band_list(&input.bands, ", ")),
-                "If your operator has no 5G on these bands here, the router can lose 5G, or all service, until you unlock the bands.".into(),
+                format!("调制解调器将仅使用这些 5G NR 频段，对于 NSA 和 SA：{}。", band_list(&input.bands, ", ")),
+                "如果您的运营商在这些频段上没有 5G，则路由器可能会失去 5G 或所有服务，直到您解锁频段。".into(),
             ],
-            "Apply NR Lock",
+            "应用 NR 频段锁定",
             true,
         ),
         Kind::Lte => ask(
-            "Apply LTE Lock?",
+            "应用 LTE 锁定？",
             vec![
-                format!("The modem will use only these LTE bands: {}.", band_list(&input.bands, ", ")),
-                "If your operator does not use these bands here, the router can lose its connection until you unlock the bands.".into(),
+                format!("调制解调器将仅使用这些 LTE 频段：{}。", band_list(&input.bands, ", ")),
+                "如果您的运营商在此处不使用这些频段，则路由器可能会失去连接，直到您解锁频段。".into(),
             ],
-            "Apply LTE Lock",
+            "应用 LTE 频段锁定",
             true,
         ),
         _ => ask(
-            "Unlock all bands?",
-            vec!["The modem may use every band again. It may re-register, which drops the connection for a moment.".into()],
-            "Unlock All Bands",
+            "解除所有频段锁定？",
+            vec!["调制解调器可以再次使用每个频段。它可能会重新注册，从而暂时断开连接。".into()],
+            "解除所有频段锁定",
             true,
         ),
     })
@@ -419,7 +419,7 @@ fn ask_page(app: &AppState, once: &Once, p: &Principal, nonce: &str, kind: Kind,
         tab: Some(s.tab),
         nonce,
         lead: kit::back(s.path, s.title),
-        heading: Some(html! { h1 { "Confirm" } }),
+        heading: Some(html! { h1 { "确认" } }),
         ..PageCtx::default()
     };
     render::html(200, render::page(&pc, action::ask(render::csrf_field(&app.auth, p), &a)))
@@ -487,7 +487,7 @@ fn send(app: &AppState, kind: Kind, input: &Input, claim: &mut Claim) -> Result<
     let r = match kind {
         Kind::Speed => {
             let r = call(json!({"server_id": input.server.unwrap_or(0)}));
-            return r.map_err(|(status, e)| (status, format!("Failed to start: {}", fmt::truncate(&e, 120))));
+            return r.map_err(|(status, e)| (status, format!("启动失败：{}", fmt::truncate(&e, 120))));
         }
         Kind::Adb => call(json!({"mode": "debug"})),
         // The app locks NSA, then SA, with the same bands; an SA failure
@@ -498,7 +498,7 @@ fn send(app: &AppState, kind: Kind, input: &Input, claim: &mut Claim) -> Result<
             match call(json!({"nr5g_type": "nsa", "nr5g_band": bands})) {
                 Ok(()) => {
                     return call(json!({"nr5g_type": "sa", "nr5g_band": bands})).map_err(|(status, e)| {
-                        (status, format!("NR bands locked for NSA only: {bands}. SA lock failed: {}", fmt::truncate(&e, 120)))
+                        (status, format!("NR 频段仅限 NSA 锁定：{bands}。 SA锁定失败：{}", fmt::truncate(&e, 120)))
                     })
                 }
                 Err(e) => Err(e),
@@ -507,7 +507,7 @@ fn send(app: &AppState, kind: Kind, input: &Input, claim: &mut Claim) -> Result<
         Kind::Lte => call(json!({"is_lte_band": "1", "lte_band_mask": band_list(&input.bands, ","), "is_gw_band": "0", "gw_band_mask": ""})),
         _ => call(json!({})),
     };
-    r.map_err(|(status, e)| (status, format!("Failed: {}", fmt::truncate(&e, 120))))
+    r.map_err(|(status, e)| (status, format!("失败：{}", fmt::truncate(&e, 120))))
 }
 
 /// Where a post leads.
@@ -541,11 +541,11 @@ fn next(kind: Kind, input: &Input, r: Result<(), &str>, app: &AppState) -> Next 
             to = format!("{to}{sep}since={:x}", app.hub.peek(Topic::Speedtest).version << 1);
         }
         let line = match kind {
-            Kind::Speed => "Speed test started".to_owned(),
-            Kind::Adb => "ADB debug mode enabled. Connect USB-C cable to access the device.".to_owned(),
-            Kind::Nr => format!("NR bands locked: {}", band_list(&input.bands, ",")),
-            Kind::Lte => format!("LTE bands locked: {}", band_list(&input.bands, ",")),
-            _ => "All bands unlocked".to_owned(),
+            Kind::Speed => "速度测试开始".to_owned(),
+            Kind::Adb => "ADB 调试模式已启用。连接 USB-C 电缆以访问设备。".to_owned(),
+            Kind::Nr => format!("NR 频段已锁定：{}", band_list(&input.bands, ",")),
+            Kind::Lte => format!("LTE 频段已锁定：{}", band_list(&input.bands, ",")),
+            _ => "所有频段已解锁".to_owned(),
         };
         return Next::Line(to, Some(true), line);
     };
@@ -644,9 +644,9 @@ pub async fn post(ctx: Ctx, req: Request, kind: Kind) -> Response {
     match job::once(&ctx, p.id, &nonce, &token, digest, kind.lane(), limit, work).await {
         Sent::Ran(resp) => resp,
         Sent::Done(r) => answer(&ctx.app, &stores, &token, next(kind, &input, r.as_ref().map(|_| ()).map_err(|(_, m)| m.as_str()), &ctx.app)),
-        Sent::Expired => note(Some(false), "This page expired, so nothing was sent. Try again."),
-        Sent::Unknown => note(None, "The router may still be working on it. Check before trying again."),
-        Sent::Busy => note(Some(false), "Failed: the router is busy. Try again in a few seconds."),
+        Sent::Expired => note(Some(false), "该页面已过期，因此未发送任何内容。再试一次。"),
+        Sent::Unknown => note(None, "路由器可能仍在处理它。重试前请检查。"),
+        Sent::Busy => note(Some(false), "失败：路由器正忙。几秒钟后重试。"),
     }
 }
 
@@ -681,7 +681,7 @@ mod tests {
         assert_eq!(back(Kind::Unlock, &i), "/ui/tools/band-lock");
         assert_eq!(back(Kind::Nr, &i), "/ui/tools/band-lock?nr=1&nr=3&nr=78");
         let app = AppState::new();
-        assert!(matches!(next(Kind::Nr, &i, Ok(()), &app), Next::Line(to, Some(true), l) if l == "NR bands locked: 1,3,78" && to == "/ui/tools/band-lock?nr=1&nr=3&nr=78"));
+        assert!(matches!(next(Kind::Nr, &i, Ok(()), &app), Next::Line(to, Some(true), l) if l == "NR 频段已锁定：1,3,78" && to == "/ui/tools/band-lock?nr=1&nr=3&nr=78"));
     }
 
     /// The lanes are the calls' (`server::lane`): only Enable ADB, Mobile
@@ -701,18 +701,18 @@ mod tests {
     fn questions_name_what_happens() {
         let i = Input { server: None, bands: vec![3, 78], vals: vec![] };
         let q = question(Kind::Nr, &i, true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.label), ("Apply NR Lock?", Some("Apply NR Lock")));
-        assert!(q.lines[0].ends_with("for NSA and SA: 3, 78.") && q.lines.last().unwrap() == REMOTE);
+        assert_eq!((q.title.as_str(), q.label), ("应用 NR 锁定？", Some("应用 NR 频段锁定")));
+        assert!(q.lines[0].ends_with("对于 NSA 和 SA：3, 78。") && q.lines.last().unwrap() == REMOTE);
         assert!(!question(Kind::Nr, &i, false, None).unwrap().lines.contains(&REMOTE.to_owned()));
         assert_eq!(question(Kind::Lte, &Input::default(), false, None).unwrap().label, None);
         assert!(!question(Kind::Adb, &i, true, None).unwrap().lines.contains(&REMOTE.to_owned()));
         let servers = Ok(json!([{"id": 7, "sponsor": "Example Net", "name": "Testville", "country": "Nowhere"}]));
         let s = Input { server: Some(7), ..Input::default() };
         let q = question(Kind::Speed, &s, false, Some((&servers, &json!({"phase": "complete"})))).unwrap();
-        assert_eq!((q.title.as_str(), q.lines[0].as_str()), ("Start the speed test?", "Server: Example Net - Testville, Nowhere"));
+        assert_eq!((q.title.as_str(), q.lines[0].as_str()), ("开始速度测试？", "服务器：Example Net - Testville, Nowhere"));
         assert!(!q.danger);
         let q = question(Kind::Speed, &s, false, Some((&servers, &json!({"phase": "upload"})))).unwrap();
-        assert_eq!((q.title.as_str(), q.label), ("A speed test is already running.", None));
+        assert_eq!((q.title.as_str(), q.label), ("速度测试已经在运行。", None));
         let gone = Input { server: Some(8), ..Input::default() };
         assert_eq!(question(Kind::Speed, &gone, false, Some((&servers, &Value::Null))).unwrap().label, None);
         let failed = Err("fetch servers: timed out".to_owned());

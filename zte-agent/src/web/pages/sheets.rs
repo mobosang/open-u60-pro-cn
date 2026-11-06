@@ -31,8 +31,7 @@ pub fn traffic_body(v: &Views) -> Markup {
         div.dash {
             (dashboard::traffic_sheet(v))
             p.note {
-                "These speeds show current cellular traffic across all connected devices. A speed test reports \
-                 throughput over its test period; the live numbers change throughout that period."
+                "这些速度显示所有连接设备上当前的蜂窝流量。速度测试报告测试期间的吞吐量；在此期间，实时数据会发生变化。"
             }
         }
     }
@@ -68,21 +67,21 @@ pub fn battery_rows(v: &Views) -> Markup {
     html! {
         section #bat-detail .group {
             ul.list {
-                (kit::kv_row(Some(kit::battery_icon(capacity)), "Capacity", &dash_or(capacity.map(|c| format!("{c}%")))))
-                (kit::kv_row(Some(Icon::Bolt), "Status", fmt::charge_label(state, capacity).0))
-                @if let Some(mv) = mv { (kit::kv_row_m(Some(Icon::BoltCircle), "Voltage", roll(v, "bv", &format!("{:.3} V", mv as f64 / 1000.0)))) }
-                @if let Some(ma) = ma { (kit::kv_row_m(Some(Icon::Swap), "Current", roll(v, "bc", &format!("{ma} mA")))) }
-                @if let Some(w) = b.and_then(fmt::watts) { (kit::kv_row_m(Some(Icon::Flame), "Power", roll(v, "bw", &format!("{w:.1} W")))) }
+                (kit::kv_row(Some(kit::battery_icon(capacity)), "容量", &dash_or(capacity.map(|c| format!("{c}%")))))
+                (kit::kv_row(Some(Icon::Bolt), "状态", fmt::charge_label(state, capacity).0))
+                @if let Some(mv) = mv { (kit::kv_row_m(Some(Icon::BoltCircle), "电压", roll(v, "bv", &format!("{:.3} V", mv as f64 / 1000.0)))) }
+                @if let Some(ma) = ma { (kit::kv_row_m(Some(Icon::Swap), "当前", roll(v, "bc", &format!("{ma} mA")))) }
+                @if let Some(w) = b.and_then(fmt::watts) { (kit::kv_row_m(Some(Icon::Flame), "电源", roll(v, "bw", &format!("{w:.1} W")))) }
                 // The app's temperature is in the primary colour (its other values are secondary).
                 li.it {
-                    (kit::icon(Icon::Thermometer)) span { "Temperature" }
+                    (kit::icon(Icon::Thermometer)) span { "温度" }
                     @match b.and_then(fmt::battery_celsius) {
                         Some(t) => span.v.fg { (fmt::celsius(t)) },
                         None => span.v { (DASH) },
                     }
                 }
-                (kit::kv_row(Some(Icon::BatteryBolt), "Time to Full", &eta("battery_time_to_full", fmt::Charge::Charging)))
-                (kit::kv_row(Some(Icon::Battery(25)), "Time to Empty", &eta("battery_time_to_empty", fmt::Charge::Discharging)))
+                (kit::kv_row(Some(Icon::BatteryBolt), "充满所需时间", &eta("battery_time_to_full", fmt::Charge::Charging)))
+                (kit::kv_row(Some(Icon::Battery(25)), "预计剩余时间", &eta("battery_time_to_empty", fmt::Charge::Discharging)))
             }
             (age_line(v, POWER))
         }
@@ -100,18 +99,18 @@ pub const HEALTH: [Fragment; 3] = [
 /// The app's name for a thermal zone (`TemperatureSensor.label`).
 pub fn sensor_label(name: &str) -> String {
     if let Some(n) = name.strip_prefix("cpuss-") {
-        return format!("CPU sensor {n}");
+        return format!("CPU传感器{n}");
     }
     if let Some(n) = name.strip_prefix("sys-therm-") {
-        return format!("Board sensor {n}");
+        return format!("板传感器 {n}");
     }
     match name {
-        "battery" => "Battery",
+        "battery" => "电池",
         "usb" => "USB",
-        "pmx75_tz" => "Power chip \u{b7} PMX75",
-        "pmg1110_tz" => "Power chip \u{b7} PMG1110",
-        "pm7550ba_tz" => "Power chip \u{b7} PM7550BA",
-        "xo-therm" => "Crystal oscillator",
+        "pmx75_tz" => "电源芯片·PMX75",
+        "pmg1110_tz" => "电源芯片·PMG1110",
+        "pm7550ba_tz" => "电源芯片·PM7550BA",
+        "xo-therm" => "晶体振荡器",
         other => other,
     }
     .to_owned()
@@ -166,7 +165,7 @@ fn temp_row(v: &Views, key: &str, i: Icon, label: &str, value: Option<f64>, fres
         div {
             dt { (kit::icon(i)) " " (label) }
             @match (fresh, value) {
-                (true, None) => dd.muted { "Unavailable" },
+                (true, None) => dd.muted { "不可用" },
                 (true, Some(t)) => dd { b { (roll(v, key, &fmt::celsius(t))) } },
                 (false, _) => dd { b { (DASH) } },
             }
@@ -183,17 +182,17 @@ fn hl_temps(v: &Views) -> Markup {
     html! {
         div #hl-temps {
             dl.kv.tk {
-                (temp_row(v, "tc", Icon::Cpu, "CPU \u{b7} hottest sensor", cpu_temp(v), thermal_fresh))
-                (temp_row(v, "tb", Icon::Battery(100), "Battery", battery, fresh(v, Topic::Battery)))
+                (temp_row(v, "tc", Icon::Cpu, "CPU·最热传感器", cpu_temp(v), thermal_fresh))
+                (temp_row(v, "tb", Icon::Battery(100), "电池", battery, fresh(v, Topic::Battery)))
                 @for (i, (name, t)) in sensors(v).into_iter().filter(|(n, _)| summary(n)).enumerate() {
                     (temp_row(v, &format!("ts{}", letters(i)), Icon::Thermometer, &sensor_label(name), t, thermal_fresh))
                 }
             }
             p.cap {
                 @match age {
-                    None => "Temperature readings unavailable \u{b7} retrying automatically",
-                    Some(s) if s < 10 => { "Updated " (s) "s ago \u{b7} refreshes every 2s" },
-                    Some(s) => { "Last sample " (s) "s ago \u{b7} waiting for device" },
+                    None => "温度读数不可用 · 自动重试",
+                    Some(s) if s < 10 => { "更新 " (s) " 秒前 · 每 2 秒刷新" },
+                    Some(s) => { "最后一个样本 " (s) " 秒前 · 等待设备" },
                 }
             }
         }
@@ -208,7 +207,7 @@ fn hl_all(v: &Views) -> Markup {
                 @let label = sensor_label(name);
                 div {
                     dt { (label) @if label != name { small.lbl { (name) } } }
-                    @match t { Some(t) => dd { (roll(v, &format!("ta{}", letters(i)), &fmt::celsius(t))) }, None => dd.muted { "Unavailable" } }
+                    @match t { Some(t) => dd { (roll(v, &format!("ta{}", letters(i)), &fmt::celsius(t))) }, None => dd.muted { "不可用" } }
                 }
             }
         }
@@ -225,18 +224,17 @@ pub fn health(pd: &PageData) -> Markup {
 pub fn health_body(v: &Views) -> Markup {
     let temps = html! {
         (hl_temps(v))
-        details { summary { "All sensors" } (hl_all(v)) }
+        details { summary { "所有传感器" } (hl_all(v)) }
         p.cap {
-            "CPU shows the hottest CPU zone. Board numbers follow the device\u{2019}s sensor names. Unavailable \
-             means the device is not reporting a valid temperature."
+            "CPU 显示最热的 CPU 区域。板号遵循设备的传感器名称。不可用意味着设备未报告有效的温度。"
         }
     };
     html! {
         (render::live_snapshot("/ui/health"))
         div.dash {
             (hl_cpu(v))
-            p.ctr { a.nl href="/ui/health/cpu" { "CPU, memory & processes" } }
-            (kit::card(None, None, Icon::Thermometer, "Temperatures", temps))
+            p.ctr { a.nl href="/ui/health/cpu" { "CPU、内存和进程" } }
+            (kit::card(None, None, Icon::Thermometer, "温度", temps))
         }
     }
 }
@@ -254,17 +252,17 @@ fn live_row(id: &str, i: Icon, label: &str, value: Markup) -> Markup {
 }
 
 fn hc_use(v: &Views) -> Markup {
-    live_row("hc-use", Icon::Cpu, "CPU Usage", roll(v, "cpu", &percent(cpu_usage(v))))
+    live_row("hc-use", Icon::Cpu, "CPU 使用率", roll(v, "cpu", &percent(cpu_usage(v))))
 }
 
 /// The cores the kernel reports (the app assumes 4).
 fn hc_cores(v: &Views) -> Markup {
     let n = v.value(Topic::Health).and_then(|h| h["cpu"]["cores"].as_array()).map(Vec::len).filter(|n| *n > 0);
-    live_row("hc-cores", Icon::Grid, "CPU Cores", html! { (dash_or(n.map(|n| n.to_string()))) })
+    live_row("hc-cores", Icon::Grid, "CPU 核心", html! { (dash_or(n.map(|n| n.to_string()))) })
 }
 
 fn hc_temp(v: &Views) -> Markup {
-    live_row("hc-temp", Icon::Thermometer, "CPU \u{b7} hottest sensor", roll(v, "tc", &dash_or(cpu_temp(v).map(fmt::celsius))))
+    live_row("hc-temp", Icon::Thermometer, "CPU·最热传感器", roll(v, "tc", &dash_or(cpu_temp(v).map(fmt::celsius))))
 }
 
 /// Uptime and memory from `/api/device/system` at page load (read 0), the
@@ -285,10 +283,10 @@ pub fn cpu(pd: &PageData) -> Markup {
                 (hc_use(v))
                 (hc_cores(v))
                 (hc_temp(v))
-                (kit::kv_row(Some(Icon::Clock), "Uptime", &dash_or(uptime)))
-                (kit::kv_row(Some(Icon::Memory), "Memory Total", &dash_or(total.map(fmt::memory))))
-                (kit::kv_row(Some(Icon::Memory), "Memory Free", &dash_or(avail.map(fmt::memory))))
-                @if let Some(u) = used { (kit::kv_row(Some(Icon::Chart), "Memory Used", &u)) }
+                (kit::kv_row(Some(Icon::Clock), "正常运行时间", &dash_or(uptime)))
+                (kit::kv_row(Some(Icon::Memory), "内存总量", &dash_or(total.map(fmt::memory))))
+                (kit::kv_row(Some(Icon::Memory), "可用内存", &dash_or(avail.map(fmt::memory))))
+                @if let Some(u) = used { (kit::kv_row(Some(Icon::Chart), "已用内存", &u)) }
                 (super::processes::summary_row(pd.read(1)))
             }
         }
@@ -338,13 +336,13 @@ mod tests {
         ]);
         let s = battery_rows(&v).into_string();
         let rows: Vec<(&str, &str)> = vec![
-            ("Capacity", "69%"), ("Status", "Charging"), ("Voltage", "4.435 V"), ("Current", "5680 mA"), ("Power", "25.2 W"),
-            ("Temperature", "26.0 °C"), ("Time to Full", "37m"), ("Time to Empty", "\u{2014}"),
+            ("容量", "69%"), ("状态", "充电中"), ("电压", "4.435 V"), ("当前", "5680 mA"), ("电源", "25.2 W"),
+            ("温度", "26.0 °C"), ("充满所需时间", "37m"), ("预计剩余时间", "—"),
         ];
         let mut at = 0;
         for (label, value) in rows {
             // The temperature in the primary colour, as the app's.
-            let class = if label == "Temperature" { "v fg" } else { "v" };
+            let class = if label == "温度" { "v fg" } else { "v" };
             let row = format!("<span>{label}</span><span class=\"{class}\">{value}</span>");
             let i = s[at..].find(&row).unwrap_or_else(|| panic!("{row} in order in {s}"));
             at += i;
@@ -356,26 +354,26 @@ mod tests {
             (Topic::BatteryInfo, json!({"battery_time_to_full": 37, "battery_time_to_empty": 1240})),
         ]);
         let s = battery_rows(&v).into_string();
-        for want in [">Discharging<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "Time to Full</span><span class=\"v\">\u{2014}"] {
+        for want in [">放电中<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "充满所需时间</span><span class=\"v\">—"] {
             assert!(s.contains(want), "{want} in {s}");
         }
         // Unknown voltage and current: no Voltage, Current or Power rows.
         let s = battery_rows(&views(vec![(Topic::Battery, json!({"status": "Full", "capacity": 100}))])).into_string();
-        assert!(s.contains(">Full<") && !s.contains("Voltage") && !s.contains("Current") && !s.contains("Power"), "{s}");
+        assert!(s.contains(">已充满<") && !s.contains("电压") && !s.contains("当前") && !s.contains("电源"), "{s}");
         assert_eq!(s.matches("<li class=\"it\">").count(), 5);
         let s = battery_rows(&views(vec![(Topic::Battery, json!({"capacity": 50, "current_ua": 120_000}))])).into_string();
-        assert!(s.contains(">Unavailable<") && s.contains(">120 mA<") && !s.contains("Power"), "{s}");
+        assert!(s.contains(">不可用<") && s.contains(">120 mA<") && !s.contains("电源"), "{s}");
         // Nothing read yet.
         let s = battery_rows(&views(vec![])).into_string();
-        assert!(s.contains("Capacity</span><span class=\"v\">\u{2014}") && s.contains(">Unavailable<"), "{s}");
+        assert!(s.contains("容量</span><span class=\"v\">—") && s.contains(">不可用<"), "{s}");
     }
 
     #[test]
     fn sensors_are_labelled_like_the_app() {
         for (name, label) in [
-            ("cpuss-3", "CPU sensor 3"), ("sys-therm-1", "Board sensor 1"), ("battery", "Battery"), ("usb", "USB"),
-            ("pmx75_tz", "Power chip \u{b7} PMX75"), ("pmg1110_tz", "Power chip \u{b7} PMG1110"),
-            ("pm7550ba_tz", "Power chip \u{b7} PM7550BA"), ("xo-therm", "Crystal oscillator"), ("modem-0", "modem-0"),
+            ("cpuss-3", "CPU传感器3"), ("sys-therm-1", "板传感器 1"), ("battery", "电池"), ("usb", "USB"),
+            ("pmx75_tz", "电源芯片·PMX75"), ("pmg1110_tz", "电源芯片·PMG1110"),
+            ("pm7550ba_tz", "电源芯片·PM7550BA"), ("xo-therm", "晶体振荡器"), ("modem-0", "modem-0"),
         ] {
             assert_eq!(sensor_label(name), label);
         }
@@ -384,10 +382,10 @@ mod tests {
         // zeroc and a repeated zone are left out; 999 °C is no reading.
         assert_eq!(names, ["cpuss-0", "cpuss-1", "usb", "sys-therm-2", "pmx75_tz", "xo-therm", "<b>odd</b>"]);
         let all = hl_all(&v).into_string();
-        assert!(all.contains("<dt>CPU sensor 0<small class=\"lbl\">cpuss-0</small></dt><dd>40.1 °C</dd>"), "{all}");
-        assert!(all.contains("<dt>Board sensor 2<small class=\"lbl\">sys-therm-2</small></dt><dd class=\"muted\">Unavailable</dd>"));
+        assert!(all.contains("<dt>CPU传感器0<small class=\"lbl\">cpuss-0</small></dt><dd>40.1 °C</dd>"), "{all}");
+        assert!(all.contains("<dt>板传感器 2<small class=\"lbl\">sys-therm-2</small></dt><dd class=\"muted\">不可用</dd>"));
         // The raw name only when it differs; device text escaped.
-        assert!(all.contains("<dt>&lt;b&gt;odd&lt;/b&gt;</dt><dd class=\"muted\">Unavailable</dd>"), "{all}");
+        assert!(all.contains("<dt>&lt;b&gt;odd&lt;/b&gt;</dt><dd class=\"muted\">不可用</dd>"), "{all}");
     }
 
     /// The temperature rows show "—" once the reading is 10 s old and
@@ -402,30 +400,30 @@ mod tests {
         };
         let s = hl_temps(&at(3, 3)).into_string();
         for want in [
-            "CPU · hottest sensor</dt><dd><b>41.5 °C</b>", "Battery</dt><dd><b>26.0 °C</b>", "USB</dt><dd><b>33.0 °C</b>",
-            "Board sensor 2</dt><dd class=\"muted\">Unavailable</dd>", "Power chip · PMX75</dt><dd><b>38.2 °C</b>",
-            "Updated 3s ago · refreshes every 2s",
+            "CPU·最热传感器</dt><dd><b>41.5 °C</b>", "电池</dt><dd><b>26.0 °C</b>", "USB</dt><dd><b>33.0 °C</b>",
+            "板传感器 2</dt><dd class=\"muted\">不可用</dd>", "电源芯片·PMX75</dt><dd><b>38.2 °C</b>",
+            "更新 3 秒前 · 每 2 秒刷新",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
         // Only the summary sensors: no CPU zones or crystal oscillator rows.
         assert!(!s.contains("CPU sensor") && !s.contains("Crystal"), "{s}");
         let s = hl_temps(&at(10, 3)).into_string();
-        assert!(s.contains("CPU · hottest sensor</dt><dd><b>—</b>") && s.contains("Board sensor 2</dt><dd><b>—</b>"), "{s}");
-        assert!(s.contains("Battery</dt><dd><b>26.0 °C</b>") && s.contains("Last sample 10s ago · waiting for device"), "{s}");
+        assert!(s.contains("CPU·最热传感器</dt><dd><b>—</b>") && s.contains("板传感器 2</dt><dd><b>—</b>"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("最后一个样本 10 秒前 · 等待设备"), "{s}");
         let s = hl_temps(&at(3, 12)).into_string();
-        assert!(s.contains("Battery</dt><dd><b>—</b>") && s.contains("Updated 3s ago"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>—</b>") && s.contains("更新 3 秒前"), "{s}");
         // A failed read is not fresh, whatever its time.
         let mut v = at(1, 1);
         v.set(Topic::Battery, SlotView { error: Some(Arc::from("no battery")), ..slot(json!({"temperature": 260}), 1) });
-        assert!(hl_temps(&v).into_string().contains("Battery</dt><dd><b>—</b>"));
+        assert!(hl_temps(&v).into_string().contains("电池</dt><dd><b>—</b>"));
         let mut v = at(1, 1);
         v.set(Topic::Health, SlotView { error: Some(Arc::from("thermal")), ..slot(json!({"cpu": {}, "thermal": null}), 1) });
         let s = hl_temps(&v).into_string();
-        assert!(s.contains("Temperature readings unavailable · retrying automatically") && s.contains("<dd><b>—</b>"), "{s}");
+        assert!(s.contains("温度读数不可用 · 自动重试") && s.contains("<dd><b>—</b>"), "{s}");
         // Nothing read yet.
         let s = hl_temps(&views(vec![])).into_string();
-        assert!(s.contains("Temperature readings unavailable") && s.contains("CPU · hottest sensor</dt><dd><b>—</b>"), "{s}");
+        assert!(s.contains("温度读数不可用 · 自动重试") && s.contains("CPU·最热传感器</dt><dd><b>—</b>"), "{s}");
     }
 
     #[test]
@@ -438,18 +436,18 @@ mod tests {
             assert!(!html.contains("<details") && !html.contains("<summary"), "{}", f.id);
         }
         // The fragment sits inside the disclosure, never around it.
-        assert!(page.contains("<details><summary>All sensors</summary><dl class=\"kv tk\" id=\"hl-all\">"), "{page}");
+        assert!(page.contains("<details><summary>所有传感器</summary><dl class=\"kv tk\" id=\"hl-all\">"), "{page}");
         for want in [
             "<section class=\"card ctr\" id=\"hl-cpu\">", "<p class=\"big\">12.3%</p>", "<p class=\"cap num\">41.5 °C</p>",
-            "<a class=\"nl\" href=\"/ui/health/cpu\">CPU, memory &amp; processes</a>", "Temperatures",
-            "CPU shows the hottest CPU zone. Board numbers follow the device’s sensor names.",
+            "<a class=\"nl\" href=\"/ui/health/cpu\">CPU、内存和进程</a>", "温度",
+            "CPU 显示最热的 CPU 区域。板号遵循设备的传感器名称。不可用意味着设备未报告有效的温度。",
         ] {
             assert!(page.contains(want), "{want} in {page}");
         }
         // No sensors: an empty list, which CSS hides with its "All sensors"
         // (the app shows it only with sensors); live updates still find it.
         let none = health_body(&views(vec![(Topic::Health, json!({"cpu": {"overall": 5}, "thermal": {"sensors": []}}))])).into_string();
-        assert!(none.contains("<details><summary>All sensors</summary><dl class=\"kv tk\" id=\"hl-all\"></dl></details>"), "{none}");
+        assert!(none.contains("<details><summary>所有传感器</summary><dl class=\"kv tk\" id=\"hl-all\"></dl></details>"), "{none}");
         assert!(none.contains("<p class=\"cap num\">—</p>"), "{none}");
         assert!(include_str!("../assets/app.css").contains("details:has(>#hl-all:empty) { display: none; }"));
     }
@@ -467,8 +465,8 @@ mod tests {
         let pd = PageData { app: &app, p: &p, views: &v, reads: &reads, remote: false, form: None, query: None, once: None, at: None, ussd: None, notice: None, token: Default::default(), prefs: Default::default(), secure: false };
         let s = cpu(&pd).into_string();
         for (label, value) in [
-            ("CPU Usage", "12.3%"), ("CPU Cores", "6"), ("CPU · hottest sensor", "41.5 °C"), ("Uptime", "1d 2h 3m"),
-            ("Memory Total", "3.0 GB"), ("Memory Free", "1.5 GB"), ("Memory Used", "50%"),
+            ("CPU 使用率", "12.3%"), ("CPU 核心", "6"), ("CPU·最热传感器", "41.5 °C"), ("正常运行时间", "1d 2h 3m"),
+            ("内存总量", "3.0 GB"), ("可用内存", "1.5 GB"), ("已用内存", "50%"),
         ] {
             assert!(s.contains(&format!("<span>{label}</span><span class=\"v\">{value}</span>")), "{label} {value} in {s}");
         }
@@ -477,7 +475,7 @@ mod tests {
         assert!(s.contains("<li class=\"it\" id=\"hc-cores\">"));
         // The app's Processes row: the bloat summary in orange, a link to the list.
         assert!(s.contains("<a class=\"it\" href=\"/ui/health/processes\">"), "{s}");
-        assert!(s.contains("<span>Processes</span><span class=\"v c-orange\">4 bloat 2%</span></a>"), "{s}");
+        assert!(s.contains("<span>进程</span><span class=\"v c-orange\">4 个冗余进程，占用 2%</span></a>"), "{s}");
         for f in &CPU {
             assert!(s.contains(&(f.render)(&v).into_string()), "{}", f.id);
         }
@@ -486,12 +484,12 @@ mod tests {
         let empty = views(vec![]);
         let pd = PageData { app: &app, p: &p, views: &empty, reads: &reads, remote: false, form: None, query: None, once: None, at: None, ussd: None, notice: None, token: Default::default(), prefs: Default::default(), secure: false };
         let s = cpu(&pd).into_string();
-        for label in ["CPU Usage", "CPU Cores", "Uptime", "Memory Total", "Memory Free"] {
+        for label in ["CPU 使用率", "CPU 核心", "正常运行时间", "内存总量", "可用内存"] {
             assert!(s.contains(&format!("<span>{label}</span><span class=\"v\">—</span>")), "{label} in {s}");
         }
-        assert!(!s.contains("Memory Used"));
+        assert!(!s.contains("已用内存"));
         // Without a summary the row still opens the list.
-        assert!(s.contains("<span>Processes</span></a>"), "{s}");
+        assert!(s.contains("<span>进程</span></a>"), "{s}");
     }
 
     #[test]
@@ -499,7 +497,7 @@ mod tests {
         let v = views(vec![(Topic::Traffic, json!({"real_rx_speed": 52, "real_tx_speed": 69}))]);
         let s = traffic_body(&v).into_string();
         assert!(s.contains("<section class=\"card\" id=\"card-traffic\">") && !s.contains("<a class=\"card\""), "{s}");
-        assert!(s.contains("416.0 b/s") && s.contains("A speed test reports throughput over its test period"));
+        assert!(s.contains("416.0 b/s") && s.contains("这些速度显示所有连接设备上当前的蜂窝流量。速度测试报告测试期间的吞吐量；在此期间，实时数据会发生变化。"));
         assert!(dashboard::card_traffic(&v).into_string().starts_with("<a class=\"card\" id=\"card-traffic\" href=\"/ui/traffic\">"));
     }
 }

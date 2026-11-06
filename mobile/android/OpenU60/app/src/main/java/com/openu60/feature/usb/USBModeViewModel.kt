@@ -52,7 +52,7 @@ class USBModeViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null, showModeSheet = false)
             try {
                 agentClient.putJSON("/api/device/usb/mode", mapOf("mode" to mode))
-                _state.value = _state.value.copy(message = "USB mode set to $mode", messageIsError = false)
+                _state.value = _state.value.copy(message = "USB 模式设置为 $mode", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) setMode(mode) else setError(e.message)

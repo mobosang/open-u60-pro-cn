@@ -3,8 +3,8 @@ import { Callout } from "@/components/ui/Callout";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 
 export const metadata: Metadata = {
-  title: "Troubleshooting",
-  description: "Common issues and solutions for zte-agent.",
+  title: "故障排查",
+  description: "zte-agent常见问题及解决方案。",
 };
 
 export default function TroubleshootingPage() {
@@ -12,16 +12,16 @@ export default function TroubleshootingPage() {
     <div className="space-y-8">
       <div>
         <h1 className="mb-2 font-display text-2xl font-bold">
-          Troubleshooting
+          故障排除
         </h1>
         <p className="text-text-dim">
-          Common issues and how to resolve them.
+          常见问题及其解决方法。
         </p>
       </div>
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">
-          Login Failed / Wrong Password
+          登录失败/密码错误
         </h2>
         <p className="mb-3 text-sm text-text-dim">
           The &quot;Router Password&quot; field expects the admin password for your
@@ -36,7 +36,7 @@ export default function TroubleshootingPage() {
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">
-          Connection Timeout
+          连接超时
         </h2>
         <p className="mb-3 text-sm text-text-dim">
           Ensure you are connected to the router&apos;s WiFi or Ethernet.
@@ -51,15 +51,15 @@ export default function TroubleshootingPage() {
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">
-          Agent Not Responding After Deploy
+          部署后代理没有响应
         </h2>
         <p className="mb-3 text-sm text-text-dim">
           If the agent isn&apos;t reachable at port 9090:
         </p>
         <ul className="list-inside list-disc space-y-1 text-sm text-text-dim">
-          <li>Wait 5-10 seconds and try again</li>
+          <li>等待 5-10 秒，然后重试</li>
           <li>
-            Check if the agent is running via SSH:
+            检查代理是否正在通过 SSH 运行：
           </li>
         </ul>
         <CodeBlock
@@ -80,7 +80,7 @@ ssh -p 2222 root@192.168.0.1 'sh /data/local/tmp/start_zte_agent.sh'`}
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">
-          CORS Errors
+          CORS 错误
         </h2>
         <p className="text-sm text-text-dim">
           The zte-agent sends no CORS headers, and it refuses requests from

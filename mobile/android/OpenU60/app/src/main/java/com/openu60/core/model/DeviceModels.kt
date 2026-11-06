@@ -339,7 +339,7 @@ object DeviceParser {
         "sae-mixed", "sae+psk2" -> "WPA2/3"
         "psk-mixed", "psk+psk2" -> "WPA/2"
         "psk" -> "WPA"
-        "none", "" -> "Open"
+        "none", "" -> "打开"
         else -> raw.uppercase()
     }
 

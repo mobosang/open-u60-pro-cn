@@ -71,8 +71,8 @@ struct RouterESimInventory: Equatable {
     var errorText: String? {
         guard let errorMessage else { return nil }
         switch errorKind {
-        case "sim_reloading": return "The eSIM is still settling after the switch."
-        case "management_unavailable": return "The eSIM's management app isn't responding (\(errorMessage))."
+        case "sim_reloading": return "切换后 eSIM 仍在准备中。"
+        case "management_unavailable": return "eSIM 的管理应用程序没有响应 (\(errorMessage))。"
         default: return errorMessage
         }
     }
@@ -88,9 +88,9 @@ extension RouterESimInventory {
             switch code {
             case "manual_apn":
                 guard let apn = manualAPN?.apn else { return nil }
-                return "The router is set to the manual APN “\(apn)”. If \(name) needs a different APN, change it in Mobile Network after switching, or it may have no data."
+                return "路由器设置为手动APN“\(apn)”。如果\(name)需要不同的APN，切换后请在移动网络中更改，否则可能没有数据。"
             case "roaming_off":
-                return "\(name) looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on."
+                return "\(name) 可能是旅行（漫游）配置文件；数据漫游已关闭，开启后才能使用移动数据。"
             default:
                 return nil
             }
@@ -135,7 +135,7 @@ struct RouterESimSwitchStatus: Decodable, Equatable {
 
     /// Shown while the switch runs: the eSIM refused for now and the router keeps trying.
     var progressNote: String? {
-        state == "card_busy" ? "The eSIM is busy and refused the switch for now. The router keeps trying for up to 4 minutes." : nil
+        state == "card_busy" ? "eSIM 正忙，暂时拒绝切换。路由器会持续尝试，最长 4 分钟。" : nil
     }
 
     /// Why a finished switch did not reach `connected`.
@@ -143,16 +143,16 @@ struct RouterESimSwitchStatus: Decodable, Equatable {
         switch state {
         case "no_data":
             switch reason {
-            case "roaming_off": "This profile roams on a local network and Data Roaming is off. Turn on Data Roaming in Mobile Network."
-            case "data_off": "The profile is active, but Mobile Data is off. Turn it on in Mobile Network."
-            default: "The profile is active, but mobile data hasn't connected. Check the plan or coverage."
+            case "roaming_off": "此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。"
+            case "data_off": "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。"
+            default: "配置文件处于活动状态，但移动数据尚未连接。检查套餐或网络覆盖范围。"
             }
-        case "modem_unconfirmed": "The eSIM switched, but the router still uses the previous SIM. Restart the router to finish."
-        case "card_unconfirmed": "The eSIM couldn't be read after the switch. Refresh in a moment."
+        case "modem_unconfirmed": "eSIM已更换，但路由器仍使用之前的SIM。重新启动路由器即可完成。"
+        case "card_unconfirmed": "切换后无法读取eSIM。一会儿刷新一下。"
         case "not_applied":
             reason == "card_busy"
-                ? "The eSIM stayed busy and didn't switch; the previous profile is still active. Try again in a few minutes."
-                : "The switch didn't happen; the previous profile is still active."
+                ? "eSIM 保持忙碌状态，不切换；之前的配置文件仍然有效。几分钟后重试。"
+                : "切换没有发生；之前的配置文件仍然有效。"
         default: nil
         }
     }
@@ -269,7 +269,7 @@ struct RouterESimActivationCode {
     let server: String
     let needsConfirmationCode: Bool
 
-    static let invalidMessage = "This QR code isn't an eSIM activation code."
+    static let invalidMessage = "该二维码不是 eSIM 激活码。"
 
     static func parse(_ input: String) -> Self? {
         let code = input.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -312,17 +312,17 @@ struct RouterESimDownloadStatus: Decodable, Equatable {
     var canCancel: Bool { ["running", "confirm"].contains(state) && step != "es10b_load_bound_profile_package" }
     var displayName: String { [provider, name].compactMap { $0 }.first(where: { !$0.isEmpty }) ?? "eSIM profile" }
     var progressText: String {
-        if state == "confirm" { return "Ready to install" }
-        if state == "cancelling" || step?.hasSuffix("_cancel_session") == true { return "Cancelling…" }
-        if state == "done" { return "\(displayName) added." }
-        if state == "failed" { return "Couldn’t add the profile" }
-        if state == "cancelled" { return "Download cancelled" }
+        if state == "confirm" { return "准备安装" }
+        if state == "cancelling" || step?.hasSuffix("_cancel_session") == true { return "取消..." }
+        if state == "done" { return "已添加 \(displayName)。" }
+        if state == "failed" { return "无法添加配置文件" }
+        if state == "cancelled" { return "下载已取消" }
         switch step {
-        case "es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client": return "Connecting to the operator…"
-        case "es8p_metadata_parse": return "Reading profile details…"
-        case "es10b_prepare_download", "es9p_get_bound_profile_package": return "Downloading profile…"
-        case "es10b_load_bound_profile_package": return "Installing on the eSIM…"
-        default: return "Preparing eSIM…"
+        case "es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client": return "连接到运营商..."
+        case "es8p_metadata_parse": return "读取配置文件详细信息..."
+        case "es10b_prepare_download", "es9p_get_bound_profile_package": return "正在下载配置文件..."
+        case "es10b_load_bound_profile_package": return "在 eSIM 上安装..."
+        default: return "准备eSIM……"
         }
     }
 }

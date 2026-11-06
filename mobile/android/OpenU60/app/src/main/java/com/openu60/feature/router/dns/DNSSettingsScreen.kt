@@ -28,16 +28,16 @@ fun DNSSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("DNS Settings") },
+                title = { Text("DNS设置") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     if (state.dnsMode != DNSMode.DOH) {
                         TextButton(onClick = { viewModel.saveDNS() }, enabled = !state.isLoading) {
-                            Text("Save")
+                            Text("保存")
                         }
                     }
                 },
@@ -75,7 +75,7 @@ fun DNSSettingsScreen(
                 // Mode tabs
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("DNS Mode", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("DNS 模式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         TabRow(
                             selectedTabIndex = state.dnsMode.ordinal,
@@ -83,12 +83,12 @@ fun DNSSettingsScreen(
                             Tab(
                                 selected = state.dnsMode == DNSMode.AUTO,
                                 onClick = { viewModel.setDnsMode(DNSMode.AUTO) },
-                                text = { Text("Auto") },
+                                text = { Text("自动") },
                             )
                             Tab(
                                 selected = state.dnsMode == DNSMode.CUSTOM,
                                 onClick = { viewModel.setDnsMode(DNSMode.CUSTOM) },
-                                text = { Text("Custom") },
+                                text = { Text("自定义") },
                             )
                             Tab(
                                 selected = state.dnsMode == DNSMode.DOH,
@@ -103,12 +103,12 @@ fun DNSSettingsScreen(
                 if (state.dnsMode == DNSMode.CUSTOM) {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Custom DNS", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("定制DNS", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
                                 value = state.dnsConfig.primaryDns,
                                 onValueChange = { viewModel.updateDnsConfig(state.dnsConfig.copy(primaryDns = it)) },
-                                label = { Text("Primary DNS") },
+                                label = { Text("初级 DNS") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                             )
@@ -116,7 +116,7 @@ fun DNSSettingsScreen(
                             OutlinedTextField(
                                 value = state.dnsConfig.secondaryDns,
                                 onValueChange = { viewModel.updateDnsConfig(state.dnsConfig.copy(secondaryDns = it)) },
-                                label = { Text("Secondary DNS") },
+                                label = { Text("次级 DNS") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                             )
@@ -124,7 +124,7 @@ fun DNSSettingsScreen(
                             OutlinedTextField(
                                 value = state.dnsConfig.ipv6PrimaryDns,
                                 onValueChange = { viewModel.updateDnsConfig(state.dnsConfig.copy(ipv6PrimaryDns = it)) },
-                                label = { Text("IPv6 Primary DNS") },
+                                label = { Text("IPv6 主 DNS") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                             )
@@ -132,7 +132,7 @@ fun DNSSettingsScreen(
                             OutlinedTextField(
                                 value = state.dnsConfig.ipv6SecondaryDns,
                                 onValueChange = { viewModel.updateDnsConfig(state.dnsConfig.copy(ipv6SecondaryDns = it)) },
-                                label = { Text("IPv6 Secondary DNS") },
+                                label = { Text("IPv6 辅助 DNS") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                             )
@@ -148,11 +148,11 @@ fun DNSSettingsScreen(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             if (state.dohStatus.enabled) {
-                                InfoRow("Status", "Running")
+                                InfoRow("状态", "运行中")
                                 InfoRow("Upstream", state.dohStatus.upstreamUrl)
                                 InfoRow("Cache Entries", "${state.dohStatus.cacheEntries}")
                                 InfoRow("Queries", "${state.dohStatus.queriesTotal}")
-                                InfoRow("Hit Ratio", "%.1f%%".format(state.dohStatus.hitRatio))
+                                InfoRow("命中率", "%.1f%%".format(state.dohStatus.hitRatio))
 
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -161,20 +161,20 @@ fun DNSSettingsScreen(
                                         enabled = !state.isLoading,
                                         modifier = Modifier.weight(1f),
                                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                                    ) { Text("Disable DoH") }
+                                    ) { Text("禁用 DoH") }
                                     Button(
                                         onClick = onNavigateToCache,
                                         modifier = Modifier.weight(1f),
-                                    ) { Text("View Cache") }
+                                    ) { Text("查看缓存") }
                                 }
                             } else {
-                                Text("DoH is not running", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("DoH未运行", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Button(
                                     onClick = { viewModel.enableDoH() },
                                     enabled = !state.isLoading,
                                     modifier = Modifier.fillMaxWidth(),
-                                ) { Text("Enable DoH") }
+                                ) { Text("启用DoH") }
                             }
                         }
                     }

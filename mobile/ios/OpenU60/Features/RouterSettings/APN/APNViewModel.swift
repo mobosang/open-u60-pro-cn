@@ -47,7 +47,7 @@ final class APNViewModel {
 
             config = APNConfig(mode: mode, profiles: profiles, autoProfiles: autoProfiles)
         } catch {
-            showMessage("Failed to load APN: \(error.localizedDescription)", isError: true)
+            showMessage("加载APN失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -58,14 +58,14 @@ final class APNViewModel {
 
         do {
             let _ = try await client.putJSON("/api/router/apn/mode", body: ["apn_mode": manual ? 1 : 0])
-            showMessage("APN mode set to \(manual ? "manual" : "auto")", isError: false)
+            showMessage("APN 模式已设为\(manual ? "手动" : "自动")", isError: false)
             config = APNConfig(
                 mode: manual ? "1" : "0",
                 profiles: config.profiles,
                 autoProfiles: config.autoProfiles
             )
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -89,7 +89,7 @@ final class APNViewModel {
 
     func saveAPN() async {
         guard !formProfile.name.isEmpty, !formProfile.apn.isEmpty else {
-            showMessage("Name and APN are required", isError: true)
+            showMessage("名称和 APN 为必填项", isError: true)
             return
         }
 
@@ -97,7 +97,7 @@ final class APNViewModel {
             p.name == formProfile.name && p.id != (editingProfile?.id ?? "")
         }
         if isDuplicate {
-            showMessage("An APN with this name already exists", isError: true)
+            showMessage("同名的 APN 已存在", isError: true)
             return
         }
 
@@ -134,10 +134,10 @@ final class APNViewModel {
 
             formProfile = .empty
             showFormSheet = false
-            showMessage("APN added", isError: false)
+            showMessage("添加APN", isError: false)
             await refresh()
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -165,10 +165,10 @@ final class APNViewModel {
 
             editingProfile = nil
             showFormSheet = false
-            showMessage("APN updated", isError: false)
+            showMessage("APN更新", isError: false)
             await refresh()
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -176,7 +176,7 @@ final class APNViewModel {
 
     func deleteAPN(_ profile: APNProfile) async {
         if profile.active {
-            showMessage("Cannot delete the active APN", isError: true)
+            showMessage("无法删除活动的APN", isError: true)
             return
         }
 
@@ -184,10 +184,10 @@ final class APNViewModel {
 
         do {
             let _ = try await client.postJSON("/api/router/apn/profiles/delete", body: ["profileId": profile.id])
-            showMessage("APN deleted", isError: false)
+            showMessage("APN 已删除", isError: false)
             config.profiles.removeAll { $0.id == profile.id }
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -198,14 +198,14 @@ final class APNViewModel {
 
         do {
             let _ = try await client.postJSON("/api/router/apn/profiles/activate", body: ["profileId": profile.id])
-            showMessage("APN activated", isError: false)
+            showMessage("APN 已激活", isError: false)
             config.profiles = config.profiles.map { p in
                 var updated = p
                 updated.active = p.id == profile.id
                 return updated
             }
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false

@@ -48,11 +48,11 @@ extension Color {
 
     /// Signal quality label for RSRP.
     static func rsrpQuality(_ rsrp: Double?) -> String {
-        guard let rsrp = rsrp else { return "No Signal" }
-        if rsrp >= -80 { return "Excellent" }
-        if rsrp >= -100 { return "Good" }
-        if rsrp >= -110 { return "Fair" }
-        return "Poor"
+        guard let rsrp = rsrp else { return "无信号" }
+        if rsrp >= -80 { return "极佳" }
+        if rsrp >= -100 { return "良好" }
+        if rsrp >= -110 { return "一般" }
+        return "较差"
     }
 
     /// Signal bars (0-4) from RSRP.
@@ -76,11 +76,11 @@ extension Color {
 
     /// Signal quality label for RSCP (3G).
     static func rscpQuality(_ rscp: Double?) -> String {
-        guard let rscp = rscp else { return "No Signal" }
-        if rscp >= -75 { return "Excellent" }
-        if rscp >= -85 { return "Good" }
-        if rscp >= -95 { return "Fair" }
-        return "Poor"
+        guard let rscp = rscp else { return "无信号" }
+        if rscp >= -75 { return "极佳" }
+        if rscp >= -85 { return "良好" }
+        if rscp >= -95 { return "一般" }
+        return "较差"
     }
 
     /// Signal bars (0-4) from RSCP (3G).

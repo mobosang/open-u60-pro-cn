@@ -50,7 +50,7 @@ final class FirewallSettingsViewModel {
             upnpEnabled = await upnpResult
         } catch {
             if !error.isCancellation {
-                showMessage("Failed to load firewall: \(error.localizedDescription)", isError: true)
+                showMessage("加载防火墙失败：\(error.localizedDescription)", isError: true)
             }
         }
 
@@ -108,7 +108,7 @@ final class FirewallSettingsViewModel {
             showMessage("Firewall \(enabled ? "enabled" : "disabled")", isError: false)
             config.enabled = enabled
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -117,10 +117,10 @@ final class FirewallSettingsViewModel {
         isLoading = true
         do {
             let _ = try await client.putJSON("/api/router/firewall/level", body: ["firewall_level": level])
-            showMessage("Firewall level set to \(level)", isError: false)
+            showMessage("防火墙级别设置为 \(level)", isError: false)
             config.level = level
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -132,7 +132,7 @@ final class FirewallSettingsViewModel {
             showMessage("NAT \(enabled ? "enabled" : "disabled")", isError: false)
             config.nat = enabled
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -144,7 +144,7 @@ final class FirewallSettingsViewModel {
             showMessage("UPnP \(enabled ? "enabled" : "disabled")", isError: false)
             upnpEnabled = enabled
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -156,11 +156,11 @@ final class FirewallSettingsViewModel {
                 "dmz_enabled": editDmzEnabled ? "1" : "0",
                 "dmz_ip": editDmzIP
             ])
-            showMessage("DMZ settings updated", isError: false)
+            showMessage("DMZ 设置更新", isError: false)
             config.dmzEnabled = editDmzEnabled
             config.dmzHost = editDmzIP
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -172,7 +172,7 @@ final class FirewallSettingsViewModel {
             showMessage("Port forwarding \(enabled ? "enabled" : "disabled")", isError: false)
             config.portForwardEnabled = enabled
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -193,7 +193,7 @@ final class FirewallSettingsViewModel {
             // Re-read the list so the new row carries the router's own id. A client-side id would
             // make a later delete a no-op on the router and silently leave the WAN port open.
             if await reloadPortForwardRules() {
-                showMessage("Port forward rule added", isError: false)
+                showMessage("添加端口转发规则", isError: false)
             } else {
                 // The router accepted the rule, so show it rather than let it vanish. Its id is a
                 // placeholder the router would not recognise, which is why `deletePortForward`
@@ -207,10 +207,10 @@ final class FirewallSettingsViewModel {
                     lanPort: lanPort,
                     enabled: true
                 ))
-                showMessage("Rule added, but the list could not be reloaded. Pull to refresh.", isError: true)
+                showMessage("已添加规则，但无法重新加载列表。拉动即可刷新。", isError: true)
             }
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -222,9 +222,9 @@ final class FirewallSettingsViewModel {
         // that index. Reload first and let the user re-pick from the authoritative list.
         if portForwardListIsStale {
             if await reloadPortForwardRules() {
-                showMessage("The rule list was out of date and has been reloaded. Try again.", isError: true)
+                showMessage("规则列表已过期，现已重新加载，请重试。", isError: true)
             } else {
-                showMessage("The rule list is out of date and could not be reloaded. Pull to refresh.", isError: true)
+                showMessage("规则列表已过时，无法重新加载。拉动即可刷新。", isError: true)
             }
             isLoading = false
             return
@@ -238,13 +238,13 @@ final class FirewallSettingsViewModel {
             // Deleting shifts the remaining rules up, so ids derived from the array index no longer
             // match. Re-read for the same reason the add path does.
             if await reloadPortForwardRules() {
-                showMessage("Port forward rule deleted", isError: false)
+                showMessage("端口转发规则已删除", isError: false)
             } else {
                 portForwardRules.removeAll { $0.id == rule.id }
-                showMessage("Rule deleted, but the list could not be reloaded. Pull to refresh.", isError: true)
+                showMessage("规则已删除，但无法重新加载列表。拉动即可刷新。", isError: true)
             }
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }

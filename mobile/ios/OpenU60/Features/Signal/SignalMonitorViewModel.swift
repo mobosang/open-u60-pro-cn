@@ -1,7 +1,7 @@
 import SwiftUI
 import os
 
-private let logger = Logger(subsystem: "com.zte.companion", category: "Signal")
+private let logger = Logger(subsystem: "com.zte.companion", category: "信号")
 
 @Observable
 @MainActor

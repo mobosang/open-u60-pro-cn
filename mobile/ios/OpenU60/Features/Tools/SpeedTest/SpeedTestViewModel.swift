@@ -62,7 +62,7 @@ final class SpeedTestViewModel {
             }
         } catch {
             if !error.isCancellation {
-                showMessage("Failed to load servers: \(error.localizedDescription)", isError: true)
+                showMessage("加载服务器失败：\(error.localizedDescription)", isError: true)
             }
         }
         isLoading = false
@@ -70,7 +70,7 @@ final class SpeedTestViewModel {
 
     func startTest() async {
         guard let serverId = selectedServerId else {
-            showMessage("Select a server first", isError: true)
+            showMessage("先选择服务器", isError: true)
             return
         }
 
@@ -81,11 +81,11 @@ final class SpeedTestViewModel {
         do {
             let _ = try await client.postJSON("/api/speedtest/start", body: ["server_id": serverId])
             isRunning = true
-            showMessage("Speed test started", isError: false)
+            showMessage("速度测试开始", isError: false)
             startPolling()
         } catch {
             if !error.isCancellation {
-                showMessage("Failed to start: \(error.localizedDescription)", isError: true)
+                showMessage("启动失败：\(error.localizedDescription)", isError: true)
             }
         }
 
@@ -98,10 +98,10 @@ final class SpeedTestViewModel {
 
         do {
             let _ = try await client.postJSON("/api/speedtest/stop")
-            showMessage("Speed test stopped", isError: false)
+            showMessage("速度测试停止", isError: false)
         } catch {
             if !error.isCancellation {
-                showMessage("Failed to stop: \(error.localizedDescription)", isError: true)
+                showMessage("停止失败：\(error.localizedDescription)", isError: true)
             }
         }
     }
@@ -148,7 +148,7 @@ final class SpeedTestViewModel {
             if pollFailures >= maxPollFailures {
                 isRunning = false
                 stopPolling()
-                showMessage("Lost connection to device", isError: true)
+                showMessage("与设备失去连接", isError: true)
             }
             return .failure
         }
@@ -166,11 +166,11 @@ final class SpeedTestViewModel {
     private func settleIfFinished() -> Bool {
         switch progress.phase {
         case "complete":
-            showMessage("Speed test complete", isError: false)
+            showMessage("速度测试完成", isError: false)
         case "error":
-            showMessage(progress.error ?? "Speed test failed", isError: true)
+            showMessage(progress.error ?? "速度测试失败", isError: true)
         case "cancelled":
-            showMessage("Speed test cancelled", isError: false)
+            showMessage("速度测试取消", isError: false)
         default:
             return false
         }

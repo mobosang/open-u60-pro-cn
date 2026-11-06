@@ -12,11 +12,10 @@ export default function APIReferencePage() {
     <div className="space-y-8">
       <div>
         <h1 className="mb-2 font-display text-2xl font-bold text-wrap-balance">
-          API Reference
+          API 参考
         </h1>
         <p className="text-text-dim">
-          {totalEndpoints} endpoints across {totalCategories} categories. All
-          endpoints are served by zte-agent on{" "}
+          {totalEndpoints} 个接口，分为 {totalCategories} 类。所有接口均由 zte-agent 提供，访问地址：{" "}
           <code className="rounded bg-bg-card px-1.5 py-0.5 font-mono text-xs text-accent">
             http://192.168.0.1:9090
           </code>

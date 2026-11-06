@@ -7,9 +7,9 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/docs", label: "Docs" },
-  { href: "/download", label: "Download" },
+  { href: "/", label: "首页" },
+  { href: "/docs", label: "文档" },
+  { href: "/download", label: "下载" },
 ];
 
 export function Navbar() {
@@ -79,7 +79,7 @@ export function Navbar() {
         <button
           className="text-text-dim md:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
+          aria-label="切换菜单"
         >
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>

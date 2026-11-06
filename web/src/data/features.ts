@@ -17,38 +17,38 @@ export interface Feature {
 export const features: Feature[] = [
   {
     icon: Server,
-    title: "On-Device Agent",
+    title: "设备端 Agent",
     description:
-      "Lightweight Rust HTTP server (~0.8 MB RSS) replaces ZTE's 225 MB daemon stack. 143 REST endpoints across 16 categories.",
+      "轻量级 Rust HTTP 服务器 (~0.8 MB RSS) 取代了 ZTE 的 225 MB 守护进程堆栈。 16 个类别的 143 个 REST 端点。",
   },
   {
     icon: Smartphone,
-    title: "Mobile Companion Apps",
+    title: "手机配套应用",
     description:
-      "Native iOS (SwiftUI) and Android (Compose) apps. Dashboard, signal monitor, SMS, band lock, device management — all over WiFi.",
+      "原生 iOS (SwiftUI) 和 Android (Compose) 应用程序。仪表盘、信号监测、短信、锁频、设备管理——全部在 WiFi 上。",
   },
   {
     icon: Globe,
-    title: "Web Bootstrap",
+    title: "网络引导",
     description:
-      "Deploy the agent entirely from your browser. WebUSB-powered — no command line needed. Works in Chrome and Edge.",
+      "完全通过浏览器部署代理。 WebUSB 供电 — 无需命令行。适用于 Chrome 和 Edge。",
   },
   {
     icon: Signal,
-    title: "Signal Monitoring",
+    title: "信号监测",
     description:
-      "Real-time RSRP, SINR, RSRQ readings. NR/LTE cell info, neighbor cell scanning, and signal quality detection.",
+      "实时 RSRP、SINR、RSRQ 读数。 NR/LTE小区信息、邻区扫描、信号质量检测。",
   },
   {
     icon: Radio,
-    title: "Band Locking",
+    title: "频段锁定",
     description:
-      "Lock to specific NR and LTE bands. Cell locking, STC (Smart Tower Connect), and carrier aggregation control.",
+      "锁定特定 NR 和 LTE 频段。小区锁定、STC（智能塔连接）和载波聚合控制。",
   },
   {
     icon: ShieldCheck,
-    title: "Privacy First",
+    title: "隐私第一",
     description:
-      "Zero telemetry. No phone-home to ZTE servers. Open-source agent runs on your LAN only. Full control over your device.",
+      "零遥测。没有回拨到 ZTE 服务器。开源代理仅在您的 LAN 上运行。完全控制您的设备。",
   },
 ];

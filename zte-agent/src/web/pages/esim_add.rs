@@ -77,19 +77,19 @@ const FORM: &str = "eaddf";
 const DECODE_LIMIT: Duration = if cfg!(test) { Duration::from_secs(4) } else { Duration::from_secs(15) };
 
 // The app's input errors (`RouterESimAddView`, `RouterESimActivationCode`).
-const INVALID: &str = "This QR code isn't an eSIM activation code.";
-const ONE_CODE: &str = "Choose a photo with one eSIM QR code.";
-const UNREADABLE: &str = "Couldn\u{2019}t read this photo. Choose another image or enter the code manually.";
-const NEED_CC: &str = "Enter the confirmation code from your operator (up to 64 characters).";
+const INVALID: &str = "该二维码不是 eSIM 激活码。";
+const ONE_CODE: &str = "选择一张带有eSIM二维码的照片。";
+const UNREADABLE: &str = "无法读取此图片。请选择其他图片或手动输入激活码。";
+const NEED_CC: &str = "请输入运营商提供的确认码（最多 64 个字符）。";
 // Web additions: no input, two, an image the router does not read, the
 // decoder busy; and what a refused post asks (the code is never kept).
-const NOTHING: &str = "Scan or choose a photo of the QR code, or enter the code manually.";
-const TWO: &str = "Use one photo or the code entered manually, not both.";
-const NOT_IMAGE: &str = "Choose a JPEG or PNG photo, or enter the code manually.";
-const TOO_LARGE: &str = "This photo is too large to read. Choose a smaller image or enter the code manually.";
-const DECODER_BUSY: &str = "The router is reading another photo. Try again in a moment.";
-const AGAIN: &str = "Your code isn\u{2019}t kept, so scan, choose or enter it again.";
-const NO_DATA: &str = "Your router has no mobile data connection. Connect it before downloading; your phone\u{2019}s own data can\u{2019}t be used.";
+const NOTHING: &str = "扫描或选择二维码照片，或手动输入二维码。";
+const TWO: &str = "使用一张照片或手动输入的代码，而不是两者都使用。";
+const NOT_IMAGE: &str = "选择 JPEG 或 PNG 照片，或手动输入代码。";
+const TOO_LARGE: &str = "这张照片太大，无法阅读。选择较小的图像或手动输入代码。";
+const DECODER_BUSY: &str = "路由器正在读取另一张照片。稍后再试一次。";
+const AGAIN: &str = "激活码不会保存，请重新扫描、选择图片或手动输入。";
+const NO_DATA: &str = "路由器尚未连接移动数据。请先连接后再下载；此操作无法使用手机自身的移动数据。";
 
 // --- The app's activation code check (`RouterESimActivationCode.parse`) ---
 
@@ -168,7 +168,7 @@ pub fn live(v: &Views) -> bool {
 /// `#eadd-bar`: the nav bar's "Close" while a download runs, else "Done"
 /// (the app's toolbar), live: it reads "Done" once the download ends.
 pub fn bar(v: &Views) -> Markup {
-    html! { a #eadd-bar .nl href=(PATH) { (if live(v) { "Close" } else { "Done" }) } }
+    html! { a #eadd-bar .nl href=(PATH) { (if live(v) { "关闭" } else { "完成" }) } }
 }
 
 /// The download card rather than the entry: while one runs, or `?dl=1`
@@ -236,45 +236,45 @@ fn card(v: &Views) -> Markup {
                 } @else {
                     span.eic { (kit::icon(match st { "confirm" => Icon::SimCard, "done" => Icon::Check, _ => Icon::Alert })) }
                 }
-                b { @if st == "idle" { "No download in progress" } @else { (esim::download_text(&d)) } }
+                b { @if st == "idle" { "没有正在进行下载" } @else { (esim::download_text(&d)) } }
             }
             @match st {
                 "confirm" => {
-                    h2 { "Install " (name) "?" }
+                    h2 { "安装 " (name) "?" }
                     @if let Some(n) = d["name"].as_str().map(str::trim).filter(|n| !n.is_empty() && *n != name) { p.cap { (fmt::truncate(n, 64)) } }
-                    p.det { "The profile will be installed on your router\u{2019}s eSIM and stay inactive until you switch to it. Confirm within 2 minutes." }
-                    p.actions { button.btn.btn-wide.teal type="submit" form=(FORM) formaction=(INSTALL) { "Install profile" } }
+                    p.det { "该配置文件将安装在您路由器的 eSIM 上并保持非活动状态，直到您切换到它。 2分钟内确认。" }
+                    p.actions { button.btn.btn-wide.teal type="submit" form=(FORM) formaction=(INSTALL) { "安装配置文件" } }
                 }
                 "done" => {
-                    p.det { "Added to your router. Your current profile is still active." }
+                    p.det { "添加到您的路由器。您当前的配置文件仍然有效。" }
                     p.actions {
                         @if d["iccid"].as_str().is_some_and(|i| !i.is_empty()) {
-                            a.btn.teal href=(format!("{}?new=1", esim::SWITCH)) { "Switch to it now" }
+                            a.btn.teal href=(format!("{}?new=1", esim::SWITCH)) { "立即切换" }
                         } @else {
-                            a.btn.btn-quiet href=(PATH) { "Refresh profiles" }
+                            a.btn.btn-quiet href=(PATH) { "刷新配置文件" }
                         }
-                        a.btn.btn-quiet href=(PATH) { "Later" }
+                        a.btn.btn-quiet href=(PATH) { "后来" }
                     }
                 }
                 "failed" => {
-                    p { (error.map_or_else(|| "The operator couldn\u{2019}t add this profile.".to_owned(), scrub)) }
+                    p { (error.map_or_else(|| "运营商无法添加此配置文件。".to_owned(), scrub)) }
                     // The app's Try again opens the code field.
-                    p.actions { a.btn href=(MANUAL) { "Try again" } }
+                    p.actions { a.btn href=(MANUAL) { "重试" } }
                 }
                 "cancelled" | "idle" => {
-                    @if error.is_some_and(|e| e.contains("2 minutes")) { p.det { "It wasn\u{2019}t confirmed within 2 minutes." } }
-                    p.actions { a.btn.btn-quiet href=(ADD) { "Add eSIM" } }
+                    @if error.is_some_and(|e| e.contains("2 minutes")) { p.det { "未在两分钟内确认。" } }
+                    p.actions { a.btn.btn-quiet href=(ADD) { "添加 eSIM" } }
                 }
                 _ => p.det {
                     (if installing {
-                        "Keep the router powered on. Installation can\u{2019}t be cancelled at this stage."
+                        "请保持路由器供电。当前安装阶段无法取消。"
                     } else {
-                        "Keep your router connected to the internet. You can close this screen and return to check progress."
+                        "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。"
                     })
                 },
             }
             @if can_cancel {
-                p.actions { button.btn.btn-quiet.bad type="submit" form=(FORM) formaction=(CANCEL) { "Cancel download" } }
+                p.actions { button.btn.btn-quiet.bad type="submit" form=(FORM) formaction=(CANCEL) { "取消下载" } }
             }
         }
     }
@@ -286,12 +286,12 @@ pub fn note(n: Notice) -> Markup {
     let text = match n {
         Notice::Saved(m) => m.to_owned(),
         Notice::Flash(_, m) => m,
-        Notice::Failed(e) => format!("Failed: {}", fmt::truncate(&e, 120)),
+        Notice::Failed(e) => format!("失败：{}", fmt::truncate(&e, 120)),
     };
     html! {
         div.eerr role="alert" {
             b { (kit::icon(Icon::Alert)) (text) }
-            a.btn.btn-quiet.sm href=(DL) { "Check status" }
+            a.btn.btn-quiet.sm href=(DL) { "检查状态" }
         }
     }
 }
@@ -317,8 +317,8 @@ fn entry(pd: &PageData) -> Markup {
     html! {
         div.ahead {
             span.eic.ebig { (kit::icon(Icon::QrScan)) }
-            h2 { "Add a profile to your router" }
-            p.cap { "Use the eSIM QR code from your operator. You\u{2019}ll review the profile before installing it." }
+            h2 { "将配置文件添加到您的路由器" }
+            p.cap { "使用运营商提供的 eSIM 二维码。您’将在安装之前查看配置文件。" }
         }
         @if offline(pd) { p.enote { (kit::icon(Icon::Wifi)) span { (NO_DATA) } } }
         @if let Some(n) = &pd.notice { (n) }
@@ -330,10 +330,10 @@ fn entry(pd: &PageData) -> Markup {
             section.card.emsg.ebad role="alert" {
                 span.eic { (kit::icon(Icon::Alert)) }
                 div {
-                    b { "Can\u{2019}t start this download" }
+                    b { "无法开始下载" }
                     p { (n) }
                     @if n.contains("no mobile data") && !offline(pd) { p.cap { (NO_DATA) } }
-                    @if n.contains("agent password required") { p.cap { "Set the router agent password in Agent Settings, then try again." } }
+                    @if n.contains("agent password required") { p.cap { "在代理设置中设置路由器代理密码，然后重试。" } }
                     p.cap { (AGAIN) }
                 }
             }
@@ -342,35 +342,35 @@ fn entry(pd: &PageData) -> Markup {
             (pd.csrf())
             (once_field(&pd.once()))
             label.fbtn.prim {
-                span { (kit::icon(Icon::Camera)) "Scan QR code" }
+                span { (kit::icon(Icon::Camera)) "扫描二维码" }
                 input type="file" name="scan" accept="image/jpeg,image/png" capture="environment";
             }
             label.fbtn {
-                span { (kit::icon(Icon::Photo)) "Choose QR from Photos" }
+                span { (kit::icon(Icon::Photo)) "从照片中选择二维码" }
                 input type="file" name="photo" accept="image/jpeg,image/png";
             }
             details.eopt open[flag(pd, "manual").is_some() || pd.param("manual").as_deref() == Some("1")] {
-                summary { (kit::icon(Icon::Keyboard)) "Enter code manually" }
+                summary { (kit::icon(Icon::Keyboard)) "手动输入代码" }
                 div.fld {
-                    label for="code" { "Activation code" }
+                    label for="code" { "激活码" }
                     input #code type="password" name="code" placeholder="LPA:1$\u{2026}" maxlength="512" autocomplete="one-time-code"
                         autocapitalize="off" spellcheck="false" "data-1p-ignore" data-lpignore=(ignore) data-bwignore;
                 }
             }
             details.eopt open[flag(pd, "cc").is_some()] {
-                summary { (kit::icon(Icon::LockShield)) "Operator confirmation code (if you have one)" }
+                summary { (kit::icon(Icon::LockShield)) "运营商确认码（如果有的话）" }
                 div.fld {
-                    label for="cc" { "Confirmation code" }
-                    input #cc type="password" name="cc" placeholder="Operator confirmation code" maxlength="64" autocomplete="one-time-code"
+                    label for="cc" { "确认码" }
+                    input #cc type="password" name="cc" placeholder="运营商确认码" maxlength="64" autocomplete="one-time-code"
                         autocapitalize="off" spellcheck="false" "data-1p-ignore" data-lpignore=(ignore) data-bwignore;
-                    small.cap { "Enter the separate confirmation code supplied by your operator (up to 64 characters)." }
+                    small.cap { "输入运营商提供的单独确认码（最多 64 个字符）。" }
                 }
             }
-            button.btn.btn-wide.teal type="submit" disabled[switching] { "Read profile details" }
+            button.btn.btn-wide.teal type="submit" disabled[switching] { "读取配置文件详细信息" }
         }
         ul.hints {
-            li { (kit::icon(Icon::Wifi)) "Your router needs internet to download the profile. Keep its Wi-Fi connected. Downloads usually take 10\u{2013}60 seconds." }
-            li { (kit::icon(Icon::Lock)) "Your activation code is private and single-use. It is sent only to your router and isn\u{2019}t saved by OpenU60." }
+            li { (kit::icon(Icon::Wifi)) "您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10–60 秒。" }
+            li { (kit::icon(Icon::Lock)) "激活码是私密的一次性凭据，只会发送至你的路由器，OpenU60 不会保存它。" }
         }
     }
 }
@@ -561,8 +561,8 @@ async fn add(ctx: Ctx, req: Request) -> Response {
         Sent::Ran(resp) => resp,
         Sent::Done(Ok(())) | Sent::Unknown => session::see_other(DL),
         Sent::Done(Err((status, e))) => show(shown, again("note", &e, &[]), status).await,
-        Sent::Expired => show(shown, again("input", "This page expired, so nothing was sent. Try again.", &[]), 409).await,
-        Sent::Busy => show(shown, again("input", "Failed: the router is busy. Try again in a few seconds.", &[]), 503).await,
+        Sent::Expired => show(shown, again("input", "该页面已过期，因此未发送任何内容。再试一次。", &[]), 409).await,
+        Sent::Busy => show(shown, again("input", "失败：路由器正忙。几秒钟后重试。", &[]), 503).await,
     }
 }
 
@@ -593,7 +593,7 @@ async fn decide(ctx: Ctx, req: Request, k: Post) -> Response {
     let work: OnceJob = Box::new(move |app: &AppState, claim| {
         let d = match super::api_get(app, DOWNLOAD) {
             Ok(d) => d,
-            Err(e) => return line(app, &flash, owner, None, format!("Failed: {}", fmt::truncate(&e, 120))),
+            Err(e) => return line(app, &flash, owner, None, format!("失败：{}", fmt::truncate(&e, 120))),
         };
         let st = esim::state(Some(&d));
         let installing = d["step"].as_str().is_some_and(|s| s.starts_with("es10b_load_bound_profile_package"));
@@ -627,8 +627,8 @@ async fn decide(ctx: Ctx, req: Request, k: Post) -> Response {
         Sent::Done(Err(_)) if ctx.flash.get(&token, owner, ctx.app.auth.now()).is_some() => session::see_other(&format!("{DL}&r={token}")),
         Sent::Done(Err((_, e))) => note(&e),
         Sent::Done(Ok(())) | Sent::Unknown => session::see_other(DL),
-        Sent::Expired => note("This page expired, so nothing was sent. Try again."),
-        Sent::Busy => note("Failed: the router is busy. Try again in a few seconds."),
+        Sent::Expired => note("该页面已过期，因此未发送任何内容。再试一次。"),
+        Sent::Busy => note("失败：路由器正忙。几秒钟后重试。"),
     }
 }
 
@@ -662,14 +662,14 @@ mod tests {
         assert!(parse("LPA:1$example.com$").is_some(), "an empty matching ID, as the app");
         for bad in [
             "", "LPA:2$example.com$FAKE", "LPA:1$$FAKE", "LPA:1$example.com", "LPA:1$a$b$c$1$x", "LPA:1$evil.example/x$FAKE",
-            "LPA:1$example.com$FAKE_ID", "LPA:1$example.com$FAKE ID", "LPA:1$example.com$FAKE\u{7}", "WIFI:T:WPA;S:x;;",
-            "https://example.com/esim", "LPA:1$exämple.com$FAKE", "LPA:1$example.com$FAKE$1.3\u{200b}$1",
+            "LPA:1$example.com$FAKE_ID", "LPA:1$example.com$FAKE ID", "LPA:1$example.com$FAKE\x07", "WIFI:T:WPA;S:x;;",
+            "https://example.com/esim", "LPA:1$exämple.com$FAKE", "LPA:1$example.com$FAKE$1.3​$1",
         ] {
             assert!(parse(bad).is_none(), "{bad}");
         }
         assert!(parse(&format!("LPA:1$example.com${}", "A".repeat(512 - 17))).is_none());
         assert!(parse(&format!("LPA:1$example.com${}", "A".repeat(512 - 18))).is_some());
-        assert!(cc_ok("12345678") && cc_ok(&"x".repeat(64)) && !cc_ok("") && !cc_ok(&"x".repeat(65)) && !cc_ok("1\n2") && !cc_ok("12\u{feff}"));
+        assert!(cc_ok("12345678") && cc_ok(&"x".repeat(64)) && !cc_ok("") && !cc_ok(&"x".repeat(65)) && !cc_ok("1\n2") && !cc_ok("12﻿"));
     }
 
     /// A photo's codes: the one activation code; none or several refused

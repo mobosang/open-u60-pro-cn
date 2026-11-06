@@ -6,43 +6,43 @@ struct ConfigToolView: View {
 
     var body: some View {
         List {
-            Section("Import") {
+            Section("导入") {
                 Button {
                     viewModel.showDocumentPicker = true
                 } label: {
-                    Label("Open Config File", systemImage: "doc.badge.plus")
+                    Label("打开配置文件", systemImage: "doc.badge.plus")
                 }
             }
 
             if let header = viewModel.header {
-                Section("Header") {
+                Section("标题") {
                     LabeledContent("Magic", value: header.magic)
-                    LabeledContent("Encryption", value: header.payloadType.displayName)
+                    LabeledContent("加密", value: header.payloadType.displayName)
                     LabeledContent("Signature", value: header.signature.isEmpty ? "(none)" : header.signature)
                     LabeledContent("Payload Offset", value: "\(header.payloadOffset)")
                 }
 
-                Section("Decrypt") {
-                    TextField("Serial Number (optional)", text: $viewModel.serialNumber)
+                Section("解密") {
+                    TextField("序列号（可选）", text: $viewModel.serialNumber)
                         .autocorrectionDisabled()
 
                     Button {
                         viewModel.decrypt()
                     } label: {
-                        Label("Decrypt", systemImage: "lock.open.fill")
+                        Label("解密", systemImage: "lock.open.fill")
                     }
                     .disabled(viewModel.isProcessing)
                 }
             }
 
             if let key = viewModel.usedKey {
-                Section("Result") {
+                Section("结果") {
                     LabeledContent("Key Used", value: key.description)
                 }
             }
 
             if let xml = viewModel.decryptedXML {
-                Section("Config XML") {
+                Section("配置 XML") {
                     ScrollView(.horizontal) {
                         Text(xml.prefix(10000))
                             .font(.system(.caption, design: .monospaced))
@@ -51,11 +51,11 @@ struct ConfigToolView: View {
                     .frame(maxHeight: 400)
                 }
 
-                Section("Export") {
+                Section("导出") {
                     Button {
                         viewModel.showExporter = true
                     } label: {
-                        Label("Re-encrypt & Export", systemImage: "square.and.arrow.up")
+                        Label("重新加密并导出", systemImage: "square.and.arrow.up")
                     }
                 }
             }
@@ -72,13 +72,13 @@ struct ConfigToolView: View {
                 Section {
                     HStack {
                         ProgressView()
-                        Text("Processing...")
+                        Text("处理中...")
                             .foregroundStyle(.secondary)
                     }
                 }
             }
         }
-        .navigationTitle("Config Tool")
+        .navigationTitle("配置工具")
         .sheet(isPresented: $viewModel.showDocumentPicker) {
             DocumentPickerView { data in
                 viewModel.importFile(data: data)

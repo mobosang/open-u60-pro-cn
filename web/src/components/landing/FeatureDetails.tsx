@@ -18,7 +18,7 @@ export function FeatureDetails() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
         >
-          Feature Deep Dive
+          功能详解
         </motion.h2>
         <motion.p
           className="mx-auto mb-12 max-w-2xl text-center text-[0.9375rem] text-text-dim"
@@ -30,8 +30,8 @@ export function FeatureDetails() {
             ease: [0.16, 1, 0.3, 1] as const,
           }}
         >
-          How each feature works in practice — from network testing to modem
-          diagnostics.
+          每个功能在实践中如何工作——从网络测试到调制解调器
+          诊断。
         </motion.p>
 
         <div
@@ -68,7 +68,7 @@ export function FeatureDetails() {
                 </p>
                 <div className="rounded-lg bg-bg/60 px-3.5 py-3">
                   <span className="mb-1 block font-mono text-xs font-medium text-accent">
-                    How it works
+                    工作原理
                   </span>
                   <p className="text-[0.8125rem] leading-relaxed text-text-dim">
                     {feature.howItWorks}

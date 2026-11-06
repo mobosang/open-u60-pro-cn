@@ -28,10 +28,10 @@ fun NetworkModeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Network Mode") },
+                title = { Text("网络模式") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -67,7 +67,7 @@ fun NetworkModeScreen(
 
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Select Network Mode", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("选择网络模式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(12.dp))
 
                         NetworkModeConfig.netSelectOptions.forEach { (label, value) ->

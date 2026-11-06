@@ -51,7 +51,7 @@ final class ATTerminalViewModel {
         let cmd = currentCommand.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cmd.isEmpty else { return }
         guard cmd.uppercased().hasPrefix("AT") else {
-            record(ATHistoryEntry(command: cmd, response: "Error: Command must start with AT", port: "", elapsedMs: 0, timestamp: Date(), isError: true))
+            record(ATHistoryEntry(command: cmd, response: "错误：命令必须以 AT 开头", port: "", elapsedMs: 0, timestamp: Date(), isError: true))
             return
         }
 

@@ -63,7 +63,7 @@ class LANSettingsViewModel @Inject constructor(
                     "dhcp_lease_time" to c.dhcpLeaseTime,
                 )
                 agentClient.putJSON("/api/network/lan", params)
-                _state.value = _state.value.copy(isLoading = false, message = "LAN settings saved", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "已保存 LAN 设置", messageIsError = false)
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) save() else setError(e.message)
             } catch (e: Exception) {

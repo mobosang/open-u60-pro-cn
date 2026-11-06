@@ -1,7 +1,7 @@
 import SwiftUI
 import os
 
-private let logger = Logger(subsystem: "com.zte.companion", category: "SMS")
+private let logger = Logger(subsystem: "com.zte.companion", category: "短信")
 
 /// Hands a decoded JSON payload to a background task. Safe because the value is transferred
 /// exactly once, is never mutated, and the sender drops it at the call site.
@@ -114,7 +114,7 @@ final class SMSViewModel {
             isSending = false
             guard !error.isCancellation else { return false }
             logger.error("sendSMS: \(error.localizedDescription)")
-            self.error = "Failed to send: \(error.localizedDescription)"
+            self.error = "发送失败：\(error.localizedDescription)"
             return false
         }
     }
@@ -131,7 +131,7 @@ final class SMSViewModel {
         } catch {
             guard !error.isCancellation else { return }
             logger.error("deleteMessages: \(error.localizedDescription)")
-            self.error = "Delete failed: \(error.localizedDescription)"
+            self.error = "删除失败：\(error.localizedDescription)"
         }
     }
 

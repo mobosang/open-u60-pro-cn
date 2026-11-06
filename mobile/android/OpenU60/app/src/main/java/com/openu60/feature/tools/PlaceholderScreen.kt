@@ -23,7 +23,7 @@ fun PlaceholderScreen(
                 title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -44,12 +44,12 @@ fun PlaceholderScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                "Requires ADB USB",
+                "需要 ADB USB",
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "This feature requires a direct USB connection\nto the ZTE U60 Pro via ADB.\n\nUse the desktop Python tools instead.",
+                "此功能需要通过 USB 线缆\n直接连接 ZTE U60 Pro 并使用 ADB。\n\n请使用桌面端 Python 工具。",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -28,70 +28,70 @@ struct ToolsListView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Automation") {
+                Section("自动化任务") {
                     NavigationLink(value: Route.scheduler) {
-                        Label("Automations", systemImage: "clock.arrow.2.circlepath")
+                        Label("自动化", systemImage: "clock.arrow.2.circlepath")
                     }
                     NavigationLink(value: Route.smsForwarding) {
-                        Label("SMS Forwarding", systemImage: "envelope.arrow.triangle.branch")
+                        Label("短信转发", systemImage: "envelope.arrow.triangle.branch")
                     }
                 }
 
-                Section("Network Tools") {
+                Section("网络工具") {
                     NavigationLink(value: Route.speedTest) {
-                        Label("Speed Test", systemImage: "gauge.with.needle")
+                        Label("速度测试", systemImage: "gauge.with.needle")
                     }
 
                     NavigationLink(value: Route.lanSpeedTest) {
-                        Label("LAN Speed Test", systemImage: "wifi")
+                        Label("局域网速度测试", systemImage: "wifi")
                     }
 
                     NavigationLink(value: Route.enableADB) {
-                        Label("Enable ADB", systemImage: "cable.connector.horizontal")
+                        Label("启用 ADB", systemImage: "cable.connector.horizontal")
                     }
 
                     NavigationLink(value: Route.usbMode) {
-                        Label("USB Mode", systemImage: "cable.connector")
+                        Label("USB 模式", systemImage: "cable.connector")
                     }
 
                     NavigationLink(value: Route.bandLock) {
-                        Label("Band Lock", systemImage: "lock.fill")
+                        Label("频段锁定", systemImage: "lock.fill")
                     }
 
                     NavigationLink(value: Route.atTerminal) {
-                        Label("AT Terminal", systemImage: "terminal.fill")
+                        Label("AT 终端", systemImage: "terminal.fill")
                     }
 
                     NavigationLink(value: Route.deviceInfo) {
-                        Label("Device Info", systemImage: "info.circle")
+                        Label("设备信息", systemImage: "info.circle")
                     }
 
                     NavigationLink(value: Route.clients) {
-                        Label("Connected Devices", systemImage: "laptopcomputer.and.iphone")
+                        Label("已连接设备", systemImage: "laptopcomputer.and.iphone")
                     }
                 }
 
-                Section("Config") {
+                Section("配置") {
                     NavigationLink(value: Route.config) {
-                        Label("Config Decrypt/Encrypt", systemImage: "doc.badge.gearshape")
+                        Label("配置解密/加密", systemImage: "doc.badge.gearshape")
                     }
                 }
 
-                Section("Shell Access Required") {
+                Section("需要 Shell 访问") {
                     NavigationLink(value: Route.ttlSettings) {
-                        Label("TTL Settings", systemImage: "number")
+                        Label("TTL设置", systemImage: "number")
                     }
 
                     NavigationLink(value: Route.enableSSH) {
-                        Label("Enable SSH", systemImage: "terminal")
+                        Label("启用SSH", systemImage: "terminal")
                     }
 
                     NavigationLink(value: Route.deviceExplorer) {
-                        Label("Device Explorer", systemImage: "folder")
+                        Label("设备资源管理器", systemImage: "folder")
                     }
                 }
             }
-            .navigationTitle("Tools")
+            .navigationTitle("工具")
             .navigationDestination(for: Route.self) { route in
                 destination(for: route)
             }
@@ -144,11 +144,11 @@ struct ToolsListView: View {
         case .config:
             ConfigToolView()
         case .ttlSettings:
-            PlaceholderView(title: "TTL Settings", icon: "number", description: "Set TTL override via iptables. Requires shell access.")
+            PlaceholderView(title: "TTL设置", icon: "number", description: "通过 iptables 设置 TTL 覆盖。需要外壳访问权限。")
         case .enableSSH:
-            PlaceholderView(title: "Enable SSH", icon: "terminal", description: "Install and start dropbear SSH server. Requires ADB USB connection.")
+            PlaceholderView(title: "启用SSH", icon: "terminal", description: "安装并启动dropbear SSH服务器。需要 ADB USB 连接。")
         case .deviceExplorer:
-            PlaceholderView(title: "Device Explorer", icon: "folder", description: "Browse filesystem and collect device info. Requires ADB USB connection.")
+            PlaceholderView(title: "设备资源管理器", icon: "folder", description: "浏览文件系统并收集设备信息。需要 ADB USB 连接。")
         }
     }
 }

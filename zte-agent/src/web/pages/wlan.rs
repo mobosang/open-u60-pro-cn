@@ -61,13 +61,13 @@ const ENC: [&str; 7] = ["none", "psk+tkip", "psk+ccmp", "psk2+ccmp", "psk-mixed+
 
 fn enc_label(e: &str) -> String {
     match e {
-        "none" => "None",
+        "none" => "无",
         "psk+tkip" => "WPA-PSK (TKIP)",
         "psk+ccmp" => "WPA-PSK (AES)",
         "psk2+ccmp" => "WPA2-PSK (AES)",
-        "psk-mixed+ccmp" => "WPA/WPA2 Mixed",
+        "psk-mixed+ccmp" => "WPA/WPA2 混合",
         "sae" => "WPA3-SAE",
-        "sae-mixed" => "WPA2/WPA3 Mixed",
+        "sae-mixed" => "WPA2/WPA3 混合",
         _ => e,
     }
     .to_owned()
@@ -75,7 +75,7 @@ fn enc_label(e: &str) -> String {
 
 fn bw_label(bw: &str) -> String {
     match bw {
-        "auto" => "Auto",
+        "auto" => "自动",
         "EHT20" => "20 MHz",
         "EHT40" => "40 MHz",
         "EHT80" => "80 MHz",
@@ -87,7 +87,7 @@ fn bw_label(bw: &str) -> String {
 
 fn ch_label(ch: &str) -> String {
     if ch == "auto" {
-        "Auto".into()
+        "自动".into()
     } else {
         format!("Ch {ch}")
     }
@@ -180,13 +180,13 @@ const STRIPPED: [char; 10] = ['\'', '"', ';', '$', '`', '\\', '|', '<', '>', '&'
 /// one, which may keep characters the agent would strip from a new one).
 fn ssid_error(ssid: &str, router: &str) -> Option<&'static str> {
     if ssid.trim().is_empty() {
-        Some("Enter a network name.")
+        Some("输入网络名称。")
     } else if ssid.len() > 32 {
-        Some("Use at most 32 bytes (accented letters and emoji take more than one).")
+        Some("最多使用 32 个字节（重音字母和表情符号占用多个字节）。")
     } else if ssid.chars().any(char::is_control) {
-        Some("Use one line, without control characters.")
+        Some("使用一行，不带控制字符。")
     } else if ssid != router && ssid.contains(&STRIPPED[..]) {
-        Some("The router can't store these characters: ' \" ; $ ` \\ | < > &")
+        Some("路由器无法保存以下字符： ' \" ; $ ` \\ | < > &")
     } else {
         None
     }
@@ -203,22 +203,22 @@ fn sae(enc: &str) -> bool {
     enc.starts_with("sae")
 }
 
-const SAE_KEY: &str = "WPA3 needs a password of 8 to 63 characters.";
+const SAE_KEY: &str = "WPA3 需要 8 到 63 个字符的密码。";
 
 /// A typed password's message, if it cannot be used with `enc`.
 fn key_error(key: &str, enc: &str) -> Option<&'static str> {
     if sae(enc) && key.len() == 64 && wpa_ok(key) {
         Some(SAE_KEY)
     } else if !wpa_ok(key) {
-        Some("Use 8 to 63 characters (letters, digits, spaces or symbols), or 64 hexadecimal digits.")
+        Some("使用 8 至 63 个字符（字母、数字、空格或符号）或 64 个十六进制数字。")
     } else if key.contains(&STRIPPED[..]) {
-        Some("The router can't store these characters in a password: ' \" ; $ ` \\ | < > &")
+        Some("密码中不能包含以下字符： ' \" ; $ ` \\ | < > &")
     } else {
         None
     }
 }
 
-const NO_PASSWORD: &str = "Enter a password for this security type.";
+const NO_PASSWORD: &str = "输入此安全类型的密码。";
 
 /// "1" or "0" (the agent's switches).
 fn bit(on: bool) -> &'static str {
@@ -254,7 +254,7 @@ pub fn guest_settings(app: &AppState, _: Option<&str>) -> Result<Value, String> 
 
 pub fn page(pd: &PageData) -> Markup {
     let Some(st) = pd.read(0) else {
-        return html! { p.msg.err role="alert" { "Failed to load WiFi settings" } };
+        return html! { p.msg.err role="alert" { "加载WiFi设置失败" } };
     };
     let flag = |name: &str, router: bool| pd.form.map_or(router, |f| f.value(name) == Some("1"));
     html! {
@@ -265,10 +265,10 @@ pub fn page(pd: &PageData) -> Markup {
             (kit::section(None, None, switch("wifi", "WiFi", flag("wifi", truthy(&st["wifi_onoff"])), "it", "sr")))
             div.wb {
                 @for b in &BANDS { (band(pd, st, b)) }
-                (kit::section(Some("Advanced"), None, switch("wifi6_switch", "WiFi 7 (802.11be)", flag("wifi6_switch", truthy(&st["wifi6_switch"])), "it", "sr")))
+                (kit::section(Some("高级"), None, switch("wifi6_switch", "WiFi 7 (802.11be)", flag("wifi6_switch", truthy(&st["wifi6_switch"])), "it", "sr")))
             }
-            (kit::section(None, Some(foot("Applying changes will briefly disconnect WiFi while settings are restarted")), html! {
-                li { button.it.cv.snd type="submit" { "Apply" } }
+            (kit::section(None, Some(foot("应用更改将在重新启动设置时短暂断开 WiFi 的连接")), html! {
+                li { button.it.cv.snd type="submit" { "应用" } }
             }))
         }
     }
@@ -284,27 +284,27 @@ fn band(pd: &PageData, st: &Value, b: &Band) -> Markup {
     let footers = html! {
         @if b.five {
             @match bw.as_str() {
-                "EHT160" => (foot("160 MHz: channels 36\u{2013}64 or 100\u{2013}128")),
-                "EHT80" => (foot("80 MHz: channels 36\u{2013}64, 100\u{2013}128, or 149\u{2013}161")),
-                "EHT20" => (foot("20 MHz on 5 GHz is very narrow \u{2014} some clients may fail to connect or have poor performance. Use 80 MHz or wider for best compatibility.")),
+                "EHT160" => (foot("160 MHz：信道 36–64 或 100–128")),
+                "EHT80" => (foot("80 MHz：信道 36–64、100–128 或 149–161")),
+                "EHT20" => (foot("5 GHz 的 20 MHz 带宽较窄，部分设备可能无法连接或性能较差。建议使用 80 MHz 或更宽的带宽以获得更好的兼容性。")),
                 _ => {}
             }
-            @if low(&tx) { (foot("Low TX power on 5 GHz may prevent clients from connecting, especially with wider bandwidths")) }
+            @if low(&tx) { (foot("5 GHz 上的低 TX 功率可能会阻止客户端连接，尤其是在带宽较宽的情况下")) }
         } @else if low(&tx) {
-            (foot("Low TX power may reduce range and prevent some clients from connecting."))
+            (foot("低 TX 功率可能会缩小范围并阻止某些客户端连接。"))
         }
     };
     html! {
         div.band {
             (kit::section(Some(b.label), Some(footers), html! {
-                (switch(b.radio, "Radio", on, "it", "sr ro"))
+                (switch(b.radio, "无线电", on, "it", "sr ro"))
                 (text_row(b.ssid, "SSID", &typed(b.ssid, text(&st[b.ssid])), err(b.ssid), "it fld bd", 32, None))
-                (password_row(b.key, "Password", st[b.has_key].as_bool() == Some(true), f.and_then(|f| f.value(b.key)) == Some(KEPT), err(b.key), "it fld bd"))
-                (select_row(b.channel, "Channel", &options(b.channels, &ch0, ch_label), &typed(b.channel, ch0.clone()), err(b.channel), "it bd"))
-                (select_row(b.htmode, "Bandwidth", &options(b.bws, &bw0, bw_label), &bw, err(b.htmode), "it bd"))
-                (select_row(b.txpower, "TX Power", &options(&TX, &tx0, tx_label), &tx, err(b.txpower), "it bd"))
-                (select_row(b.encryption, "Encryption", &options(&ENC, &enc0, enc_label), &typed(b.encryption, enc0.clone()), err(b.encryption), "it bd"))
-                (switch(b.hidden, "Hidden SSID", f.map_or(truthy(&st[b.hidden]), |f| f.value(b.hidden) == Some("1")), "it bd", "sr"))
+                (password_row(b.key, "密码", st[b.has_key].as_bool() == Some(true), f.and_then(|f| f.value(b.key)) == Some(KEPT), err(b.key), "it fld bd"))
+                (select_row(b.channel, "信道", &options(b.channels, &ch0, ch_label), &typed(b.channel, ch0.clone()), err(b.channel), "it bd"))
+                (select_row(b.htmode, "带宽", &options(b.bws, &bw0, bw_label), &bw, err(b.htmode), "it bd"))
+                (select_row(b.txpower, "发射功率", &options(&TX, &tx0, tx_label), &tx, err(b.txpower), "it bd"))
+                (select_row(b.encryption, "加密", &options(&ENC, &enc0, enc_label), &typed(b.encryption, enc0.clone()), err(b.encryption), "it bd"))
+                (switch(b.hidden, "隐藏SSID", f.map_or(truthy(&st[b.hidden]), |f| f.value(b.hidden) == Some("1")), "it bd", "sr"))
             }))
         }
     }
@@ -327,7 +327,7 @@ fn key_of(typed: &str, kept: &str, router: &str, enc: &str, errors: &mut Vec<(&'
         if !wpa_ok(router) {
             errors.push((name, NO_PASSWORD.into()));
         } else if sae(enc) && router.len() == 64 {
-            errors.push((name, format!("{SAE_KEY} Enter one: the router\u{2019}s is a 64-digit key.")));
+            errors.push((name, format!("{SAE_KEY} 请重新输入：路由器当前保存的是 64 位密钥。")));
         }
         return String::new();
     }
@@ -350,7 +350,7 @@ pub fn check(app: &AppState, pairs: &[(String, String)], kept: &Vals) -> Result<
             for n in ["wifi", "wifi6_switch", "r2", "r5", "hidden_2g", "hidden_5g"] {
                 values.push((n, checkbox(pairs, n)));
             }
-            return Err(Bad::Fields(FormState { values, errors: vec![("form", format!("Failed to load WiFi settings: {}", fmt::truncate(&e, 120)))] }));
+            return Err(Bad::Fields(FormState { values, errors: vec![("form", format!("加载WiFi设置失败：{}", fmt::truncate(&e, 120)))] }));
         }
     };
     let on = checkbox(pairs, "wifi");
@@ -373,7 +373,7 @@ pub fn check(app: &AppState, pairs: &[(String, String)], kept: &Vals) -> Result<
             let listed = b.channels.contains(&channel.as_str()) && b.bws.contains(&htmode.as_str());
             if b.five && listed && channel != "auto" && !bandwidths_5g(&channel).contains(&htmode.as_str()) {
                 let max = bandwidths_5g(&channel).last().copied().unwrap_or("auto");
-                errors.push((b.htmode, format!("Channel {channel} supports up to {}.", bw_label(max))));
+                errors.push((b.htmode, format!("通道 {channel} 最多支持 {}。", bw_label(max))));
             }
         }
         vals.extend([
@@ -442,30 +442,30 @@ pub fn body(vals: &[(&'static str, String)], cur: &Value) -> Map<String, Value> 
 
 /// The line of a network that is (or becomes) open.
 fn open(ssid: &str) -> String {
-    format!("\u{201c}{ssid}\u{201d} is an open network: anyone nearby can join it, without a password, and reach this router.")
+    format!("“{ssid}”是开放网络，附近任何人无需密码即可加入并访问此路由器。")
 }
 
-const RESTART: &str = "WiFi restarts to apply the changes: every device on it disconnects for a moment, this browser too if it is on the router\u{2019}s WiFi.";
+const RESTART: &str = "WiFi 重新启动以应用更改：其上的每个设备都会暂时断开连接，如果该浏览器位于路由器 ’ 和 WiFi 上，则该浏览器也会断开连接。";
 
 pub fn question(app: &AppState, vals: &[(&'static str, String)]) -> Question {
     let cur = match super::wifi::status(app) {
         Ok(c) => c,
-        Err(e) => return nothing("Failed to load WiFi settings", vec![fmt::truncate(&e, 120)]),
+        Err(e) => return nothing("加载WiFi设置失败", vec![fmt::truncate(&e, 120)]),
     };
     let b = body(vals, &cur);
     if b.is_empty() {
-        return nothing("Nothing to apply", vec!["These are the router\u{2019}s settings already.".into()]);
+        return nothing("没有需要应用的更改", vec!["当前已使用这些设置。".into()]);
     }
     if val(vals, "wifi") != "1" {
         let lines = vec![
-            "WiFi turns off: every device on it loses its connection, this browser too if it is on the router\u{2019}s WiFi.".into(),
-            "To turn it back on, use the router\u{2019}s screen, or this page from a device connected by USB.".into(),
+            "WiFi 关闭：其上的每个设备都会失去连接，如果该浏览器位于路由器 ’ 和 WiFi 上，则该浏览器也会失去连接。".into(),
+            "要重新打开它，请使用路由器’的屏幕，或通过USB连接的设备使用此页面。".into(),
         ];
-        return asking("Turn off WiFi?", lines, "Turn Off WiFi", false, false);
+        return asking("关闭WiFi？", lines, "关闭WiFi", false, false);
     }
     if b.keys().all(|k| k.starts_with("txpower_")) {
-        let lines = vec!["TX power changes at once; WiFi does not restart.".into()];
-        return Question { title: "Apply WiFi settings?".into(), lines, label: Some("Apply"), danger: false };
+        let lines = vec!["TX功率立即改变； WiFi不重启。".into()];
+        return Question { title: "应用WiFi设置？".into(), lines, label: Some("应用"), danger: false };
     }
     let mut lines = Vec::new();
     for band in &BANDS {
@@ -473,9 +473,9 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)]) -> Question {
         let r_on = val(vals, band.radio) == "1";
         if b.contains_key(band.disabled) {
             lines.push(if r_on {
-                format!("The {} network \u{201c}{ssid}\u{201d} turns on.", band.label)
+                format!("{} 网络 “{ssid}” 开启。", band.label)
             } else {
-                format!("The {} network turns off: devices on it lose their connection.", band.label)
+                format!("{} 网络关闭：其上的设备失去连接。", band.label)
             });
         }
         if !r_on {
@@ -483,33 +483,33 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)]) -> Question {
         }
         let new_key = b.contains_key(band.key);
         if !b.contains_key(band.disabled) && (b.contains_key(band.ssid) || new_key || b.contains_key(band.encryption)) {
-            let with = if new_key { " with the new password" } else { "" };
-            lines.push(format!("On {}, devices must join \u{201c}{ssid}\u{201d} again{with}.", band.label));
+            let with = if new_key { "，使用新密码" } else { "" };
+            lines.push(format!("在{}上，设备必须再次加入“{ssid}”{with}。", band.label));
         }
         if b.contains_key(band.hidden) && val(vals, band.hidden) == "1" {
-            lines.push(format!("\u{201c}{ssid}\u{201d} is hidden: devices must type its name to join."));
+            lines.push(format!("“{ssid}”是隐藏网络，设备需要输入名称才能加入。"));
         }
         if val(vals, band.encryption) == "none" && (b.contains_key(band.encryption) || b.contains_key(band.disabled)) {
             lines.push(open(ssid));
         }
     }
     lines.push(RESTART.into());
-    asking("Apply WiFi settings?", lines, "Apply", false, false)
+    asking("应用WiFi设置？", lines, "应用", false, false)
 }
 
 pub fn send(app: &AppState, vals: &[(&'static str, String)], claim: &mut Claim) -> Result<Done, (u16, String)> {
     let cur = super::wifi::status(app).map_err(|e| (503, failed(&e)))?;
     let b = body(vals, &cur);
     if b.is_empty() {
-        return Ok(Done::Line(None, "No changes to apply.".into()));
+        return Ok(Done::Line(None, "没有要应用的更改。".into()));
     }
     claim.disarm();
     let data = super::call(app, Method::Put, "/api/wifi/settings", &Value::Object(b)).map_err(|(status, e)| (status, failed(&e)))?;
     if data["note"].as_str() == Some("no changes") {
-        return Ok(Done::Line(None, "No changes to apply.".into()));
+        return Ok(Done::Line(None, "没有要应用的更改。".into()));
     }
     if data["hot"].as_bool() == Some(true) {
-        return Ok(Done::Line(Some(true), "WiFi settings applied".into()));
+        return Ok(Done::Line(Some(true), "应用 WiFi 设置".into()));
     }
     Ok(Done::Page(Vec::new()))
 }
@@ -522,34 +522,34 @@ pub fn applied(vals: &[(&'static str, String)]) -> (String, Markup) {
     let mut names: Vec<&str> = live.iter().map(|b| val(vals, b.ssid)).collect();
     names.dedup();
     let title = match (on, names.as_slice()) {
-        (false, _) => "WiFi is off".to_owned(),
-        (true, [one]) => format!("Reconnect to \u{201c}{one}\u{201d}"),
-        _ => "Reconnect to WiFi".to_owned(),
+        (false, _) => "WiFi 已关闭".to_owned(),
+        (true, [one]) => format!("重新连接“{one}”"),
+        _ => "重新连接WiFi".to_owned(),
     };
     let body = html! {
         // The app's line for an Apply; WiFi turned off does not restart.
         @if on {
-            p.msg.ok role="status" { "WiFi settings applied \u{2014} WiFi will restart briefly" }
+            p.msg.ok role="status" { "WiFi 设置已应用 — WiFi 将短暂重启" }
         } @else {
-            p.msg.ok role="status" { "WiFi turned off" }
+            p.msg.ok role="status" { "WiFi 关闭" }
         }
         div.narrow {
             ul.consequences {
                 @if on {
-                    li { "WiFi is restarting. If this device is on the router\u{2019}s WiFi, it disconnects for a moment." }
+                    li { "WiFi 正在重启。如果此设备位于路由器的 WiFi 上，则会暂时断开连接。" }
                     @for b in &live {
                         li {
-                            "Join \u{201c}" (val(vals, b.ssid)) "\u{201d} (" (b.label) ")"
-                            @if val(vals, if b.five { "set_5g" } else { "set_2g" }) == "1" { " with the new password" }
-                            " if it does not reconnect by itself."
+                            "加入“" (val(vals, b.ssid)) "\u{201d} (" (b.label) ")"
+                            @if val(vals, if b.five { "set_5g" } else { "set_2g" }) == "1" { "，使用新密码" }
+                            "，若未自动重连，请手动连接。"
                         }
                     }
-                    @if vals.is_empty() { li { "Join the router\u{2019}s WiFi again if this device does not reconnect by itself." } }
+                    @if vals.is_empty() { li { "如果该设备没有自行重新连接，请重新加入路由器的 WiFi。" } }
                 } @else {
-                    li { "Devices on the router\u{2019}s WiFi lost their connection. Turn WiFi back on from the router\u{2019}s screen, or here from a device connected by USB." }
+                    li { "路由器’ WiFi 上的设备失去连接。从路由器 ’ 屏幕或此处从通过 USB 连接的设备重新打开 WiFi。" }
                 }
             }
-            p.actions { a.btn href=(WIFI) { "Back to WiFi Settings" } }
+            p.actions { a.btn href=(WIFI) { "返回WiFi设置" } }
         }
     };
     (title, body)
@@ -559,19 +559,19 @@ pub fn applied(vals: &[(&'static str, String)]) -> (String, Markup) {
 
 /// The app's Auto-Shutoff choices (minutes).
 const TIMES: [(&str, &str); 8] = [
-    ("0", "No Limit"),
-    ("30", "30 min"),
-    ("60", "1 hour"),
-    ("120", "2 hours"),
-    ("240", "4 hours"),
-    ("480", "8 hours"),
-    ("720", "12 hours"),
-    ("1440", "24 hours"),
+    ("0", "没有限制"),
+    ("30", "30 分钟"),
+    ("60", "1 小时"),
+    ("120", "2 小时"),
+    ("240", "4 小时"),
+    ("480", "8 小时"),
+    ("720", "12 小时"),
+    ("1440", "24 小时"),
 ];
 const TIME_VALUES: [&str; 8] = ["0", "30", "60", "120", "240", "480", "720", "1440"];
 
 fn time_label(m: &str) -> String {
-    TIMES.iter().find(|(v, _)| *v == m).map_or_else(|| format!("{m} min"), |(_, l)| (*l).to_owned())
+    TIMES.iter().find(|(v, _)| *v == m).map_or_else(|| format!("{m} 分钟"), |(_, l)| (*l).to_owned())
 }
 
 /// The minutes, "0" when unset.
@@ -583,15 +583,15 @@ fn minutes(v: &Value) -> String {
 fn remaining(secs: i64) -> String {
     let (h, m, s) = (secs / 3600, secs % 3600 / 60, secs % 60);
     if h > 0 {
-        format!("{h}h {m:02}m {s:02}s remaining")
+        format!("剩余 {h} 小时 {m:02} 分 {s:02} 秒")
     } else {
-        format!("{m}m {s:02}s remaining")
+        format!("剩余 {m} 分 {s:02} 秒")
     }
 }
 
 pub fn guest_page(pd: &PageData) -> Markup {
     let Some(st) = pd.read(0) else {
-        return html! { p.msg.err role="alert" { "Failed to load guest WiFi settings" } };
+        return html! { p.msg.err role="alert" { "加载访客 WiFi 设置失败" } };
     };
     let f = pd.form;
     let typed = |name: &str, router: String| f.and_then(|f| f.value(name)).map_or(router, str::to_owned);
@@ -606,32 +606,32 @@ pub fn guest_page(pd: &PageData) -> Markup {
     let expired = timed && !g2 && !g5 && left <= 0;
     let times: Vec<&str> = TIME_VALUES.to_vec();
     let footers = html! {
-        @if timed { (foot(&format!("Guest WiFi will automatically turn off after {}", time_label(&time)))) }
-        @if left > 0 { p.foot.c-orange { (remaining(left)) " \u{b7} " a href=(GUEST) { "Refresh" } } }
+        @if timed { (foot(&format!("访客WiFi在{}之后将自动关闭", time_label(&time)))) }
+        @if left > 0 { p.foot.c-orange { (remaining(left)) " \u{b7} " a href=(GUEST) { "刷新" } } }
     };
     html! {
         (form_error(pd))
         form.rf.gw method="post" action=(GUEST_APPLY) autocomplete="off" {
             (pd.csrf())
             (once_field(&pd.once()))
-            (kit::section(Some("Radio Bands"), expired.then(|| html! { p.foot.c-orange { "Timer expired \u{2014} guest WiFi was automatically disabled" } }), html! {
+            (kit::section(Some("无线电频段"), expired.then(|| html! { p.foot.c-orange { "计时器到期 — 访客 WiFi 被自动禁用" } }), html! {
                 (switch("g2", "2.4 GHz", g2, "it", "sr gb"))
                 (switch("g5", "5 GHz", g5, "it", "sr gb"))
             }))
             div.gn {
-                (kit::section(Some("Network"), None, html! {
+                (kit::section(Some("网络"), None, html! {
                     (text_row("gssid", "SSID", &typed("gssid", text(&st["ssid"])), err("gssid"), "it fld", 32, None))
-                    (password_row("gkey", "Password", st["has_key"].as_bool() == Some(true), f.and_then(|f| f.value("gkey")) == Some(KEPT), err("gkey"), "it fld"))
-                    (select_row("genc", "Encryption", &options(&ENC, &enc0, enc_label), &typed("genc", enc0.clone()), None, "it"))
-                    (switch("ghid", "Hidden SSID", flag("ghid", truthy(&st["hidden"])), "it", "sr"))
-                    (switch("giso", "Client Isolation", flag("giso", truthy(&st["isolate"])), "it", "sr"))
+                    (password_row("gkey", "密码", st["has_key"].as_bool() == Some(true), f.and_then(|f| f.value("gkey")) == Some(KEPT), err("gkey"), "it fld"))
+                    (select_row("genc", "加密", &options(&ENC, &enc0, enc_label), &typed("genc", enc0.clone()), None, "it"))
+                    (switch("ghid", "隐藏SSID", flag("ghid", truthy(&st["hidden"])), "it", "sr"))
+                    (switch("giso", "客户端隔离", flag("giso", truthy(&st["isolate"])), "it", "sr"))
                 }))
             }
             // The app shows the timer with a band on, or while it runs or ran out.
             div class=[(!expired && left <= 0).then_some("gn")] {
-                (kit::section(Some("Timer"), Some(footers), select_row("gtime", "Auto-Shutoff", &options(&times, &time0, time_label), &time, None, "it")))
+                (kit::section(Some("计时器"), Some(footers), select_row("gtime", "自动关闭", &options(&times, &time0, time_label), &time, None, "it")))
             }
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Apply" } } }))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "应用" } } }))
         }
     }
 }
@@ -645,7 +645,7 @@ pub fn check_guest(app: &AppState, pairs: &[(String, String)], kept: &Vals) -> R
             for n in ["g2", "g5", "ghid", "giso"] {
                 values.push((n, checkbox(pairs, n)));
             }
-            return Err(Bad::Fields(FormState { values, errors: vec![("form", format!("Failed to load guest WiFi settings: {}", fmt::truncate(&e, 120)))] }));
+            return Err(Bad::Fields(FormState { values, errors: vec![("form", format!("无法加载访客 WiFi 设置：{}", fmt::truncate(&e, 120)))] }));
         }
     };
     let (g2, g5) = (checkbox(pairs, "g2"), checkbox(pairs, "g5"));
@@ -714,16 +714,16 @@ pub fn guest_body(vals: &[(&'static str, String)], cur: &Value) -> Map<String, V
 }
 
 const GUEST_RESTART: &str =
-    "WiFi restarts to apply the changes: every device on the router\u{2019}s WiFi, guests included, disconnects for a moment, this browser too if it is on WiFi.";
+    "WiFi 重新启动以应用更改：路由器 ’ WiFi 上的每个设备（包括访客）都会暂时断开连接，如果该浏览器位于 WiFi 上，也会断开连接。";
 
 pub fn guest_question(app: &AppState, vals: &[(&'static str, String)]) -> Question {
     let cur = match super::wifi::guest_status(app) {
         Ok(c) => c,
-        Err(e) => return nothing("Failed to load guest WiFi settings", vec![fmt::truncate(&e, 120)]),
+        Err(e) => return nothing("加载访客 WiFi 设置失败", vec![fmt::truncate(&e, 120)]),
     };
     let b = guest_body(vals, &cur);
     if b.is_empty() {
-        return nothing("Nothing to apply", vec!["These are the router\u{2019}s settings already.".into()]);
+        return nothing("没有需要应用的更改", vec!["当前已使用这些设置。".into()]);
     }
     let was = !truthy(&cur["disabled_2g"]) || !truthy(&cur["disabled_5g"]);
     let now = val(vals, "g2") == "1" || val(vals, "g5") == "1";
@@ -732,37 +732,37 @@ pub fn guest_question(app: &AppState, vals: &[(&'static str, String)]) -> Questi
     let mut lines = Vec::new();
     let title = match (was, now) {
         (true, false) => {
-            lines.push("The guest network turns off: devices on it lose their connection.".into());
-            "Turn off Guest WiFi?"
+            lines.push("访客网络关闭：其上的设备失去连接。".into());
+            "关闭访客WiFi？"
         }
         (false, true) => {
-            lines.push(format!("The guest network \u{201c}{ssid}\u{201d} turns on."));
-            "Turn on Guest WiFi?"
+            lines.push(format!("访客网络“{ssid}”开启。"));
+            "开启访客WiFi？"
         }
         _ => {
             for (key, label) in [("guest_disabled_2g", "2.4 GHz"), ("guest_disabled_5g", "5 GHz")] {
                 match b.get(key).and_then(Value::as_str) {
-                    Some("0") => lines.push(format!("The {label} guest network turns on.")),
-                    Some(_) => lines.push(format!("The {label} guest network turns off: devices on it lose their connection.")),
+                    Some("0") => lines.push(format!("{label} 访客网络打开。")),
+                    Some(_) => lines.push(format!("{label} 访客网络关闭：其上的设备失去连接。")),
                     None => {}
                 }
             }
             let new_key = b.contains_key("guest_key");
             if now && (b.contains_key("guest_ssid") || new_key || b.contains_key("guest_encryption")) {
-                let with = if new_key { " with the new password" } else { "" };
-                lines.push(format!("Guests must join \u{201c}{ssid}\u{201d} again{with}."));
+                let with = if new_key { "，使用新密码" } else { "" };
+                lines.push(format!("客人必须再次加入“{ssid}”{with}。"));
             }
-            "Apply Guest WiFi settings?"
+            "应用访客WiFi设置？"
         }
     };
     if now && val(vals, "genc") == "none" && (b.contains_key("guest_encryption") || !was) {
         lines.push(open(ssid));
     }
     if now && (b.contains_key("guest_active_time") || !was) && time != "0" {
-        lines.push(format!("Guest WiFi turns off by itself after {}.", time_label(time)));
+        lines.push(format!("访客WiFi在{}之后自行关闭。", time_label(time)));
     }
     lines.push(GUEST_RESTART.into());
-    asking(title, lines, "Apply", false, false)
+    asking(title, lines, "应用", false, false)
 }
 
 /// The guest network's changes; then (the agent reloads all of Wi-Fi) the
@@ -772,7 +772,7 @@ pub fn send_guest(app: &AppState, vals: &[(&'static str, String)], claim: &mut C
     let cur = super::wifi::guest_status(app).map_err(|e| (503, failed(&e)))?;
     let b = guest_body(vals, &cur);
     if b.is_empty() {
-        return Ok(Done::Line(None, "No changes to apply.".into()));
+        return Ok(Done::Line(None, "没有要应用的更改。".into()));
     }
     let mut main = Vals::new();
     if let Some(st) = super::wifi::status(app).ok().filter(|st| truthy(&st["wifi_onoff"])) {
@@ -786,7 +786,7 @@ pub fn send_guest(app: &AppState, vals: &[(&'static str, String)], claim: &mut C
     claim.disarm();
     let data = super::call(app, Method::Put, "/api/wifi/guest", &Value::Object(b)).map_err(|(status, e)| (status, failed(&e)))?;
     if data["note"].as_str() == Some("no changes") {
-        return Ok(Done::Line(None, "No changes to apply.".into()));
+        return Ok(Done::Line(None, "没有要应用的更改。".into()));
     }
     Ok(Done::Page(main))
 }
@@ -798,26 +798,26 @@ pub fn guest_applied(vals: &[(&'static str, String)]) -> (String, Markup) {
     let mut names: Vec<&str> = ["main_2g", "main_5g"].iter().map(|k| val(vals, k)).filter(|n| !n.is_empty()).collect();
     names.dedup();
     let title = match names.as_slice() {
-        [one] => format!("Reconnect to \u{201c}{one}\u{201d}"),
-        _ => "Reconnect to WiFi".to_owned(),
+        [one] => format!("重新连接“{one}”"),
+        _ => "重新连接WiFi".to_owned(),
     };
     let guests = val(vals, "g2") == "1" || val(vals, "g5") == "1";
     let body = html! {
-        p.msg.ok role="status" { "Guest WiFi settings applied" }
+        p.msg.ok role="status" { "已应用访客 WiFi 设置" }
         div.narrow {
             ul.consequences {
-                li { "WiFi is restarting, guest network included. If this device is on the router\u{2019}s WiFi, it disconnects for a moment." }
-                @for n in &names { li { "Join \u{201c}" (n) "\u{201d} if it does not reconnect by itself." } }
-                @if names.is_empty() { li { "Join the router\u{2019}s WiFi again if this device does not reconnect by itself." } }
+                li { "WiFi 正在重启，包括访客网络。如果此设备位于路由器的 WiFi 上，则会暂时断开连接。" }
+                @for n in &names { li { "加入“" (n) "\u{201d}，若未自动重连，请手动连接。" } }
+                @if names.is_empty() { li { "如果该设备没有自行重新连接，请重新加入路由器的 WiFi。" } }
                 @if guests && !val(vals, "gssid").is_empty() {
                     li {
-                        "Guests join \u{201c}" (val(vals, "gssid")) "\u{201d}"
-                        @if val(vals, "set_g") == "1" { " with the new password" }
-                        "."
+                        "访客加入“" (val(vals, "gssid")) "\u{201d}"
+                        @if val(vals, "set_g") == "1" { "，使用新密码" }
+                        "。"
                     }
                 }
             }
-            p.actions { a.btn href=(GUEST) { "Back to Guest WiFi" } }
+            p.actions { a.btn href=(GUEST) { "返回访客WiFi" } }
         }
     };
     (title, body)
@@ -871,7 +871,7 @@ mod tests {
 
     #[test]
     fn names_and_passwords_are_checked() {
-        assert_eq!(ssid_error("", "x"), Some("Enter a network name."));
+        assert_eq!(ssid_error("", "x"), Some("输入网络名称。"));
         assert!(ssid_error(&"é".repeat(17), "x").is_some(), "34 bytes");
         assert_eq!(ssid_error(&"a".repeat(32), "x"), None);
         assert!(ssid_error("Fake & New", "Fake").is_some(), "the agent would strip &");
@@ -899,8 +899,8 @@ mod tests {
         assert_eq!(bandwidths_5g("136"), ["auto", "EHT20", "EHT40"]);
         assert_eq!(bandwidths_5g("36"), BW_5G);
         assert_eq!(bandwidths_5g("auto"), BW_5G);
-        assert_eq!(remaining(3909), "1h 05m 09s remaining");
-        assert_eq!(remaining(65), "1m 05s remaining");
+        assert_eq!(remaining(3909), "剩余 1 小时 05 分 09 秒");
+        assert_eq!(remaining(65), "剩余 1 分 05 秒");
     }
 
     /// The result page: the app's restart line for an Apply, words of its
@@ -909,13 +909,13 @@ mod tests {
     fn applied_page_says_what_happened() {
         let (title, body) = applied(&vals(&[("wifi", "")]));
         let html = body.into_string();
-        assert_eq!(title, "WiFi is off");
-        assert!(html.contains("<p class=\"msg ok\" role=\"status\">WiFi turned off</p>"), "{html}");
+        assert_eq!(title, "WiFi 已关闭");
+        assert!(html.contains("<p class=\"msg ok\" role=\"status\">WiFi 关闭</p>"), "{html}");
         assert!(!html.contains("restart"), "{html}");
         let (title, body) = applied(&vals(&[]));
         let html = body.into_string();
-        assert_eq!(title, "Reconnect to \u{201c}Fake & Net\u{201d}");
-        assert!(html.contains("WiFi settings applied \u{2014} WiFi will restart briefly") && !html.contains("WiFi turned off"), "{html}");
+        assert_eq!(title, "重新连接“Fake & Net”");
+        assert!(html.contains("WiFi 设置已应用 — WiFi 将短暂重启") && !html.contains("WiFi 关闭"), "{html}");
     }
 
     #[test]

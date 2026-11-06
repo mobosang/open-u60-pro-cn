@@ -24,10 +24,10 @@ fun BandLockScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Band Lock") },
+                title = { Text("频段锁定") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -73,7 +73,7 @@ fun BandLockScreen(
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        "NR (5G) Bands",
+                        "NR (5G) 频段",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
@@ -97,7 +97,7 @@ fun BandLockScreen(
                         enabled = state.selectedNRBands.isNotEmpty() && !state.isLoading,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Lock NR Bands")
+                        Text("锁定 NR 频段")
                     }
                 }
             }
@@ -106,7 +106,7 @@ fun BandLockScreen(
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        "LTE Bands",
+                        "LTE 频段",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
@@ -130,7 +130,7 @@ fun BandLockScreen(
                         enabled = state.selectedLTEBands.isNotEmpty() && !state.isLoading,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Lock LTE Bands")
+                        Text("锁定 LTE 频段")
                     }
                 }
             }
@@ -144,7 +144,7 @@ fun BandLockScreen(
                     contentColor = MaterialTheme.colorScheme.error,
                 ),
             ) {
-                Text("Unlock All Bands")
+                Text("解除所有频段锁定")
             }
 
             if (state.isLoading) {

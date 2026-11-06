@@ -96,8 +96,8 @@ impl LivePage {
 pub fn live_on(page: &str, hb: &str) -> Markup {
     html! {
         p #live-status .live .on .(hb) {
-            span.ok { "Live" }
-            span.lost { " No updates for 15 s \u{b7} " a href=(page) { "Refresh" } }
+            span.ok { "实时更新" }
+            span.lost { " 15 秒未更新 · " a href=(page) { "刷新" } }
         }
     }
 }
@@ -107,8 +107,8 @@ pub fn live_on(page: &str, hb: &str) -> Markup {
 pub fn live_pill(page: &str, hb: &str) -> Markup {
     html! {
         p #live-status .live .on .ps .(hb) {
-            span.ok { b { "Connected" } }
-            span.lost { a href=(page) { "Offline" span.sr { ". Refresh" } } }
+            span.ok { b { "已连接" } }
+            span.lost { a href=(page) { "离线" span.sr { "。刷新" } } }
         }
     }
 }
@@ -123,7 +123,7 @@ fn ending(pill: bool, msg: &str, link: Option<(&str, &str)>) -> Vec<String> {
     };
     if pill {
         vec![
-            html! { p #live-status .live .ps { span.off { b { "Offline" } } } }.into_string(),
+            html! { p #live-status .live .ps { span.off { b { "离线" } } } }.into_string(),
             html! { p #live-note { (note) } }.into_string(),
         ]
     } else {
@@ -139,7 +139,7 @@ fn login_href(next: Option<&str>) -> String {
 }
 
 fn signed_out(pill: bool, next: Option<&str>) -> Vec<String> {
-    ending(pill, "Signed out.", Some(("Log in", &login_href(next))))
+    ending(pill, "已退出。", Some(("登录", &login_href(next))))
 }
 
 /// One `datastar-patch-elements` frame for every element of a batch.
@@ -265,9 +265,9 @@ impl Emitter for PageEmitter {
         let (page, pill) = (self.page.page.as_str(), self.page.pill);
         let parts = match reason {
             ByeReason::TokenExpired | ByeReason::LoggedOut => signed_out(pill, self.page.next),
-            ByeReason::Lifetime => ending(pill, "Live updates paused after 30 minutes.", Some(("Resume", page))),
-            ByeReason::Evicted => ending(pill, "Opened in another tab.", Some(("Refresh", page))),
-            ByeReason::Standby => ending(pill, "The router went into standby.", Some(("Refresh", page))),
+            ByeReason::Lifetime => ending(pill, "实时更新在 30 分钟后暂停。", Some(("恢复", page))),
+            ByeReason::Evicted => ending(pill, "在另一个选项卡中打开。", Some(("刷新", page))),
+            ByeReason::Standby => ending(pill, "路由器进入待机状态。", Some(("刷新", page))),
         };
         vec![patch(&parts)]
     }
@@ -308,7 +308,7 @@ fn one(parts: Vec<String>) -> Response {
 fn op_gone() -> Response {
     one(vec![html! {
         section #op-progress .card {
-            p.msg.info role="status" { "This change has finished." }
+            p.msg.info role="status" { "本次变更已完成。" }
         }
         p #live-status .live {}
     }
@@ -342,7 +342,7 @@ fn open(
     let sub = match hub.subscribe(SubscribeReq { owner: p.id, topics, signal_hint, replace_same: Some(key) }) {
         Ok(sub) => sub,
         Err(Refused::Full) => {
-            return one(ending(page.pill, "Live updates busy (too many open pages).", Some(("Refresh", &page.page))));
+            return one(ending(page.pill, "实时更新繁忙（打开页面太多）。", Some(("刷新", &page.page))));
         }
     };
     let env = StreamEnv {
@@ -454,8 +454,7 @@ mod tests {
         want.push("live-status".into());
         assert_eq!(ids(&open), want);
         assert!(open.last().unwrap().starts_with(
-            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>Connected</b></span>\
-             <span class=\"lost\"><a href=\"/ui/\">Offline<span class=\"sr\">. Refresh</span></a></span></p>"
+            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>已连接</b></span><span class=\"lost\"><a href=\"/ui/\">离线<span class=\"sr\">。刷新</span></a></span></p>"
         ));
         // Byte-equal to the same fragment of a full page (the age badge is
         // the nav bar's).
@@ -489,7 +488,7 @@ mod tests {
         assert_eq!(ids(&parts), ["age", "live-status"]);
         // The badge's digit rolls up from 0 (`roll`); its label is what
         // screen readers read.
-        assert!(parts[0].contains("aria-label=\"Updated 4 seconds ago\"><span class=\"rl\" aria-hidden=\"true\"><i id=\"age04\" data-u=\"0\">4</i>s ago</span>"), "{}", parts[0]);
+        assert!(parts[0].contains("aria-label=\"更新于 4 秒前\"><span class=\"rl\" aria-hidden=\"true\"><i id=\"age04\" data-u=\"0\">4</i>秒前</span>"), "{}", parts[0]);
         assert!(parts[1].contains("class=\"live on ps hb-a\""));
         let much_later = v.now.saturating_add(Duration::from_secs(20));
         let parts = elements(&em.tick(much_later, &ages));
@@ -497,8 +496,8 @@ mod tests {
         // temperatures blank after 10 s; the battery card shows no age (the
         // app's cards have none), so it is not sent.
         assert_eq!(ids(&parts), ["card-traffic", "card-health", "age", "live-status"], "{parts:?}");
-        assert!(parts[0].contains("Last traffic sample · 16s ago · waiting for device"));
-        assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("Updated 20 s ago")));
+        assert!(parts[0].contains("· 之前的最后一个流量样本 · 16 正在等待设备"));
+        assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("更新 20 秒前")));
         assert!(parts.last().unwrap().contains("class=\"live on ps hb-b\""));
     }
 
@@ -594,7 +593,7 @@ mod tests {
         let mut em = PageEmitter::new(hub(), signal_page(false), BootClock.now());
         assert_eq!(
             elements(&em.bye(ByeReason::LoggedOut)).join(""),
-            "<p class=\"live\" id=\"live-status\">Signed out. <a href=\"/ui/login?next=%2Fui%2Fsignal\">Log in</a></p>"
+            "<p class=\"live\" id=\"live-status\">已退出。 <a href=\"/ui/login?next=%2Fui%2Fsignal\">登录</a></p>"
         );
         // The dashboard: the pill says "Offline", the reason goes under the bar.
         let mut em = PageEmitter::new(hub(), dash_page(), BootClock.now());
@@ -602,13 +601,12 @@ mod tests {
         for r in [ByeReason::TokenExpired, ByeReason::LoggedOut] {
             assert_eq!(
                 note(&mut em, r),
-                "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>Offline</b></span></p>\
-                 <p id=\"live-note\">Signed out. <a href=\"/ui/login?next=%2Fui%2F\">Log in</a></p>"
+                "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>离线</b></span></p><p id=\"live-note\">已退出。 <a href=\"/ui/login?next=%2Fui%2F\">登录</a></p>"
             );
         }
-        assert!(note(&mut em, ByeReason::Lifetime).contains("Live updates paused after 30 minutes. <a href=\"/ui/\">Resume</a>"));
-        assert!(note(&mut em, ByeReason::Evicted).contains("Opened in another tab. <a href=\"/ui/\">Refresh</a>"));
-        assert!(note(&mut em, ByeReason::Standby).contains("The router went into standby. <a href=\"/ui/\">Refresh</a>"));
+        assert!(note(&mut em, ByeReason::Lifetime).contains("实时更新在 30 分钟后暂停。 <a href=\"/ui/\">恢复</a>"));
+        assert!(note(&mut em, ByeReason::Evicted).contains("在另一个选项卡中打开。 <a href=\"/ui/\">刷新</a>"));
+        assert!(note(&mut em, ByeReason::Standby).contains("路由器进入待机状态。 <a href=\"/ui/\">刷新</a>"));
         assert!(!note(&mut em, ByeReason::Standby).contains(" on"));
     }
 
@@ -807,8 +805,8 @@ mod tests {
         let mut em = PageEmitter::new(hub(), page, now);
         let online = SlotView { version: 1, at: now, value_at: now, value: Some(Arc::new(json!({"status": {"operate_mode": "ONLINE"}}))), error: None };
         let parts = elements(&em.open(vec![(Topic::Modem, online.clone())], now));
-        assert_eq!(parts[0], "<h1 id=\"op-title\">Turning airplane mode on</h1>");
-        assert!(parts[1].contains("Turning the radio off") && parts[2].contains("hb-o"));
+        assert_eq!(parts[0], "<h1 id=\"op-title\">开启飞行模式</h1>");
+        assert!(parts[1].contains("关闭无线电…") && parts[2].contains("hb-o"));
         assert!(!em.finished());
         // Byte-equal to the page's heading and progress card.
         let mut views = Views::new(now, vec![(Topic::Modem, online)]);
@@ -818,8 +816,8 @@ mod tests {
         let lpm = SlotView { version: 2, at: now, value_at: now, value: Some(Arc::new(json!({"status": {"operate_mode": "LPM"}}))), error: None };
         let parts = elements(&em.changes(vec![(Topic::Modem, lpm)], now));
         // The heading turns to the past tense with the outcome.
-        assert_eq!(parts[0], "<h1 id=\"op-title\">Airplane mode turned on</h1>");
-        assert!(parts[1].contains("Airplane mode is on. The radio is off."));
+        assert_eq!(parts[0], "<h1 id=\"op-title\">飞行模式开启</h1>");
+        assert!(parts[1].contains("飞行模式已开启。无线电已关闭。"));
         assert_eq!(parts[2], "<p class=\"live\" id=\"live-status\"></p>");
         assert!(em.finished());
     }

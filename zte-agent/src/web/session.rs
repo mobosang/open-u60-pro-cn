@@ -304,7 +304,7 @@ impl FromRequestParts<Ctx> for Session {
     async fn from_request_parts(parts: &mut Parts, ctx: &Ctx) -> Result<Self, Response> {
         debug_assert!(
             parts.method == Method::GET || parts.method == Method::HEAD,
-            "Session extractor on a {} route; see its doc",
+            "{} 路由上的会话提取器；查看它的文档",
             parts.method
         );
         let (path, query) = (parts.uri.path(), parts.uri.query());
@@ -374,7 +374,7 @@ pub async fn read_form(ctx: &Ctx, headers: &HeaderMap, body: Body, nonce: &str) 
     match api::read_capped(headers, body, FORM_MAX, ctx.body_wait).await {
         Ok(bytes) => Ok(Form::parse(&bytes)),
         Err(ReadErr::TooLarge { read, rest }) => {
-            let resp = render::error(413, "Form too large", "That form was too large to accept.", nonce);
+            let resp = render::error(413, "表格太大", "该表格太大，无法接受。", nonce);
             Err(api::finish_early(headers, rest, read, resp).await)
         }
         Err(ReadErr::Failed) => Err(api::close(render::bad_request(nonce))),
@@ -535,7 +535,7 @@ mod tests {
             assert!(set_cookies(&r).is_empty());
             let body = String::from_utf8(axum::body::to_bytes(r.into_body(), 1 << 16).await.unwrap().to_vec()).unwrap();
             assert!(body.contains(r#"<meta http-equiv="refresh" content="0; url=/ui/sms?store=sim&amp;hop=1">"#), "{body}");
-            assert!(body.contains(r#"<a class="btn" href="/ui/sms?store=sim&amp;hop=1">Continue</a>"#), "{body}");
+            assert!(body.contains(r#"<a class="btn" href="/ui/sms?store=sim&amp;hop=1">继续</a>"#), "{body}");
         }
         // The hop itself, a request from this site, or one that brought a
         // (stale) session cookie: the session is gone; login, marker cleared.

@@ -24,13 +24,13 @@ struct RouterESimAddView: View {
                 }.padding(20)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Add eSIM").navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button(viewModel.download.isBusy ? "Close" : "Done") { clearSecrets(); dismiss() } } }
+            .navigationTitle("添加 eSIM").navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button(viewModel.download.isBusy ? "关闭" : "完成") { clearSecrets(); dismiss() } } }
             .sheet(isPresented: $scanner) {
                 NavigationStack {
                     RouterESimScanner { value in accept(value); scanner = false }
-                        .ignoresSafeArea(edges: .bottom).navigationTitle("Scan eSIM QR code").navigationBarTitleDisplayMode(.inline)
-                        .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Close") { scanner = false } } }
+                        .ignoresSafeArea(edges: .bottom).navigationTitle("扫描eSIM二维码").navigationBarTitleDisplayMode(.inline)
+                        .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("关闭") { scanner = false } } }
                 }
             }
             .task { viewModel.startMonitoring() }
@@ -48,10 +48,10 @@ struct RouterESimAddView: View {
                     guard !Task.isCancelled else { return }
                     let valid = Array(Set(values.filter { RouterESimActivationCode.parse($0) != nil }))
                     if valid.count == 1 { accept(valid[0]); UINotificationFeedbackGenerator().notificationOccurred(.success) }
-                    else { inputError = valid.isEmpty ? RouterESimActivationCode.invalidMessage : "Choose a photo with one eSIM QR code." }
+                    else { inputError = valid.isEmpty ? RouterESimActivationCode.invalidMessage : "选择一张带有eSIM二维码的照片。" }
                 } catch {
                     guard !Task.isCancelled else { return }
-                    inputError = "Couldn’t read this photo. Choose another image or enter the code manually."
+                    inputError = "无法阅读这张照片。选择其他图像或手动输入代码。"
                 }
             }
             .onChange(of: viewModel.download.state) { _, state in
@@ -67,42 +67,42 @@ struct RouterESimAddView: View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 10) {
                 Image(systemName: "qrcode.viewfinder").font(.largeTitle).foregroundStyle(.teal)
-                Text("Add a profile to your router").font(.title2.bold())
-                Text("Use the eSIM QR code from your operator. You’ll review the profile before installing it.").font(.subheadline).foregroundStyle(.secondary)
+                Text("将配置文件添加到您的路由器").font(.title2.bold())
+                Text("使用运营商提供的 eSIM 二维码。您将在安装之前查看配置文件。").font(.subheadline).foregroundStyle(.secondary)
             }
             if viewModel.connectionPhase == .disconnected || viewModel.connectionPhase == .waiting {
-                Label("Your router has no mobile data connection. Connect it before downloading; your phone’s own data can’t be used.", systemImage: "wifi.exclamationmark")
+                Label("您的路由器没有移动数据连接。下载前先连接；无法使用您手机本身的数据。", systemImage: "wifi.exclamationmark")
                     .font(.subheadline).foregroundStyle(.secondary).padding(14)
                     .background(.orange.opacity(0.08), in: .rect(cornerRadius: 12))
             }
             CardView(padding: 16) {
                 VStack(spacing: 12) {
-                    Button { scanner = true } label: { Label("Scan QR code", systemImage: "camera.fill").frame(maxWidth: .infinity, minHeight: 30) }
+                    Button { scanner = true } label: { Label("扫描二维码", systemImage: "camera.fill").frame(maxWidth: .infinity, minHeight: 30) }
                         .buttonStyle(.borderedProminent).tint(.teal)
                     PhotosPicker(selection: $photo, matching: .images) {
-                        Label(readingPhoto ? "Reading photo…" : "Choose QR from Photos", systemImage: "photo").frame(maxWidth: .infinity, minHeight: 30)
+                        Label(readingPhoto ? "Reading photo…" : "从照片中选择二维码", systemImage: "photo").frame(maxWidth: .infinity, minHeight: 30)
                     }.buttonStyle(.bordered).disabled(readingPhoto)
-                    Button { manual = true } label: { Label("Enter code manually", systemImage: "keyboard").frame(maxWidth: .infinity, minHeight: 30) }.buttonStyle(.borderless)
+                    Button { manual = true } label: { Label("手动输入代码", systemImage: "keyboard").frame(maxWidth: .infinity, minHeight: 30) }.buttonStyle(.borderless)
                 }
             }
             if manual || !code.isEmpty {
                 CardView(padding: 16) {
                     VStack(alignment: .leading, spacing: 12) {
-                        Label("Activation code", systemImage: "lock.shield").font(.subheadline.weight(.semibold))
+                        Label("激活码", systemImage: "lock.shield").font(.subheadline.weight(.semibold))
                         SecureField("LPA:1$…", text: $code).textInputAutocapitalization(.never).autocorrectionDisabled().textFieldStyle(.roundedBorder)
                             .onChange(of: code) { _, _ in inputError = nil; confirmationCode = "" }
                         if let parsed {
-                            Label("Code ready", systemImage: "checkmark.circle.fill").font(.caption).foregroundStyle(.teal)
-                            Text("From \(parsed.server)").font(.caption).foregroundStyle(.secondary)
+                            Label("代码准备好", systemImage: "checkmark.circle.fill").font(.caption).foregroundStyle(.teal)
+                            Text("来自\(parsed.server)").font(.caption).foregroundStyle(.secondary)
                         }
                         if parsed?.needsConfirmationCode == true {
-                            SecureField("Operator confirmation code", text: $confirmationCode).textInputAutocapitalization(.never).autocorrectionDisabled().textFieldStyle(.roundedBorder)
-                            Text("Enter the separate confirmation code supplied by your operator (up to 64 characters).").font(.caption).foregroundStyle(.secondary)
+                            SecureField("运营商确认码", text: $confirmationCode).textInputAutocapitalization(.never).autocorrectionDisabled().textFieldStyle(.roundedBorder)
+                            Text("输入运营商提供的单独确认码（最多 64 个字符）。").font(.caption).foregroundStyle(.secondary)
                         }
-                        Button("Read profile details") {
+                        Button("读取配置文件详细信息") {
                             guard let parsed else { inputError = RouterESimActivationCode.invalidMessage; return }
                             guard !parsed.needsConfirmationCode || RouterESimActivationCode.validConfirmationCode(confirmationCode) else {
-                                inputError = "Enter the confirmation code from your operator (up to 64 characters)."; return
+                                inputError = "请输入运营商提供的确认码（最多 64 个字符）。"; return
                             }
                             Task { await viewModel.startDownload(code: parsed.value, confirmationCode: confirmationCode) }
                         }.buttonStyle(.borderedProminent).tint(.teal)
@@ -114,16 +114,16 @@ struct RouterESimAddView: View {
             if let note = viewModel.downloadNote {
                 CardView {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("Can’t start this download", systemImage: "exclamationmark.circle").font(.subheadline.weight(.semibold))
+                        Label("无法开始此下载", systemImage: "exclamationmark.circle").font(.subheadline.weight(.semibold))
                         Text(note).font(.subheadline).foregroundStyle(.secondary).textSelection(.enabled)
                         if note.localizedCaseInsensitiveContains("agent password required") {
-                            Text("Set the router agent password in Agent Settings, then try again.").font(.caption).foregroundStyle(.secondary)
+                            Text("在代理设置中设置路由器代理密码，然后重试。").font(.caption).foregroundStyle(.secondary)
                         }
                     }
                 }
             }
-            Label("Your router needs internet to download the profile. Keep its Wi-Fi connected. Downloads usually take 10–60 seconds.", systemImage: "wifi").font(.caption).foregroundStyle(.secondary)
-            Label("Your activation code is private and single-use. It is sent only to your router and isn’t saved by OpenU60.", systemImage: "lock").font(.caption).foregroundStyle(.secondary)
+            Label("您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10-60 秒。", systemImage: "wifi").font(.caption).foregroundStyle(.secondary)
+            Label("您的激活码是私人且一次性的。它仅发送到您的路由器，不会被 OpenU60 保存。", systemImage: "lock").font(.caption).foregroundStyle(.secondary)
         }
     }
 
@@ -136,30 +136,30 @@ struct RouterESimAddView: View {
                     Text(viewModel.download.progressText).font(.title3.weight(.semibold))
                 }
                 if viewModel.download.state == "confirm" {
-                    Text("Install \(viewModel.download.displayName)?").font(.headline)
+                    Text("安装\(viewModel.download.displayName)？").font(.headline)
                     if let name = viewModel.download.name, name != viewModel.download.displayName { Text(name).font(.subheadline).foregroundStyle(.secondary) }
-                    Text("The profile will be installed on your router’s eSIM and stay inactive until you switch to it. Confirm within 2 minutes.").font(.subheadline).foregroundStyle(.secondary)
-                    Button("Install profile") { Task { await viewModel.confirmDownload() } }.buttonStyle(.borderedProminent).tint(.teal).disabled(viewModel.operationInFlight)
+                    Text("该配置文件将安装在您路由器的 eSIM 上并保持非活动状态，直到您切换到它。 2分钟内确认。").font(.subheadline).foregroundStyle(.secondary)
+                    Button("安装配置文件") { Task { await viewModel.confirmDownload() } }.buttonStyle(.borderedProminent).tint(.teal).disabled(viewModel.operationInFlight)
                 } else if viewModel.download.state == "done" {
-                    Text("Added to your router. Your current profile is still active.").font(.subheadline).foregroundStyle(.secondary)
+                    Text("添加到您的路由器。您当前的配置文件仍然有效。").font(.subheadline).foregroundStyle(.secondary)
                     if let profile = viewModel.profiles.first(where: { $0.iccid == viewModel.download.iccid }), profile.canEnable {
-                        Button("Switch to it now") { switchAfterDismiss(profile); clearSecrets(); dismiss() }.buttonStyle(.borderedProminent).tint(.teal).disabled(viewModel.blocksSwitching)
+                        Button("立即切换") { switchAfterDismiss(profile); clearSecrets(); dismiss() }.buttonStyle(.borderedProminent).tint(.teal).disabled(viewModel.blocksSwitching)
                     } else {
-                        Button("Refresh profiles") { Task { await viewModel.refresh() } }.disabled(viewModel.blocksSwitching)
+                        Button("刷新配置文件") { Task { await viewModel.refresh() } }.disabled(viewModel.blocksSwitching)
                     }
-                    Button("Later") { clearSecrets(); dismiss() }.buttonStyle(.bordered)
+                    Button("后来") { clearSecrets(); dismiss() }.buttonStyle(.bordered)
                 } else if viewModel.download.state == "failed" {
-                    Text(viewModel.download.error ?? "The operator couldn’t add this profile.").font(.subheadline).textSelection(.enabled)
-                    Button("Try again") { viewModel.resetDownloadResult(); manual = true }.buttonStyle(.borderedProminent)
+                    Text(viewModel.download.error ?? "运营商无法添加此配置文件。").font(.subheadline).textSelection(.enabled)
+                    Button("重试") { viewModel.resetDownloadResult(); manual = true }.buttonStyle(.borderedProminent)
                 } else {
-                    Text(viewModel.download.step == "es10b_load_bound_profile_package" ? "Keep the router powered on. Installation can’t be cancelled at this stage." : "Keep your router connected to the internet. You can close this screen and return to check progress.").font(.subheadline).foregroundStyle(.secondary)
+                    Text(viewModel.download.step == "es10b_load_bound_profile_package" ? "请保持路由器供电。此阶段无法取消安装。" : "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。").font(.subheadline).foregroundStyle(.secondary)
                 }
                 if let note = viewModel.downloadNote {
                     Text(note).font(.subheadline).foregroundStyle(.orange).textSelection(.enabled)
-                    Button("Check status") { Task { await viewModel.retryDownloadStatus() } }.disabled(viewModel.operationInFlight)
+                    Button("检查状态") { Task { await viewModel.retryDownloadStatus() } }.disabled(viewModel.operationInFlight)
                 }
                 if viewModel.download.canCancel {
-                    Button("Cancel download", role: .destructive) { Task { await viewModel.cancelDownload() } }.buttonStyle(.bordered).disabled(viewModel.operationInFlight)
+                    Button("取消下载", role: .destructive) { Task { await viewModel.cancelDownload() } }.buttonStyle(.bordered).disabled(viewModel.operationInFlight)
                 }
             }.frame(maxWidth: .infinity, alignment: .leading)
         }

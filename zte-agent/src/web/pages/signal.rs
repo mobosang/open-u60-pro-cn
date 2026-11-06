@@ -60,7 +60,7 @@ pub fn body(v: &Views) -> Markup {
         div.cards.wide {
             @for f in &CARDS { ((f.render)(v)) }
         }
-        (kit::section(None, None, kit::link_row("/ui/signal/network-mode", None, "Network mode")))
+        (kit::section(None, None, kit::link_row("/ui/signal/network-mode", None, "网络模式")))
     }
 }
 
@@ -98,12 +98,12 @@ fn sig_op(v: &Views) -> Markup {
     html! {
         section #sig-op .card {
             div.op {
-                div { b { (provider.unwrap_or("No Operator")) } span.muted { (kind) } }
-                @if roaming { span.roam { (kit::icon(Icon::AntennaSlash)) " Roaming" } }
+                div { b { (provider.unwrap_or("无运营商")) } span.muted { (kind) } }
+                @if roaming { span.roam { (kit::icon(Icon::AntennaSlash)) " 漫游" } }
                 (type_pill(&kind))
-                span.sb.muted[!bars] role="img" aria-label="Signal" { (kit::icon(Icon::Bars)) }
+                span.sb.muted[!bars] role="img" aria-label="信号" { (kit::icon(Icon::Bars)) }
             }
-            @if airplane(v) { p.muted { "Airplane mode is on: the radio is off." } }
+            @if airplane(v) { p.muted { "飞行模式打开：无线电关闭。" } }
             (render::error_line(v, &[Topic::Signal]))
         }
     }
@@ -171,24 +171,24 @@ fn radio(id: &str, v: &Views, nr: bool) -> Markup {
         section.card id=(id) {
             div.ph {
                 h2 { (kit::icon(if nr { Icon::Antenna } else { Icon::Bars })) " " (if nr { "5G NR" } else { "LTE" }) }
-                @if !nr && m.show.nr { span.badge { "NSA Anchor" } }
+                @if !nr && m.show.nr { span.badge { "NSA 锚点" } }
                 @if ca { span.badge.bl[nr] { (r.cc_count()) " CC" } }
                 @match r.sig[0] {
                     Some(x) => b class=(fmt::quality_class(x)) { (fmt::quality(x)) },
-                    None => span.muted { "Disconnected" },
+                    None => span.muted { "未连接" },
                 }
             }
             @if r.connected() {
                 (metrics(v, k, &r.sig))
                 dl.kv.meta {
-                    div { dt { "Band" } dd { (bands::band(&r.band, nr, ca)) } }
+                    div { dt { "频段" } dd { (bands::band(&r.band, nr, ca)) } }
                     div { dt { "PCI" } dd { (int_roll(v, &format!("{k}pci"), &r.pci)) } }
-                    div { dt { "Cell ID" } dd { (int_roll(v, &format!("{k}cid"), &r.cell)) } }
-                    div { dt { (if nr { "Channel" } else { "EARFCN" }) } dd { (int_roll(v, &format!("{k}ch"), &r.channel)) } }
-                    div { dt { "Bandwidth" } dd { (bands::bandwidth(&r.bw, &r.band, nr)) } }
-                    div { dt { "CA" } dd { @if ca { "Active (" (r.cc_count()) " CC)" } @else { "Inactive" } } }
+                    div { dt { "小区 ID" } dd { (int_roll(v, &format!("{k}cid"), &r.cell)) } }
+                    div { dt { (if nr { "信道" } else { "EARFCN" }) } dd { (int_roll(v, &format!("{k}ch"), &r.channel)) } }
+                    div { dt { "带宽" } dd { (bands::bandwidth(&r.bw, &r.band, nr)) } }
+                    div { dt { "CA" } dd { @if ca { "活跃（" (r.cc_count()) " CC)" } @else { "未启用" } } }
                     @if let Some(total) = r.total_bw().filter(|_| nr && ca) {
-                        div { dt { "Total BW" } dd { (total) " MHz" } }
+                        div { dt { "总带宽" } dd { (total) " MHz" } }
                     }
                 }
                 @for (i, c) in r.sccs.iter().enumerate() {
@@ -278,7 +278,7 @@ fn sig_bearer(v: &Views) -> Markup {
     let rate = |r: Option<f64>| r.map(model::mbps).unwrap_or_else(|| "--".into());
     html! {
         section #sig-bearer .card {
-            h2 { "Data Session" }
+            h2 { "数据会话" }
             dl.kv.meta {
                 @if let Some(q) = qci { div { dt { (if sa { "5QI" } else { "QCI" }) } dd { (q) } } }
                 @if down.is_some() || up.is_some() {
@@ -286,7 +286,7 @@ fn sig_bearer(v: &Views) -> Markup {
                 }
             }
             @if down.is_some() || up.is_some() {
-                p.note { "Down / up. Operator rate cap, set when the data session started. Not a speed test." }
+                p.note { "向下/向上。运营商速率上限，在数据会话开始时设置。不是速度测试。" }
             }
         }
     }
@@ -312,7 +312,7 @@ fn sig_wan(v: &Views) -> Markup {
     let v6 = w.and_then(|w| wan_ipv6(&w["wan6"]));
     html! {
         section #sig-wan .card {
-            h2 { "WAN addresses" }
+            h2 { "广域网地址" }
             dl.kv {
                 div { dt { "IPv4" } dd { (v4.unwrap_or("\u{2014}")) } }
                 div { dt { "IPv6" } dd { (v6.unwrap_or("\u{2014}")) } }
@@ -399,27 +399,27 @@ fn sig_chart(v: &Views) -> Markup {
         .filter(|(_, _, segs)| !segs.is_empty())
         .collect();
     let latest = |get: Get| v.history.last().map(get).filter(|d| *d != NONE);
-    let mut label = String::from("Signal strength over the last 2 minutes");
+    let mut label = String::from("过去 2 分钟的信号强度");
     for (i, (_, name, get)) in SERIES.iter().enumerate() {
         if let Some(d) = latest(*get).filter(|_| show(i)) {
-            label.push_str(&format!(", {name} now {d} dBm"));
+            label.push_str(&format!("，{name} 当前为 {d} dBm"));
         }
     }
     html! {
         figure #sig-chart .card {
-            h2 { "Signal History" }
+            h2 { "信号历史" }
             // The firmware keeps reporting its last readings while the radio is off.
             @if airplane(v) {
-                p.muted { "No readings in airplane mode." }
+                p.muted { "飞行模式下无读数。" }
             } @else if lines.is_empty() {
-                p.muted { "Collecting data..." }
+                p.muted { "正在采集数据..." }
             } @else {
                 svg.chart viewBox="0 0 300 130" role="img" aria-label=(label) {
                     path.grid d=(grid()) {}
                     @for i in 0..6u8 {
                         text x="272" y=(format!("{:.1}", y_of(-40 - 20 * i16::from(i)) + 3.0)) { (-40 - 20 * i16::from(i)) }
                     }
-                    text x="0" y="127" { "2 min ago" }
+                    text x="0" y="127" { "2 分钟前" }
                     text x=(PLOT_W) y="127" text-anchor="end" { "now" }
                     @for (class, _, segs) in &lines {
                         @for seg in segs { polyline class=(class) points=(seg) {} }
@@ -501,10 +501,10 @@ pub(crate) mod tests {
     fn renders_the_app_panels() {
         let s = body(&fixture()).into_string();
         for want in [
-            "Example &lt;b&gt;Mobile&lt;/b&gt;", "5G NSA", "5G NR", "n41 (2500 MHz, TDD)", "50 / 100 MHz max", ">774<", ">4242<",
-            "513000", "NSA Anchor", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "Active (2 CC)", "EARFCN", "SCC0",
-            "B3 (1800 MHz)\u{2003}PCI 12\u{2003}BW 20", "Data Session", "QCI", "10000 / 10000 Mbps", "Not a speed test.",
-            "Signal History", "10.20.30.40", "Excellent", "Good",
+            "Example &lt;b&gt;Mobile&lt;/b&gt;", "5G NSA", "5G NR", "n41 (2500 MHz, TDD)", "50 / 100 MHz（最大值）", ">774<", ">4242<",
+            "513000", "NSA 锚点", "2 CC", "B1 (2100 MHz, FDD) · PCC", "活跃（2 CC)", "EARFCN", "SCC0",
+            "B3 (1800 MHz) PCI 12 BW 20", "数据会话", "QCI", "10000 / 10000 Mbps", "向下/向上。运营商速率上限，在数据会话开始时设置。不是速度测试。",
+            "信号历史", "10.20.30.40", "极佳", "良好",
         ] {
             assert!(s.contains(want), "missing {want:?} in {s}");
         }
@@ -545,11 +545,11 @@ pub(crate) mod tests {
         assert!(s.contains("<polyline class=\"lte\" points=\"245.7,54.6 245.7,54.6\">"), "{s}");
         assert!(s.contains("<polyline class=\"lte\" points=\"254.6,53.5 268.0,54.6\">"), "{s}");
         assert_eq!(s.matches("<polyline").count(), 5);
-        assert!(s.contains("role=\"img\"") && s.contains("NR now -77 dBm, LTE now -85 dBm"));
+        assert!(s.contains("role=\"img\"") && s.contains("NR 当前为 -77 dBm，LTE 当前为 -85 dBm"));
         // The app's legend names, nothing else.
         assert!(s.contains("<figcaption class=\"legend\"><span class=\"nr\">NR</span> <span class=\"lte\">LTE</span> </figcaption>"), "{s}");
         // No history yet (the app's text, with three dots).
-        assert!(sig_chart(&views(vec![])).into_string().contains("<p class=\"muted\">Collecting data...</p>"));
+        assert!(sig_chart(&views(vec![])).into_string().contains("<p class=\"muted\">正在采集数据...</p>"));
     }
 
     /// The line follows the cadence a page asked for (Settings › Polling,
@@ -581,13 +581,13 @@ pub(crate) mod tests {
         let mut v = fixture();
         v.set(Topic::Modem, SlotView { version: 2, at: NOW, value_at: NOW, value: Some(Arc::new(json!({"status": {"operate_mode": "LPM"}}))), error: None });
         let s = body(&v).into_string();
-        assert!(s.contains("Airplane mode is on: the radio is off."));
+        assert!(s.contains("飞行模式打开：无线电关闭。"));
         for id in ["sig-nr", "sig-lte", "sig-bearer"] {
             assert!(s.contains(&format!("id=\"{id}\" hidden>")), "{id}");
         }
         // The chart neither draws nor reads out the frozen values.
         let chart = sig_chart(&v).into_string();
-        assert!(chart.contains("No readings in airplane mode.") && !chart.contains("now") && !chart.contains("<svg"), "{chart}");
+        assert!(chart.contains("飞行模式下无读数。") && !chart.contains("now") && !chart.contains("<svg"), "{chart}");
     }
 
     #[test]
@@ -597,7 +597,7 @@ pub(crate) mod tests {
         assert!(s.contains("<span class=\"muted\">WCDMA</span>") && s.contains("<span class=\"pill\" aria-hidden=\"true\">WCDMA</span>"), "{s}");
         assert!(!s.contains("No signal data") && !s.contains("Mode unknown"));
         let w = sig_wcdma(&v).into_string();
-        assert!(w.contains("RSCP") && w.contains("class=\"q-good\">Good<"), "{w}");
+        assert!(w.contains("RSCP") && w.contains("class=\"q-good\">良好<"), "{w}");
     }
 
     /// iOS `OperatorCardView` and `NetworkTypeIcon`.
@@ -608,11 +608,11 @@ pub(crate) mod tests {
         assert!(s.contains("<div><b>Example &lt;b&gt;Mobile&lt;/b&gt;</b><span class=\"muted\">5G NSA</span></div>"), "{s}");
         assert!(s.contains("<span class=\"pill\" aria-hidden=\"true\">5G<small>NSA</small></span>"), "{s}");
         // No bars reported: the glyph is grey; no roaming label, no quality word.
-        assert!(s.contains("<span class=\"sb muted\" role=\"img\" aria-label=\"Signal\">"), "{s}");
-        assert!(!s.contains("Roaming") && !s.contains("Excellent") && !s.contains("No Operator"), "{s}");
+        assert!(s.contains("<span class=\"sb muted\" role=\"img\" aria-label=\"信号\">"), "{s}");
+        assert!(!s.contains("漫游") && !s.contains("极佳") && !s.contains("无运营商"), "{s}");
         let s = op(json!({"network_type": "SA", "nr5g_rsrp": "-80", "signalbar": "3", "simcard_roam": "1", "network_provider": " "}));
-        assert!(s.contains("<b>No Operator</b><span class=\"muted\">5G SA</span>") && s.contains("5G<small>SA</small>"), "{s}");
-        assert!(s.contains("<span class=\"sb\" role=\"img\"") && s.contains(" Roaming</span>"), "{s}");
+        assert!(s.contains("<b>无运营商</b><span class=\"muted\">5G SA</span>") && s.contains("5G<small>SA</small>"), "{s}");
+        assert!(s.contains("<span class=\"sb\" role=\"img\"") && s.contains(" 漫游</span>"), "{s}");
         // Limited or no service: the warning pill; the type in words above it.
         for t in ["LIMITED_SERVICE_SA", "NO_SERVICE"] {
             let s = op(json!({"network_type": t}));
@@ -622,7 +622,7 @@ pub(crate) mod tests {
         assert!(s.contains("<span class=\"pill\" aria-hidden=\"true\">4G</span>"), "{s}");
         // Nothing read: "--" in grey.
         let s = sig_op(&views(vec![])).into_string();
-        assert!(s.contains("<b>No Operator</b><span class=\"muted\">--</span>") && s.contains("<span class=\"pill none\" aria-hidden=\"true\">--</span>"), "{s}");
+        assert!(s.contains("<b>无运营商</b><span class=\"muted\">--</span>") && s.contains("<span class=\"pill none\" aria-hidden=\"true\">--</span>"), "{s}");
     }
 
     #[test]
@@ -630,13 +630,13 @@ pub(crate) mod tests {
         // Connected but with gaps: "--" in the grid and the rows (WAN keeps "—").
         let v = views(vec![(Topic::Signal, json!({"network_type": "LTE", "lte_rsrp": "-90", "bearer": {"ambr_dl_mbps": 50}}))]);
         let lte = sig_lte(&v).into_string();
-        assert!(lte.contains("<b class=\"muted\">--</b>") && lte.contains("<dt>PCI</dt><dd>--</dd>") && lte.contains("<dt>Band</dt><dd>--</dd>"), "{lte}");
-        assert!(lte.contains("<h2><svg") && lte.contains("</svg> LTE</h2>") && !lte.contains("NSA Anchor"), "{lte}");
+        assert!(lte.contains("<b class=\"muted\">--</b>") && lte.contains("<dt>PCI</dt><dd>--</dd>") && lte.contains("<dt>频段</dt><dd>--</dd>"), "{lte}");
+        assert!(lte.contains("<h2><svg") && lte.contains("</svg> LTE</h2>") && !lte.contains("NSA 锚点"), "{lte}");
         assert!(sig_bearer(&v).into_string().contains("50 / -- Mbps"));
         assert!(sig_wan(&v).into_string().contains("<dt>IPv4</dt><dd>—</dd>"));
         // The page ends with the way to Network Mode.
         let page = body(&fixture()).into_string();
-        assert!(page.ends_with("<a class=\"it\" href=\"/ui/signal/network-mode\"><span>Network mode</span></a></li></ul></section>"), "{page}");
+        assert!(page.ends_with("<a class=\"it\" href=\"/ui/signal/network-mode\"><span>网络模式</span></a></li></ul></section>"), "{page}");
         // NR carrier aggregation: a blue badge.
         let mut d = signal();
         d["nrca"] = json!("774,41,0,513000,50;775,78,1,630000,100");

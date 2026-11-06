@@ -68,7 +68,7 @@ class SMSForwardViewModel @Inject constructor(
                         deleteAfterForward = deleteAfter,
                     ),
                     isLoading = false,
-                    message = "Config saved",
+                    message = "配置已保存",
                     messageIsError = false,
                 )
             } catch (e: AgentError.Unauthorized) {
@@ -124,7 +124,7 @@ class SMSForwardViewModel @Inject constructor(
                     "destination" to SMSForwardParser.destinationToMap(destination),
                 ))
                 _state.value = _state.value.copy(
-                    message = "Rule created",
+                    message = "规则已创建",
                     messageIsError = false,
                 )
                 refresh()
@@ -149,7 +149,7 @@ class SMSForwardViewModel @Inject constructor(
                     "destination" to SMSForwardParser.destinationToMap(destination),
                 ))
                 _state.value = _state.value.copy(
-                    message = "Rule updated",
+                    message = "规则更新",
                     messageIsError = false,
                 )
                 refresh()
@@ -167,7 +167,7 @@ class SMSForwardViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.deleteJSON("/api/sms/forward/rules", mapOf("id" to id))
-                _state.value = _state.value.copy(message = "Rule deleted", messageIsError = false)
+                _state.value = _state.value.copy(message = "规则已删除", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) deleteRule(id) else setError(e.message)
@@ -210,7 +210,7 @@ class SMSForwardViewModel @Inject constructor(
                     "destination" to SMSForwardParser.destinationToMap(destination),
                 ))
                 _state.value = _state.value.copy(
-                    message = "Test message sent successfully",
+                    message = "测试消息发送成功",
                     messageIsError = false,
                 )
             } catch (e: AgentError.Unauthorized) {
@@ -248,7 +248,7 @@ class SMSForwardViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     log = log,
                     isLoading = false,
-                    message = "Log cleared",
+                    message = "日志已清除",
                     messageIsError = false,
                 )
             } catch (e: AgentError.Unauthorized) {

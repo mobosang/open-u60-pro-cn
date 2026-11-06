@@ -13,9 +13,9 @@ struct PortForwardFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Rule") {
-                    TextField("Name", text: $name)
-                    Picker("Protocol", selection: $protocol_) {
+                Section("规则") {
+                    TextField("名称", text: $name)
+                    Picker("协议", selection: $protocol_) {
                         Text("TCP").tag("tcp")
                         Text("UDP").tag("udp")
                         Text("TCP + UDP").tag("tcp+udp")
@@ -23,7 +23,7 @@ struct PortForwardFormView: View {
                 }
 
                 Section("WAN") {
-                    TextField("WAN Port", text: $wanPort)
+                    TextField("广域网端口", text: $wanPort)
                         .keyboardType(.numberPad)
                 }
 
@@ -31,7 +31,7 @@ struct PortForwardFormView: View {
                     TextField("LAN IP", text: $lanIP)
                         .keyboardType(.decimalPad)
                         .autocorrectionDisabled()
-                    TextField("LAN Port", text: $lanPort)
+                    TextField("局域网接口", text: $lanPort)
                         .keyboardType(.numberPad)
                 }
 
@@ -47,17 +47,17 @@ struct PortForwardFormView: View {
                             )
                         }
                     } label: {
-                        Text("Add Rule")
+                        Text("添加规则")
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(wanPort.isEmpty || lanIP.isEmpty || lanPort.isEmpty || viewModel.isLoading)
                 }
             }
-            .navigationTitle("New Port Forward")
+            .navigationTitle("新建端口转发")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }

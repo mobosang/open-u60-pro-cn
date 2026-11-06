@@ -67,7 +67,7 @@ class SpeedTestViewModel @Inject constructor(
                 )
             } catch (e: AgentError.Unauthorized) {
                 authManager.reauthenticate()
-                setError("Session expired — please try again")
+                setError("会话已过期，请重试")
             } catch (e: Exception) {
                 setError(e.message)
             }
@@ -139,16 +139,16 @@ class SpeedTestViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isLoading = false,
                     message = when (finalPhase) {
-                        "complete" -> "Speed test complete"
-                        "cancelled" -> "Speed test cancelled"
-                        "error" -> _state.value.error ?: "Speed test failed"
+                        "complete" -> "速度测试完成"
+                        "cancelled" -> "速度测试取消"
+                        "error" -> _state.value.error ?: "速度测试失败"
                         else -> null
                     },
                     messageIsError = finalPhase == "error",
                 )
             } catch (e: AgentError.Unauthorized) {
                 authManager.reauthenticate()
-                setError("Session expired — please try again")
+                setError("会话已过期，请重试")
             } catch (e: Exception) {
                 setError(e.message)
             }
@@ -161,7 +161,7 @@ class SpeedTestViewModel @Inject constructor(
                 agentClient.postJSON("/api/speedtest/stop")
             } catch (e: AgentError.Unauthorized) {
                 authManager.reauthenticate()
-                setError("Session expired — please try again")
+                setError("会话已过期，请重试")
             } catch (e: Exception) {
                 setError(e.message)
             }

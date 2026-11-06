@@ -28,10 +28,10 @@ fun ScheduleRebootScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Scheduled Reboot") },
+                title = { Text("定时重启") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -72,7 +72,7 @@ fun ScheduleRebootScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Enable Scheduled Reboot", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("启用计划重启", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Switch(
                             checked = state.config.enabled,
                             onCheckedChange = { viewModel.updateConfig(state.config.copy(enabled = it)) },
@@ -84,7 +84,7 @@ fun ScheduleRebootScreen(
                 var time by remember(state.config.time) { mutableStateOf(state.config.time) }
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Reboot Time", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("重启时间", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = time,
@@ -92,7 +92,7 @@ fun ScheduleRebootScreen(
                                 time = it
                                 viewModel.updateConfig(state.config.copy(time = it))
                             },
-                            label = { Text("Time (HH:MM)") },
+                            label = { Text("时间（时:分）") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                         )
@@ -102,7 +102,7 @@ fun ScheduleRebootScreen(
                 // Days
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Days", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("天", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         val selectedDays = state.config.days.split(",").filter { it.isNotBlank() }.toSet()
                         ScheduleRebootConfig.dayOptions.forEach { (label, value) ->
@@ -129,7 +129,7 @@ fun ScheduleRebootScreen(
                     onClick = { viewModel.save() },
                     enabled = !state.isLoading,
                     modifier = Modifier.fillMaxWidth(),
-                ) { Text("Save") }
+                ) { Text("保存") }
             }
         }
     }

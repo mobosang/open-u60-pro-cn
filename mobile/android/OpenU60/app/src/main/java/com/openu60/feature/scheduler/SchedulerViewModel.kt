@@ -74,7 +74,7 @@ class SchedulerViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.deleteJSON("/api/scheduler/jobs/$id")
-                _state.value = _state.value.copy(message = "Job deleted", messageIsError = false)
+                _state.value = _state.value.copy(message = "作业已删除", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) deleteJob(id) else setError(e.message)
@@ -118,7 +118,7 @@ class SchedulerViewModel @Inject constructor(
                 }
 
                 agentClient.postJSON("/api/scheduler/jobs", params)
-                _state.value = _state.value.copy(message = "Job created", messageIsError = false)
+                _state.value = _state.value.copy(message = "创造就业机会", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) createJob(name, template, scheduleType, scheduleTime, scheduleDays, scheduleAt, restoreTime)

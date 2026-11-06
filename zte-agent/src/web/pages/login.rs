@@ -34,7 +34,7 @@ pub async fn form(State(ctx): State<Ctx>, req: Request) -> Response {
         return session::see_other(&next);
     }
     let notice = (session::query_param(query, "expired").as_deref() == Some("1"))
-        .then_some(Notice::Info("Your session expired. Nothing was changed."));
+        .then_some(Notice::Info("您的会话已过期。一切都没有改变。"));
     let (parts, _) = req.into_parts();
     let hint = super::https::login_hint(&ctx, &parts);
     session::without_session(&parts.headers, &parts.method, parts.uri.path(), parts.uri.query(), &nonce, |_| {
@@ -70,7 +70,7 @@ fn login_markup(nonce: &str, token: &str, next: &str, notice: Option<&Notice>, h
             div.lh {
                 (kit::icon(Icon::Router))
                 h1 { "ZTE U60 Pro" }
-                p { "Router Companion" }
+                p { "路由器配套工具" }
             }
             @match notice {
                 Some(Notice::Info(msg)) => p.msg.info role="status" { (msg) },
@@ -84,23 +84,23 @@ fn login_markup(nonce: &str, token: &str, next: &str, notice: Option<&Notice>, h
                 // save and fill the password. The server ignores it.
                 input type="text" name="username" value="agent" autocomplete="username" readonly hidden;
                 div.field {
-                    label for="password" { "Agent password" }
+                    label for="password" { "Agent 密码" }
                     input #password type="password" name="password" autocomplete="current-password" required autofocus
                         aria-describedby=[failed.then_some("login-error")] aria-invalid=[failed.then_some("true")];
                 }
-                button.btn.btn-wide type="submit" { "Log in" }
+                button.btn.btn-wide type="submit" { "登录" }
             }
             @if let Some(url) = hint {
-                p.note.ctr { "To install this web UI as an app, trust the router\u{2019}s certificate authority on this device (Settings \u{203a} HTTPS & Install as App \u{203a} Install on Your Devices), then open " a href=(url) rel="noreferrer" { (url) } "." }
+                p.note.ctr { "要将此管理网页安装为应用，请在此设备上信任路由器的证书颁发机构（设置 › HTTPS 与安装为应用 › 在您的设备上安装），然后打开 " a href=(url) rel="noreferrer" { (url) } "." }
             }
         }
     };
     // The app's header is the page's heading: no brand over it.
-    render::page(&PageCtx { title: "Log in", nonce, heading: Some(html! {}), ..PageCtx::default() }, body)
+    render::page(&PageCtx { title: "登录", nonce, heading: Some(html! {}), ..PageCtx::default() }, body)
 }
 
 fn entropy_page(nonce: &str) -> Response {
-    render::error(503, "Try again", "The router could not create a secure session right now. Try again in a moment.", nonce)
+    render::error(503, "重试", "路由器现在无法创建安全会话。稍后再试一次。", nonce)
 }
 
 /// `POST /ui/login`: origin, pre-login cookie and form token first, then
@@ -126,12 +126,12 @@ pub async fn submit(State(ctx): State<Ctx>, req: Request) -> Response {
         // The pre-login cookie lives as long as the form token, so a form
         // left open too long comes back without it.
         if form.get("login_csrf").is_some_and(|t| auth.login_form_token_fresh(t)) {
-            return error(403, "Cookies must be enabled to log in.");
+            return error(403, "必须启用 Cookie 才能登录。");
         }
-        return error(403, "The login form expired. Try again.");
+        return error(403, "登录表单已过期。再试一次。");
     };
     if !form.get("login_csrf").is_some_and(|t| auth.verify_login_form_token(pre, t)) {
-        return error(403, "The login form expired. Try again.");
+        return error(403, "登录表单已过期。再试一次。");
     }
     let password = form.get("password").unwrap_or("");
     let replacing = session::session_cookies(headers);
@@ -153,12 +153,12 @@ pub async fn submit(State(ctx): State<Ctx>, req: Request) -> Response {
         }
         Err(LoginError::RateLimited { retry_after }) => {
             let secs = retry_after_secs(retry_after);
-            let mut resp = error(429, &format!("Too many attempts. Try again in {secs} s."));
+            let mut resp = error(429, &format!("尝试次数过多，请在 {secs} 秒后重试。"));
             resp.headers_mut().insert(RETRY_AFTER, HeaderValue::from(secs));
             resp
         }
         Err(LoginError::Entropy) => entropy_page(&nonce),
-        Err(LoginError::BadPassword | LoginError::NoPassword) => error(401, "Wrong password."),
+        Err(LoginError::BadPassword | LoginError::NoPassword) => error(401, "密码错误。"),
     }
 }
 
@@ -169,19 +169,19 @@ pub async fn logout_form(State(ctx): State<Ctx>, Session(p): Session, req: Reque
         div.narrow {
             form.panel method="post" action="/ui/logout" {
                 (render::csrf_field(&ctx.app.auth, &p))
-                p { "Log out of the router in this browser?" }
+                p { "在此浏览器中注销路由器？" }
                 p.actions {
-                    button.btn.btn-danger type="submit" { "Log out" }
-                    a.btn.btn-quiet href="/ui/settings" { "Cancel" }
+                    button.btn.btn-danger type="submit" { "退出登录" }
+                    a.btn.btn-quiet href="/ui/settings" { "取消" }
                 }
             }
         }
     };
     let pc = PageCtx {
-        title: "Log out",
+        title: "退出登录",
         tab: Some(Tab::Settings),
         nonce: &nonce,
-        lead: kit::back("/ui/settings", "Settings"),
+        lead: kit::back("/ui/settings", "设置"),
         ..PageCtx::default()
     };
     render::html(200, render::page(&pc, body))

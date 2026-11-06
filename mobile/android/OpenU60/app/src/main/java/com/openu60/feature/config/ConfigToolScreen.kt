@@ -48,16 +48,16 @@ fun ConfigToolScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Config Tool") },
+                title = { Text("配置工具") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     if (state.fileName != null) {
                         IconButton(onClick = { viewModel.clear() }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(Icons.Default.Clear, contentDescription = "清除")
                         }
                     }
                 },
@@ -101,12 +101,12 @@ fun ConfigToolScreen(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            "Import Config File",
+                            "导入配置文件",
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Select a ZXHN config.bin file to decrypt",
+                            "选择要解密的ZXHN config.bin文件",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -116,7 +116,7 @@ fun ConfigToolScreen(
                         ) {
                             Icon(Icons.Default.Upload, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Select File")
+                            Text("选择文件")
                         }
                     }
                 }
@@ -125,16 +125,16 @@ fun ConfigToolScreen(
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            "File Info",
+                            "文件信息",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        InfoRow("Name", state.fileName!!)
+                        InfoRow("名称", state.fileName!!)
                         InfoRow("Size", "${state.fileSize} bytes")
                         state.header?.let { header ->
                             InfoRow("Magic", header.magic)
-                            InfoRow("Type", header.payloadTypeName)
+                            InfoRow("类型", header.payloadTypeName)
                             InfoRow("Signature", header.signature.ifBlank { "(none)" })
                             InfoRow("Payload offset", "${header.payloadOffset}")
                         }
@@ -145,7 +145,7 @@ fun ConfigToolScreen(
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            "Decryption Key",
+                            "解密密钥",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
@@ -153,7 +153,7 @@ fun ConfigToolScreen(
                         OutlinedTextField(
                             value = serial,
                             onValueChange = viewModel::updateSerial,
-                            label = { Text("Device Serial (optional)") },
+                            label = { Text("设备序列号（可选）") },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -161,13 +161,13 @@ fun ConfigToolScreen(
                         OutlinedTextField(
                             value = customKey,
                             onValueChange = viewModel::updateCustomKey,
-                            label = { Text("Custom Key (optional)") },
+                            label = { Text("自定义密钥（可选）") },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Leave blank to try all ${KnownKey.KNOWN_KEYS.size} known keys + derived keys",
+                            "留空以尝试所有 ${KnownKey.KNOWN_KEYS.size} 已知密钥 + 派生密钥",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -190,14 +190,14 @@ fun ConfigToolScreen(
                     }
                     Icon(Icons.Default.LockOpen, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Decrypt")
+                    Text("解密")
                 }
 
                 // Decrypted XML viewer
                 if (state.decryptedXml != null) {
                     if (state.usedKey != null) {
                         Text(
-                            "Key: ${state.usedKey}",
+                            "密钥：${state.usedKey}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -211,7 +211,7 @@ fun ConfigToolScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    "Decrypted XML",
+                                    "解密的 XML",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                 )
@@ -249,14 +249,14 @@ fun ConfigToolScreen(
                             enabled = !state.isLoading,
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("Re-encrypt ECB")
+                            Text("重新加密ECB")
                         }
                         OutlinedButton(
                             onClick = { viewModel.encrypt(ConfigHeader.PAYLOAD_TYPE_CBC) },
                             enabled = !state.isLoading,
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("Re-encrypt CBC")
+                            Text("重新加密CBC")
                         }
                     }
 
@@ -269,7 +269,7 @@ fun ConfigToolScreen(
                         ) {
                             Icon(Icons.Default.Download, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Export Encrypted File")
+                            Text("导出加密文件")
                         }
                     }
                 }

@@ -59,7 +59,7 @@ class SIMViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.postJSON("/api/sim/pin/verify", mapOf("pin" to pin))
-                _state.value = _state.value.copy(isLoading = false, message = "PIN verified", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "PIN 已验证", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) verifyPIN(pin) else setError(e.message)
@@ -74,7 +74,7 @@ class SIMViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.postJSON("/api/sim/pin/change", mapOf("old_pin" to oldPin, "new_pin" to newPin))
-                _state.value = _state.value.copy(isLoading = false, message = "PIN changed", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "PIN 已更改", messageIsError = false)
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) changePIN(oldPin, newPin) else setError(e.message)
             } catch (e: Exception) {
@@ -90,7 +90,7 @@ class SIMViewModel @Inject constructor(
                 agentClient.postJSON("/api/sim/pin/toggle", mapOf("enable" to enabled, "pin" to pin))
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    message = if (enabled) "PIN lock enabled" else "PIN lock disabled",
+                    message = if (enabled) "PIN 锁定已启用" else "PIN 锁定已禁用",
                     messageIsError = false,
                 )
                 refresh()
@@ -107,7 +107,7 @@ class SIMViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.postJSON("/api/sim/puk/verify", mapOf("puk" to puk, "new_pin" to newPin))
-                _state.value = _state.value.copy(isLoading = false, message = "PUK verified, PIN reset", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "PUK 验证，PIN 复位", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) verifyPUK(puk, newPin) else setError(e.message)
@@ -122,7 +122,7 @@ class SIMViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.postJSON("/api/sim/unlock", mapOf("nck" to nck))
-                _state.value = _state.value.copy(isLoading = false, message = "SIM unlocked", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "SIM 解锁", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) unlockNCK(nck) else setError(e.message)

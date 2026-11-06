@@ -62,12 +62,12 @@ class ProcessListViewModel @Inject constructor(
                 val freedRssKb = (data["freed_rss_kb"] as? Number)?.toLong() ?: 0
                 val freedMB = String.format("%.1f", freedRssKb / 1024.0)
                 _state.value = _state.value.copy(
-                    message = "Killed ${killedList.size} daemons, freed ${freedMB} MB",
+                    message = "结束 ${killedList.size} 守护进程，释放 ${freedMB} MB",
                 )
                 fetchProcesses()
             } catch (e: AgentError.Unauthorized) {
                 authManager.reauthenticate()
-                setError("Session expired — please try again")
+                setError("会话已过期，请重试")
             } catch (e: Exception) {
                 setError(e.message)
             }
@@ -117,7 +117,7 @@ class ProcessListViewModel @Inject constructor(
             )
         } catch (e: AgentError.Unauthorized) {
             authManager.reauthenticate()
-            setError("Session expired — please try again")
+            setError("会话已过期，请重试")
         } catch (e: Exception) {
             setError(e.message)
         }

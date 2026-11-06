@@ -25,7 +25,7 @@ export function APIOverview() {
             REST API
           </h2>
           <p className="text-sm text-text-dim">
-            {totalEndpoints} endpoints across {totalCategories} categories
+            {totalEndpoints} 个接口，分为 {totalCategories} 类
           </p>
         </motion.div>
 
@@ -105,7 +105,7 @@ export function APIOverview() {
             href="/docs/api-reference"
             className="inline-flex items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover"
           >
-            View full API reference
+            查看完整的 API 参考
             <ArrowRight size={14} />
           </Link>
         </motion.div>

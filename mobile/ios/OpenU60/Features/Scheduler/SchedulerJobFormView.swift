@@ -14,7 +14,7 @@ struct SchedulerJobFormView: View {
     @State private var restoreEnabled: Bool
     @State private var restoreTime: Date
 
-    private let dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    private let dayLabels = ["Mon", "周二", "周三", "周四", "周五", "周六", "周日"]
 
     init(viewModel: SchedulerViewModel, editingJob: SchedulerJob? = nil) {
         self.viewModel = viewModel
@@ -73,12 +73,12 @@ struct SchedulerJobFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Name") {
-                    TextField("Automation name", text: $name)
+                Section("名称") {
+                    TextField("自动化名称", text: $name)
                 }
 
-                Section("Action") {
-                    Picker("Action", selection: $selectedTemplate) {
+                Section("操作") {
+                    Picker("操作", selection: $selectedTemplate) {
                         ForEach(ActionTemplate.allCases) { template in
                             Label(template.label, systemImage: template.systemImage)
                                 .tag(template)
@@ -86,18 +86,18 @@ struct SchedulerJobFormView: View {
                     }
                 }
 
-                Section("Schedule") {
-                    Picker("Type", selection: $scheduleType) {
-                        Text("Recurring").tag("recurring")
-                        Text("One-time").tag("once")
+                Section("计划") {
+                    Picker("类型", selection: $scheduleType) {
+                        Text("重复").tag("recurring")
+                        Text("单次").tag("once")
                     }
                     .pickerStyle(.segmented)
 
                     if scheduleType == "recurring" {
-                        DatePicker("Time", selection: $actionTime, displayedComponents: .hourAndMinute)
+                        DatePicker("时间", selection: $actionTime, displayedComponents: .hourAndMinute)
 
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Days")
+                            Text("天")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 8) {
@@ -124,15 +124,15 @@ struct SchedulerJobFormView: View {
                         }
                         .padding(.vertical, 4)
                     } else {
-                        DatePicker("Date & Time", selection: $onceDate, displayedComponents: [.date, .hourAndMinute])
+                        DatePicker("日期和时间", selection: $onceDate, displayedComponents: [.date, .hourAndMinute])
                     }
                 }
 
                 if selectedTemplate.supportsRestore {
-                    Section("Restore") {
-                        Toggle("Reverse action at", isOn: $restoreEnabled)
+                    Section("恢复") {
+                        Toggle("反向动作", isOn: $restoreEnabled)
                         if restoreEnabled {
-                            DatePicker("Restore time", selection: $restoreTime, displayedComponents: .hourAndMinute)
+                            DatePicker("恢复时间", selection: $restoreTime, displayedComponents: .hourAndMinute)
                         }
                     }
                 }
@@ -168,17 +168,17 @@ struct SchedulerJobFormView: View {
                             dismiss()
                         }
                     } label: {
-                        Text("Save")
+                        Text("保存")
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(name.isEmpty || (scheduleType == "recurring" && selectedDays.isEmpty))
                 }
             }
-            .navigationTitle(editingJob != nil ? "Edit Automation" : "New Automation")
+            .navigationTitle(editingJob != nil ? "Edit Automation" : "新的自动化")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }

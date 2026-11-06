@@ -20,13 +20,13 @@ struct LoginView: View {
                         .foregroundStyle(.blue)
                     Text("ZTE U60 Pro")
                         .font(.title.bold())
-                    Text("Router Companion")
+                    Text("路由器配套工具")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
 
                 VStack(spacing: 16) {
-                    SecureField("Router Password", text: $viewModel.password)
+                    SecureField("Agent 密码", text: $viewModel.password)
                         .textFieldStyle(.roundedBorder)
                         .textContentType(.password)
                         .submitLabel(.go)
@@ -34,7 +34,7 @@ struct LoginView: View {
                             Task { await viewModel.login() }
                         }
 
-                    Toggle("Save to Keychain", isOn: $viewModel.saveToKeychain)
+                    Toggle("保存至Keychain", isOn: $viewModel.saveToKeychain)
                         .font(.subheadline)
 
                     if let error = viewModel.errorMessage {
@@ -52,7 +52,7 @@ struct LoginView: View {
                                 ProgressView()
                                     .tint(.white)
                             } else {
-                                Text("Log In")
+                                Text("登录")
                             }
                         }
                         .frame(maxWidth: .infinity)

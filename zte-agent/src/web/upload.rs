@@ -89,8 +89,8 @@ pub async fn read(ctx: &Ctx, headers: &HeaderMap, body: Body, nonce: &str, back:
         return Err(api::finish_early(headers, body.into_data_stream(), 0, render::bad_request(nonce)).await);
     };
     let Ok(Ok(permit)) = tokio::time::timeout(SLOT_WAIT, SLOT.acquire()).await else {
-        let msg = "The router is reading another photo. Try again in a moment.";
-        let resp = render::html(503, render::error_page("Router busy", msg, nonce, Some(back)));
+        let msg = "路由器正在读取另一张照片。稍后再试一次。";
+        let resp = render::html(503, render::error_page("路由器忙", msg, nonce, Some(back)));
         return Err(api::finish_early(headers, body.into_data_stream(), 0, resp).await);
     };
     let held = Held(permit);
@@ -98,8 +98,8 @@ pub async fn read(ctx: &Ctx, headers: &HeaderMap, body: Body, nonce: &str, back:
         Ok(b) => b,
         Err(ReadErr::TooLarge { read, rest }) => {
             drop(held);
-            let msg = "Photos can be up to 8 MB. Choose a smaller image or enter the code manually.";
-            let resp = render::html(413, render::error_page("Photo too large", msg, nonce, Some(back)));
+            let msg = "照片最大可达 8 MB。选择较小的图像或手动输入代码。";
+            let resp = render::html(413, render::error_page("照片太大", msg, nonce, Some(back)));
             return Err(api::finish_early(headers, rest, read, resp).await);
         }
         Err(ReadErr::Failed) => return Err(api::close(render::bad_request(nonce))),

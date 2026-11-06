@@ -16,36 +16,36 @@ struct SMSForwardRuleFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Name") {
-                    TextField("Rule name", text: $draft.name)
+                Section("名称") {
+                    TextField("规则名称", text: $draft.name)
                 }
 
-                Section("Filter") {
-                    Picker("Type", selection: $draft.filterType) {
-                        Text("All Messages").tag("all")
-                        Text("By Sender").tag("sender")
-                        Text("By Content").tag("content")
-                        Text("Sender + Content").tag("sender_and_content")
+                Section("筛选") {
+                    Picker("类型", selection: $draft.filterType) {
+                        Text("全部短信").tag("all")
+                        Text("按发件人").tag("sender")
+                        Text("按内容").tag("content")
+                        Text("发件人+内容").tag("sender_and_content")
                     }
 
                     if draft.filterType == "sender" || draft.filterType == "sender_and_content" {
-                        TextField("Sender patterns (comma-separated)", text: $draft.senderPatterns)
+                        TextField("发件人模式（以逗号分隔）", text: $draft.senderPatterns)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                     }
 
                     if draft.filterType == "content" || draft.filterType == "sender_and_content" {
-                        TextField("Keywords (comma-separated)", text: $draft.contentKeywords)
+                        TextField("关键字（以逗号分隔）", text: $draft.contentKeywords)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                     }
                 }
 
-                Section("Destination") {
-                    Picker("Type", selection: $draft.destType) {
+                Section("目的地") {
+                    Picker("类型", selection: $draft.destType) {
                         Text("Telegram").tag("telegram")
                         Text("Webhook").tag("webhook")
-                        Text("SMS").tag("sms")
+                        Text("短信").tag("sms")
                         Text("ntfy").tag("ntfy")
                         Text("Discord").tag("discord")
                         Text("Slack").tag("slack")
@@ -53,38 +53,38 @@ struct SMSForwardRuleFormView: View {
 
                     switch draft.destType {
                     case "telegram":
-                        TextField("Bot Token", text: $draft.botToken)
+                        TextField("机器人令牌", text: $draft.botToken)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                        TextField("Chat ID", text: $draft.chatId)
+                        TextField("聊天 ID", text: $draft.chatId)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                        Toggle("Silent", isOn: $draft.silent)
+                        Toggle("静默通知", isOn: $draft.silent)
                     case "webhook":
                         TextField("URL", text: $draft.webhookUrl)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .keyboardType(.URL)
-                        Picker("Method", selection: $draft.webhookMethod) {
+                        Picker("方法", selection: $draft.webhookMethod) {
                             Text("POST").tag("POST")
                             Text("PUT").tag("PUT")
                         }
-                        TextField("Headers (name: value, one per line)", text: $draft.webhookHeaders, axis: .vertical)
+                        TextField("标头（名称：值，每行一个）", text: $draft.webhookHeaders, axis: .vertical)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .lineLimit(3...6)
                     case "sms":
-                        TextField("Forward to number", text: $draft.forwardNumber)
+                        TextField("转发至号码", text: $draft.forwardNumber)
                             .keyboardType(.phonePad)
                     case "ntfy":
-                        TextField("Server URL", text: $draft.ntfyUrl)
+                        TextField("服务器地址", text: $draft.ntfyUrl)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .keyboardType(.URL)
-                        TextField("Topic", text: $draft.ntfyTopic)
+                        TextField("主题", text: $draft.ntfyTopic)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                        TextField("Token (optional)", text: $draft.ntfyToken)
+                        TextField("令牌（可选）", text: $draft.ntfyToken)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                     case "discord":
@@ -106,7 +106,7 @@ struct SMSForwardRuleFormView: View {
                     Button {
                         Task { await viewModel.testDestination(draft.destination) }
                     } label: {
-                        Label("Test Destination", systemImage: "paperplane")
+                        Label("测试目的地", systemImage: "paperplane")
                     }
                     .disabled(!draft.isDestinationValid)
                 }
@@ -118,17 +118,17 @@ struct SMSForwardRuleFormView: View {
                             dismiss()
                         }
                     } label: {
-                        Text("Save")
+                        Text("保存")
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(draft.name.isEmpty || !draft.isDestinationValid)
                 }
             }
-            .navigationTitle(editingRule != nil ? "Edit Rule" : "New Rule")
+            .navigationTitle(editingRule != nil ? "Edit Rule" : "新规则")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }

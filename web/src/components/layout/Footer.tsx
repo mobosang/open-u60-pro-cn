@@ -10,14 +10,14 @@ export function Footer() {
               open-u60-pro
             </div>
             <p className="text-[0.8125rem] leading-relaxed text-text-dim">
-              Open-source toolkit for the ZTE U60 Pro 5G mobile router.
-              On-device agent, native companion apps, and web bootstrap
-              tools.
+              ZTE U60 Pro 5G 移动路由器的开源工具包。
+              设备上代理、本机配套应用程序和 Web 引导程序
+              工具。
             </p>
           </div>
           <div>
             <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-dim">
-              Links
+              链接
             </h4>
             <ul className="space-y-2">
               <li>
@@ -27,7 +27,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="text-[0.8125rem] text-text-dim transition-colors hover:text-text"
                 >
-                  GitHub Repo
+                  GitHub 仓库
                 </a>
               </li>
               <li>
@@ -37,7 +37,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="text-[0.8125rem] text-text-dim transition-colors hover:text-text"
                 >
-                  Releases
+                  发布
                 </a>
               </li>
               <li>
@@ -45,7 +45,7 @@ export function Footer() {
                   href="/docs"
                   className="text-[0.8125rem] text-text-dim transition-colors hover:text-text"
                 >
-                  Documentation
+                  使用文档
                 </Link>
               </li>
               <li>
@@ -53,14 +53,14 @@ export function Footer() {
                   href="/download"
                   className="text-[0.8125rem] text-text-dim transition-colors hover:text-text"
                 >
-                  Download
+                  下载
                 </Link>
               </li>
             </ul>
           </div>
           <div>
             <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-dim">
-              Project
+              项目
             </h4>
             <ul className="space-y-2">
               <li>
@@ -70,7 +70,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="text-[0.8125rem] text-text-dim transition-colors hover:text-text"
                 >
-                  MIT License
+                  MIT 许可证
                 </a>
               </li>
               <li>
@@ -78,7 +78,7 @@ export function Footer() {
                   href="/privacy"
                   className="text-[0.8125rem] text-text-dim transition-colors hover:text-text"
                 >
-                  Privacy Policy
+                  隐私政策
                 </Link>
               </li>
               <li>
@@ -86,15 +86,15 @@ export function Footer() {
                   href="/legal"
                   className="text-[0.8125rem] text-text-dim transition-colors hover:text-text"
                 >
-                  Legal
+                  法律声明
                 </Link>
               </li>
             </ul>
           </div>
         </div>
         <div className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-5 text-xs text-text-dim">
-          <span>Built by jesther-ai</span>
-          <span>Not affiliated with ZTE Corporation</span>
+          <span>由 jesther-ai 建造</span>
+          <span>不隶属于ZTE公司</span>
         </div>
       </div>
     </footer>

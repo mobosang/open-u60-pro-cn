@@ -42,7 +42,7 @@ final class DeviceControlViewModel {
             }
             chargeControlLoaded = true
         } catch {
-            showMessage("Failed to load charge control status", isError: true)
+            showMessage("充电控制状态加载失败", isError: true)
         }
 
         do {
@@ -54,7 +54,7 @@ final class DeviceControlViewModel {
             }
             powerSaveLoaded = true
         } catch {
-            showMessage("Failed to load power-save settings", isError: true)
+            showMessage("加载省电设置失败", isError: true)
         }
 
         do {
@@ -67,7 +67,7 @@ final class DeviceControlViewModel {
             }
             fastBootLoaded = true
         } catch {
-            showMessage("Failed to load fast boot settings", isError: true)
+            showMessage("加载快速启动设置失败", isError: true)
         }
 
         do {
@@ -81,7 +81,7 @@ final class DeviceControlViewModel {
             }
             autoSleepLoaded = true
         } catch {
-            showMessage("Failed to load auto-sleep settings", isError: true)
+            showMessage("加载自动睡眠设置失败", isError: true)
         }
     }
 
@@ -113,7 +113,7 @@ final class DeviceControlViewModel {
             chargeLimitEnabled = prevEnabled
             chargeLimit = prevLimit
             self.hysteresis = prevHysteresis
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
     }
 
@@ -123,7 +123,7 @@ final class DeviceControlViewModel {
             let _ = try await client.putJSON("/api/device/power-save", body: ["deviceInfoList": ["power_saver_mode": enabled ? "1" : "0"]])
         } catch {
             powerSaveEnabled = !enabled
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
     }
 
@@ -133,7 +133,7 @@ final class DeviceControlViewModel {
             let _ = try await client.putJSON("/api/device/fast-boot", body: ["fast_boot": enabled ? "1" : "0"])
         } catch {
             fastBootEnabled = !enabled
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
     }
 
@@ -151,7 +151,7 @@ final class DeviceControlViewModel {
         } catch {
             autoSleepEnabled = prevEnabled
             autoSleepTimeout = prevTimeout
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
     }
 
@@ -160,9 +160,9 @@ final class DeviceControlViewModel {
 
         do {
             let _ = try await client.postJSON("/api/device/reboot")
-            showMessage("Router is rebooting...", isError: false)
+            showMessage("路由器正在重启...", isError: false)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -173,9 +173,9 @@ final class DeviceControlViewModel {
 
         do {
             let _ = try await client.postJSON("/api/device/factory-reset")
-            showMessage("Factory reset initiated...", isError: false)
+            showMessage("恢复出厂设置已启动...", isError: false)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false

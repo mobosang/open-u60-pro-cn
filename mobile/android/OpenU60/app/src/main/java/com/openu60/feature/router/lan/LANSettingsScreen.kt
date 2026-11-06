@@ -27,15 +27,15 @@ fun LANSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("LAN Settings") },
+                title = { Text("局域网设置") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     TextButton(onClick = { viewModel.save() }, enabled = !state.isLoading) {
-                        Text("Save")
+                        Text("保存")
                     }
                 },
             )
@@ -72,12 +72,12 @@ fun LANSettingsScreen(
                 // LAN IP
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("LAN Configuration", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("局域网配置", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = state.config.lanIP,
                             onValueChange = { viewModel.updateConfig(state.config.copy(lanIP = it)) },
-                            label = { Text("LAN IP Address") },
+                            label = { Text("局域网IP地址") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                         )
@@ -85,7 +85,7 @@ fun LANSettingsScreen(
                         OutlinedTextField(
                             value = state.config.netmask,
                             onValueChange = { viewModel.updateConfig(state.config.copy(netmask = it)) },
-                            label = { Text("Subnet Mask") },
+                            label = { Text("子网掩码") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                         )
@@ -100,7 +100,7 @@ fun LANSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("DHCP Server", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("DHCP服务器", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Switch(
                                 checked = state.config.dhcpEnabled,
                                 onCheckedChange = { viewModel.updateConfig(state.config.copy(dhcpEnabled = it)) },
@@ -112,7 +112,7 @@ fun LANSettingsScreen(
                             OutlinedTextField(
                                 value = state.config.dhcpStart,
                                 onValueChange = { viewModel.updateConfig(state.config.copy(dhcpStart = it)) },
-                                label = { Text("Start Address") },
+                                label = { Text("起始地址") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                             )
@@ -120,7 +120,7 @@ fun LANSettingsScreen(
                             OutlinedTextField(
                                 value = state.config.dhcpEnd,
                                 onValueChange = { viewModel.updateConfig(state.config.copy(dhcpEnd = it)) },
-                                label = { Text("End Address") },
+                                label = { Text("结束地址") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                             )
@@ -128,7 +128,7 @@ fun LANSettingsScreen(
                             OutlinedTextField(
                                 value = state.config.dhcpLeaseTime,
                                 onValueChange = { viewModel.updateConfig(state.config.copy(dhcpLeaseTime = it)) },
-                                label = { Text("Lease Time") },
+                                label = { Text("租赁时间") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                             )
