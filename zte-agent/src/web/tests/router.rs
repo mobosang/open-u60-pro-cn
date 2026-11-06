@@ -261,7 +261,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     assert_eq!(calls(&c), [("/api/modem/register".to_owned(), json!({"m_mcc_mnc": "00101", "m_rat": "7"}))]);
     clock.advance(Duration::from_secs(3));
     let html = get_with(&c, &op, peer(142, 5), &cookie).await.text();
-    assert!(html.contains("<h1 id=\"op-title\">注册网络</h1>"), "{html}");
+    assert!(html.contains("<h1 id=\"op-title\">正在注册…</h1>"), "{html}");
     // A refused registration, and a scan that fails to start.
     let _sig = fake::set(&c.app, json!({"register": {"m_netselect_result": "fail"}}));
     let q = get_with(&c, &format!("{REG}?plmn=00102&rat=12"), peer(142, 6), &cookie).await;
@@ -474,7 +474,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     for want in [
         "<p class=\"msg ok\" role=\"status\">找到 2 个邻区</p>",
         "<b>NR</b><span class=\"muted\">频段 41</span></span><small>PCI: 775  EARFCN: 513000  RSRP: -95</small>",
-        "<b>LTE</b><span class=\"muted\">Band 1</span></span><small>PCI: 179  EARFCN: 301  RSRP: -101</small>",
+        "<b>LTE</b><span class=\"muted\">频段 1</span></span><small>PCI: 179  EARFCN: 301  RSRP: -101</small>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -706,7 +706,7 @@ async fn network_operations_stream_their_topic_until_done() {
     let modem = |cm: i64| json!({"status": {"operate_mode": "ONLINE"}, "data": {"connect_mode": cm, "roam_enable": 0}});
     for (n, spec, topic, arg, pending, done, title) in [
         (1u8, &NETSCAN, Topic::Netscan, "", json!({"scan": {"m_netselect_status": "manual_selecting"}}), json!({"scan": {"m_netselect_status": "manual_selected"}}), "扫描完成"),
-        (2, &REGISTER, Topic::Netscan, "", json!({"register": {"m_netselect_result": ""}}), json!({"register": {"m_netselect_result": "manual_success"}}), "注册网络"),
+        (2, &REGISTER, Topic::Netscan, "", json!({"register": {"m_netselect_result": ""}}), json!({"register": {"m_netselect_result": "manual_success"}}), "正在注册…"),
         (3, &APPLY, Topic::Modem, "0:-", modem(1), modem(0), "应用的设置"),
     ] {
         let id = format!("{:016x}", 0x100 + u64::from(n));

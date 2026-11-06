@@ -238,7 +238,7 @@ async fn enable_adb_asks_and_sends_once() {
     let (c, cookie, _) = signed_in(113).await;
     let html = get_with(&c, ADB, peer(113, 2), &cookie).await.text();
     for want in [
-        "<h1>启用 ADB</h1>", "<strong>启用ADB调试</strong>", "设置 USB 模式进行调试，允许通过 USB-C 进行 ADB 访问。",
+        "<h1>启用 ADB</h1>", "<strong>启用 ADB调试</strong>", "设置 USB 模式进行调试，允许通过 USB-C 进行 ADB 访问。",
         "<a class=\"btn btn-wide\" href=\"/ui/tools/adb/enable\"><svg",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -285,9 +285,9 @@ async fn band_lock_grids_questions_and_bodies() {
     for want in [
         "<a class=\"it bt danger\" href=\"/ui/tools/band-lock/reset\"><svg",
         "<form class=\"bl\" method=\"get\" action=\"/ui/tools/band-lock/nr\">",
-        "<label title=\"频段 78 — 3500 MHz · TDD · Max BW 100 MHz · DL 3300–3800 MHz · UL 3300–3800 MHz\"><input class=\"sr\" type=\"checkbox\" name=\"nr\" value=\"78\"><span>B78<small>3500 MHz</small></span></label>",
+        "<label title=\"频段 78 — 3500 MHz · TDD · 最大带宽 100 MHz · 下行 3300–3800 MHz · 上行 3300–3800 MHz\"><input class=\"sr\" type=\"checkbox\" name=\"nr\" value=\"78\"><span>B78<small>3500 MHz</small></span></label>",
         "<span>B66<small>AWS-3</small></span>", "</svg> 应用 NR 频段锁定</button>", "</svg> 应用 LTE 频段锁定</button>",
-        "<summary>频段详情</summary>", "<li><b>频段 29 — 700 MHz</b><small>SDL · Max BW 10 MHz · DL 717–728 MHz</small></li>",
+        "<summary>频段详情</summary>", "<li><b>频段 29 — 700 MHz</b><small>S下行 · 最大带宽 10 MHz · 下行 717–728 MHz</small></li>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -302,7 +302,7 @@ async fn band_lock_grids_questions_and_bodies() {
     let q = get_with(&c, "/ui/tools/band-lock/nr?nr=78&nr=1&nr=78", peer(114, 4), &cookie).await;
     let html = q.text();
     for want in [
-        "<h2 class=\"q\">应用 NR 锁定？</h2>", "for NSA and SA: 1, 78.</li>",
+        "<h2 class=\"q\">应用 NR 锁定？</h2>", "对于 NSA 和 SA： 1, 78.</li>",
         "<input type=\"hidden\" name=\"nr\" value=\"1\"><input type=\"hidden\" name=\"nr\" value=\"78\">",
         "<button class=\"btn btn-danger\" type=\"submit\">应用 NR 频段锁定</button>", "href=\"/ui/tools/band-lock?nr=1&amp;nr=78\">取消",
     ] {

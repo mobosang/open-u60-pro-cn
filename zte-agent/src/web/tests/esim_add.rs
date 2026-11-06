@@ -432,7 +432,7 @@ async fn the_download_card_follows_the_app() {
     let _f = fake::set(&c.app, json!({"state": "done", "provider": "Example Travel", "name": "Fake Plan", "iccid": "8900000000000000505F"}));
     let html = get_with(&c, DL, peer(174, 5), &cookie).await.text();
     for want in [
-        "<b>Example Travel added.</b>", "添加到您的路由器。您当前的配置文件仍然有效。",
+        "<b>已添加 Example Travel。</b>", "添加到您的路由器。您当前的配置文件仍然有效。",
         "<a class=\"btn teal\" href=\"/ui/router/esim/switch?new=1\">立即切换</a><a class=\"btn btn-quiet\" href=\"/ui/router/esim\">后来</a>",
         ">完成</a></div>",
     ] {

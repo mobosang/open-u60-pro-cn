@@ -99,7 +99,7 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
         "<h1>eSIM 配置文件</h1>", "<a class=\"nl back\" href=\"/ui/router\">路由器</a>",
         "<a class=\"nl ic\" href=\"/ui/router/esim/add\" aria-label=\"添加 eSIM\">",
         "<a class=\"nl ic\" href=\"/ui/router/esim\" aria-label=\"刷新配置文件和连接\">",
-        "<h2>在您的 eSIM 上</h2>", "<span class=\"cnt\">4 profiles</span>", "最后阅读 ",
+        "<h2>在您的 eSIM 上</h2>", "<span class=\"cnt\">4 个配置文件</span>", "最后阅读 ",
         "<small class=\"active\">", "已启用</small><b>GOMO u60</b><small class=\"cap\">GOMO</small><small class=\"cap num\">…0101</small>",
         "<h2 class=\"esub\">切换到其他配置文件</h2>", "<b>Klook_app</b><small class=\"cap\">Travel - PHL</small>",
         "aria-label=\"不可用\"", "添加 eSIM</a>", "切换会使互联网暂停大约一分钟。您的路由器的 Wi-Fi 保持开启状态。",
@@ -143,7 +143,7 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
     assert!(next.contains("<div class=\"busy\" id=\"esim-dl\">") && !next.contains("Changed"), "{next}");
     offer(Topic::EsimDownload, json!({"state": "done", "provider": "Example Travel", "iccid": "8900000000000000505", "started_at": 1_761_200_100}));
     let next = patch(&mut b, "esim-upd").await;
-    assert!(next.contains("<b>Example Travel added.</b>") && next.contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"), "{next}");
+    assert!(next.contains("<b>已添加 Example Travel。</b>") && next.contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"), "{next}");
     assert!(!next.contains("class=\"busy\" id=\"esim-dl\"") && !next.contains("0505"), "{next}");
     // A switch starts elsewhere: its card follows, the list says "Updating…".
     let sw = json!({"state": "reloading", "target_iccid": ICCIDS[1], "generation": 8, "sim_epoch": 0});
@@ -221,7 +221,7 @@ async fn switch_asks_then_follows_the_switch_once() {
         "<h1>确认</h1>", "<h2 class=\"q\">切换到Klook_app？</h2>",
         "路由器将断开 GOMO u60 并通过 Klook_app 连接。互联网将中断约一分钟，Wi-Fi 保持开启。",
         "路由器当前使用手动 APN“internet.example”。如果 Klook_app 需要其他 APN，请在切换后前往移动网络修改，否则可能无法使用数据。",
-        "Klook_app looks like a travel (roaming) profile and 数据漫游 is off, so it will have no data until you turn 数据漫游 on.",
+        "Klook_app 看起来是旅行（漫游）配置文件，而数据漫游已关闭。在开启数据漫游前将无法使用数据。",
         "<button class=\"btn\" type=\"submit\">切换至Klook_app</button>", "href=\"/ui/router/esim\">取消</a>",
     ] {
         assert!(q.contains(want), "{want} in {q}");
@@ -259,7 +259,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     op.assert_secure_html(200);
     let op = op.text();
     for want in [
-        "<h1 id=\"op-title\">正在注册网络</h1>", "切换至Klook_app", "重新加载SIM</span><small>完成</small>",
+        "<h1 id=\"op-title\">正在正在注册…</h1>", "切换至Klook_app", "重新加载SIM</span><small>完成</small>",
         "连接到网络</span><small>进行中</small>", "Wi-Fi 保持连接 · 通常 15–45 秒",
         "href=\"/ui/router/esim\">返回 eSIM 配置文件</a>", "@get('/ui/live/op/",
     ] {

@@ -454,7 +454,7 @@ mod tests {
         assert!(!text.contains("WIFIKEY") && !text.contains("key_") && !text.contains("txpower"), "{text}");
         let s = wifi_card(Ok(&d)).into_string();
         for want in [
-            "<h2>WiFi</h2><span class=\"badge bl\">WiFi 7</span><span class=\"cap\">3 clients</span><span class=\"c-green\">开启</span>",
+            "<h2>WiFi</h2><span class=\"badge bl\">WiFi 7</span><span class=\"cap\">3 个客户端</span><span class=\"c-green\">开启</span>",
             // 2.4G: the actual channel; the name escaped.
             "2.4G</dt><dd><b>&lt;b&gt;Home&lt;/b&gt;</b> <small class=\"muted\">WPA2</small> <small class=\"muted\">CH 6</small></dd>",
             // 5G: hidden, no actual channel: the configured one.

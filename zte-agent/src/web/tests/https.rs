@@ -58,7 +58,7 @@ async fn turn_on_from_settings_once() {
     let cookie = format!("zte_ui_session={}", login(&c, 230, 1).await);
     let p = peer(230, 2);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    for want in ["<h2>HTTPS &amp; 安装 as App</h2>", "<span>HTTPS</span><span class=\"v\">关闭</span>", "href=\"/ui/settings/https/on\"", "开启HTTPS", "on port 9443"] {
+    for want in ["<h2>HTTPS 与安装为应用</h2>", "<span>HTTPS</span><span class=\"v\">关闭</span>", "href=\"/ui/settings/https/on\"", "开启HTTPS", "on port 9443"] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // The question: what happens, the router's clock (not checked), the token.

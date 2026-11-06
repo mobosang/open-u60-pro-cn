@@ -203,7 +203,7 @@ async fn dmz_and_new_port_forward() {
     r.assert_secure_html(400);
     has(&r.text(), &[
         "最多使用 32 个字母、数字、空格、点、连字符和下划线。", "输入 1 到 65535 之间的端口。",
-        "使用从 192.168.0.1 到 192 的地址。168.0.254.", "value=\"Cam&lt;1&gt;\"",
+        "使用从 192.168.0.1 到 192.168.0.254 的地址。", "value=\"Cam&lt;1&gt;\"",
     ]);
     assert_eq!(post(&c, ADD, peer(211, 3), &cookie, &typed("Cam", "icmp", "9000", "192.168.0.80", "554")).await.status, 400);
     // A WAN port forwarded for the same protocol (UDP 8080 is free).
@@ -351,7 +351,7 @@ async fn telemetry_blocker() {
     let line = to(&post(&c, "/ui/router/telemetry/block-all", peer(213, 2), &cookie, &body(&csrf, &once, &[])).await);
     assert_eq!(calls(&c).len(), 4);
     has(&get_with(&c, &line, peer(213, 2), &cookie).await.text(), &[
-        "<p class=\"msg info\" role=\"status\">屏蔽3遥测域s; 1 could not be added. Failed: ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument</p>",
+        "<p class=\"msg info\" role=\"status\">已添加 屏蔽3遥测域s; 1 could not be。 Failed: ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument</p>",
     ]);
     let _dev = device::set(&c.app, filter(blocked()));
     // A removal: asked, by its list.

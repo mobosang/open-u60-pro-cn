@@ -899,8 +899,8 @@ mod tests {
         assert_eq!(bandwidths_5g("136"), ["auto", "EHT20", "EHT40"]);
         assert_eq!(bandwidths_5g("36"), BW_5G);
         assert_eq!(bandwidths_5g("auto"), BW_5G);
-        assert_eq!(remaining(3909), "1h 05m 09s remaining");
-        assert_eq!(remaining(65), "1m 05s remaining");
+        assert_eq!(remaining(3909), "剩余 1 小时 05 分 09 秒");
+        assert_eq!(remaining(65), "剩余 1 分 05 秒");
     }
 
     /// The result page: the app's restart line for an Apply, words of its

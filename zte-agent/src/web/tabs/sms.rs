@@ -242,7 +242,7 @@ mod tests {
             assert_eq!(log.path, format!("{}/log", m.base));
             assert_eq!((log.tab, clear.tab), (m.tab, m.tab));
             let clear_path = format!("{}/clear", m.log);
-            assert!(matches!(log.bar, Bar::BackLink(href, "SMS Forwarding", to, "Clear") if href == m.base && to == clear_path));
+            assert!(matches!(log.bar, Bar::BackLink(href, "短信转发", to, "Clear") if href == m.base && to == clear_path));
             assert!(matches!(clear.bar, Bar::Back(href, "Forward Log") if href == m.log));
             assert_eq!((clear.path, clear_action.path), (clear_path.as_str(), clear_path.as_str()));
             assert_eq!(clear_action.screen.path, m.log);
@@ -250,7 +250,7 @@ mod tests {
             assert_eq!(page.path, m.base);
             assert_eq!((page.tab, delete.tab), (m.tab, m.tab));
             assert_eq!(delete.path, format!("{}/rules/delete", m.base));
-            assert!(matches!(delete.bar, Bar::Back(href, "SMS Forwarding") if href == m.base));
+            assert!(matches!(delete.bar, Bar::Back(href, "短信转发") if href == m.base));
             assert!(matches!(page.bar, Bar::Back(href, label) if (href, label) == back));
             for (a, rest) in actions.iter().zip(["/enabled", "/settings", "/rules/toggle", "/rules/delete"]) {
                 assert_eq!(a.path, format!("{}{rest}", m.base));

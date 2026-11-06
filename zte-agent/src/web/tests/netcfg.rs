@@ -130,7 +130,7 @@ async fn wifi_form_question_and_reconnect_page() {
     let cancel = format!("href=\"{WIFI}?t={once}\">Cancel</a>");
     for want in [
         "<h1>确认</h1>", "<h2 class=\"q\">应用WiFi设置？</h2>",
-        "在2.4 GHz上，设备必须再次加入“Fake-Net-New” with the new password。",
+        "在2.4 GHz上，设备必须再次加入“Fake-Net-New” ，使用新密码。",
         "“Fake-Net-New” is hidden: 设备 must type its name to join.", "WiFi restarts to apply the changes",
         "<button class=\"btn btn-danger\" type=\"submit\">应用</button>", cancel.as_str(),
     ] {
@@ -316,7 +316,7 @@ async fn guest_wifi_form_and_apply() {
         "<h1>访客 WiFi</h1>", "<h2>无线电频段</h2>", "<input class=\"sr gb\" id=\"g2\" type=\"checkbox\" role=\"switch\" name=\"g2\" value=\"1\" checked>",
         "<input class=\"sr gb\" id=\"g5\" type=\"checkbox\" role=\"switch\" name=\"g5\" value=\"1\">", "<h2>网络</h2>", "name=\"gssid\" value=\"Fake-Guest\"",
         "placeholder=\"留空保留\"", "客户端隔离", "<h2>计时器</h2>", "<option value=\"60\" selected>1 小时</option>",
-        "访客WiFi在1 hour之后将自动关闭", "1h 05m 09s remaining", "href=\"/ui/router/guest-wifi\">刷新</a>",
+        "访客WiFi在1 hour之后将自动关闭", "剩余 1 小时 05 分 09 秒", "href=\"/ui/router/guest-wifi\">刷新</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -327,7 +327,7 @@ async fn guest_wifi_form_and_apply() {
     let q = get_with(&c, &to(&r), peer(202, 2), &cookie).await;
     let html = q.text();
     for want in [
-        "<h2 class=\"q\">应用访客WiFi设置？</h2>", "客人必须再次加入“Fake-Guest-2” with the new password。",
+        "<h2 class=\"q\">应用访客WiFi设置？</h2>", "客人必须再次加入“Fake-Guest-2” ，使用新密码。",
         "访客WiFi在2 hours之后自行关闭。", "WiFi 重新启动以应用更改：路由器 ’ WiFi 上的每个设备（包括访客）都会暂时断开连接，如果该浏览器位于 WiFi 上，也会断开连接。",
     ] {
         assert!(html.contains(want), "{want} in {html}");
