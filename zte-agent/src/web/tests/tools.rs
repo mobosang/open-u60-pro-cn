@@ -32,13 +32,13 @@ async fn tools_list_follows_the_app() {
     let (c, cookie, _) = signed_in(100).await;
     let html = get_with(&c, "/ui/tools", peer(100, 2), &cookie).await.text();
     let sections = [
-        ("Automation", vec!["Automations", "SMS Forwarding"]),
+        ("自动化任务", vec!["自动化", "短信转发"]),
         (
-            "Network Tools",
-            vec!["Speed Test", "LAN Speed Test", "Enable ADB", "USB Mode", "Band Lock", "AT Terminal", "Device Info", "Connected Devices"],
+            "网络工具",
+            vec!["速度测试", "局域网速度测试", "启用亚行", "USB 模式", "频段锁定", "AT 终端", "设备信息", "已连接设备"],
         ),
-        ("Config", vec!["Config Decrypt/Encrypt"]),
-        ("Shell Access Required", vec!["TTL Settings", "Enable SSH", "Device Explorer"]),
+        ("配置", vec!["配置解密/加密"]),
+        ("需要 Shell 访问", vec!["TTL设置", "启用SSH", "设备资源管理器"]),
     ];
     let mut at = 0;
     for (section, rows) in sections {
@@ -51,29 +51,29 @@ async fn tools_list_follows_the_app() {
         }
     }
     for (href, sub) in [
-        ("/ui/tools/automations", "Schedule automated tasks"),
-        ("/ui/tools/sms-forward", "Auto-forward SMS to Telegram, webhooks, etc."),
-        ("/ui/tools/lan-speedtest", "Test WiFi link to router"),
-        ("/ui/tools/usb", "USB mode and powerbank control"),
+        ("/ui/tools/automations", "安排自动化任务"),
+        ("/ui/tools/sms-forward", "自动转发短信到Telegram、webhooks等。"),
+        ("/ui/tools/lan-speedtest", "测试 WiFi 到路由器的链路"),
+        ("/ui/tools/usb", "USB 模式和移动电源控制"),
         ("/ui/tools/device-info", "SIM, IMEI, WAN IPs"),
-        ("/ui/tools/devices", "View connected clients and DHCP leases"),
-        ("/ui/tools/config", "Offline ZXHN config file tool"),
-        ("/ui/tools/ttl", "Requires ADB USB connection"),
+        ("/ui/tools/devices", "查看已连接的客户端和 DHCP 租约"),
+        ("/ui/tools/config", "离线ZXHN配置文件工具"),
+        ("/ui/tools/ttl", "需要 ADB USB 连接"),
     ] {
         let row = html.split(&format!("<a class=\"it\" href=\"{href}\">")).nth(1).unwrap_or_else(|| panic!("{href}"));
         assert!(row[..row.find("</a>").unwrap()].contains(&format!("<small>{sub}</small>")), "{href}: {row}");
     }
     for (href, sub) in [
-        ("/ui/tools/speedtest", "Test WAN throughput"),
-        ("/ui/tools/adb", "Enable USB debug mode"),
-        ("/ui/tools/band-lock", "Lock NR/LTE bands"),
-        ("/ui/tools/at", "Send raw AT commands to modem"),
+        ("/ui/tools/speedtest", "测试 WAN 吞吐量"),
+        ("/ui/tools/adb", "启用USB调试模式"),
+        ("/ui/tools/band-lock", "锁定NR/LTE频段"),
+        ("/ui/tools/at", "发送原始 AT 命令到调制解调器"),
     ] {
         let row = html.split(&format!("<a class=\"it\" href=\"{href}\">")).nth(1).unwrap_or_else(|| panic!("{href}"));
         assert!(row[..row.find("</a>").unwrap()].contains(&format!("<small>{sub}</small>")), "{href}: {row}");
     }
     // Every row works or opens its note.
-    assert!(!html.contains("Coming to the web UI"));
+    assert!(!html.contains("进入网络用户界面"));
 }
 
 /// The app's placeholders and the notes for the tools that stay in the
@@ -84,12 +84,12 @@ async fn placeholders_and_notes() {
     let (mut c, cookie, _) = signed_in(101).await;
     c.gate = Arc::new(Gate::new(0, 0, Duration::from_millis(20)));
     for (uri, title, text) in [
-        ("/ui/tools/ttl", "TTL Settings", "Set TTL override via iptables. Requires shell access."),
-        ("/ui/tools/ssh", "Enable SSH", "Install and start dropbear SSH server. Requires ADB USB connection."),
-        ("/ui/tools/explorer", "Device Explorer", "Browse filesystem and collect device info. Requires ADB USB connection."),
-        ("/ui/tools/lan-speedtest", "LAN Speed Test", "LAN Speed Test is in the OpenU60 app."),
-        ("/ui/tools/lan-speedtest", "LAN Speed Test", "Does not use internet data."),
-        ("/ui/tools/config", "Config Tool", "Config Decrypt/Encrypt is in the OpenU60 app."),
+        ("/ui/tools/ttl", "TTL设置", "通过 iptables 设置 TTL 覆盖。需要外壳访问权限。"),
+        ("/ui/tools/ssh", "启用SSH", "安装并启动dropbear SSH服务器。需要 ADB USB 连接。"),
+        ("/ui/tools/explorer", "设备资源管理器", "浏览文件系统并收集设备信息。需要 ADB USB 连接。"),
+        ("/ui/tools/lan-speedtest", "局域网速度测试", "LAN 速度测试位于 OpenU60 应用程序中。"),
+        ("/ui/tools/lan-speedtest", "局域网速度测试", "不使用互联网数据。"),
+        ("/ui/tools/config", "配置工具", "配置解密/加密位于 OpenU60 应用程序中。"),
     ] {
         let r = get_with(&c, uri, peer(101, 2), &cookie).await;
         r.assert_secure_html(200);
@@ -181,7 +181,7 @@ async fn connected_devices_and_their_search() {
     assert!(!html.contains("/ui/live/") && !html.contains("/ui/a/datastar-"));
     assert_eq!(c.app.hub.demand(Topic::Clients), 0);
     let html = post(&c, DEVICES, peer(103, 3), &cookie, &format!("csrf={csrf}&q=aa%3Abb")).await.text();
-    assert!(html.contains("No Results for \u{201c}aa:bb\u{201d}"), "{html}");
+    assert!(html.contains("\u{201c}aa:bb\u{201d} 没有结果"), "{html}");
     // Refused without the token or a session; the text never in a URL.
     post(&c, DEVICES, peer(103, 4), &cookie, "q=tv").await.assert_secure_html(403);
     let r = post(&c, DEVICES, peer(103, 4), "", &format!("csrf={csrf}&q=tv")).await;
@@ -201,7 +201,7 @@ async fn automations_empty_and_new_form() {
     let html = get_with(&c, AUTO, peer(104, 2), &cookie).await.text();
     for want in [
         "<h1>Automations</h1>", "<a class=\"nl back\" href=\"/ui/tools\">Tools</a>", "<strong>No Automations</strong>",
-        "Schedule actions like airplane mode, reboot, or WiFi toggles to run automatically on the device.",
+        "安排飞行模式、重新启动或 WiFi 切换等操作在设备上自动运行。",
         "<a class=\"it bt\" href=\"/ui/tools/automations/new\">",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -221,12 +221,12 @@ async fn automations_empty_and_new_form() {
         "name=\"days\" value=\"0\" checked><span>Mon</span>", "name=\"days\" value=\"4\" checked><span>Fri</span>",
         "name=\"days\" value=\"5\"><span>Sat</span>", "type=\"datetime-local\" name=\"at\"",
         "<span>Reverse action at</span><input class=\"sr\" id=\"restore\" type=\"checkbox\" role=\"switch\" name=\"restore\" value=\"1\">",
-        "<input id=\"rtime\" type=\"time\" name=\"rtime\" value=\"06:30\">", "Times are the router's local time (UTC",
+        "<input id=\"rtime\" type=\"time\" name=\"rtime\" value=\"06:30\">", "时间为路由器当地时间（UTC",
         "<button class=\"it cv snd\" type=\"submit\">Save</button>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("Custom:") && !html.contains("/ui/a/datastar-") && !html.contains("connected remotely"));
+    assert!(!html.contains("自定义：") && !html.contains("/ui/a/datastar-") && !html.contains("connected remotely"));
     // A remote browser is told what cuts its connection when it runs.
     let tailnet = Peer(std::net::SocketAddr::from(([127, 0, 0, 1], 40104)));
     let html = get_with(&c, "/ui/tools/automations/new", tailnet, &cookie).await.text();
@@ -266,12 +266,12 @@ async fn automations_create_edit_toggle_delete() {
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("class=\"dot") && !html.contains("No Automations"));
+    assert!(!html.contains("class=\"dot") && !html.contains("无自动化"));
     // A switch for another job with this id (the agent reuses a deleted
     // newest job's id; another creation time): nothing changes.
     let r = post(&c, "/ui/tools/automations/toggle", peer(105, 5), &cookie, &format!("csrf={csrf}&id={id}&c={}&enabled=0", cr - 1)).await;
     r.assert_secure_html(404);
-    assert!(r.text().contains("Failed: job not found"));
+    assert!(r.text().contains("失败：找不到工作"));
     assert_eq!(jobs(&c)[0]["enabled"], true);
     // The switch: off, back at the row.
     post(&c, "/ui/tools/automations/toggle", peer(105, 5), &cookie, &format!("csrf={csrf}&id={id}&c={cr}&enabled=0"))
@@ -301,19 +301,19 @@ async fn automations_create_edit_toggle_delete() {
     let other = body.replace(&format!("&c={cr}&"), &format!("&c={}&", cr + 1));
     let r = post(&c, "/ui/tools/automations/save", peer(105, 7), &cookie, &other).await;
     r.assert_secure_html(404);
-    assert!(r.text().contains("Automation not found") && jobs(&c)[0]["name"] == "Night <b>");
+    assert!(r.text().contains("未找到自动化") && jobs(&c)[0]["name"] == "Night <b>");
     post(&c, "/ui/tools/automations/save", peer(105, 7), &cookie, &body).await.assert_see_other(&format!("{AUTO}?saved=updated"));
     let j = &jobs(&c)[0];
-    assert_eq!((j["name"].clone(), j["enabled"].clone()), (json!("Trip"), json!(false)));
+    assert_eq!((j["name"].clone(), j["enabled"].clone()), (json!("旅行"), json!(false)));
     assert_eq!(j["action"], json!({"method": "POST", "path": "/api/device/reboot"}));
     assert_eq!(j["schedule"], json!({"type": "once", "at": at}));
-    assert!(j.get("restore").is_none(), "Reboot has no restore: {j}");
+    assert!(j.get("restore").is_none(), "重启无恢复：{j}");
     // Delete: asked first (the app deletes at once), then gone.
     let q = format!("{AUTO}/delete?id={id}");
     post(&c, "/ui/tools/automations/delete", peer(105, 8), &cookie, &format!("csrf={csrf}&id={id}&c={cr}")).await.assert_see_other(&q);
     assert_eq!(jobs(&c).len(), 1);
     let html = get_with(&c, &q, peer(105, 8), &cookie).await.text();
-    assert!(html.contains("<h2 class=\"q\">Delete \u{201c}Trip\u{201d}?</h2>") && html.contains("It no longer runs."), "{html}");
+    assert!(html.contains("<h2 class=\"q\">Delete \u{201c}Trip\u{201d}?</h2>") && html.contains("它不再运行。"), "{html}");
     assert!(html.contains(&format!("name=\"id\" value=\"{id}\"><input type=\"hidden\" name=\"c\" value=\"{cr}\">")), "{html}");
     assert!(html.contains("href=\"/ui/tools/automations\">Cancel"));
     // A question about another job with this id (its own is gone): that
@@ -335,10 +335,10 @@ async fn automations_create_edit_toggle_delete() {
     // Gone: the question and the form say so (404), the switch fails.
     let r = get_with(&c, &q, peer(105, 9), &cookie).await;
     r.assert_secure_html(404);
-    assert!(r.text().contains("Automation not found. It may have been deleted.") && !r.text().contains(">Delete</button>"));
+    assert!(r.text().contains("未找到自动化。它可能已被删除。") && !r.text().contains(">Delete</button>"));
     let r = get_with(&c, &format!("{AUTO}/{id}"), peer(105, 9), &cookie).await;
     r.assert_secure_html(404);
-    assert!(r.text().contains("Automation not found") && r.text().contains("Back to Automations"));
+    assert!(r.text().contains("未找到自动化") && r.text().contains("返回自动化"));
     let r = post(&c, "/ui/tools/automations/toggle", peer(105, 9), &cookie, &format!("csrf={csrf}&id={id}&c={cr}&enabled=1")).await;
     r.assert_secure_html(404);
     assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Failed: job not found</p>"), "{}", r.text());
@@ -357,7 +357,7 @@ async fn automations_checks_and_tokens() {
     r.assert_secure_html(400);
     let html = r.text();
     for want in [
-        "Check the highlighted fields.", "<p class=\"ferr\" id=\"name-err\">Enter a name.</p>",
+        "检查突出显示的字段。", "<p class=\"ferr\" id=\"name-err\">Enter a name.</p>",
         "<p class=\"ferr\" id=\"time-err\">Enter a time.</p>", "<p class=\"ferr\" id=\"days-err\">Select at least one day.</p>",
         "value=\"99:00\"", "<option value=\"guest\" selected>",
     ] {
@@ -367,14 +367,14 @@ async fn automations_checks_and_tokens() {
     // The same token again (given back, as nothing was sent): a one-time job in the past.
     let r = post(&c, "/ui/tools/automations/save", peer(106, 3), &cookie, &format!("csrf={csrf}&once={once}&name=N&action=reboot&st=once&at={past}")).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("Choose a time in the future."), "{}", r.text());
+    assert!(r.text().contains("选择未来的一个时间。"), "{}", r.text());
     assert!(jobs(&c).is_empty());
     for bad in ["action=nope&st=once", "action=reboot&st=weekly", "action=reboot&st=recurring&days=9", "st=once"] {
         post(&c, "/ui/tools/automations/save", peer(106, 4), &cookie, &format!("csrf={csrf}&once={once}&name=N&{bad}")).await.assert_secure_html(400);
     }
     let r = post(&c, "/ui/tools/automations/save", peer(106, 5), &cookie, &format!("csrf={csrf}&once=00&name=N&action=reboot&st=recurring&time=01%3A00&days=0")).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("This form expired, so the automation was not saved. Save it again."));
+    assert!(r.text().contains("此表单已过期，因此未保存自动化。再次保存。"));
     post(&c, "/ui/tools/automations/save", peer(106, 6), &cookie, &format!("once={once}&name=N&action=reboot&st=once")).await.assert_secure_html(403);
     post(&c, "/ui/tools/automations/save", peer(106, 6), "", &format!("csrf={csrf}")).await.assert_see_other(
         "/ui/login?next=%2Fui%2Ftools%2Fautomations&expired=1",
@@ -395,7 +395,7 @@ async fn automations_checks_and_tokens() {
 async fn custom_automations_are_kept() {
     let (c, cookie, _) = signed_in(107).await;
     let id = create(&c, json!({
-        "name": "Data on", "action": {"method": "PUT", "path": "/api/modem/data", "body": {"cid": 1, "enable": 1}},
+        "name": "数据", "action": {"method": "PUT", "path": "/api/modem/data", "body": {"cid": 1, "enable": 1}},
         "schedule": {"type": "recurring", "time": "06:00", "days": [0, 1, 2, 3, 4, 5, 6]},
         "restore": {"time": "23:00", "body": {"cid": 1, "enable": 0}},
     }));
@@ -417,5 +417,5 @@ async fn custom_automations_are_kept() {
     assert_eq!(j["restore"], json!({"time": "22:00", "body": {"cid": 1, "enable": 0}}));
     assert_eq!(j["schedule"], json!({"type": "recurring", "time": "06:15", "days": [0]}));
     // A template's labels match the app's.
-    assert_eq!(TEMPLATES.map(|t| t.label), ["Airplane Mode ON", "Mobile Data OFF", "Guest WiFi OFF", "Reboot", "Power Save ON"]);
+    assert_eq!(TEMPLATES.map(|t| t.label), ["飞行模式开启", "移动数据关闭", "关闭访客 WiFi", "重启", "省电模式开启"]);
 }

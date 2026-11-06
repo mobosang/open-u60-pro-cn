@@ -119,7 +119,7 @@ pub fn encryption_label(raw: &str) -> String {
         "sae-mixed" | "sae+psk2" => "WPA2/3".into(),
         "psk-mixed" | "psk+psk2" => "WPA/2".into(),
         "psk" => "WPA".into(),
-        "none" | "" => "Open".into(),
+        "none" | "" => "打开".into(),
         _ => raw.to_uppercase(),
     }
 }
@@ -135,7 +135,7 @@ fn band(d: &Value, label: &str, b: &str) -> Markup {
         div {
             dt { (kit::icon(Icon::Wifi)) " " (label) }
             @if yes(d, radio) {
-                dd.muted { "Disabled" }
+                dd.muted { "已禁用" }
             } @else {
                 dd {
                     @if yes(d, &format!("hidden_{b}")) { small.c-orange { "(Hidden)" } " " }
@@ -161,7 +161,7 @@ pub fn wifi_card(read: Result<&Value, &str>) -> Markup {
                 @if on && d.is_some_and(|d| yes(d, "wifi6_switch")) { span.badge.bl { "WiFi 7" } }
                 @if on && clients > 0 { span.cap { (clients) " client" @if clients != 1 { "s" } } }
                 @if d.is_some() {
-                    @if on { span.c-green { "On" } } @else { span.c-red { "Off" } }
+                    @if on { span.c-green { "On" } } @else { span.c-red { "关闭" } }
                 }
             }
             @match (d, read) {
@@ -176,7 +176,7 @@ pub fn wifi_card(read: Result<&Value, &str>) -> Markup {
                         }
                     }
                 }
-                (None, Err(e)) => p.age.err { "Couldn't update: " (fmt::truncate(e, 120)) },
+                (None, Err(e)) => p.age.err { "无法更新： " (fmt::truncate(e, 120)) },
                 (None, Ok(_)) => {},
             }
     };
@@ -332,9 +332,9 @@ pub fn page(pd: &PageData) -> Markup {
         (render::live_snapshot(PATH))
         div.dash {
             (wifi_card(read))
-            p.ctr { a.nl href=(SHARE) { "Share Wi-Fi" } }
+            p.ctr { a.nl href=(SHARE) { "共享 Wi-Fi" } }
             details.card.devc open {
-                summary.ch { (kit::icon(Icon::Laptop)) span { "Connected Devices" } (device_count(pd.views)) }
+                summary.ch { (kit::icon(Icon::Laptop)) span { "已连接设备" } (device_count(pd.views)) }
                 (devices(pd.views))
             }
         }
@@ -369,7 +369,7 @@ pub fn share_read(app: &AppState, query: Option<&str>) -> Result<Value, String> 
 pub fn share(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return kit::notice(false, &format!("Failed to load Wi-Fi credentials: {}", fmt::truncate(e, 120))),
+        Some(Err(e)) => return kit::notice(false, &format!("无法加载 Wi-Fi 凭证：{}", fmt::truncate(e, 120))),
         None => return html! {},
     };
     let guest = d["guest"].as_bool() == Some(true);
@@ -381,9 +381,9 @@ pub fn share(pd: &PageData) -> Markup {
     html! {
         section.card.ctr.share {
             @if d["guest_on"].as_bool() == Some(true) {
-                nav.seg aria-label="Network" {
-                    a href=(SHARE) aria-current=[(!guest).then_some("page")] { "Main" }
-                    a href="/ui/wifi/share?net=guest" aria-current=[guest.then_some("page")] { "Guest" }
+                nav.seg aria-label="网络" {
+                    a href=(SHARE) aria-current=[(!guest).then_some("page")] { "主要" }
+                    a href="/ui/wifi/share?net=guest" aria-current=[guest.then_some("page")] { "嘉宾" }
                 }
             }
             p { b { (ssid) } }
@@ -391,18 +391,18 @@ pub fn share(pd: &PageData) -> Markup {
                 p.pw {
                     @if show {
                         // Never sent to a page translation service.
-                        span.mono translate="no" { (key) } " " a href=(here) { "Hide password" }
+                        span.mono translate="no" { (key) } " " a href=(here) { "隐藏密码" }
                     } @else {
-                        span.mono role="img" aria-label="Password hidden" { ("\u{2022}".repeat(key.chars().count().min(12))) }
-                        " " a href=(toggle) { "Show password" }
+                        span.mono role="img" aria-label="密码隐藏" { ("\u{2022}".repeat(key.chars().count().min(12))) }
+                        " " a href=(toggle) { "显示密码" }
                     }
                 }
             }
             @match &code {
-                Some(c) => (qr::svg(c, "Wi-Fi QR code")),
-                None => p.cap { "This network name and password are too long for a QR code." },
+                Some(c) => (qr::svg(c, "Wi-Fi二维码")),
+                None => p.cap { "该网络名称和密码对于二维码来说太长。" },
             }
-            p.cap { "Scan with any phone camera" }
+            p.cap { "使用任意手机摄像头扫描" }
         }
     }
 }
@@ -423,9 +423,9 @@ mod tests {
         json!({
             "wifi_onoff": "1", "wifi6_switch": "1", "radio2_disabled": "0", "radio5_disabled": "0",
             "channel_2g": "auto", "channel_5g": "36", "actual_channel_2g": "6", "actual_channel_5g": "",
-            "ssid_2g": "<b>Home</b>", "ssid_5g": "Home-5G", "key_2g": KEY, "key_5g": "WIFIKEY-5g-9c1d",
+            "ssid_2g": "<b>Home</b>", "ssid_5g": "首页-5G", "key_2g": KEY, "key_5g": "WIFIKEY-5g-9c1d",
             "encryption_2g": "psk2+ccmp", "encryption_5g": "sae-mixed", "hidden_2g": "0", "hidden_5g": "1",
-            "clients_total": 3, "guest_disabled_2g": "0", "guest_disabled_5g": "1", "guest_ssid": "Guests",
+            "clients_total": 3, "guest_disabled_2g": "0", "guest_disabled_5g": "1", "guest_ssid": "嘉宾",
             "txpower_2g": "100", "htmode_2g": "HE40", "country_code": "DE",
         })
     }
@@ -439,8 +439,8 @@ mod tests {
     fn encryption_labels_follow_the_app() {
         for (raw, label) in [
             ("psk2", "WPA2"), ("psk2+ccmp", "WPA2"), ("PSK2+CCMP", "WPA2"), ("sae", "WPA3"), ("sae-mixed", "WPA2/3"),
-            ("sae+psk2", "WPA2/3"), ("psk-mixed", "WPA/2"), ("psk+psk2", "WPA/2"), ("psk", "WPA"), ("none", "Open"),
-            ("", "Open"), ("wpa3-192", "WPA3-192"),
+            ("sae+psk2", "WPA2/3"), ("psk-mixed", "WPA/2"), ("psk+psk2", "WPA/2"), ("psk", "WPA"), ("none", "打开"),
+            ("", "打开"), ("wpa3-192", "WPA3-192"),
         ] {
             assert_eq!(encryption_label(raw), label, "{raw}");
         }
@@ -472,7 +472,7 @@ mod tests {
             d[k] = v;
         }
         let s = wifi_card(Ok(&card_fields(&d))).into_string();
-        assert!(s.contains("<span class=\"cap\">1 client</span>") && !s.contains("WiFi 7") && !s.contains("Guest"), "{s}");
+        assert!(s.contains("<span class=\"cap\">1 client</span>") && !s.contains("WiFi 7") && !s.contains("嘉宾"), "{s}");
         assert!(s.contains("5G</dt><dd class=\"muted\">Disabled</dd>"), "{s}");
         // Off: "Off" in red, no client count, no bands (as the app).
         d["wifi_onoff"] = json!("0");
@@ -485,7 +485,7 @@ mod tests {
         assert!(!wifi_card(Ok(&d)).into_string().contains("client"));
         // Unreadable: why, not "Off".
         let s = wifi_card(Err("uci: <x>")).into_string();
-        assert!(s.contains("Couldn't update: uci: &lt;x&gt;") && !s.contains("Off"), "{s}");
+        assert!(s.contains("无法更新：uci：<x>") && !s.contains("关闭"), "{s}");
     }
 
     #[test]
@@ -506,7 +506,7 @@ mod tests {
             ("tasmota-2AB123-4567", "tasmota-••••••-4567"),
             ("dev-2a:b1:23:45", "dev-•••••••••••"),
             ("02-03-2A-x", "••••••••-x"),
-            ("Shelly-2345", "Shelly-2345"),
+            ("雪莉-2345", "雪莉-2345"),
             ("cafe-deadbeef", "cafe-deadbeef"),
             ("Küche-b12345", "Küche-••••••"),
         ] {
@@ -567,13 +567,13 @@ mod tests {
     /// QR code always encodes it (the app shows the code at once).
     #[test]
     fn the_password_shows_only_when_asked() {
-        let read = json!({"ssid": "Home;Net", "key": "p@ss\"word:1234567", "encryption": "psk2+ccmp", "guest": false, "guest_on": true});
+        let read = json!({"ssid": "首页；网", "key": "p@ss\"word:1234567", "encryption": "psk2+ccmp", "guest": false, "guest_on": true});
         let hidden = share_html(read.clone(), None);
         assert!(!hidden.contains("p@ss") && !hidden.contains("1234567"), "{hidden}");
         assert!(hidden.contains("<span class=\"mono\" role=\"img\" aria-label=\"Password hidden\">••••••••••••</span> <a href=\"/ui/wifi/share?show=1\">Show password</a>"), "{hidden}");
         for want in [
             "<nav class=\"seg\" aria-label=\"Network\"><a href=\"/ui/wifi/share\" aria-current=\"page\">Main</a><a href=\"/ui/wifi/share?net=guest\">Guest</a></nav>",
-            "<p><b>Home;Net</b></p>", "<svg class=\"qr\"", "Scan with any phone camera",
+            "<p><b>Home;Net</b></p>", "<svg class=\"qr\"", "使用任意手机摄像头扫描",
         ] {
             assert!(hidden.contains(want), "{want} in {hidden}");
         }
@@ -583,16 +583,16 @@ mod tests {
         let shown = share_html(read.clone(), Some("show=1"));
         assert!(shown.contains("<span class=\"mono\" translate=\"no\">p@ss&quot;word:1234567</span> <a href=\"/ui/wifi/share\">Hide password</a>"), "{shown}");
         // The same code either way, encoding the app's payload.
-        let code = qr::svg(&qr::encode(r#"WIFI:T:WPA;S:Home\;Net;P:p@ss\"word\:1234567;;"#).unwrap(), "Wi-Fi QR code").into_string();
+        let code = qr::svg(&qr::encode(r#"WIFI:T:WPA;S:Home\;Net;P:p@ss\"word\:1234567;;"#).unwrap(), "Wi-Fi二维码").into_string();
         assert!(hidden.contains(&code) && shown.contains(&code));
         assert!(!hidden.contains("style=") && !hidden.contains("<form"));
         // A short password: as many dots as characters; guest: its own links.
-        let guest = json!({"ssid": "Guests", "key": "abc", "encryption": "sae", "guest": true, "guest_on": true});
+        let guest = json!({"ssid": "嘉宾", "key": "abc", "encryption": "sae", "guest": true, "guest_on": true});
         let s = share_html(guest, None);
         assert!(s.contains(">•••</span> <a href=\"/ui/wifi/share?net=guest&amp;show=1\">Show password</a>"), "{s}");
         assert!(s.contains("<a href=\"/ui/wifi/share?net=guest\" aria-current=\"page\">Guest</a>"), "{s}");
         // No guest network: no Main/Guest; an open one: no password row.
-        let open = json!({"ssid": "Cafe", "key": "", "encryption": "none", "guest": false, "guest_on": false});
+        let open = json!({"ssid": "咖啡馆", "key": "", "encryption": "none", "guest": false, "guest_on": false});
         let s = share_html(open, Some("show=1"));
         assert!(!s.contains("seg") && !s.contains("password") && s.contains("<svg class=\"qr\""), "{s}");
     }

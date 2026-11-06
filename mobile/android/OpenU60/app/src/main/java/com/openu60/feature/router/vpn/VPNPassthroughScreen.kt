@@ -27,7 +27,7 @@ fun VPNPassthroughScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("VPN Passthrough") },
+                title = { Text("VPN 穿透") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -66,7 +66,7 @@ fun VPNPassthroughScreen(
 
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("VPN Passthrough", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("VPN 穿透", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         ToggleRow("L2TP", state.config.l2tp) { viewModel.toggle("l2tp_passthrough", it) }
                         ToggleRow("PPTP", state.config.pptp) { viewModel.toggle("pptp_passthrough", it) }

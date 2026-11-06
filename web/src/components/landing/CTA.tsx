@@ -18,25 +18,25 @@ export function CTA() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}
       >
         <h2 className="mb-4 font-display text-[clamp(1.5rem,4vw,2.5rem)] font-bold tracking-tight">
-          Ready to get started?
+          准备好开始了吗？
         </h2>
         <p className="mx-auto mb-8 max-w-md text-text-dim">
-          Deploy the agent to your router and take full control of your
-          U60 Pro.
+          将代理部署到您的路由器并完全控制您的路由器
+          U60 Pro。
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             href="/docs"
             className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-accent-hover hover:-translate-y-0.5"
           >
-            Read the Docs
+            阅读文档
             <ArrowRight size={16} />
           </Link>
           <Link
             href="/download"
             className="inline-flex items-center gap-2 rounded-lg border border-border px-6 py-2.5 text-sm font-semibold text-text transition-all hover:border-text-dim hover:-translate-y-0.5"
           >
-            Download
+            下载
           </Link>
         </div>
       </motion.div>

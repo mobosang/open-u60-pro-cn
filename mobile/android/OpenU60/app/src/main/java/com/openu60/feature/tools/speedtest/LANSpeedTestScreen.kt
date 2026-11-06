@@ -30,7 +30,7 @@ fun LANSpeedTestScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("LAN Speed Test") },
+                title = { Text("局域网速度测试") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -70,7 +70,7 @@ fun LANSpeedTestScreen(
                 ),
             ) {
                 Text(
-                    "Measures WiFi link speed between this device and the router. Does not use internet data.",
+                    "测量该设备和路由器之间的 WiFi 链路速度。不使用互联网数据。",
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -111,7 +111,7 @@ fun LANSpeedTestScreen(
                             )
                         }
                         Text(
-                            "Mbps",
+                            "兆比特/秒",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -164,19 +164,19 @@ fun LANSpeedTestScreen(
             if (state.phase == "complete") {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Results", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                        Text("结果", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                             ResultValue(
-                                label = "Ping",
+                                label = "延迟测试",
                                 value = state.pingMs?.let { String.format("%.1f ms", it) } ?: "--",
                             )
                             ResultValue(
-                                label = "Download",
+                                label = "下载",
                                 value = state.downloadMbps?.let { String.format("%.1f Mbps", it) } ?: "--",
                             )
                             ResultValue(
-                                label = "Upload",
+                                label = "上传",
                                 value = state.uploadMbps?.let { String.format("%.1f Mbps", it) } ?: "--",
                             )
                         }

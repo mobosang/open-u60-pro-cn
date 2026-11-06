@@ -23,92 +23,92 @@ export interface FeatureDetail {
 export const featureDetails: FeatureDetail[] = [
   {
     icon: Gauge,
-    title: "Speed Test",
-    category: "Network",
+    title: "速度测试",
+    category: "网络",
     description:
-      "Measure internet throughput directly from the router.",
+      "直接从路由器测量互联网吞吐量。",
     howItWorks:
-      "The agent connects to speedtest.net servers from the U60 itself. Measures latency, download, and upload — giving you the true WAN speed without WiFi overhead. Results stream to the app in real time.",
+      "代理从 U60 本身连接到 speedtest.net 服务器。测量延迟、下载和上传 — 为您提供真正的 WAN 速度，而无需 WiFi 开销。结果实时传输到应用程序。",
   },
   {
     icon: Wifi,
-    title: "LAN Speed Test",
-    category: "Network",
+    title: "局域网速度测试",
+    category: "网络",
     description:
-      "Test WiFi link quality between your phone and the router.",
+      "测试WiFi手机与路由器之间的链路质量。",
     howItWorks:
-      "Your phone sends HTTP requests to the agent's /lan-test/* endpoints over WiFi. Measures ping (empty 200), download (agent streams zeros), and upload (phone streams, agent counts bytes). Tests your WiFi link, not WAN.",
+      "您的电话通过 WiFi 向代理的 /lan-test/* 端点发送 HTTP 请求。测量 ping（空 200）、下载（代理流 ping 为零）和上传（电话流、代理计数字节）。测试您的 WiFi 链路，而不是 WAN。",
   },
   {
     icon: MessageSquare,
-    title: "SMS Management",
-    category: "Telephony",
+    title: "短信管理",
+    category: "电话",
     description:
-      "Read, send, and delete SMS directly from the companion app.",
+      "直接从配套应用程序读取、发送和删除短信。",
     howItWorks:
-      "Messages are read and sent via ubus commands on the device. Conversations are grouped by contact number. You can send to any number, delete individual messages, or clear entire threads.",
+      "消息通过设备上的 ubus 命令读取和发送。对话按联系号码分组。您可以发送到任何号码、删除单条消息或清除整个线程。",
   },
   {
     icon: MessageSquareShare,
-    title: "SMS Forwarding",
-    category: "Telephony",
+    title: "短信转发",
+    category: "电话",
     description:
-      "Auto-forward incoming SMS to Telegram, webhooks, and more.",
+      "自动转发传入短信至 Telegram、webhooks 等。",
     howItWorks:
-      "The agent listens for the ubus new-SMS event — no polling delay. Incoming messages are matched against rules (sender, keyword, or both). Matches are forwarded to Telegram, webhooks, ntfy, Discord, Slack, or another phone number, with automatic retry on failure.",
+      "代理侦听 ubus new-SMS 事件 — 无轮询延迟。传入消息将根据规则（发件人、关键字或两者）进行匹配。匹配将转发到 Telegram、webhooks、ntfy、Discord、Slack 或其他电话号码，并在失败时自动重试。",
   },
   {
     icon: Signal,
-    title: "Signal Monitoring",
-    category: "Modem",
+    title: "信号监测",
+    category: "调制解调器",
     description:
-      "Real-time RSRP, SINR, and RSRQ readings with cell info.",
+      "实时 RSRP、SINR 和 RSRQ 读数以及电池信息。",
     howItWorks:
-      "Reads signal metrics from the modem in real time. Shows serving cell info (NR or LTE), EARFCN/ARFCN, PCI, and band number. Neighbor cell scanning is available for finding better towers in your area.",
+      "实时从调制解调器读取信号指标。显示服务小区信息（NR 或 LTE）、EARFCN/ARFCN、PCI 和频段号。邻近小区扫描可用于查找您所在区域更好的信号塔。",
   },
   {
     icon: Radio,
-    title: "Band Locking",
-    category: "Modem",
+    title: "频带锁定",
+    category: "调制解调器",
     description:
-      "Lock the modem to specific NR or LTE bands and cells.",
+      "将调制解调器锁定到特定的 NR 或 LTE 频段和小区。",
     howItWorks:
-      "Force the modem onto specific NR or LTE bands. Cell locking by PCI + frequency. Smart Tower Connect (STC) for automatic best-tower selection. Useful for avoiding congested bands or forcing a better tower.",
+      "强制调制解调器使用特定的 NR 或 LTE 频段。通过 PCI + 频率进行单元锁定。智能塔连接 (STC)，用于自动选择最佳塔。对于避免拥挤的频段或强制建设更好的塔很有用。",
   },
   {
     icon: ShieldCheck,
     title: "DNS-over-HTTPS",
-    category: "Privacy",
+    category: "隐私",
     description:
-      "Built-in encrypted DNS proxy for all LAN clients.",
+      "适用于所有 LAN 客户端的内置加密 DNS 代理。",
     howItWorks:
-      "The agent runs a DoH proxy — LAN clients can use 192.168.0.1:9090 as their DNS resolver. Queries are forwarded over HTTPS to Cloudflare or Google. A response cache speeds up repeat lookups and reduces latency.",
+      "代理运行 DoH 代理 — LAN 客户端可以使用 192.168.0.1:9090 作为其 DNS 解析器。查询通过 HTTPS 转发到 Cloudflare 或 Google。响应缓存可加快重复查找速度并减少延迟。",
   },
   {
     icon: Clock,
-    title: "Scheduler",
-    category: "Automation",
+    title: "调度程序",
+    category: "自动化任务",
     description:
-      "Schedule any API action as a one-time or recurring job.",
+      "将任何 API 操作安排为一次性或重复性作业。",
     howItWorks:
-      "Create cron-style jobs that call any agent API endpoint. Examples: reboot at 3 AM daily, toggle airplane mode on a schedule, run a speed test every hour. Jobs are persisted to disk and survive reboots.",
+      "创建调用任何代理 API 端点的 cron 样式作业。示例：每天凌晨 3 点重新启动、按计划切换飞行模式、每小时运行一次速度测试。作业将持久保存到磁盘并在重新启动后继续存在。",
   },
   {
     icon: BatteryCharging,
-    title: "Charge Policy",
-    category: "Device",
+    title: "收费政策",
+    category: "设备",
     description:
       "iPhone-style charge limiter to protect battery health.",
     howItWorks:
-      "Set an 80% charge cap — the agent listens for ubus charger events and reacts instantly to state changes. Pauses charging at the limit and resumes at 75% (5% hysteresis). Keeps the battery in its healthiest charge range for long-term use.",
+      "设置 80% 的充电上限 - 代理监听 ubus 充电器事件并对状态变化立即做出反应。在极限处暂停充电并在 75% 处恢复（5% 滞后）。使电池保持在最健康的充电范围，以便长期使用。",
   },
   {
     icon: Terminal,
-    title: "AT Commands",
-    category: "Modem",
+    title: "AT命令",
+    category: "调制解调器",
     description:
-      "Direct AT command interface for advanced modem diagnostics.",
+      "用于高级调制解调器诊断的直接 AT 命令接口。",
     howItWorks:
-      "Send AT commands directly to /dev/at_mdm0. Query IMEI, modem firmware version, detailed signal info, or send custom AT strings. A power-user tool for deep modem diagnostics and configuration.",
+      "直接发送AT命令到/dev/at_mdm0。查询 IMEI、调制解调器固件版本、详细信号信息，或发送自定义 AT 字符串。用于深度调制解调器诊断和配置的高级用户工具。",
   },
 ];

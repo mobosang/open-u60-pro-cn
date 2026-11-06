@@ -36,7 +36,7 @@ export async function rpc(
 
   let data = await res.json();
   if (!Array.isArray(data)) data = [data];
-  if (data.length === 0) throw new Error("Empty response from router");
+  if (data.length === 0) throw new Error("路由器的空响应");
 
   const entry = data[0];
   if (entry.error) {
@@ -57,12 +57,12 @@ export async function enableADB(
     {}
   );
   if (!Array.isArray(saltResult) || saltResult.length < 2) {
-    throw new Error("Unexpected salt response. Is the gateway IP correct?");
+    throw new Error("意外的盐反应。网关IP是否​​正确？");
   }
   const info = saltResult[1] as Record<string, string>;
   const salt = info.zte_web_sault || info.salt;
   if (!salt) {
-    throw new Error("No salt returned. The router may be unreachable.");
+    throw new Error("没有返回盐。路由器可能无法访问。");
   }
 
   const hashed = await hashPassword(password, salt);
@@ -71,12 +71,12 @@ export async function enableADB(
     password: hashed,
   });
   if (!Array.isArray(loginResult) || loginResult.length < 2) {
-    throw new Error("Login failed. Check your password and try again.");
+    throw new Error("登录失败。检查您的密码并重试。");
   }
   const session = (loginResult[1] as Record<string, string>)
     .ubus_rpc_session;
   if (!session || session === ANON) {
-    throw new Error("Login rejected. Wrong password or session expired.");
+    throw new Error("登录被拒绝。密码错误或会话已过期。");
   }
 
   const usbResult = await rpc(gateway, session, "zwrt_bsp.usb", "set", {

@@ -28,7 +28,7 @@ fun WiFiSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("WiFi Settings") },
+                title = { Text("WiFi 设置") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -36,7 +36,7 @@ fun WiFiSettingsScreen(
                 },
                 actions = {
                     TextButton(onClick = { viewModel.save() }, enabled = !state.isLoading) {
-                        Text("Save")
+                        Text("保存")
                     }
                 },
             )
@@ -179,7 +179,7 @@ private fun BandCard(
             ) {
                 Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Disabled", style = MaterialTheme.typography.bodySmall)
+                    Text("已禁用", style = MaterialTheme.typography.bodySmall)
                     Spacer(modifier = Modifier.width(4.dp))
                     Switch(checked = disabled, onCheckedChange = onDisabledChange)
                 }
@@ -188,7 +188,7 @@ private fun BandCard(
 
             OutlinedTextField(value = ssid, onValueChange = onSsidChange, label = { Text("SSID") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = password, onValueChange = onPasswordChange, label = { Text("Password") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(value = password, onValueChange = onPasswordChange, label = { Text("密码") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -207,7 +207,7 @@ private fun BandCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Hidden Network")
+                Text("隐藏网络")
                 Switch(checked = hidden, onCheckedChange = onHiddenChange)
             }
         }

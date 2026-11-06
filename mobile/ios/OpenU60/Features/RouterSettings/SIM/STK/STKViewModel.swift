@@ -49,7 +49,7 @@ final class STKViewModel {
     func sendUSSD() async {
         let code = ussdCode.trimmingCharacters(in: .whitespaces)
         guard !code.isEmpty else {
-            showMessage("Enter a USSD code", isError: true)
+            showMessage("输入 USSD 代码", isError: true)
             return
         }
 
@@ -66,7 +66,7 @@ final class STKViewModel {
                 showUssdResponse = true
             }
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -88,7 +88,7 @@ final class STKViewModel {
                 ussdReply = ""
             }
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -102,9 +102,9 @@ final class STKViewModel {
             ussdResponse = .empty
             showUssdResponse = false
             ussdReply = ""
-            showMessage("USSD session ended", isError: false)
+            showMessage("USSD会议结束", isError: false)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false

@@ -107,7 +107,7 @@ pub fn progress(v: &Views) -> Markup {
                 OpStatus::TimedOut { msg } if op.spec.timeout_ok => p.msg.info role="status" { (msg) },
                 OpStatus::TimedOut { msg } | OpStatus::Failed { msg } => p.msg.err role="alert" { (msg) },
             }
-            p.actions { a.btn.btn-quiet[!st.finished()] href=(back) { "Back to " (parent) } }
+            p.actions { a.btn.btn-quiet[!st.finished()] href=(back) { "返回 " (parent) } }
         }
     }
 }

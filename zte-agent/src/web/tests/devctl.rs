@@ -69,18 +69,18 @@ async fn device_controls_follow_the_app() {
         "<label for=\"limit\">Stop at</label>", "<option value=\"85\" selected>85%</option>",
         "<label for=\"hysteresis\">Resume gap</label>", "<option value=\"11\" selected>11%</option>",
         "<button class=\"it cv snd\" type=\"submit\">Save</button>",
-        "Charging stops at 85% and resumes at 74%.", "Default: 5% \u{2014} good balance for most users.",
+        "充电在 85% 时停止，在 74% 时恢复。", "默认值：5% \u{2014} 对于大多数用户来说是一个很好的平衡。",
         "<input type=\"hidden\" name=\"on\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"Power-save Mode\">",
-        "Restricts data communication speed to reduce consumption and extend battery life.",
+        "限制数据通信速度以减少功耗并延长电池寿命。",
         "<input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"Fast Boot\">",
-        "When enabled, powering off suspends to RAM for near-instant boot.",
+        "启用后，断电后会暂停至 RAM，以实现近乎即时的启动。",
         "<input type=\"hidden\" name=\"timeout\" value=\"10\"><input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"Auto Sleep\">",
         "<label for=\"tmo\">Idle Timeout</label><form class=\"sf\" method=\"post\" action=\"/ui/router/device/auto-sleep\">",
         "<option value=\"10\" selected>10 min</option>", "<option value=\"60\">1 hour</option>", "<option value=\"120\">2 hours</option>",
-        "Automatically enters low-power sleep when no WiFi clients are connected and the idle timeout expires. Press the power button to wake.",
-        "<a class=\"it bt\" href=\"/ui/router/device/reboot\">Reboot Router</a>", "The router will restart. This takes about 60 seconds.",
+        "当没有 WiFi 客户端连接并且空闲超时到期时，自动进入低功耗睡眠。按电源按钮唤醒。",
+        "<a class=\"it bt\" href=\"/ui/router/device/reboot\">Reboot Router</a>", "路由器将重新启动。这大约需要 60 秒。",
         "<a class=\"it bt danger\" href=\"/ui/router/device/factory-reset\">Factory Reset</a>",
-        "This will erase all settings and restore factory defaults. This cannot be undone.",
+        "这将清除所有设置并恢复出厂默认设置。此操作无法撤消。",
     ];
     let at: Vec<usize> = order.iter().map(|w| html.find(w).unwrap_or_else(|| panic!("{w} in {html}"))).collect();
     assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");
@@ -107,7 +107,7 @@ async fn device_controls_follow_the_app() {
         // The app's default timeout goes with the switch.
         "<input type=\"hidden\" name=\"timeout\" value=\"5\"><input type=\"hidden\" name=\"on\" value=\"1\"><button class=\"sw\"",
     ]);
-    assert!(!html.contains("Idle Timeout") && !html.contains("name=\"enabled\" value=\"1\" checked"), "{html}");
+    assert!(!html.contains("空闲超时") && !html.contains("name=\"enabled\" value=\"1\" checked"), "{html}");
     // A read that fails: the app's line with the error, the switch unknown.
     let _dev = device::set(&c.app, device::Device {
         gets: vec![("/api/device/power-save", Err("ubus call zwrt_mc.device.manager get_device_info failed: fake".into()))],
@@ -127,7 +127,7 @@ async fn device_controls_follow_the_app() {
     has(&html, &[
         "<p class=\"msg err\" role=\"alert\">Failed to load charge control status: charge control read failed: fake</p>",
         "<li class=\"it\"><span>Charge Limit</span><span class=\"v\">Unavailable</span></li>",
-        "Stops charging when battery reaches the set level. Extends battery lifespan.",
+        "当电池电量达到设定水平时停止充电。延长电池寿命。",
     ]);
     assert!(!html.contains("action=\"/ui/router/device/charge-limit\"") && !html.contains("name=\"limit\""), "{html}");
 }
@@ -250,17 +250,17 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     ]);
     assert!(!html.contains("connected remotely"));
     let token = r.input("once");
-    assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("You are connected remotely: if the connection drops"));
+    assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("您已远程连接：如果连接断开"));
     let reset = get_with(&c, RESET, peer(223, 2), &cookie).await.text();
     has(&reset, &[
         "<h1>Factory Reset</h1>", "<p class=\"cap\">This will erase ALL settings. Enter your router password to confirm.</p>",
         "<button class=\"it cv snd danger\" type=\"submit\">Factory Reset</button>",
-        "This will erase all settings and restore factory defaults. This cannot be undone.",
+        "这将清除所有设置并恢复出厂默认设置。此操作无法撤消。",
         // Never filled by the browser or a password manager: a deliberate step.
         "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"Router Password\" autocomplete=\"off\" required data-1p-ignore=\"true\" data-lpignore=\"true\" data-bwignore=\"true\">",
     ]);
     let remote = get_with(&c, RESET, tailnet(42223), &cookie).await.text();
-    assert!(remote.contains("You are connected remotely: after a factory reset the router may not come back on your tailnet"), "{remote}");
+    assert!(remote.contains("您已远程连接：恢复出厂设置后，路由器可能无法返回您的尾网"), "{remote}");
     let csrf = page_csrf(&html);
     // Wrong: nothing sent, the password not echoed.
     let r = post(&c, REBOOT, peer(223, 3), &cookie, &format!("csrf={csrf}&once={token}&password=fake-wrong-1")).await;
@@ -272,7 +272,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     post(&c, RESET, peer(223, 3), "", &format!("csrf={csrf}&password={}", enc(PW))).await.assert_see_other(&format!("/ui/login?next={}&expired=1", enc(RESET)));
     // The right password without the sheet's token.
     let r = post(&c, REBOOT, peer(223, 4), &cookie, &format!("csrf={csrf}&password={}", enc(PW))).await;
-    assert!(r.status == 409 && r.text().contains("This page expired, so nothing was sent."), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("该页面已过期，因此未发送任何内容。"), "{}", r.text());
     assert!(calls(&c).is_empty());
     // Right: once for a double click, both answered with the page.
     let body = format!("csrf={csrf}&once={token}&password={}", enc(PW));
@@ -310,7 +310,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
         }
     }
     let r = limited.expect("rate limited");
-    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. Try again in "), "{}", r.text());
+    assert!(r.header("retry-after").is_some() && r.text().contains("尝试次数过多。再试一次 "), "{}", r.text());
     let (pre, login_csrf) = login_form(&c, peer(223, 6)).await;
     let login = format!("login_csrf={}&next=%2Fui%2F&password={}", enc(&login_csrf), enc(PW));
     assert_eq!(post(&c, "/ui/login", peer(223, 6), &format!("zte_ui_pre={pre}"), &login).await.status, 429);
@@ -333,7 +333,7 @@ async fn settings_preferences_are_cookies() {
         "<h2>Session</h2>", "<h2>Polling</h2>", "<form class=\"sf\" method=\"post\" action=\"/ui/settings/refresh\">",
         "<label for=\"ms\">Refresh interval</label><select id=\"ms\" name=\"ms\"><option value=\"1000\">1.0s</option>",
         "<option value=\"2000\" selected>2.0s</option>", "<option value=\"10000\">10.0s</option></select><button class=\"btn sm\" type=\"submit\">Save</button>",
-        "Live upload and download use a separate 1-second refresh, matching the modem\u{2019}s update rate.",
+        "实时上传和下载使用单独的 1 秒刷新，与调制解调器 \u{2019} 的更新速率相匹配。",
         "<h2>Appearance</h2>", "<div class=\"seg th\" role=\"group\" aria-label=\"Theme\">",
         "<button type=\"submit\" name=\"theme\" value=\"system\" aria-pressed=\"true\">System</button>",
         "<button type=\"submit\" name=\"theme\" value=\"light\" aria-pressed=\"false\">Light</button>",

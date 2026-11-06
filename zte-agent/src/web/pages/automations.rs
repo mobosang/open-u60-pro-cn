@@ -61,7 +61,7 @@ pub const JOBS: &str = "/api/scheduler/jobs";
 
 /// The list's notices (the app's words, green as the app's).
 pub const SAVED: [(&str, &str); 3] =
-    [("created", "Automation created"), ("updated", "Automation updated"), ("deleted", "Automation deleted")];
+    [("created", "创建自动化"), ("updated", "自动化更新"), ("deleted", "自动化已删除")];
 
 // --- The app's templates ---
 
@@ -79,7 +79,7 @@ pub struct Template {
 pub const TEMPLATES: [Template; 5] = [
     Template {
         key: "airplane",
-        label: "Airplane Mode ON",
+        label: "飞行模式开启",
         method: "POST",
         path: "/api/modem/airplane",
         body: Some(r#"{"operate_mode":"LPM"}"#),
@@ -87,7 +87,7 @@ pub const TEMPLATES: [Template; 5] = [
     },
     Template {
         key: "data",
-        label: "Mobile Data OFF",
+        label: "移动数据关闭",
         method: "PUT",
         path: "/api/modem/data",
         body: Some(r#"{"cid":1,"enable":0,"connect_status":"disconnected"}"#),
@@ -95,16 +95,16 @@ pub const TEMPLATES: [Template; 5] = [
     },
     Template {
         key: "guest",
-        label: "Guest WiFi OFF",
+        label: "关闭访客 WiFi",
         method: "PUT",
         path: "/api/wifi/guest",
         body: Some(r#"{"guest_disabled_2g":"1","guest_disabled_5g":"1"}"#),
         restore: Some(r#"{"guest_disabled_2g":"0","guest_disabled_5g":"0"}"#),
     },
-    Template { key: "reboot", label: "Reboot", method: "POST", path: "/api/device/reboot", body: None, restore: None },
+    Template { key: "reboot", label: "重启", method: "POST", path: "/api/device/reboot", body: None, restore: None },
     Template {
         key: "powersave",
-        label: "Power Save ON",
+        label: "省电模式开启",
         method: "PUT",
         path: "/api/device/power-save",
         body: Some(r#"{"deviceInfoList":{"power_saver_mode":"1"}}"#),
@@ -135,7 +135,7 @@ pub fn template_of(job: &Value) -> Option<&'static Template> {
 
 // --- Summaries ---
 
-const DAYS: [&str; 7] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAYS: [&str; 7] = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
 
 /// "Oct 23, 2026 at 3:41 PM" (the app's medium date and short time), in
 /// the router's time zone at that time.
@@ -153,9 +153,9 @@ pub fn schedule_summary(job: &Value) -> String {
             let time = s["time"].as_str().unwrap_or("??:??");
             let days: Vec<u64> = s["days"].as_array().map(|a| a.iter().filter_map(Value::as_u64).collect()).unwrap_or_default();
             let days = match days.as_slice() {
-                d if d.len() == 7 => "Every day".to_owned(),
-                [0, 1, 2, 3, 4] => "Mon\u{2013}Fri".to_owned(),
-                [5, 6] => "Weekends".to_owned(),
+                d if d.len() == 7 => "每天".to_owned(),
+                [0, 1, 2, 3, 4] => "周一\u{2013}周五".to_owned(),
+                [5, 6] => "周末".to_owned(),
                 d => d.iter().filter_map(|&d| DAYS.get(d as usize).copied()).collect::<Vec<_>>().join(", "),
             };
             match job["restore"]["time"].as_str() {
@@ -163,7 +163,7 @@ pub fn schedule_summary(job: &Value) -> String {
                 None => format!("{days} at {time}"),
             }
         }
-        "once" => s["at"].as_i64().map_or_else(|| "One-time".to_owned(), |at| format!("Once: {}", medium(at))),
+        "once" => s["at"].as_i64().map_or_else(|| "单次".to_owned(), |at| format!("一次：{}", medium(at))),
         other => other.to_owned(),
     }
 }
@@ -230,13 +230,13 @@ fn row(csrf: &Markup, job: &Value) -> Markup {
                 }
                 @if let Some(status) = job["last_status"].as_u64() {
                     @if status == 200 {
-                        span.dot role="img" aria-label="Last run succeeded" {}
+                        span.dot role="img" aria-label="上次运行成功" {}
                     } @else {
-                        span.dot.bad role="img" aria-label="Last run failed" {}
+                        span.dot.bad role="img" aria-label="上次运行失败" {}
                     }
                 }
             }
-            a.del href=(format!("{DELETE}?id={id}")) { "Delete" span.sr { " automation " (name) } }
+            a.del href=(format!("{DELETE}?id={id}")) { "删除" span.sr { " automation " (name) } }
         }
     }
 }
@@ -247,16 +247,16 @@ pub fn list(pd: &PageData) -> Markup {
     let csrf = pd.csrf();
     html! {
         @if let Some(Err(e)) = pd.reads.first() {
-            (kit::notice(false, &format!("Failed to load: {}", fmt::truncate(e, 120))))
+            (kit::notice(false, &format!("加载失败：{}", fmt::truncate(e, 120))))
         }
         @if jobs.is_empty() {
-            (kit::empty_state(Icon::ClockArrow, "No Automations",
-                "Schedule actions like airplane mode, reboot, or WiFi toggles to run automatically on the device."))
+            (kit::empty_state(Icon::ClockArrow, "无自动化",
+                "安排飞行模式、重新启动或 WiFi 切换等操作在设备上自动运行。"))
         } @else {
-            (kit::section(Some("Automations"), None, html! { @for j in &jobs { (row(&csrf, j)) } }))
+            (kit::section(Some("自动化"), None, html! { @for j in &jobs { (row(&csrf, j)) } }))
         }
         (kit::section(None, None, html! {
-            li { a.it.bt href=(NEW) { (kit::icon(Icon::Plus)) span { "New Automation" } } }
+            li { a.it.bt href=(NEW) { (kit::icon(Icon::Plus)) span { "新的自动化" } } }
         }))
     }
 }
@@ -274,17 +274,17 @@ pub fn ask_delete(pd: &PageData) -> Markup {
     let id = job.map(job_id).unwrap_or(0).to_string();
     let c = job.map(created).unwrap_or(0).to_string();
     let name = job.and_then(|j| j["name"].as_str()).unwrap_or("");
-    let title = if job.is_some() { format!("Delete \u{201c}{name}\u{201d}?") } else { "Delete automation?".to_owned() };
+    let title = if job.is_some() { format!("删除\u{201c}{name}\u{201d}？") } else { "删除自动化？".to_owned() };
     let restore = job.and_then(|j| j["restore"]["time"].as_str()).map(|t| {
-        format!("Its restore at {t} no longer runs either, so nothing undoes the action if it has already run.")
+        format!("它在 {t} 的恢复也不再运行，因此如果它已经运行，则不会撤消该操作。")
     });
-    let mut lines = vec!["It no longer runs."];
+    let mut lines = vec!["它不再运行。"];
     if let Some(r) = &restore {
         lines.push(r);
     }
     let note = match pd.reads.first() {
-        Some(Err(e)) => Some(format!("Failed to load: {}", fmt::truncate(e, 120))),
-        _ if job.is_none() => Some("Automation not found. It may have been deleted.".to_owned()),
+        Some(Err(e)) => Some(format!("加载失败：{}", fmt::truncate(e, 120))),
+        _ if job.is_none() => Some("未找到自动化。它可能已被删除。".to_owned()),
         _ => None,
     };
     let q = Ask {
@@ -292,7 +292,7 @@ pub fn ask_delete(pd: &PageData) -> Markup {
         lines: if job.is_some() { &lines[..] } else { &[] },
         action: DELETE,
         hidden: &[("id", id.as_str()), ("c", c.as_str())],
-        label: job.map(|_| "Delete"),
+        label: job.map(|_| "删除"),
         danger: true,
         cancel: LIST,
     };
@@ -525,11 +525,11 @@ pub fn body(input: &Input, job: Option<&Value>, now: i64) -> Result<Value, Error
     let mut errors = Errors::new();
     let name = input.name.trim();
     if name.is_empty() {
-        errors.push(("name", "Enter a name."));
+        errors.push(("name", "输入名称。"));
     } else if name.chars().count() > 100 {
-        errors.push(("name", "Enter at most 100 characters."));
+        errors.push(("name", "最多输入 100 个字符。"));
     } else if name.chars().any(char::is_control) {
-        errors.push(("name", "Enter a name without line breaks."));
+        errors.push(("name", "输入不带换行符的名称。"));
     }
     // The template's request, or the job's own (kept as it is).
     let (mut act, restore_body) = match (template(&input.action), job) {
@@ -554,23 +554,23 @@ pub fn body(input: &Input, job: Option<&Value>, now: i64) -> Result<Value, Error
             (Some(at), _) => json!({"type": "once", "at": at}),
             (None, Some(at)) if at > now => json!({"type": "once", "at": at}),
             (None, Some(_)) => {
-                errors.push(("at", "Choose a time in the future."));
+                errors.push(("at", "选择未来的一个时间。"));
                 Value::Null
             }
             (None, None) => {
-                errors.push(("at", "Enter a date and time."));
+                errors.push(("at", "输入日期和时间。"));
                 Value::Null
             }
         }
     } else {
         let days: Vec<usize> = (0..7).filter(|d| input.days[*d]).collect();
         if days.is_empty() {
-            errors.push(("days", "Select at least one day."));
+            errors.push(("days", "至少选择一天。"));
         }
         match parse_time(&input.time) {
             Some(t) => json!({"type": "recurring", "time": t, "days": days}),
             None => {
-                errors.push(("time", "Enter a time."));
+                errors.push(("time", "输入时间。"));
                 Value::Null
             }
         }
@@ -580,7 +580,7 @@ pub fn body(input: &Input, job: Option<&Value>, now: i64) -> Result<Value, Error
             Some(t) if b.is_null() => Some(json!({"time": t})),
             Some(t) => Some(json!({"time": t, "body": b})),
             None => {
-                errors.push(("rtime", "Enter a time."));
+                errors.push(("rtime", "输入时间。"));
                 None
             }
         },
@@ -609,7 +609,7 @@ struct Draw<'a> {
     remote: bool,
 }
 
-const REMOTE: &str = "You are connected remotely: Airplane Mode ON and Mobile Data OFF cut this connection when they run. Turn on \u{201c}Reverse action at\u{201d} to get it back.";
+const REMOTE: &str = "您已远程连接：飞行模式打开和移动数据关闭在运行时会切断此连接。打开\u{201c}在\u{201d}处的反向动作将其恢复。";
 
 /// A notice above the form: (success, text).
 type Note = Option<(bool, String)>;
@@ -638,9 +638,9 @@ fn picker(class: &str, kind: &str, name: &str, label: &str, value: &str, err: Op
 /// is the stored job of an edit (a custom action is shown, not chosen).
 fn form(app: &AppState, w: &Draw, input: &Input, job: Option<&Value>, note: Note, errors: &Errors, status: u16) -> Response {
     let token = w.once.fresh(&app.auth, w.p.id);
-    let title = if input.id.is_some() { "Edit Automation" } else { "New Automation" };
+    let title = if input.id.is_some() { "编辑自动化" } else { "新的自动化" };
     let custom = job.filter(|_| input.action.is_empty()).map(|j| {
-        format!("Custom: {} {}", j["action"]["method"].as_str().unwrap_or(""), j["action"]["path"].as_str().unwrap_or(""))
+        format!("定制：{} {}", j["action"]["method"].as_str().unwrap_or(""), j["action"]["path"].as_str().unwrap_or(""))
     });
     let ferr = |name: &str| err_of(errors, name);
     let name_err = ferr("name");
@@ -652,40 +652,40 @@ fn form(app: &AppState, w: &Draw, input: &Input, job: Option<&Value>, note: Note
             Some((false, msg)) => p.msg.err role="alert" { (msg) },
             None => {},
         }
-        @if !errors.is_empty() && note.is_none() { (kit::notice(false, "Check the highlighted fields.")) }
+        @if !errors.is_empty() && note.is_none() { (kit::notice(false, "检查突出显示的字段。")) }
         form.rf.af method="post" action=(SAVE) {
             (render::csrf_field(&app.auth, w.p))
             (render::once_field(&token))
             @if let Some(id) = input.id { input type="hidden" name="id" value=(id); }
             @if let Some(c) = input.created { input type="hidden" name="c" value=(c); }
-            (kit::section(Some("Name"), None, html! {
+            (kit::section(Some("名称"), None, html! {
                 li.it.fld {
-                    input type="text" name="name" value=(input.name) placeholder="Automation name" aria-label="Automation name"
+                    input type="text" name="name" value=(input.name) placeholder="自动化名称" aria-label="自动化名称"
                         maxlength="100" autocomplete="off" aria-invalid=[name_err.map(|_| "true")]
                         aria-describedby=[name_err.map(|_| "name-err")];
                     (field_err("name", name_err))
                 }
             }))
-            (kit::section(Some("Action"), (w.remote && custom.is_none()).then(|| html! { p.foot { (REMOTE) } }), html! {
+            (kit::section(Some("操作"), (w.remote && custom.is_none()).then(|| html! { p.foot { (REMOTE) } }), html! {
                 @match &custom {
-                    Some(text) => li.it { span.muted { "Action" } span.dn { (text) } },
+                    Some(text) => li.it { span.muted { "操作" } span.dn { (text) } },
                     None => li.it {
-                        label for="action" { "Action" }
+                        label for="action" { "操作" }
                         select #action name="action" {
                             @for t in &TEMPLATES { option value=(t.key) selected[t.key == input.action] { (t.label) } }
                         }
                     },
                 }
             }))
-            (kit::section(Some("Schedule"), Some(html! {
-                p.foot { "Times are the router's local time (" (utc_label(off)) ")." }
+            (kit::section(Some("计划"), Some(html! {
+                p.foot { "时间为路由器本地时间（" (utc_label(off)) ")." }
             }), html! {
                 // The app's segmented "Type" (its label hidden, as the app's).
                 li.it.fld {
                     fieldset.chips.c2 {
-                        legend.sr { "Type" }
+                        legend.sr { "类型" }
                         div {
-                            @for (value, label, on) in [("recurring", "Recurring", !input.once), ("once", "One-time", input.once)] {
+                            @for (value, label, on) in [("recurring", "重复", !input.once), ("once", "单次", input.once)] {
                                 label {
                                     input.sr type="radio" id=(format!("st-{value}")) name="st" value=(value) checked[on];
                                     span { (label) }
@@ -694,10 +694,10 @@ fn form(app: &AppState, w: &Draw, input: &Input, job: Option<&Value>, note: Note
                         }
                     }
                 }
-                (picker("k-r", "time", "time", "Time", &input.time, ferr("time")))
+                (picker("k-r", "time", "time", "时间", &input.time, ferr("time")))
                 li.it.fld.k-r {
                     fieldset.chips.c4 aria-invalid=[days_err.map(|_| "true")] aria-describedby=[days_err.map(|_| "days-err")] {
-                        legend { "Days" }
+                        legend { "天" }
                         div {
                             @for (i, d) in DAYS.iter().enumerate() {
                                 label {
@@ -709,28 +709,28 @@ fn form(app: &AppState, w: &Draw, input: &Input, job: Option<&Value>, note: Note
                     }
                     (field_err("days", days_err))
                 }
-                (picker("k-o", "datetime-local", "at", "Date & Time", &input.at, ferr("at")))
+                (picker("k-o", "datetime-local", "at", "日期和时间", &input.at, ferr("at")))
             }))
             // (`kit::section`'s markup, hidden by CSS for Reboot.)
             @if input.restore_offered(job) {
                 section.group.k-x {
-                    h2 { "Restore" }
+                    h2 { "恢复" }
                     ul.list {
                         li.it {
                             label.tl for="restore" {
-                                span { "Reverse action at" }
+                                span { "反向动作" }
                                 input.sr #restore type="checkbox" role="switch" name="restore" value="1" checked[input.restore];
                                 span.sw aria-hidden="true" {}
                             }
                         }
-                        (picker("k-t", "time", "rtime", "Restore time", &input.rtime, ferr("rtime")))
+                        (picker("k-t", "time", "rtime", "恢复时间", &input.rtime, ferr("rtime")))
                     }
                 }
             }
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Save" } } }))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "保存" } } }))
         }
     };
-    let pc = PageCtx { title, tab: Some(Tab::Tools), nonce: w.nonce, lead: html! { a.nl href=(LIST) { "Cancel" } }, ..PageCtx::default() };
+    let pc = PageCtx { title, tab: Some(Tab::Tools), nonce: w.nonce, lead: html! { a.nl href=(LIST) { "取消" } }, ..PageCtx::default() };
     render::html(status, render::page(&pc, body))
 }
 
@@ -743,9 +743,9 @@ fn jobs(app: &AppState) -> Result<Value, (u16, String)> {
 fn gone(nonce: &str, title: &str, text: &str, status: u16) -> Response {
     let body = html! {
         (kit::empty_state(Icon::ClockArrow, title, text))
-        p.ctr { a.btn href=(LIST) { "Back to Automations" } }
+        p.ctr { a.btn href=(LIST) { "返回自动化" } }
     };
-    let pc = PageCtx { title: "Automations", tab: Some(Tab::Tools), nonce, lead: kit::back(LIST, "Automations"), ..PageCtx::default() };
+    let pc = PageCtx { title: "自动化", tab: Some(Tab::Tools), nonce, lead: kit::back(LIST, "自动化"), ..PageCtx::default() };
     render::html(status, render::page(&pc, body))
 }
 
@@ -764,21 +764,21 @@ pub async fn get(ctx: &Ctx, p: Principal, nonce: String, remote: bool, page: Pag
         gate::read_only(|| {
             let data = match jobs(app) {
                 Ok(d) => d,
-                Err((_, e)) => return gone(&n, "Failed to load", &fmt::truncate(&e, 120), 503),
+                Err((_, e)) => return gone(&n, "加载失败", &fmt::truncate(&e, 120), 503),
             };
             let w = Draw { p: &p, nonce: &n, once: &once, remote };
             match find(&data, id) {
                 Some(j) => form(app, &w, &Input::of_job(j, sms::now_unix()), Some(j), None, &Vec::new(), 200),
-                None => gone(&n, "Automation not found", "It may have been deleted.", 404),
+                None => gone(&n, "未找到自动化", "可能已被删除。", 404),
             }
         })
     });
     job::run(ctx, Lane::General, &nonce, &format!("{LIST}/{id}"), job).await
 }
 
-const EXPIRED: &str = "This form expired, so the automation was not saved. Save it again.";
-const UNKNOWN: &str = "The automation may not have been saved. Check the list before saving again.";
-const BUSY: &str = "Failed: the router is busy. Try again in a few seconds.";
+const EXPIRED: &str = "此表单已过期，因此未保存自动化。再次保存。";
+const UNKNOWN: &str = "自动化可能尚未保存。再次保存之前检查列表。";
+const BUSY: &str = "失败：路由器正忙。几秒钟后重试。";
 
 /// What a save needs besides the form.
 struct Req {
@@ -870,11 +870,11 @@ fn saved_url(input: &Input) -> String {
 fn save(app: &AppState, w: &Draw, input: &Input, claim: &mut Claim) -> Response {
     let data = match jobs(app) {
         Ok(d) => d,
-        Err((status, e)) => return form(app, w, input, None, Some((false, format!("Failed: {}", fmt::truncate(&e, 120)))), &Vec::new(), status),
+        Err((status, e)) => return form(app, w, input, None, Some((false, format!("失败：{}", fmt::truncate(&e, 120)))), &Vec::new(), status),
     };
     let stored = input.id.and_then(|id| find(&data, id));
     if input.id.is_some() && stored.is_none_or(|j| Some(created(j)) != input.created) {
-        return gone(w.nonce, "Automation not found", "It may have been deleted.", 404);
+        return gone(w.nonce, "未找到自动化", "可能已被删除。", 404);
     }
     let b = match body(input, stored, sms::now_unix()) {
         Ok(b) => b,
@@ -888,7 +888,7 @@ fn save(app: &AppState, w: &Draw, input: &Input, claim: &mut Claim) -> Response 
             session::see_other(&saved_url(input))
         }
         Err((status, e)) => {
-            let msg = format!("Failed: {}", fmt::truncate(&e, 120));
+            let msg = format!("失败：{}", fmt::truncate(&e, 120));
             claim.set(Token::Failed(claim.digest(), status, msg.clone()));
             form(app, w, input, stored, Some((false, msg)), &Vec::new(), status)
         }
@@ -900,7 +900,7 @@ mod tests {
     use super::*;
 
     fn job(v: Value) -> Value {
-        let mut j = json!({"id": 3, "name": "Night", "enabled": true, "created_at": 0, "last_run": null, "last_status": null});
+        let mut j = json!({"id": 3, "name": "夜晚", "enabled": true, "created_at": 0, "last_run": null, "last_status": null});
         for (k, x) in v.as_object().unwrap() {
             j[k] = x.clone();
         }
@@ -940,13 +940,13 @@ mod tests {
     fn schedule_summaries_follow_the_app() {
         let s = |schedule: Value, restore: Value| schedule_summary(&job(json!({"schedule": schedule, "restore": restore})));
         let rec = |days: Value| json!({"type": "recurring", "time": "23:00", "days": days});
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "Every day at 23:00");
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "Mon\u{2013}Fri at 23:00 \u{2192} 06:30");
-        assert_eq!(s(rec(json!([5, 6])), Value::Null), "Weekends at 23:00");
-        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "Sun, Mon at 23:00");
-        assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "Tue at ??:??");
-        assert_eq!(s(json!({"type": "once"}), Value::Null), "One-time");
-        assert!(s(json!({"type": "once", "at": 1_790_000_000}), Value::Null).starts_with("Once: "));
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天23:00");
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一\u{2013}周五 23:00 \u{2192} 06:30");
+        assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 23:00");
+        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "周日、周一 23:00");
+        assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "周二 ??:??");
+        assert_eq!(s(json!({"type": "once"}), Value::Null), "单次");
+        assert!(s(json!({"type": "once", "at": 1_790_000_000}), Value::Null).starts_with("一次： "));
         assert_eq!(s(json!({"type": "cron"}), Value::Null), "cron");
     }
 
@@ -979,7 +979,7 @@ mod tests {
         let now = 1_790_000_000;
         let b = body(&input(), None, now).unwrap();
         assert_eq!(b, json!({
-            "name": "Night",
+            "name": "夜晚",
             "action": {"method": "POST", "path": "/api/modem/airplane", "body": {"operate_mode": "LPM"}},
             "schedule": {"type": "recurring", "time": "23:00", "days": [0, 1, 2, 3, 4]},
         }));
@@ -995,7 +995,7 @@ mod tests {
         let i = Input { once: true, at: local_input(now + 7200), ..input() };
         assert_eq!(body(&i, None, now).unwrap()["schedule"], json!({"type": "once", "at": now + 7200 - (now + 7200) % 60}));
         let i = Input { once: true, at: local_input(now - 60), ..input() };
-        assert_eq!(body(&i, None, now), Err(vec![("at", "Choose a time in the future.")]));
+        assert_eq!(body(&i, None, now), Err(vec![("at", "选择未来的一个时间。")]));
         // An edit: id and the job's switch; a past time it already had is kept to the second.
         let stored = job(json!({"id": 3, "enabled": false, "schedule": {"type": "once", "at": now - 3601},
             "action": {"method": "POST", "path": "/api/modem/airplane", "body": {"operate_mode": "LPM"}}}));
@@ -1007,10 +1007,10 @@ mod tests {
         let i = Input { name: "  ".into(), time: "25:00".into(), days: [false; 7], restore: true, rtime: "x".into(), ..input() };
         assert_eq!(
             body(&i, None, now),
-            Err(vec![("name", "Enter a name."), ("days", "Select at least one day."), ("time", "Enter a time."), ("rtime", "Enter a time.")])
+            Err(vec![("name", "输入名称。"), ("days", "至少选择一天。"), ("time", "输入时间。"), ("rtime", "输入时间。")])
         );
-        assert_eq!(body(&Input { name: "a\nb".into(), ..input() }, None, now), Err(vec![("name", "Enter a name without line breaks.")]));
-        assert_eq!(body(&Input { name: "x".repeat(101), ..input() }, None, now), Err(vec![("name", "Enter at most 100 characters.")]));
+        assert_eq!(body(&Input { name: "a\nb".into(), ..input() }, None, now), Err(vec![("name", "输入不带换行符的名称。")]));
+        assert_eq!(body(&Input { name: "x".repeat(101), ..input() }, None, now), Err(vec![("name", "最多输入 100 个字符。")]));
     }
 
     /// A custom action is kept as it is (the app turns it into Airplane

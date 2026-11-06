@@ -24,7 +24,7 @@ struct ProcessListSheet: View {
                         if bloatCount > 0 {
                             Section {
                                 HStack {
-                                    Label("Bloat Daemons", systemImage: "exclamationmark.triangle")
+                                    Label("冗余后台服务", systemImage: "exclamationmark.triangle")
                                         .foregroundStyle(.orange)
                                     Spacer()
                                     VStack(alignment: .trailing) {
@@ -54,7 +54,7 @@ struct ProcessListSheet: View {
                             }
                         }
 
-                        Section(header: Text("Top Processes")) {
+                        Section(header: Text("顶级进程")) {
                             ForEach(processes) { proc in
                                 processRow(proc)
                                     .swipeActions(edge: .trailing) {
@@ -62,7 +62,7 @@ struct ProcessListSheet: View {
                                             Button(role: .destructive) {
                                                 Task { await killSingle(proc.pid) }
                                             } label: {
-                                                Label("Kill", systemImage: "xmark.circle")
+                                                Label("杀戮", systemImage: "xmark.circle")
                                             }
                                         }
                                     }
@@ -71,27 +71,27 @@ struct ProcessListSheet: View {
                     }
                 }
             }
-            .navigationTitle("Processes")
+            .navigationTitle("流程")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Done") { dismiss() }
+                    Button("完成") { dismiss() }
                 }
                 if bloatCount > 0 {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Kill All Bloat", role: .destructive) {
+                        Button("消灭一切膨胀", role: .destructive) {
                             showKillAllConfirm = true
                         }
                         .foregroundStyle(.red)
                     }
                 }
             }
-            .confirmationDialog("Kill all bloat daemons?", isPresented: $showKillAllConfirm, titleVisibility: .visible) {
-                Button("Kill All Bloat", role: .destructive) {
+            .confirmationDialog("杀死所有膨胀守护进程？", isPresented: $showKillAllConfirm, titleVisibility: .visible) {
+                Button("消灭一切膨胀", role: .destructive) {
                     Task { await killAll() }
                 }
             } message: {
-                Text("This will SIGKILL \(bloatCount) bloat daemons. They will return on reboot.")
+                Text("这将使 SIGKILL \(bloatCount) 使守护进程膨胀。他们将在重新启动后返回。")
             }
             .task {
                 while !Task.isCancelled {

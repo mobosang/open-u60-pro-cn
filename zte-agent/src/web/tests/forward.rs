@@ -45,19 +45,19 @@ async fn rules(c: &Ctx) {
     for (name, enabled, filter, destination) in [
         ("Fake <b>bot</b>", true, json!({"type": "all"}), json!({"type": "telegram", "bot_token": TOKEN, "chat_id": "-100123", "silent": false})),
         (
-            "Hook",
+            "钩子",
             false,
             json!({"type": "sender", "patterns": ["BANK", "+1555*"]}),
             json!({"type": "webhook", "url": "https://example.com/hook/FAKE-PATH", "method": "POST",
                    "headers": [{"name": "Authorization", "value": "Bearer FAKE-SECRET"}]}),
         ),
         (
-            "Push",
+            "推",
             true,
             json!({"type": "content", "keywords": ["code"]}),
             json!({"type": "ntfy", "url": "https://ntfy.example.com", "topic": "fake-topic", "token": "tk_FAKE"}),
         ),
-        ("Text", true, json!({"type": "all"}), json!({"type": "sms", "forward_number": "+15555550123"})),
+        ("正文", true, json!({"type": "all"}), json!({"type": "sms", "forward_number": "+15555550123"})),
     ] {
         let body = json!({"name": name, "enabled": enabled, "filter": filter, "destination": destination});
         api(c, Method::Post, "/api/sms/forward/rules", body).await;
@@ -83,7 +83,7 @@ fn assert_no_secrets(html: &str) {
 async fn the_page_in_both_tabs() {
     let (c, cookie, _) = signed_in(80).await;
     rules(&c).await;
-    for (base, tab, back) in [(SMS_FWD, "/ui/sms", "Messages"), (TOOLS_FWD, "/ui/tools", "Tools")] {
+    for (base, tab, back) in [(SMS_FWD, "/ui/sms", "短信"), (TOOLS_FWD, "/ui/tools", "工具")] {
         let r = get_with(&c, base, peer(80, 2), &cookie).await;
         r.assert_secure_html(200);
         let html = r.text();
@@ -116,7 +116,7 @@ async fn the_page_in_both_tabs() {
         ] {
             assert!(html.contains(want), "{want} in {html}");
         }
-        assert!(!html.contains("No Rules") && !html.contains("Last Forwarded ID"), "{html}");
+        assert!(!html.contains("没有规则") && !html.contains("最后转发的 ID"), "{html}");
         // The question names the rule; the nav bar leads back to this mount's page.
         let q = get_with(&c, &format!("{base}/rules/delete?id=1"), peer(80, 3), &cookie).await;
         q.assert_secure_html(200);
@@ -124,7 +124,7 @@ async fn the_page_in_both_tabs() {
         for want in [
             &format!("<a class=\"nl back\" href=\"{base}\">SMS Forwarding</a></div><h1>Confirm</h1>"),
             "<h2 class=\"q\">Delete “Fake &lt;b&gt;bot&lt;/b&gt;”?</h2>",
-            "New messages are no longer forwarded with this rule.",
+            "新消息不再使用此规则转发。",
             &format!("<form class=\"panel\" method=\"post\" action=\"{base}/rules/delete\">"),
             "<input type=\"hidden\" name=\"id\" value=\"1\"><input type=\"hidden\" name=\"confirm\" value=\"1\">",
             &format!("<a class=\"btn btn-quiet\" href=\"{base}\">Cancel</a>"),
@@ -136,7 +136,7 @@ async fn the_page_in_both_tabs() {
         let r = get_with(&c, &format!("{base}/rules/delete?id=99"), peer(80, 3), &cookie).await;
         r.assert_secure_html(404);
         let gone = r.text();
-        assert!(gone.contains("Rule not found. It may have been deleted.") && !gone.contains("name=\"confirm\""), "{gone}");
+        assert!(gone.contains("未找到规则。它可能已被删除。") && !gone.contains("name=\"confirm\""), "{gone}");
     }
     // No rules: the app's empty state; a forwarded message: its id.
     let (c, cookie, _) = signed_in(81).await;
@@ -182,7 +182,7 @@ async fn switches_settings_and_delete() {
     let left: Vec<u64> = config(&c).await["rules"].as_array().unwrap().iter().map(|r| r["id"].as_u64().unwrap()).collect();
     assert_eq!(left, [2, 3, 4]);
     let r = post(&c, &del, peer(82, 5), &cookie, &format!("csrf={csrf}&id=1&confirm=1")).await;
-    assert!(r.status == 404 && r.text().contains("Failed: rule not found"));
+    assert!(r.status == 404 && r.text().contains("失败：找不到规则"));
     // Refused: another origin, no token; signed out, nothing changes.
     for path in [format!("{SMS_FWD}/enabled"), format!("{TOOLS_FWD}/rules/toggle")] {
         post(&c, &path, peer(82, 6), &cookie, "enabled=0&id=2").await.assert_secure_html(403);
@@ -239,7 +239,7 @@ async fn rule_forms_never_show_secrets() {
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("Leave empty to keep") && !html.contains("name=\"id\"") && !html.contains("name=\"kd\""));
+    assert!(!html.contains("留空保留") && !html.contains("name=\"id\"") && !html.contains("name=\"kd\""));
     assert!(!html.contains("name=\"wh_hn2\""), "two header rows");
     // Edit Rule (the webhook): shown values, the header's name, the URL's host only.
     let r = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/2")).await;
@@ -283,29 +283,29 @@ async fn save_creates_updates_and_keeps_secrets() {
     let save = format!("{SMS_FWD}/rules/save");
     // Edit the disabled webhook: empty URL and header value keep theirs.
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/2")).await;
-    let b = body(&f, &[("id", "2"), ("name", "Hook 2"), ("ft", "all"), ("dt", "webhook"), ("wh_method", "PUT"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-New"), ("wh_hv1", "1")]);
+    let b = body(&f, &[("id", "2"), ("name", "挂钩2"), ("ft", "all"), ("dt", "webhook"), ("wh_method", "PUT"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-新"), ("wh_hv1", "1")]);
     post(&c, &save, peer(84, 2), &cookie, &b).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-updated"));
     let rule = &config(&c).await["rules"][1];
     assert_eq!(rule["enabled"], false, "the rule's switch is kept");
     assert_eq!(
         rule["destination"],
         json!({"type": "webhook", "url": "https://example.com/hook/FAKE-PATH", "method": "PUT",
-               "headers": [{"name": "Authorization", "value": "Bearer FAKE-SECRET"}, {"name": "X-New", "value": "1"}]})
+               "headers": [{"name": "Authorization", "value": "Bearer FAKE-SECRET"}, {"name": "X-新", "value": "1"}]})
     );
-    assert_eq!((rule["name"].as_str(), &rule["filter"]), (Some("Hook 2"), &json!({"type": "all"})));
+    assert_eq!((rule["name"].as_str(), &rule["filter"]), (Some("挂钩2"), &json!({"type": "all"})));
     // A replay of that post (a double click) saves nothing more and says the same.
     post(&c, &save, peer(84, 2), &cookie, &b).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-updated"));
     // Another URL needs the header value again: refused, nothing saved.
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/2")).await;
-    let b = body(&f, &[("id", "2"), ("name", "Hook 3"), ("ft", "all"), ("dt", "webhook"), ("wh_url", "https://example.com/other"), ("wh_hn0", "Authorization")]);
+    let b = body(&f, &[("id", "2"), ("name", "钩子3"), ("ft", "all"), ("dt", "webhook"), ("wh_url", "https://example.com/other"), ("wh_hn0", "Authorization")]);
     let r = post(&c, &save, peer(84, 3), &cookie, &b).await;
     r.assert_secure_html(400);
     let html = r.text();
     assert_no_secrets(&html);
-    assert!(html.contains("Enter the value again: the URL changed.") && html.contains("name=\"name\" value=\"Hook 3\""), "{html}");
+    assert!(html.contains("再次输入值：URL 已更改。") && html.contains("name=\"name\" value=\"Hook 3\""), "{html}");
     // Nothing is kept for the new URL, so the field does not say so.
     assert!(html.contains("name=\"wh_hv0\" aria-label=\"Header 1 value\" placeholder=\"Value\""), "{html}");
-    assert_eq!(config(&c).await["rules"][1]["name"], "Hook 2");
+    assert_eq!(config(&c).await["rules"][1]["name"], "挂钩2");
     // New Rule (Telegram) with the name missing: the token typed is not
     // in the answer, but the next post of that form keeps it.
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/new")).await;
@@ -325,12 +325,12 @@ async fn save_creates_updates_and_keeps_secrets() {
         assert!(html.contains(want), "{want} in {html}");
     }
     assert_ne!(r.input("once"), f.input("once"), "a new token");
-    let b = body(&r, &[("name", "Codes"), ("ft", "content"), ("keywords", "otp, code"), ("dt", "telegram"), ("tg_chat", "77"), ("tg_silent", "1")]);
+    let b = body(&r, &[("name", "代码"), ("ft", "content"), ("keywords", "otp, code"), ("dt", "telegram"), ("tg_chat", "77"), ("tg_silent", "1")]);
     post(&c, &save, peer(84, 4), &cookie, &b).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-created"));
     let created = &config(&c).await["rules"][4];
     assert_eq!(
         created,
-        &json!({"id": 5, "name": "Codes", "enabled": true, "filter": {"type": "content", "keywords": ["otp", "code"]},
+        &json!({"id": 5, "name": "代码", "enabled": true, "filter": {"type": "content", "keywords": ["otp", "code"]},
                 "destination": {"type": "telegram", "bot_token": "999:NEW-FAKE", "chat_id": "77", "silent": true}})
     );
     // Another session's draft is never used: a token of mine, my draft only.
@@ -339,7 +339,7 @@ async fn save_creates_updates_and_keeps_secrets() {
     let b = format!("csrf={}&once={}&name=X&ft=all&dt=telegram&tg_chat=1", r2.input("csrf"), r.input("once"));
     let r = post(&c, &save, peer(84, 5), &other, &b).await;
     assert_eq!(r.status, 400);
-    assert!(r.text().contains("This form expired, so the rule was not saved. Save it again."), "{}", r.text());
+    assert!(r.text().contains("此表单已过期，因此未保存规则。再次保存。"), "{}", r.text());
     assert_eq!(config(&c).await["rules"].as_array().unwrap().len(), 5);
     // Expired or missing token: nothing saved.
     let r = post(&c, &save, peer(84, 6), &cookie, &format!("csrf={}&once=00&name=X&ft=all&dt=sms&sms_number=1", f.input("csrf"))).await;
@@ -374,7 +374,7 @@ async fn test_destination() {
     let _fake = fake::set(&c.app, (200, json!({"ok": true, "data": {"status": "sent"}})));
     let test = format!("{SMS_FWD}/rules/test");
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/1")).await;
-    let b = body(&f, &[("id", "1"), ("name", "Changed, unsaved"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "-100999")]);
+    let b = body(&f, &[("id", "1"), ("name", "已更改，未保存"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "-100999")]);
     let r = post(&c, &test, peer(85, 2), &cookie, &b).await;
     r.assert_secure_html(200);
     let html = r.text();
@@ -383,13 +383,13 @@ async fn test_destination() {
     assert_eq!(fake::tests(&c.app), [json!({"destination": {"type": "telegram", "bot_token": TOKEN, "chat_id": "-100999", "silent": false}})]);
     // A double click: one test.
     let again = post(&c, &test, peer(85, 2), &cookie, &b).await;
-    assert!(again.status == 200 && again.text().contains("Test message sent"));
+    assert!(again.status == 200 && again.text().contains("测试消息发送"));
     assert_eq!(fake::tests(&c.app).len(), 1);
     // Nothing was saved.
     assert_eq!(config(&c).await["rules"][0]["name"], "Fake <b>bot</b>");
     // ntfy moved to another server: the token again, nothing sent.
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/3")).await;
-    let b = body(&f, &[("id", "3"), ("name", "Push"), ("ft", "all"), ("dt", "ntfy"), ("nt_url", "https://evil.example"), ("nt_topic", "t")]);
+    let b = body(&f, &[("id", "3"), ("name", "推"), ("ft", "all"), ("dt", "ntfy"), ("nt_url", "https://evil.example"), ("nt_topic", "t")]);
     let r = post(&c, &test, peer(85, 3), &cookie, &b).await;
     r.assert_secure_html(400);
     assert!(r.text().contains("<p class=\"ferr\" id=\"nt_token-err\">Enter it again: the server changed.</p>"), "{}", r.text());
@@ -398,13 +398,13 @@ async fn test_destination() {
     // The device's failure, with the app's prefix, and a new token.
     let _fake = fake::set(&c.app, (502, json!({"ok": false, "error": "telegram: http status: 401"})));
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/1")).await;
-    let b = body(&f, &[("id", "1"), ("name", "Bot"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
+    let b = body(&f, &[("id", "1"), ("name", "机器人"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
     let r = post(&c, &test, peer(85, 4), &cookie, &b).await;
     r.assert_secure_html(502);
     assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Test failed: telegram: http status: 401</p>"), "{}", r.text());
     assert_ne!(r.input("once"), f.input("once"));
     let replay = post(&c, &test, peer(85, 4), &cookie, &b).await;
-    assert!(replay.status == 502 && replay.text().contains("Test failed: telegram: http status: 401"));
+    assert!(replay.status == 502 && replay.text().contains("测试失败：电报：http状态：401"));
     assert_eq!(fake::tests(&c.app).len(), 1);
     // SMS: asked first (it costs an SMS); Cancel shows the form again; confirmed, sent once.
     let _fake = fake::set(&c.app, (200, json!({"ok": true, "data": {"status": "sent"}})));
@@ -438,20 +438,20 @@ async fn test_destination() {
     assert!(fake::tests(&c.app).is_empty());
     for _ in 0..2 {
         let r = post(&c, &format!("{TOOLS_FWD}/rules/test"), peer(85, 5), &cookie, &hidden("&confirm=1")).await;
-        assert!(r.status == 200 && r.text().contains("Test message sent"), "{}", r.text());
+        assert!(r.status == 200 && r.text().contains("测试消息发送"), "{}", r.text());
     }
     assert_eq!(fake::tests(&c.app), [json!({"destination": {"type": "sms", "forward_number": "+15555550123"}})]);
     // The slow lane busy: the form again, nothing sent, the token given back.
     let mut busy = c.clone();
     busy.gate = Arc::new(Gate::new(2, 0, Duration::from_millis(20)));
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/1")).await;
-    let b = body(&f, &[("id", "1"), ("name", "Bot"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
+    let b = body(&f, &[("id", "1"), ("name", "机器人"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
     let r = post(&busy, &test, peer(85, 6), &cookie, &b).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("Test failed: the router is busy. Try again in a few seconds."), "{}", r.text());
+    assert!(r.text().contains("测试失败：路由器正忙。几秒钟后重试。"), "{}", r.text());
     assert_eq!(fake::tests(&c.app).len(), 1);
     let r = post(&c, &test, peer(85, 6), &cookie, &b).await;
-    assert!(r.status == 200 && r.text().contains("Test message sent"));
+    assert!(r.status == 200 && r.text().contains("测试消息发送"));
     assert_eq!(fake::tests(&c.app).len(), 2);
 }
 
@@ -462,9 +462,9 @@ async fn test_destination() {
 fn log_fixture() -> Vec<Value> {
     let entry = |ts: i64, sms: u64, rule: u64, sender: &str, ok: bool, held: bool, error: Option<&str>| {
         json!({
-            "timestamp": ts, "sms_id": sms, "sender": sender, "content_preview": "Your code is 000000",
+            "timestamp": ts, "sms_id": sms, "sender": sender, "content_preview": "您的密码是 000000",
             "rule_name": "Fake <b>bot</b>", "destination_type": "webhook", "success": ok, "error": error,
-            "rule_id": rule, "content": "FAKE-CONTENT of the message", "date": "26,10,22,09,15,00,+8", "pending": held,
+            "rule_id": rule, "content": "消息的虚假内容", "date": "26,10,22,09,15,00,+8", "pending": held,
         })
     };
     vec![
@@ -575,7 +575,7 @@ async fn retry_once_by_fingerprint() {
     // The same token for another entry (an old copy of the page): nothing.
     let other = b.replace("&i=1", "&i=0");
     let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 2), &cookie, &other).await).await;
-    assert!(html.contains("This page expired, so nothing was retried. Try again."), "{html}");
+    assert!(html.contains("该页面已过期，因此没有重试。再试一次。"), "{html}");
     // A new entry came first: the entry is retried where it is now.
     let page = get_with(&c, &log, peer(87, 3), &cookie).await;
     fake::with(&c.app, |d| d.log.as_mut().unwrap().insert(0, json!({"timestamp": 1_792_000_400, "sms_id": 13, "success": true})));
@@ -605,7 +605,7 @@ async fn retry_once_by_fingerprint() {
     busy.gate = Arc::new(Gate::new(2, 0, Duration::from_millis(20)));
     let page = get_with(&c, &log, peer(87, 6), &cookie).await;
     let html = retried(&c, &cookie, &log, &post(&busy, &retry, peer(87, 6), &cookie, &body(&page)).await).await;
-    assert!(html.contains("Retry failed: the router is busy. Try again in a few seconds."), "{html}");
+    assert!(html.contains("重试失败：路由器正忙。几秒钟后重试。"), "{html}");
     assert_eq!(fake::retries(&c.app).len(), 3);
     let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 6), &cookie, &body(&page)).await).await;
     assert!(html.contains(OK_LINE));
@@ -613,7 +613,7 @@ async fn retry_once_by_fingerprint() {
     // An unknown token, another session's: nothing.
     let page = get_with(&c, &log, peer(87, 7), &cookie).await;
     let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 7), &cookie, &body(&page).replace(&page.input("once"), "00")).await).await;
-    assert!(html.contains("This page expired"));
+    assert!(html.contains("该页已过期"));
     let theirs = format!("zte_ui_session={}", login(&c, 87, 8).await);
     let csrf = get_with(&c, &log, peer(87, 8), &theirs).await.input("csrf");
     let b = body(&page).replace(&page.input("csrf"), &csrf);
@@ -668,7 +668,7 @@ async fn clear_asks_first() {
     }
 }
 
-const GONE: &str = "This form expired, so the rule was not saved. Enter the secret fields again, then save.";
+const GONE: &str = "此表单已过期，因此未保存规则。再次输入秘密字段，然后保存。";
 
 /// Secrets typed into a form are kept as long as its token (an hour), and
 /// a form whose draft is gone (pushed out of the store) says so and saves
@@ -689,7 +689,7 @@ async fn typed_secrets_last_as_long_as_the_form() {
     assert_eq!(r.input("kd"), "telegram");
     // 31 minutes later: saved with the token typed, not the rule's.
     clock.advance(Duration::from_secs(31 * 60));
-    let b = body(&r, &[("id", "1"), ("name", "Bot"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1"), ("kd", "telegram")]);
+    let b = body(&r, &[("id", "1"), ("name", "机器人"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1"), ("kd", "telegram")]);
     post(&c, &save, peer(89, 3), &cookie, &b).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-updated"));
     assert_eq!(config(&c).await["rules"][0]["destination"]["bot_token"], "999:NEW-FAKE");
     // The same, with the answer's draft pushed out: refused, nothing saved.
@@ -697,15 +697,15 @@ async fn typed_secrets_last_as_long_as_the_form() {
     let b = body(&f, &[("id", "1"), ("name", ""), ("ft", "all"), ("dt", "telegram"), ("tg_token", "888:OTHER-FAKE"), ("tg_chat", "1")]);
     let r = post(&c, &save, peer(89, 4), &cookie, &b).await;
     c.drafts.remove(&r.input("once"), None, c.app.auth.now());
-    let b = body(&r, &[("id", "1"), ("name", "Bot 2"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1"), ("kd", "telegram")]);
+    let b = body(&r, &[("id", "1"), ("name", "机器人 2"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1"), ("kd", "telegram")]);
     let gone = post(&c, &save, peer(89, 5), &cookie, &b).await;
     gone.assert_secure_html(400);
     assert!(gone.text().contains(&format!("<p class=\"msg err\" role=\"alert\">{GONE}</p>")), "{}", gone.text());
     assert!(!gone.text().contains("name=\"kd\""));
     let rule = &config(&c).await["rules"][0];
-    assert_eq!((rule["name"].as_str(), rule["destination"]["bot_token"].as_str()), (Some("Bot"), Some("999:NEW-FAKE")));
+    assert_eq!((rule["name"].as_str(), rule["destination"]["bot_token"].as_str()), (Some("机器人"), Some("999:NEW-FAKE")));
     // Its token was given back: the same post once the secret is typed again saves.
-    let b = body(&r, &[("id", "1"), ("name", "Bot 2"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1"), ("tg_token", "888:OTHER-FAKE")]);
+    let b = body(&r, &[("id", "1"), ("name", "机器人 2"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1"), ("tg_token", "888:OTHER-FAKE")]);
     post(&c, &save, peer(89, 5), &cookie, &b).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-updated"));
     assert_eq!(config(&c).await["rules"][0]["destination"]["bot_token"], "888:OTHER-FAKE");
 }
@@ -720,7 +720,7 @@ async fn headers_that_redirect_are_refused() {
     let _fake = fake::set(&c.app, (200, json!({"ok": true, "data": {"status": "sent"}})));
     for action in ["test", "save"] {
         let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/2")).await;
-        let b = body(&f, &[("id", "2"), ("name", "Hook"), ("ft", "all"), ("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "Host"), ("wh_hv1", "attacker.example")]);
+        let b = body(&f, &[("id", "2"), ("name", "钩子"), ("ft", "all"), ("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "Host"), ("wh_hv1", "attacker.example")]);
         let r = post(&c, &format!("{SMS_FWD}/rules/{action}"), peer(90, 2), &cookie, &b).await;
         r.assert_secure_html(400);
         assert!(r.text().contains("<p class=\"ferr\">This header can't be set.</p>"), "{}", r.text());
@@ -750,11 +750,11 @@ async fn forms_never_echo_or_bring_back_secrets() {
     r.assert_secure_html(400);
     assert_no_secrets(&r.text());
     assert!(r.text().contains("name=\"nt_url\" value=\"https://ntfy.example.com/\""), "{}", r.text());
-    let b = body(&f, &[("name", "W"), ("ft", "all"), ("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hn0", "X-Bad Bearer FAKE-HDR"), ("wh_hv0", "v")]);
+    let b = body(&f, &[("name", "W"), ("ft", "all"), ("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hn0", "X-坏承载 FAKE-HDR"), ("wh_hv0", "v")]);
     let r = post(&c, &save, peer(91, 2), &cookie, &b).await;
     r.assert_secure_html(400);
     assert_no_secrets(&r.text());
-    assert!(r.text().contains("Not a valid header name.") && r.text().contains("name=\"wh_hn0\" value=\"\""), "{}", r.text());
+    assert!(r.text().contains("不是有效的标头名称。") && r.text().contains("name=\"wh_hn0\" value=\"\""), "{}", r.text());
     // "Authorization: Bearer …" in the name box is that header.
     let b = body(&r, &[("name", "W"), ("ft", "all"), ("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hn0", "Authorization: Bearer FAKE-LINE")]);
     post(&c, &save, peer(91, 3), &cookie, &b).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-created"));
@@ -772,11 +772,11 @@ async fn forms_never_echo_or_bring_back_secrets() {
     // Test with the saved token; the token changes in the app; Save from
     // the test's answer keeps the new one.
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/1")).await;
-    let pairs = [("id", "1"), ("name", "Bot"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")];
+    let pairs = [("id", "1"), ("name", "机器人"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")];
     let r = post(&c, &test, peer(91, 5), &cookie, &body(&f, &pairs)).await;
-    assert!(r.status == 200 && r.text().contains("Test message sent") && !r.text().contains("name=\"kd\""), "{}", r.text());
+    assert!(r.status == 200 && r.text().contains("测试消息发送") && !r.text().contains("name=\"kd\""), "{}", r.text());
     let rotated = json!({"type": "telegram", "bot_token": "777:ROTATED-FAKE", "chat_id": "1", "silent": false});
-    api(&c, Method::Put, "/api/sms/forward/rules", json!({"id": 1, "name": "Bot", "enabled": true, "filter": {"type": "all"}, "destination": rotated})).await;
+    api(&c, Method::Put, "/api/sms/forward/rules", json!({"id": 1, "name": "机器人", "enabled": true, "filter": {"type": "all"}, "destination": rotated})).await;
     post(&c, &save, peer(91, 5), &cookie, &body(&r, &pairs)).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-updated"));
     assert_eq!(config(&c).await["rules"][0]["destination"]["bot_token"], "777:ROTATED-FAKE");
     // A URL typed into New Rule, tested: "Entered: <host>"; Save keeps it.
@@ -790,17 +790,17 @@ async fn forms_never_echo_or_bring_back_secrets() {
     assert_eq!(config(&c).await["rules"][6]["destination"]["webhook_url"], "https://discord.com/api/webhooks/1/FAKE-DISCORD");
     // "Add Header": the form again with a third row, the value typed kept; nothing saved or used up.
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/2")).await;
-    let b = body(&f, &[("id", "2"), ("name", "Hook"), ("ft", "all"), ("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-New"), ("wh_hv1", "FAKE-ADDED"), ("add", "1")]);
+    let b = body(&f, &[("id", "2"), ("name", "钩子"), ("ft", "all"), ("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-新"), ("wh_hv1", "FAKE-ADDED"), ("add", "1")]);
     let r = post(&c, &save, peer(91, 7), &cookie, &b).await;
     r.assert_secure_html(200);
     assert_no_secrets(&r.text());
     assert!(r.text().contains("name=\"wh_hn2\"") && !r.text().contains("name=\"wh_hn3\"") && r.text().contains("name=\"wh_hn1\" value=\"X-New\""), "{}", r.text());
     assert_eq!(fake::tests(&c.app).len(), 2);
-    let b = body(&r, &[("id", "2"), ("name", "Hook"), ("ft", "all"), ("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-New"), ("wh_hn2", "X-Three"), ("wh_hv2", "3"), ("kd", "webhook")]);
+    let b = body(&r, &[("id", "2"), ("name", "钩子"), ("ft", "all"), ("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-新"), ("wh_hn2", "X-三"), ("wh_hv2", "3"), ("kd", "webhook")]);
     post(&c, &save, peer(91, 7), &cookie, &b).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-updated"));
     assert_eq!(
         config(&c).await["rules"][1]["destination"]["headers"],
-        json!([{"name": "Authorization", "value": "Bearer FAKE-SECRET"}, {"name": "X-New", "value": "FAKE-ADDED"}, {"name": "X-Three", "value": "3"}])
+        json!([{"name": "Authorization", "value": "Bearer FAKE-SECRET"}, {"name": "X-新", "value": "FAKE-ADDED"}, {"name": "X-三", "value": "3"}])
     );
 }
 
@@ -823,11 +823,11 @@ async fn config_reads_last_id_and_failures() {
     assert!(page.text().contains("<p class=\"msg err\" role=\"alert\">Failed to load: Failed &lt;to&gt; read</p>"), "{}", page.text());
     assert!(page.text().contains("<span>New Rule</span>") && page.text().contains("<span>Forward Log</span>"));
     let q = get_with(&c, &format!("{SMS_FWD}/rules/delete?id=1"), peer(92, 3), &cookie).await.text();
-    assert!(q.contains("Failed to load: Failed &lt;to&gt; read") && !q.contains("name=\"confirm\""), "{q}");
+    assert!(q.contains("加载失败：<to> 读取失败") && !q.contains("name=\"confirm\""), "{q}");
     let edit = get_with(&c, &format!("{SMS_FWD}/rules/1"), peer(92, 3), &cookie).await;
     edit.assert_secure_html(503);
     assert!(edit.text().contains("<strong>Failed to load</strong><p>Failed &lt;to&gt; read</p>"), "{}", edit.text());
-    for (action, want) in [("save", "Failed: Failed &lt;to&gt; read"), ("test", "Test failed: Failed &lt;to&gt; read")] {
+    for (action, want) in [("save", "失败：<to> 读取失败"), ("test", "测试失败：<to> 读取失败")] {
         let b = body(&f, &[("name", "X"), ("ft", "all"), ("dt", "telegram"), ("tg_token", "999:NEW-FAKE"), ("tg_chat", "1")]);
         let r = post(&c, &format!("{SMS_FWD}/rules/{action}"), peer(92, 4), &cookie, &b).await;
         r.assert_secure_html(503);

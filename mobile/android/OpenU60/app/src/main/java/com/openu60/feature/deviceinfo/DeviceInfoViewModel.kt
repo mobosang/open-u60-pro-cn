@@ -60,7 +60,7 @@ class DeviceInfoViewModel @Inject constructor(
                 }
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) refresh()
-                else _state.value = _state.value.copy(isLoading = false, error = "Session expired")
+                else _state.value = _state.value.copy(isLoading = false, error = "会话已过期")
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, error = e.message)
             }

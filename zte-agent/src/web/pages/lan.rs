@@ -84,7 +84,7 @@ fn lease_secs(s: &str) -> Option<u64> {
 pub fn page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "Failed to load LAN: " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载局域网失败： " (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     let f = pd.form;
@@ -98,18 +98,18 @@ pub fn page(pd: &PageData) -> Markup {
             (pd.csrf())
             (once_field(&pd.once()))
             (kit::section(Some("LAN"), None, html! {
-                (text_row("ip", "IP Address", &typed("ip", lan_ip.clone()), err("ip"), "it fld", 15, Some("decimal")))
-                (text_row("mask", "Subnet Mask", &typed("mask", netmask.clone()), err("mask"), "it fld", 15, Some("decimal")))
+                (text_row("ip", "IP地址", &typed("ip", lan_ip.clone()), err("ip"), "it fld", 15, Some("decimal")))
+                (text_row("mask", "子网掩码", &typed("mask", netmask.clone()), err("mask"), "it fld", 15, Some("decimal")))
             }))
-            (kit::section(Some("DHCP Server"), None, html! {
-                (switch("dhcp", "Enable DHCP", dhcp, "it", "sr"))
+            (kit::section(Some("DHCP服务器"), None, html! {
+                (switch("dhcp", "启用DHCP", dhcp, "it", "sr"))
                 // Hidden while Enable DHCP is off (CSS), unless refused.
-                (text_row("start", "Start Address", &typed("start", start_address(&text(&d["dhcp_start"]), &lan_ip, &netmask)), err("start"), "it fld dh", 15, Some("decimal")))
-                (text_row("end", "End Address", &typed("end", text(&d["dhcp_end"])), err("end"), "it fld dh", 15, Some("decimal")))
-                (text_row("lease", "Lease Time (seconds)", &typed("lease", text(&d["dhcp_lease_time"])), err("lease"), "it fld dh", 10, None))
+                (text_row("start", "起始地址", &typed("start", start_address(&text(&d["dhcp_start"]), &lan_ip, &netmask)), err("start"), "it fld dh", 15, Some("decimal")))
+                (text_row("end", "结束地址", &typed("end", text(&d["dhcp_end"])), err("end"), "it fld dh", 15, Some("decimal")))
+                (text_row("lease", "租用时间（秒）", &typed("lease", text(&d["dhcp_lease_time"])), err("lease"), "it fld dh", 10, None))
             }))
             (kit::section(None, None, html! {
-                li { button.it.cv.snd type="submit" { "Apply" } }
+                li { button.it.cv.snd type="submit" { "应用" } }
             }))
         }
     }
@@ -124,21 +124,21 @@ pub fn check(pairs: &[(String, String)]) -> Result<Vals, Bad> {
     let a = ip(&ip_s);
     let m = mask(&mask_s);
     match a {
-        _ if ip_s.is_empty() => errors.push(("ip", "LAN IP is required".into())),
+        _ if ip_s.is_empty() => errors.push(("ip", "需要 LAN IP".into())),
         Some(a) if a.is_private() => {}
-        _ => errors.push(("ip", "Enter a private IPv4 address, such as 192.168.0.1.".into())),
+        _ => errors.push(("ip", "输入私有 IPv4 地址，例如 192.168.0.1。".into())),
     }
     if m.is_none() {
-        errors.push(("mask", "Enter a subnet mask such as 255.255.255.0.".into()));
+        errors.push(("mask", "输入子网掩码，例如 255.255.255.0。".into()));
     }
     if let (Some(a), Some(m)) = (a.filter(Ipv4Addr::is_private), m) {
         let (net, last) = (u32::from(a) & m, (u32::from(a) & m) | !m);
         let host = |x: u32| x != net && x != last && x & m == net;
         let (first, top) = (Ipv4Addr::from(net + 1), Ipv4Addr::from(last - 1));
         if !host(u32::from(a)) {
-            errors.push(("ip", "This is the subnet\u{2019}s network or broadcast address; choose another.".into()));
+            errors.push(("ip", "这是子网\u{2019}的网络或广播地址；选择另一个。".into()));
         }
-        let range = format!("Use an address from {first} to {top}.");
+        let range = format!("使用从 {first} 到 {top} 的地址。");
         // DHCP off: a hidden range left in the old subnet keeps its host
         // numbers in the new one.
         if dhcp != "1" {
@@ -156,19 +156,19 @@ pub fn check(pairs: &[(String, String)]) -> Result<Vals, Bad> {
             match ip(s) {
                 Some(x) if host(u32::from(x)) => ends[i] = Some(u32::from(x)),
                 Some(_) => errors.push((name, range.clone())),
-                None => errors.push((name, "Enter an IPv4 address, such as 192.168.0.100.".into())),
+                None => errors.push((name, "输入 IPv4 地址，例如 192.168.0.100。".into())),
             }
         }
         if let [Some(s), Some(e)] = ends {
             if s > e {
-                errors.push(("end", "The end address must not come before the start address.".into()));
+                errors.push(("end", "结束地址不得位于起始地址之前。".into()));
             } else if (s..=e).contains(&u32::from(a)) {
-                errors.push(("start", "The range must not include the router\u{2019}s address.".into()));
+                errors.push(("start", "该范围不得包含路由器\u{2019}s 地址。".into()));
             }
         }
     }
     if !lease_secs(&lease).is_some_and(|s| (120..=31_536_000).contains(&s)) {
-        errors.push(("lease", "Enter seconds (120 or more), or a time such as 12h.".into()));
+        errors.push(("lease", "输入秒（120 或更多）或时间，例如 12 小时。".into()));
     }
     let vals: Vals = vec![("ip", ip_s), ("mask", mask_s), ("dhcp", dhcp), ("start", start_s), ("end", end_s), ("lease", lease)];
     if errors.is_empty() {
@@ -202,7 +202,7 @@ fn body(vals: &[(&'static str, String)]) -> Value {
 pub fn question(app: &AppState, vals: &[(&'static str, String)], port: &str, remote: bool) -> Question {
     let cur = match super::api_get(app, API) {
         Ok(c) => c,
-        Err(e) => return nothing("Failed to load LAN", vec![fmt::truncate(&e, 120)]),
+        Err(e) => return nothing("加载局域网失败", vec![fmt::truncate(&e, 120)]),
     };
     let (old, new) = (text(&cur["lan_ipaddr"]), val(vals, "ip"));
     let start0 = start_address(&text(&cur["dhcp_start"]), &old, &text(&cur["lan_netmask"]));
@@ -213,27 +213,27 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)], port: &str, rem
         && text(&cur["dhcp_end"]) == val(vals, "end")
         && text(&cur["dhcp_lease_time"]) == val(vals, "lease");
     if unchanged {
-        return nothing("Nothing to apply", vec!["These are the router\u{2019}s settings already.".into()]);
+        return nothing("没有什么可申请的", vec!["这些已经是 router\u{2019} 的设置。".into()]);
     }
     let mut lines = Vec::new();
     if old != new && remote {
-        lines.push(format!("The router\u{2019}s address on its network changes from {old} to {new}."));
+        lines.push(format!("路由器\u{2019}在其网络上的地址从{old}更改为{new}。"));
     } else if old != new {
         lines.push(format!(
             "The router\u{2019}s address changes from {old} to {new}. This page stops working at the old address: open http://{new}{port}/ui/ afterwards and log in again."
         ));
     }
     if val(vals, "dhcp") != "1" {
-        lines.push("The router stops handing out addresses: devices that join afterwards need an address set by hand.".into());
+        lines.push("路由器停止分发地址：之后加入的设备需要手动设置地址。".into());
     } else if old != new || text(&cur["lan_netmask"]) != val(vals, "mask") || start0 != val(vals, "start") || text(&cur["dhcp_end"]) != val(vals, "end") {
-        lines.push("Devices get addresses from the new range when they reconnect.".into());
+        lines.push("设备重新连接时会从新范围获取地址。".into());
     }
     lines.push(if remote {
-        "The router\u{2019}s network restarts: every device on its WiFi or USB disconnects for a moment.".into()
+        "路由器\u{2019}的网络重新启动：其WiFi或USB上的每个设备都暂时断开连接。".into()
     } else {
-        "The router\u{2019}s network restarts: every device on its WiFi or USB disconnects for a moment, this browser too.".into()
+        "路由器\u{2019}的网络重新启动：WiFi或USB上的每个设备都会暂时断开连接，该浏览器也是如此。".into()
     });
-    asking("Apply LAN settings?", lines, "Apply", remote, true)
+    asking("应用 LAN 设置？", lines, "应用", remote, true)
 }
 
 pub fn send(app: &AppState, vals: &[(&'static str, String)], claim: &mut Claim) -> Result<Done, (u16, String)> {
@@ -250,25 +250,25 @@ pub fn applied(vals: &[(&'static str, String)], port: &str, remote: bool) -> (St
     let moved = val(vals, "moved") == "1";
     let link = format!("http://{new}{port}/ui/");
     let body = html! {
-        p.msg.ok role="status" { "LAN settings updated" }
+        p.msg.ok role="status" { "局域网设置已更新" }
         div.narrow {
             @if moved && !new.is_empty() {
                 ul.consequences {
-                    li { "The router\u{2019}s address is now " b { (new) } "." }
-                    li { "If this device was on the router\u{2019}s WiFi or USB, it may need to reconnect first. Then open the web UI at its new address and log in again." }
-                    @if remote { li { "Over Tailscale the router keeps its own address, so this page usually keeps working." } }
+                    li { "路由器\u{2019}的地址现在是 " b { (new) } "." }
+                    li { "如果该设备位于路由器 \u{2019}、WiFi 或 USB 上，则可能需要先重新连接。然后在新地址打开 Web UI 并再次登录。" }
+                    @if remote { li { "在 Tailscale 上，路由器保留自己的地址，因此该页面通常保持工作。" } }
                 }
                 p.actions {
-                    a.btn href=(link) rel="noreferrer" { "Open " (new) }
-                    a.btn.btn-quiet href=(PATH) { "Back to LAN / DHCP" }
+                    a.btn href=(link) rel="noreferrer" { "打开 " (new) }
+                    a.btn.btn-quiet href=(PATH) { "返回局域网/DHCP" }
                 }
             } @else {
-                ul.consequences { li { "Devices on the router may disconnect for a moment and get an address from the new range when they reconnect." } }
-                p.actions { a.btn.btn-quiet href=(PATH) { "Back to LAN / DHCP" } }
+                ul.consequences { li { "路由器上的设备可能会暂时断开连接，并在重新连接时从新范围获取地址。" } }
+                p.actions { a.btn.btn-quiet href=(PATH) { "返回局域网/DHCP" } }
             }
         }
     };
-    ("LAN settings updated".to_owned(), body)
+    ("局域网设置已更新".to_owned(), body)
 }
 
 #[cfg(test)]
@@ -293,7 +293,7 @@ mod tests {
     fn addresses_and_ranges_are_checked() {
         assert!(errors(OK).is_empty());
         assert!(errors(&OK.replace("43200", "12h")).is_empty());
-        assert_eq!(errors(&OK.replace("ip=192.168.8.1", "ip=")), [("ip", "LAN IP is required".to_owned())]);
+        assert_eq!(errors(&OK.replace("ip=192.168.8.1", "ip=")), [("ip", "需要 LAN IP".to_owned())]);
         for (q, field) in [
             (OK.replace("192.168.8.1&", "8.8.8.8&"), "ip"),
             (OK.replace("ip=192.168.8.1", "ip=192.168.8.0"), "ip"),

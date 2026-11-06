@@ -89,7 +89,7 @@ final class DNSSettingsViewModel {
                 await refreshCache()
             }
         } catch {
-            showMessage("Failed to load DNS: \(error.localizedDescription)", isError: true)
+            showMessage("加载DNS失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -97,23 +97,23 @@ final class DNSSettingsViewModel {
 
     func apply() async {
         if selectedMode != .auto && editPrimary.isEmpty {
-            showMessage("Primary DNS cannot be empty", isError: true)
+            showMessage("主DNS不能为空", isError: true)
             return
         }
         if selectedMode != .auto && !isValidIPv4(editPrimary) {
-            showMessage("Invalid primary DNS address", isError: true)
+            showMessage("无效的主 DNS 地址", isError: true)
             return
         }
         if !editSecondary.isEmpty && !isValidIPv4(editSecondary) {
-            showMessage("Invalid secondary DNS address", isError: true)
+            showMessage("辅助 DNS 地址无效", isError: true)
             return
         }
         if selectedMode == .doh && editUpstream.isEmpty {
-            showMessage("DoH upstream URL cannot be empty", isError: true)
+            showMessage("DoH 上游 URL 不能为空", isError: true)
             return
         }
         if selectedMode == .dot && (editDotEndpoint.isEmpty || editDotServerName.isEmpty) {
-            showMessage("DoT server and TLS name cannot be empty", isError: true)
+            showMessage("DoT 服务器和 TLS 名称不能为空", isError: true)
             return
         }
         isLoading = true
@@ -132,10 +132,10 @@ final class DNSSettingsViewModel {
                 "dot_endpoint": editDotEndpoint,
                 "dot_server_name": editDotServerName
             ])
-            showMessage("DNS settings applied and verified", isError: false)
+            showMessage("DNS 设置已应用并验证", isError: false)
             await refresh()
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
             isLoading = false
         }
     }
@@ -156,7 +156,7 @@ final class DNSSettingsViewModel {
             showMessage("DNS cache cleared", isError: false)
             await refresh()
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
             isLoading = false
         }
     }

@@ -25,7 +25,7 @@ final class TelemetryBlockerViewModel {
             let data = try await client.getJSON("/api/router/domain-filter")
             filterConfig = TelemetryParser.parseDomainFilter(data)
         } catch {
-            showMessage("Failed to load filters: \(error.localizedDescription)", isError: true)
+            showMessage("加载过滤器失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -39,7 +39,7 @@ final class TelemetryBlockerViewModel {
             showMessage("Domain filter \(enabled ? "enabled" : "disabled")", isError: false)
             filterConfig.enabled = enabled
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -48,7 +48,7 @@ final class TelemetryBlockerViewModel {
     func addDomain(_ domain: String) async {
         let trimmed = domain.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            showMessage("Enter a domain name", isError: true)
+            showMessage("输入域名", isError: true)
             return
         }
 
@@ -61,10 +61,10 @@ final class TelemetryBlockerViewModel {
                 "enabled": "1"
             ])
             newDomain = ""
-            showMessage("Added \(trimmed)", isError: false)
+            showMessage("新增\(trimmed)", isError: false)
             filterConfig.rules.append(DomainFilterRule(id: UUID().uuidString, domain: trimmed, enabled: true))
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -78,10 +78,10 @@ final class TelemetryBlockerViewModel {
                 "action": "delete",
                 "id": rule.id
             ])
-            showMessage("Removed \(rule.domain)", isError: false)
+            showMessage("删除\(rule.domain)", isError: false)
             filterConfig.rules.removeAll { $0.id == rule.id }
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -110,7 +110,7 @@ final class TelemetryBlockerViewModel {
         if added > 0 {
             showMessage("Blocked \(added) telemetry domain\(added == 1 ? "" : "s")", isError: false)
         } else {
-            showMessage("All telemetry domains already blocked", isError: false)
+            showMessage("所有遥测域已被阻止", isError: false)
         }
 
         isLoading = false

@@ -67,7 +67,7 @@ final class MobileNetworkViewModel {
                 initialLoadDone = true
             }
         } catch {
-            showMessage("Failed to load: \(error.localizedDescription)", isError: true)
+            showMessage("加载失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -104,13 +104,13 @@ final class MobileNetworkViewModel {
                 }
             }
             if enabled {
-                showMessage("Mobile data enabled (connection still establishing)", isError: false)
+                showMessage("移动数据已启用（连接仍在建立）", isError: false)
             } else {
-                showMessage("Mobile data disabled (connection may still be tearing down)", isError: false)
+                showMessage("移动数据已禁用（连接可能仍在断开）", isError: false)
             }
         } catch {
             selectedDataEnabled = !enabled
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -148,7 +148,7 @@ final class MobileNetworkViewModel {
                     config.roamEnable = wwan.roamEnable
                     config.connectStatus = wwan.connectStatus
                     config.netSelectMode = selectedNetSelectMode
-                    showMessage("Settings applied", isError: false)
+                    showMessage("应用的设置", isError: false)
                     isLoading = false
                     return
                 }
@@ -157,9 +157,9 @@ final class MobileNetworkViewModel {
             config.connectMode = selectedConnectMode
             config.roamEnable = selectedRoaming ? 1 : 0
             config.netSelectMode = selectedNetSelectMode
-            showMessage("Settings sent — router may still be applying", isError: false)
+            showMessage("已发送设置 — 路由器可能仍在应用", isError: false)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -190,10 +190,10 @@ final class MobileNetworkViewModel {
             }
 
             config.scanStatus = ""
-            showMessage("Scan timed out", isError: true)
+            showMessage("扫描超时", isError: true)
         } catch {
             config.scanStatus = ""
-            showMessage("Scan failed: \(error.localizedDescription)", isError: true)
+            showMessage("扫描失败：\(error.localizedDescription)", isError: true)
         }
 
         isScanning = false
@@ -214,7 +214,7 @@ final class MobileNetworkViewModel {
                 if result == "success" || result == "1" {
                     config.netSelectMode = "manual_select"
                     selectedNetSelectMode = "manual_select"
-                    showMessage("Registered to network", isError: false)
+                    showMessage("注册网络", isError: false)
                     isLoading = false
                     return
                 } else if result == "fail" || result == "0" {
@@ -224,9 +224,9 @@ final class MobileNetworkViewModel {
                 }
             }
 
-            showMessage("Registration timed out", isError: true)
+            showMessage("注册超时", isError: true)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -244,7 +244,7 @@ final class MobileNetworkViewModel {
             }
             airplaneModeLoaded = true
         } catch {
-            showMessage("Failed to load airplane mode status", isError: true)
+            showMessage("加载飞行模式状态失败", isError: true)
         }
     }
 
@@ -254,7 +254,7 @@ final class MobileNetworkViewModel {
         do {
             if enabled {
                 let _ = try await client.postJSON("/api/modem/airplane", body: ["operate_mode": "LPM"])
-                showMessage("Airplane mode enabled — cellular radio off", isError: false)
+                showMessage("飞行模式已启用 — 蜂窝无线电关闭", isError: false)
             } else {
                 var succeeded = false
                 for attempt in 1...2 {
@@ -271,7 +271,7 @@ final class MobileNetworkViewModel {
                 if !succeeded {
                     throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Modem online failed after retry"])
                 }
-                showMessage("Airplane mode disabled — signal recovering...", isError: false)
+                showMessage("飞行模式已禁用 — 信号正在恢复...", isError: false)
                 try? await Task.sleep(for: .seconds(2))
                 await refresh()
             }
@@ -282,7 +282,7 @@ final class MobileNetworkViewModel {
             } else {
                 airplaneModeEnabled = false
             }
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -293,7 +293,7 @@ final class MobileNetworkViewModel {
             let _ = try await client.postJSON("/api/device/reboot")
             showMessage("Router is rebooting...", isError: false)
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }

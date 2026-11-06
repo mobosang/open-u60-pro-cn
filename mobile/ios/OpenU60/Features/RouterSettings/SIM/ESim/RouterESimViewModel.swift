@@ -57,7 +57,7 @@ final class RouterESimViewModel {
     }
 
     /// Shown, not as an error, when a confirmed switch or delete finds the card still in use.
-    static let busyText = "The eSIM is busy; try again in a moment."
+    static let busyText = "eSIM 忙；稍后再试。"
 
     var enabledProfile: RouterESimProfile? { profiles.first(where: \.isEnabled) }
     var blocksSwitching: Bool { isLoading || isSwitching || operationInFlight || download.isBusy || connectionPhase.blocksSwitching }
@@ -167,14 +167,14 @@ final class RouterESimViewModel {
             if outcomeUnknown(error) {
                 // The card command failed or timed out, but the card may have switched: the agent checks.
                 beginFollowingSwitch(to: target)
-                showMessage("The router is checking whether the switch happened.", isError: false)
+                showMessage("路由器正在检查是否发生切换。", isError: false)
                 return
             }
             connectionPhase = .unavailable
             switchingTo = nil
             reconnectTracker = nil
             switchedAt = nil
-            showMessage("Switch failed: \(errorText(error))", isError: true)
+            showMessage("切换失败：\(errorText(error))", isError: true)
         }
     }
 
@@ -198,7 +198,7 @@ final class RouterESimViewModel {
         let nickname = name.trimmingCharacters(in: .whitespacesAndNewlines)
         pendingRename = nil
         guard nickname.utf8.count <= 64 else {
-            showMessage("Nicknames can be up to 64 bytes.", isError: true)
+            showMessage("昵称最长可达 64 个字节。", isError: true)
             return
         }
         guard !blocksSwitching, nickname != target.nickname else { return }

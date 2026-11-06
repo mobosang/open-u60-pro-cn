@@ -72,7 +72,7 @@ struct RouterESimInventory: Equatable {
         guard let errorMessage else { return nil }
         switch errorKind {
         case "sim_reloading": return "The eSIM is still settling after the switch."
-        case "management_unavailable": return "The eSIM's management app isn't responding (\(errorMessage))."
+        case "management_unavailable": return "eSIM 的管理应用程序没有响应 (\(errorMessage))。"
         default: return errorMessage
         }
     }
@@ -88,7 +88,7 @@ extension RouterESimInventory {
             switch code {
             case "manual_apn":
                 guard let apn = manualAPN?.apn else { return nil }
-                return "The router is set to the manual APN “\(apn)”. If \(name) needs a different APN, change it in Mobile Network after switching, or it may have no data."
+                return "路由器设置为手动APN“\(apn)”。如果\(name)需要不同的APN，切换后请在移动网络中更改，否则可能没有数据。"
             case "roaming_off":
                 return "\(name) looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on."
             default:
@@ -312,17 +312,17 @@ struct RouterESimDownloadStatus: Decodable, Equatable {
     var canCancel: Bool { ["running", "confirm"].contains(state) && step != "es10b_load_bound_profile_package" }
     var displayName: String { [provider, name].compactMap { $0 }.first(where: { !$0.isEmpty }) ?? "eSIM profile" }
     var progressText: String {
-        if state == "confirm" { return "Ready to install" }
-        if state == "cancelling" || step?.hasSuffix("_cancel_session") == true { return "Cancelling…" }
+        if state == "confirm" { return "准备安装" }
+        if state == "cancelling" || step?.hasSuffix("_cancel_session") == true { return "取消..." }
         if state == "done" { return "\(displayName) added." }
-        if state == "failed" { return "Couldn’t add the profile" }
+        if state == "failed" { return "无法添加配置文件" }
         if state == "cancelled" { return "Download cancelled" }
         switch step {
-        case "es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client": return "Connecting to the operator…"
-        case "es8p_metadata_parse": return "Reading profile details…"
-        case "es10b_prepare_download", "es9p_get_bound_profile_package": return "Downloading profile…"
-        case "es10b_load_bound_profile_package": return "Installing on the eSIM…"
-        default: return "Preparing eSIM…"
+        case "es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client": return "连接到运营商..."
+        case "es8p_metadata_parse": return "阅读配置文件详细信息..."
+        case "es10b_prepare_download", "es9p_get_bound_profile_package": return "正在下载配置文件..."
+        case "es10b_load_bound_profile_package": return "在 eSIM 上安装..."
+        default: return "准备eSIM……"
         }
     }
 }

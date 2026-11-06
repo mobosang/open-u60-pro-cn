@@ -282,7 +282,7 @@ fun DashboardScreen(
                             Text("2.4G: ${wifiStatus.ssid2g}", style = MaterialTheme.typography.bodyMedium)
                         }
                         if (wifiStatus.ssid5g.isNotBlank() && !wifiStatus.radio5gDisabled) {
-                            Text("5G: ${wifiStatus.ssid5g}", style = MaterialTheme.typography.bodyMedium)
+                            Text("5G：${wifiStatus.ssid5g}", style = MaterialTheme.typography.bodyMedium)
                         }
                         Text(
                             "${connectedDevices.size} ${stringResource(R.string.dashboard_clients)}",
@@ -309,11 +309,11 @@ fun DashboardScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         if (wanIPv4.isNotBlank()) {
-                            Text("IPv4: $wanIPv4", style = MaterialTheme.typography.bodySmall)
+                            Text("IPv4：$wanIPv4", style = MaterialTheme.typography.bodySmall)
                         }
                         if (wanIPv6.isNotBlank()) {
                             Text(
-                                "IPv6: $wanIPv6",
+                                "IPv6：$wanIPv6",
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
                             )

@@ -281,13 +281,13 @@ pub fn ecio_class(v: f64) -> &'static str {
 /// RSCP quality label (-75 / -85 / -95).
 pub fn rscp_quality(v: f64) -> &'static str {
     if v >= -75.0 {
-        "Excellent"
+        "极佳"
     } else if v >= -85.0 {
-        "Good"
+        "良好"
     } else if v >= -95.0 {
-        "Fair"
+        "一般"
     } else {
-        "Poor"
+        "较差"
     }
 }
 
@@ -308,7 +308,7 @@ mod tests {
 
     fn nsa() -> Value {
         json!({
-            "network_type": "ENDC", "network_provider": "Example Mobile",
+            "network_type": "ENDC", "network_provider": "手机示例",
             "nr5g_rsrp": "-77", "nr5g_rsrq": "-11", "nr5g_snr": "11", "nr5g_rssi": "-68",
             "nr5g_action_band": "n41", "nr5g_pci": "774", "nr5g_cell_id": "1234567890",
             "nr5g_action_channel": "513000", "nr5g_bandwidth": "40",
@@ -435,6 +435,6 @@ mod tests {
         assert_eq!(mbps(1.23456), "1.235");
         assert_eq!((rsrq_class(-15.0), rsrq_class(-20.0), rsrq_class(-20.5)), ("q-good", "q-fair", "q-poor"));
         assert_eq!((sinr_class(10.0), sinr_class(0.0), sinr_class(-1.0)), ("q-good", "q-fair", "q-poor"));
-        assert_eq!((rscp_quality(-75.0), rscp_quality(-85.0), rscp_quality(-95.0), rscp_quality(-96.0)), ("Excellent", "Good", "Fair", "Poor"));
+        assert_eq!((rscp_quality(-75.0), rscp_quality(-85.0), rscp_quality(-95.0), rscp_quality(-96.0)), ("极佳", "良好", "一般", "较差"));
     }
 }

@@ -17,15 +17,15 @@ struct SMSForwardConfigView: View {
                 }
             }
 
-            Section("Settings") {
-                Toggle("Enabled", isOn: Binding(
+            Section("设置") {
+                Toggle("已启用", isOn: Binding(
                     get: { viewModel.config.enabled },
                     set: { val in Task { await viewModel.toggleEnabled(val) } }
                 ))
 
-                Toggle("Mark Read After Forward", isOn: $markRead)
+                Toggle("转发后标记为已读", isOn: $markRead)
 
-                Toggle("Delete After Forward", isOn: $deleteAfter)
+                Toggle("转发后删除", isOn: $deleteAfter)
 
                 Button {
                     Task {
@@ -37,7 +37,7 @@ struct SMSForwardConfigView: View {
                         )
                     }
                 } label: {
-                    Text("Save Settings")
+                    Text("保存设置")
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -45,15 +45,15 @@ struct SMSForwardConfigView: View {
             if viewModel.config.rules.isEmpty && !viewModel.isLoading {
                 Section {
                     ContentUnavailableView {
-                        Label("No Rules", systemImage: "envelope.arrow.triangle.branch")
+                        Label("没有规则", systemImage: "envelope.arrow.triangle.branch")
                     } description: {
-                        Text("Add forwarding rules to automatically forward SMS messages to Telegram, Discord, webhooks, and more.")
+                        Text("添加转发规则，自动将短信转发到Telegram、Discord、webhooks等。")
                     }
                 }
             }
 
             if !viewModel.config.rules.isEmpty {
-                Section("Rules") {
+                Section("规则") {
                     ForEach(viewModel.config.rules) { rule in
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
@@ -85,7 +85,7 @@ struct SMSForwardConfigView: View {
                             Button(role: .destructive) {
                                 Task { await viewModel.deleteRule(id: rule.id) }
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label("删除", systemImage: "trash")
                             }
                         }
                     }
@@ -96,7 +96,7 @@ struct SMSForwardConfigView: View {
                 Button {
                     viewModel.presentedSheet = .add
                 } label: {
-                    Label("New Rule", systemImage: "plus")
+                    Label("新规则", systemImage: "plus")
                 }
             }
 
@@ -104,14 +104,14 @@ struct SMSForwardConfigView: View {
                 NavigationLink {
                     SMSForwardLogView(viewModel: viewModel)
                 } label: {
-                    Label("Forward Log", systemImage: "doc.text")
+                    Label("转发日志", systemImage: "doc.text")
                 }
             }
 
             if viewModel.lastForwardedId > 0 {
                 Section {
                     HStack {
-                        Text("Last Forwarded ID")
+                        Text("最后转发的 ID")
                             .foregroundStyle(.secondary)
                         Spacer()
                         Text("\(viewModel.lastForwardedId)")
@@ -121,7 +121,7 @@ struct SMSForwardConfigView: View {
                 }
             }
         }
-        .navigationTitle("SMS Forwarding")
+        .navigationTitle("短信转发")
         .refreshable {
             await viewModel.refresh()
             syncLocalState()
@@ -155,7 +155,7 @@ struct SMSForwardConfigView: View {
     private func filterSummary(_ filter: SmsFilter) -> String {
         switch filter {
         case .all:
-            return "All messages"
+            return "全部短信"
         case .sender(let patterns):
             return "Sender: \(patterns.joined(separator: ", "))"
         case .content(let keywords):
@@ -168,11 +168,11 @@ struct SMSForwardConfigView: View {
     private func destinationSummary(_ dest: ForwardDestination) -> String {
         switch dest {
         case .telegram(_, let chatId, _):
-            return "Telegram (chat: \(chatId))"
+            return "Telegram（聊天：\(chatId)）"
         case .webhook(let url, _, _):
-            return "Webhook (\(url))"
+            return "Webhook（\(url)）"
         case .sms(let number):
-            return "SMS (\(number))"
+            return "短信（\(number)）"
         case .ntfy(_, let topic, _):
             return "ntfy (\(topic))"
         case .discord:

@@ -10,8 +10,8 @@ enum PayloadType: UInt8 {
         switch self {
         case .ecb: return "AES-128-ECB"
         case .cbc: return "AES-256-CBC"
-        case .plain: return "Unencrypted"
-        case .cbcNew: return "AES-256-CBC (New)"
+        case .plain: return "未加密"
+        case .cbcNew: return "AES-256-CBC（新）"
         }
     }
 }

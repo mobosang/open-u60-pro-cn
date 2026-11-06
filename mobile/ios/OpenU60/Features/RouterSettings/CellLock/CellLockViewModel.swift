@@ -35,7 +35,7 @@ final class CellLockViewModel {
             let data = try await client.getJSON("/api/network/signal")
             status = CellLockParser.parse(data)
         } catch {
-            showMessage("Failed to load cell info: \(error.localizedDescription)", isError: true)
+            showMessage("加载小区信息失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -43,7 +43,7 @@ final class CellLockViewModel {
 
     func lockNR() async {
         guard !nrPCI.isEmpty, !nrEARFCN.isEmpty else {
-            showMessage("PCI and EARFCN are required", isError: true)
+            showMessage("需要 PCI 和 EARFCN", isError: true)
             return
         }
 
@@ -54,10 +54,10 @@ final class CellLockViewModel {
             if !nrBand.isEmpty { params["band"] = nrBand }
 
             let _ = try await client.postJSON("/api/cell/lock/nr", body: params)
-            showMessage("NR cell locked", isError: false)
+            showMessage("NR 单元格锁定", isError: false)
             status.locked = true
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -65,7 +65,7 @@ final class CellLockViewModel {
 
     func lockLTE() async {
         guard !ltePCI.isEmpty, !lteEARFCN.isEmpty else {
-            showMessage("PCI and EARFCN are required", isError: true)
+            showMessage("需要 PCI 和 EARFCN", isError: true)
             return
         }
 
@@ -73,10 +73,10 @@ final class CellLockViewModel {
 
         do {
             let _ = try await client.postJSON("/api/cell/lock/lte", body: ["pci": ltePCI, "earfcn": lteEARFCN])
-            showMessage("LTE cell locked", isError: false)
+            showMessage("LTE 单元格锁定", isError: false)
             status.locked = true
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -103,12 +103,12 @@ final class CellLockViewModel {
             }
 
             if neighbors.isEmpty {
-                showMessage("No neighbors found", isError: false)
+                showMessage("未发现邻区", isError: false)
             } else {
-                showMessage("Found \(neighbors.count) neighbor cell(s)", isError: false)
+                showMessage("找到 \(neighbors.count) 相邻小区", isError: false)
             }
         } catch {
-            showMessage("Scan failed: \(error.localizedDescription)", isError: true)
+            showMessage("扫描失败：\(error.localizedDescription)", isError: true)
         }
 
         isScanning = false
@@ -119,10 +119,10 @@ final class CellLockViewModel {
 
         do {
             let _ = try await client.postJSON("/api/cell/lock/reset")
-            showMessage("Cell lock reset", isError: false)
+            showMessage("单元锁重置", isError: false)
             status.locked = false
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false

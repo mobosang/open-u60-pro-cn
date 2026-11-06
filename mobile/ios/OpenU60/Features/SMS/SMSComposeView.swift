@@ -21,14 +21,14 @@ struct SMSComposeView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Phone Number", text: $number)
+                    TextField("电话号码", text: $number)
                         .keyboardType(.phonePad)
                         .textContentType(.telephoneNumber)
                         .focused($focusedField, equals: .number)
                 }
 
                 Section {
-                    TextField("Message", text: $messageText, axis: .vertical)
+                    TextField("短信", text: $messageText, axis: .vertical)
                         .lineLimit(3...10)
                         .focused($focusedField, equals: .message)
                 } footer: {
@@ -51,7 +51,7 @@ struct SMSComposeView: View {
                                 ProgressView()
                                     .padding(.trailing, 8)
                             }
-                            Text("Send")
+                            Text("发送")
                                 .fontWeight(.semibold)
                             Spacer()
                         }
@@ -71,11 +71,11 @@ struct SMSComposeView: View {
                     }
                 }
             }
-            .navigationTitle("New Message")
+            .navigationTitle("新建短信")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
             .onAppear { focusedField = .number }

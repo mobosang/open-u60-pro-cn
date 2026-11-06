@@ -62,7 +62,7 @@ pub const UPNP_API: &str = "/api/router/firewall/upnp";
 const LAN_API: &str = "/api/router/lan";
 
 /// The app's levels (value, label).
-const LEVELS: [(&str, &str); 3] = [("low", "Low"), ("medium", "Medium"), ("high", "High")];
+const LEVELS: [(&str, &str); 3] = [("low", "低"), ("medium", "中等"), ("high", "高")];
 /// The app's protocols (value, label).
 const PROTOCOLS: [(&str, &str); 3] = [("tcp", "TCP"), ("udp", "UDP"), ("tcp+udp", "TCP + UDP")];
 
@@ -188,7 +188,7 @@ fn rule_row(r: &Rule, g: &str) -> Markup {
     html! {
         li.it.pf {
             span.cvb {
-                span.l1 { b.nm { (r.title()) } @if r.enabled { small.c-green { "Active" } } @else { small { "Inactive" } } }
+                span.l1 { b.nm { (r.title()) } @if r.enabled { small.c-green { "已启用" } } @else { small { "未启用" } } }
                 small { (r.route()) }
             }
             // The app's swipe to delete (asked first on the web).
@@ -208,7 +208,7 @@ fn filter_rows(list: &Value) -> Markup {
                 span.cvb {
                     span.l1 {
                         b.nm { (s(&["protocol", "proto"]).to_uppercase()) }
-                        @if truthy(first(r, &["enabled", "enable"])) { small.c-green { "Active" } } @else { small { "Inactive" } }
+                        @if truthy(first(r, &["enabled", "enable"])) { small.c-green { "已启用" } } @else { small { "未启用" } }
                     }
                     @if !mac.is_empty() { small { "MAC: " (mask_mac(&mac)) } }
                     @if !src.is_empty() || !dst.is_empty() {
@@ -240,7 +240,7 @@ pub fn page(pd: &PageData) -> Markup {
     let none = html! {};
     html! {
         (kit::section(Some("Firewall"), None, html! {
-            li.it { span { "Status" } @if c.enabled { span.c-green { "Enabled" } } @else { span.v { "Disabled" } } }
+            li.it { span { "状态" } @if c.enabled { span.c-green { "已启用" } } @else { span.v { "已禁用" } } }
             li { a.it.bt href=(on_link(SWITCH, !c.enabled)) { span { (if c.enabled { "Disable Firewall" } else { "Enable Firewall" }) } } }
             @if c.enabled {
                 // The app's picker: each level a link to its question.
@@ -270,8 +270,8 @@ pub fn page(pd: &PageData) -> Markup {
                 li { button.it.cv.snd type="submit" { "Apply DMZ" } }
             }))
         }
-        (kit::section(Some("Port Forwarding"), None, html! {
-            (kit::switch_row(&none, "Enable", Some(c.pf), Act::Link(&on_link(PF_SWITCH, true)), Act::Link(&on_link(PF_SWITCH, false))))
+        (kit::section(Some("端口转发"), None, html! {
+            (kit::switch_row(&none, "启用", Some(c.pf), Act::Link(&on_link(PF_SWITCH, true)), Act::Link(&on_link(PF_SWITCH, false))))
             @if c.pf {
                 // The app's button (blue, no chevron).
                 li { a.it.bt href=(NEW) { (kit::icon(Icon::Plus)) span { "Add Rule" } } }
@@ -304,7 +304,7 @@ pub fn rule_form(pd: &PageData) -> Markup {
             (pd.csrf())
             (once_field(&pd.once()))
             (kit::section(Some("Rule"), None, html! {
-                (text_row("pfname", "Name", &typed("pfname"), err("pfname"), "it fld", 32, None))
+                (text_row("pfname", "名称", &typed("pfname"), err("pfname"), "it fld", 32, None))
                 (select_row("proto", "Protocol", &protos, proto, None, "it"))
             }))
             (kit::section(Some("WAN"), None, text_row("wan", "WAN Port", &typed("wan"), err("wan"), "it fld", 5, Some("numeric"))))
@@ -345,16 +345,16 @@ fn lan_net(app: &AppState) -> Option<(Ipv4Addr, u32)> {
 /// the subnet nothing is taken: the router's own address could not be told
 /// apart (it would open the router's own services to the internet).
 fn host_error(net: Option<(Ipv4Addr, u32)>, s: &str) -> Option<String> {
-    let Some(a) = lan::ip(s) else { return Some("Enter an IPv4 address, such as 192.168.0.50.".into()) };
+    let Some(a) = lan::ip(s) else { return Some("输入 IPv4 地址，例如 192.168.0.50。".into()) };
     let Some((router, m)) = net else {
         return Some("Couldn\u{2019}t read the router\u{2019}s network. Try again.".into());
     };
     let (x, net) = (u32::from(a), u32::from(router) & m);
     let last = net | !m;
     if a == router {
-        Some("This is the router\u{2019}s own address; use a device\u{2019}s address.".into())
+        Some("这是路由器\u{2019}自己的地址；使用设备\u{2019}的地址。".into())
     } else if x & m != net || x == net || x == last {
-        Some(format!("Use an address from {} to {}.", Ipv4Addr::from(net + 1), Ipv4Addr::from(last - 1)))
+        Some(format!("使用从 {} 到 {} 的地址。", Ipv4Addr::from(net + 1), Ipv4Addr::from(last - 1)))
     } else {
         None
     }
@@ -367,7 +367,7 @@ pub fn check_dmz(app: &AppState, pairs: &[(String, String)]) -> Result<Vals, Bad
     let mut errors: Vec<(&'static str, String)> = Vec::new();
     if on == "1" {
         if typed.is_empty() {
-            errors.push(("ip", "Enter the IPv4 address of the DMZ host.".into()));
+            errors.push(("ip", "输入 DMZ 主机的 IPv4 地址。".into()));
         } else if let Some(e) = host_error(lan_net(app), &typed) {
             errors.push(("ip", e));
         }
@@ -394,17 +394,17 @@ pub fn check_rule(app: &AppState, pairs: &[(String, String)]) -> Result<Vals, Ba
     let (name, wan, ip, lan) = (get("pfname", 32), get("wan", 6), get("ip", 16), get("lan", 6));
     let mut errors: Vec<(&'static str, String)> = Vec::new();
     if name.chars().count() > 32 || !name.bytes().all(|b| b.is_ascii_alphanumeric() || b" .-_".contains(&b)) {
-        errors.push(("pfname", "Use up to 32 letters, digits, spaces, dots, hyphens and underscores.".into()));
+        errors.push(("pfname", "最多使用 32 个字母、数字、空格、点、连字符和下划线。".into()));
     }
     let ports = [("wan", &wan), ("lan", &lan)].map(|(k, v)| {
         let p = port(v);
         if p.is_none() {
-            errors.push((k, "Enter a port from 1 to 65535.".into()));
+            errors.push((k, "输入 1 到 65535 之间的端口。".into()));
         }
         p
     });
     if ip.is_empty() {
-        errors.push(("ip", "Enter the IPv4 address of the device.".into()));
+        errors.push(("ip", "输入设备的 IPv4 地址。".into()));
     } else if let Some(e) = host_error(lan_net(app), &ip) {
         errors.push(("ip", e));
     }
@@ -415,7 +415,7 @@ pub fn check_rule(app: &AppState, pairs: &[(String, String)]) -> Result<Vals, Ba
             port(&r.wan) == Some(w) && ((t && rt) || (u && ru))
         });
         if taken {
-            errors.push(("wan", format!("WAN port {w} is already forwarded.")));
+            errors.push(("wan", format!("WAN口{w}已转发。")));
         }
     }
     let shown = |p: Option<u16>, typed: &str| p.map_or_else(|| typed.chars().take(6).collect(), |p| p.to_string());
@@ -434,7 +434,7 @@ pub fn check_rule(app: &AppState, pairs: &[(String, String)]) -> Result<Vals, Ba
 }
 
 fn config(app: &AppState) -> Result<Config, Question> {
-    super::api_get(app, API).map(|d| Config::of(&d)).map_err(|e| nothing("Failed to load firewall", vec![fmt::truncate(&e, 120)]))
+    super::api_get(app, API).map(|d| Config::of(&d)).map_err(|e| nothing("防火墙加载失败", vec![fmt::truncate(&e, 120)]))
 }
 
 pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], remote: bool) -> Question {
@@ -450,10 +450,10 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         ask_lines(title.to_owned(), lines.iter().map(|l| (*l).to_owned()).collect(), label, locks)
     };
     match kind {
-        Kind::FwSwitch if on => ask("Turn on the firewall?", &["Incoming connections are filtered again.", LOCK], "Enable Firewall", true),
+        Kind::FwSwitch if on => ask("是否开启防火墙？", &["传入连接再次被过滤。", LOCK], "Enable Firewall", true),
         Kind::FwSwitch => ask(
-            "Turn off the firewall?",
-            &["Devices on the router lose the firewall\u{2019}s protection from the internet.", exposed()],
+            "关闭防火墙？",
+            &["路由器上的设备失去防火墙\u{2019} 的互联网保护。", exposed()],
             "Disable Firewall",
             false,
         ),
@@ -466,41 +466,41 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             let label = level_label(level);
             let rank = |l: &str| LEVELS.iter().position(|(k, _)| *k == l).unwrap_or(1);
             if level == c.level {
-                return nothing(format!("The firewall level is already {label}"), Vec::new());
+                return nothing(format!("防火墙级别已经是{label}"), Vec::new());
             }
             let up = rank(level) > rank(&c.level);
             let lines = if up {
-                vec![format!("The firewall blocks more connections at {label}."), LOCK.into()]
+                vec![format!("防火墙阻止 {label} 处的更多连接。"), LOCK.into()]
             } else {
-                vec![format!("The firewall lets more connections from the internet through at {label}."), exposed().into()]
+                vec![format!("防火墙允许更多来自互联网的连接通过 {label}。"), exposed().into()]
             };
-            ask_lines(format!("Set the firewall level to {label}?"), lines, "Set Level", up)
+            ask_lines(format!("将防火墙级别设置为{label}？"), lines, "设置级别", up)
         }
-        Kind::FwNat if on => ask("Turn on NAT?", &["Devices on the router share its mobile connection through NAT again."], "Turn On NAT", false),
+        Kind::FwNat if on => ask("开启NAT？", &["路由器上的设备再次通过 NAT 共享其移动连接。"], "开启 NAT", false),
         Kind::FwNat => ask(
-            "Turn off NAT?",
-            &["Devices on the router lose internet access: without NAT they can\u{2019}t share the router\u{2019}s mobile connection."],
-            "Turn Off NAT",
+            "关闭NAT？",
+            &["路由器上的设备失去互联网访问权限：没有 NAT，它们可以 \u{2019} 共享路由器 \u{2019} 的移动连接。"],
+            "关闭 NAT",
             false,
         ),
-        Kind::FwUpnp if on => ask("Turn on UPnP?", &["Devices on the router can open ports to the internet by themselves."], "Turn On UPnP", false),
+        Kind::FwUpnp if on => ask("开启 UPnP？", &["路由器上的设备可以自行打开互联网端口。"], "开启 UPnP", false),
         Kind::FwUpnp => ask(
-            "Turn off UPnP?",
-            &["Ports that devices opened through UPnP close: games and apps that rely on them may stop accepting connections."],
-            "Turn Off UPnP",
+            "关闭 UPnP？",
+            &["设备通过 UPnP 打开的端口关闭：依赖它们的游戏和应用程序可能会停止接受连接。"],
+            "关闭 UPnP",
             false,
         ),
         Kind::FwPfSwitch if on => {
             let what = match super::api_get(app, PF_API).map(|l| rules(&l).len()) {
-                Ok(0) => "Rules you add open ports from the internet to devices on the router.".to_owned(),
+                Ok(0) => "将互联网上的开放端口添加到路由器上的设备的规则。".to_owned(),
                 Ok(1) => "1 rule opens a port from the internet to a device on the router.".to_owned(),
                 Ok(n) => format!("{n} rules open ports from the internet to devices on the router."),
-                Err(_) => "Its rules open ports from the internet to devices on the router.".to_owned(),
+                Err(_) => "其规则开放从互联网到路由器上的设备的端口。".to_owned(),
             };
-            ask_lines("Turn on port forwarding?".into(), vec![what], "Turn On Port Forwarding", false)
+            ask_lines("开启端口转发？".into(), vec![what], "开启端口转发", false)
         }
         Kind::FwPfSwitch => ask(
-            "Turn off port forwarding?",
+            "关闭端口转发？",
             &["The forwarded ports close: what devices serve through them can\u{2019}t be reached from the internet."],
             "Turn Off Port Forwarding",
             false,
@@ -513,7 +513,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             let (on, ip) = (val(vals, "dmz") == "1", val(vals, "ip"));
             if on == c.dmz && (!on || ip == c.dmz_ip) {
                 let line = if on { format!("{ip} is already the DMZ host.") } else { "DMZ is already off.".to_owned() };
-                return nothing("Nothing to apply", vec![line]);
+                return nothing("没有什么可申请的", vec![line]);
             }
             if on {
                 let mut lines = vec![format!("Connections from the internet that no other rule takes go to {ip}: every port of that device can be reached from the internet.")];
@@ -546,11 +546,11 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
                 return nothing("The rule list changed", vec!["It changed since this page was loaded. Go back and choose the rule again.".into()]);
             }
             match rules(&list).into_iter().find(|r| r.id == val(vals, "id")) {
-                None => nothing("Rule not found", vec!["It may have been deleted.".into()]),
+                None => nothing("Rule not found", vec!["可能已被删除。".into()]),
                 Some(r) => ask_lines(
-                    format!("Delete \u{201c}{}\u{201d}?", r.title()),
+                    format!("删除\u{201c}{}\u{201d}？", r.title()),
                     vec![format!("{} stops: what it serves can\u{2019}t be reached from the internet any more.", r.route())],
-                    "Delete",
+                    "删除",
                     false,
                 ),
             }
@@ -661,13 +661,13 @@ mod tests {
         let net = Some((Ipv4Addr::new(192, 168, 0, 1), 0xffff_ff00));
         assert_eq!(host_error(net, "192.168.0.50"), None);
         assert!(host_error(net, "192.168.0.1").unwrap().contains("router\u{2019}s own address"));
-        assert_eq!(host_error(net, "192.168.1.5").unwrap(), "Use an address from 192.168.0.1 to 192.168.0.254.");
+        assert_eq!(host_error(net, "192.168.1.5").unwrap(), "使用 192.168.0.1 到 192.168.0.254 之间的地址。");
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
-        assert!(host_error(net, "nope").unwrap().starts_with("Enter an IPv4"));
+        assert!(host_error(net, "nope").unwrap().starts_with("输入 IPv4"));
         for unread in ["10.0.0.9", "192.168.0.1", "8.8.8.8"] {
             assert_eq!(host_error(None, unread).as_deref(), Some("Couldn\u{2019}t read the router\u{2019}s network. Try again."), "{unread}");
         }
-        assert!(host_error(net, "192.168.0.50 ").unwrap().starts_with("Enter an IPv4"));
+        assert!(host_error(net, "192.168.0.50 ").unwrap().starts_with("输入 IPv4"));
         assert_eq!(port("8080"), Some(8080));
         assert_eq!(port("080"), Some(80));
         for bad in ["", "0", "65536", "80-90", "+80", " 80", "123456"] {

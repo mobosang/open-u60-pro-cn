@@ -5,7 +5,7 @@ struct SignalActivityControl: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label("Live signal", systemImage: "antenna.radiowaves.left.and.right")
+                Label("现场信号", systemImage: "antenna.radiowaves.left.and.right")
                     .font(.headline)
                 Spacer()
                 if manager.isBusy { ProgressView() }
@@ -23,7 +23,7 @@ struct SignalActivityControl: View {
             if let error = manager.errorMessage {
                 Text(error).font(.caption).foregroundStyle(.orange)
                 if manager.activity != nil {
-                    Button("Retry") { Task { await manager.resume() } }
+                    Button("重试") { Task { await manager.resume() } }
                         .font(.caption)
                 }
             }
@@ -36,7 +36,7 @@ struct SignalActivityControl: View {
                 .foregroundStyle(manager.isStale ? Color.orange : Color.secondary)
             }
             if let accepted = manager.lastAcceptedAt {
-                Text("Apple accepted an update \(accepted, style: .relative) ago")
+                Text("Apple 之前接受了更新 \(accepted, style: .relative)")
                     .font(.caption2).foregroundStyle(.secondary)
             }
         }

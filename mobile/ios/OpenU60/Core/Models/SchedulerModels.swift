@@ -79,9 +79,9 @@ struct SchedulerJob: Identifiable {
         case "once":
             if let at = scheduleAt {
                 let date = Date(timeIntervalSince1970: TimeInterval(at))
-                return "Once: \(Self.onceDateFormatter.string(from: date))"
+                return "一次：\(Self.onceDateFormatter.string(from: date)）"
             }
-            return "One-time"
+            return "单次"
         default:
             return scheduleType
         }
@@ -104,11 +104,11 @@ enum ActionTemplate: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .airplaneOn: return "Airplane Mode ON"
-        case .mobileDataOff: return "Mobile Data OFF"
-        case .guestWifiOff: return "Guest WiFi OFF"
-        case .reboot: return "Reboot"
-        case .powerSaveOn: return "Power Save ON"
+        case .airplaneOn: return "飞行模式开启"
+        case .mobileDataOff: return "移动数据关闭"
+        case .guestWifiOff: return "关闭访客 WiFi"
+        case .reboot: return "重启"
+        case .powerSaveOn: return "省电模式开启"
         }
     }
 

@@ -38,13 +38,13 @@ struct RouterESimView: View {
                 }
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("eSIM Profiles")
+        .navigationTitle("eSIM 配置文件")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable { await viewModel.refresh() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { viewModel.resetDownloadResult(); adding = true } label: { Image(systemName: "plus") }
-                    .disabled(viewModel.blocksSwitching).accessibilityLabel("Add eSIM")
+                    .disabled(viewModel.blocksSwitching).accessibilityLabel("添加 eSIM")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: refresh) {
@@ -86,10 +86,10 @@ struct RouterESimView: View {
             isPresented: Binding(get: { viewModel.pendingDelete != nil }, set: { if !$0 { viewModel.pendingDelete = nil } }),
             titleVisibility: .visible, presenting: viewModel.pendingDelete
         ) { profile in
-            Button("Delete \(profile.displayName)", role: .destructive) { Task { await viewModel.confirmDelete(profile) } }
-            Button("Cancel", role: .cancel) {}
+            Button("删除\(profile.displayName)", role: .destructive) { Task { await viewModel.confirmDelete(profile) } }
+            Button("取消", role: .cancel) {}
         } message: { profile in
-            Text("This can’t be undone. You’d need a new QR code from \(profile.provider.isEmpty ? profile.displayName : profile.provider) to get this eSIM back.")
+            Text("这无法撤销。您需要 \(profile.provider.isEmpty ? profile.displayName : profile.provider) 的新二维码才能取回此 eSIM。")
         }
     }
 
@@ -133,8 +133,8 @@ struct RouterESimView: View {
             titleVisibility: .visible,
             presenting: viewModel.pendingSwitch
         ) { profile in
-            Button("Switch to \(profile.displayName)") { Task { await viewModel.confirmSwitch(to: profile) } }
-            Button("Cancel", role: .cancel) {}
+            Button("切换至\(profile.displayName)") { Task { await viewModel.confirmSwitch(to: profile) } }
+            Button("取消", role: .cancel) {}
         } message: { profile in
             Text((["The router disconnects from \(viewModel.enabledProfile?.displayName ?? "the current profile") and connects with \(profile.displayName). Internet is down for about a minute. Wi-Fi stays on."]
                   + viewModel.inventory.switchWarnings(for: profile)).joined(separator: "\n\n"))
@@ -148,7 +148,7 @@ struct RouterESimView: View {
                             canRetry: !viewModel.blocksSwitching, retry: retryProfiles)
         }
         if viewModel.operationInFlight {
-            CardView { HStack(spacing: 12) { ProgressView(); Text("Updating eSIM…").font(.subheadline); Spacer() } }
+            CardView { HStack(spacing: 12) { ProgressView(); Text("更新eSIM…").font(.subheadline); Spacer() } }
         }
         if viewModel.download.state != "idle" {
             Button { adding = true } label: {
@@ -182,14 +182,14 @@ struct RouterESimView: View {
                 if viewModel.inventory.updating || viewModel.connectionPhase.blocksSwitching {
                     HStack(spacing: 5) {
                         ProgressView().controlSize(.mini)
-                        Text("Updating…").font(.caption)
+                        Text("更新中……").font(.caption)
                     }.foregroundStyle(.secondary).accessibilityElement(children: .combine)
                 } else {
                     Text(viewModel.listError != nil && viewModel.profiles.isEmpty ? "Not read yet" : (viewModel.profiles.count == 1 ? "1 profile" : "\(viewModel.profiles.count) profiles")).font(.caption).foregroundStyle(.secondary)
                 }
             }
             if viewModel.inventory.observedAt > 0 {
-                Text("Last read \(Date(timeIntervalSince1970: TimeInterval(viewModel.inventory.observedAt)).formatted(date: .omitted, time: .shortened))")
+                Text("最后读取 \(Date(timeIntervalSince1970: TimeInterval(viewModel.inventory.observedAt)).formatted(日期: .省略, 时间: .shortened))")
                     .font(.caption2).foregroundStyle(.secondary)
             }
         }.padding(.horizontal, 2)
@@ -205,12 +205,12 @@ struct RouterESimView: View {
                 ForEach(otherProfiles) { profile in profileCard(profile) }
             }
             Button { viewModel.resetDownloadResult(); adding = true } label: {
-                Label("Add eSIM", systemImage: "plus.circle.fill").frame(maxWidth: .infinity, minHeight: 32)
+                Label("添加 eSIM", systemImage: "plus.circle.fill").frame(maxWidth: .infinity, minHeight: 32)
             }.buttonStyle(.bordered).disabled(viewModel.blocksSwitching)
 
             VStack(alignment: .leading, spacing: 8) {
-                Label("Swipe left for profile options. Swipe right to switch.", systemImage: "hand.draw")
-                Label("Switching pauses internet for about a minute. Your router’s Wi-Fi stays on.", systemImage: "wifi")
+                Label("向左滑动查看配置文件选项。向右滑动即可切换。", systemImage: "hand.draw")
+                Label("切换会使互联网暂停大约一分钟。您的路由器的 Wi-Fi 保持开启状态。", systemImage: "wifi")
             }.font(.caption).foregroundStyle(.secondary).padding(.horizontal, 4)
         }
     }
@@ -225,14 +225,14 @@ struct RouterESimView: View {
                     if !profile.isEnabled {
                         // The confirmation dialog owns the destructive action. Keeping this button
                         // non-destructive prevents List from removing the row before confirmation.
-                        Button("Delete", systemImage: "trash") { viewModel.requestDelete(profile) }.tint(.red)
+                        Button("删除", systemImage: "trash") { viewModel.requestDelete(profile) }.tint(.red)
                     }
                     Button("Rename", systemImage: "pencil") { viewModel.requestRename(profile) }.tint(.blue)
                 }
             }
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
                 if profile.canEnable && !viewModel.blocksSwitching {
-                    Button("Switch", systemImage: "arrow.triangle.2.circlepath") { viewModel.requestSwitch(to: profile) }.tint(Color.eSimAccent)
+                    Button("开关", systemImage: "arrow.triangle.2.circlepath") { viewModel.requestSwitch(to: profile) }.tint(Color.eSimAccent)
                 }
             }
             .contextMenu {
@@ -254,8 +254,8 @@ struct RouterESimView: View {
             HStack(spacing: 14) {
                 ProgressView()
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Reading profiles").font(.headline)
-                    Text("Checking the eSIM in your router…").font(.subheadline).foregroundStyle(.secondary)
+                    Text("阅读简介").font(.headline)
+                    Text("检查路由器中的 eSIM...").font(.subheadline).foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
             }
@@ -271,7 +271,7 @@ struct RouterESimView: View {
                 Text("No profiles yet").font(.headline)
                 Text("Add one with the QR code from your operator.")
                     .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
-                Button("Add eSIM") { viewModel.resetDownloadResult(); adding = true }.buttonStyle(.borderedProminent).tint(Color.eSimAccent).disabled(viewModel.blocksSwitching)
+                Button("添加 eSIM") { viewModel.resetDownloadResult(); adding = true }.buttonStyle(.borderedProminent).tint(Color.eSimAccent).disabled(viewModel.blocksSwitching)
             }
             .frame(maxWidth: .infinity).padding(.vertical, 18)
         }
@@ -307,7 +307,7 @@ private struct ESimProfileCard: View {
                 Image(systemName: "ellipsis").font(.body.weight(.semibold))
                     .frame(minWidth: 44, minHeight: 44).contentShape(.rect)
             }
-            .disabled(!canSwitch).accessibilityLabel("Options for \(profile.displayName)")
+            .disabled(!canSwitch).accessibilityLabel("\(profile.displayName) 的选项")
             .padding(.trailing, 6)
         }
         .background(profile.isEnabled ? Color.eSimAccent.opacity(0.08) : Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 16))
@@ -324,7 +324,7 @@ private struct ESimProfileCard: View {
                 if profile.isEnabled {
                     HStack(alignment: .center, spacing: 4) {
                         ESimCheckmark(diameter: 13)
-                        Text("Active")
+                        Text("已启用")
                     }.font(.caption2.weight(.semibold)).foregroundStyle(Color.eSimAccent)
                 }
                 Text(profile.displayName.isEmpty ? "Unnamed profile" : profile.displayName)
@@ -335,7 +335,7 @@ private struct ESimProfileCard: View {
             if profile.canEnable {
                 Image(systemName: "arrow.triangle.2.circlepath").foregroundStyle(canSwitch ? .blue : .secondary).accessibilityHidden(true)
             } else if !profile.isEnabled {
-                Image(systemName: "lock.fill").foregroundStyle(.secondary).accessibilityLabel("Unavailable")
+                Image(systemName: "lock.fill").foregroundStyle(.secondary).accessibilityLabel("不可用")
             }
         }
         .padding(14).contentShape(.rect).accessibilityElement(children: .combine)
@@ -388,10 +388,10 @@ private struct ESimRenameSheet: View {
                     }
                 }
             }
-            .navigationTitle("Rename profile").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("重命名配置文件").navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) { Button("Save", action: submit).disabled(!valid || blocked || trimmed == profile.nickname) }
+                ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) { Button("保存", action: submit).disabled(!valid || blocked || trimmed == profile.nickname) }
             }
             .task { focused = true }
         }
@@ -433,12 +433,12 @@ private struct ESimConnectionCard: View {
         if let note { return note }
         switch phase {
         case .switching: return "Selecting the new profile on your eSIM."
-        case .reloading: return "The modem is loading the SIM. The card may be unreadable for 5–25 seconds."
+        case .reloading: return "调制解调器正在加载 SIM。该卡可能在 5-25 秒内无法读取。"
         case .registering: return "The new profile is loaded. Waiting for a mobile data connection."
-        case .waiting: return "Mobile data hasn’t connected yet. Check the plan or coverage, or choose another profile below."
-        case .disconnected: return "Your router’s Wi-Fi stays connected. You can still switch profiles."
+        case .waiting: return "移动数据尚未连接。检查计划或承保范围，或选择下面的其他配置文件。"
+        case .disconnected: return "您的路由器的 Wi-Fi 保持连接。您仍然可以切换配置文件。"
         case .checking: return "Reading live status from your router."
-        case .unavailable: return "Check again to read the router’s connection status."
+        case .unavailable: return "再次查看路由器的连接状态。"
         case .connected: return "Mobile data is up. Traffic may take a few more seconds."
         }
     }
@@ -460,7 +460,7 @@ private struct ESimConnectionCard: View {
                         else { Image(systemName: needsAttention ? "exclamationmark.circle" : "antenna.radiowaves.left.and.right.slash").font(.title3).foregroundStyle(accent) }
                     }.accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
-                        if let target { Text("Switch to \(target)").font(.caption).foregroundStyle(.secondary) }
+                        if let target { Text("切换到\(target)").font(.caption).foregroundStyle(.secondary) }
                         Text(title).font(.headline)
                         if phase == .connected {
                             Text([operatorName, networkType].filter { !$0.isEmpty }.joined(separator: " · ")).font(.caption).foregroundStyle(.secondary)
@@ -468,7 +468,7 @@ private struct ESimConnectionCard: View {
                     }.frame(maxWidth: .infinity, alignment: .leading)
                     if phase == .connected {
                         Image(systemName: "cellularbars", variableValue: Double(signalBars) / 5)
-                            .foregroundStyle(Color.eSimAccent).accessibilityLabel("Signal \(signalBars) of 5")
+                            .foregroundStyle(Color.eSimAccent).accessibilityLabel("信号 \(signalBars) 为 5")
                     }
                 }
                 if target != nil && (isProgress || phase == .connected) {
@@ -483,10 +483,10 @@ private struct ESimConnectionCard: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 if isProgress {
-                    Label("Wi-Fi stays connected · Usually 15–45 seconds", systemImage: "wifi")
+                    Label("Wi-Fi 保持连接 · 通常 15–45 秒", systemImage: "wifi")
                         .font(.caption).foregroundStyle(.secondary)
                 }
-                if needsAttention { Button("Check again", action: checkConnection).buttonStyle(.bordered) }
+                if needsAttention { Button("再次检查", action: checkConnection).buttonStyle(.bordered) }
             }
         }
         .accessibilityElement(children: .contain)
@@ -507,8 +507,8 @@ private struct ESimConnectionCard: View {
                 }
             Text(label).font(.subheadline.weight(current ? .semibold : .regular))
             Spacer()
-            if current && isProgress { Text("In progress").font(.caption2) }
-            if complete { Text("Done").font(.caption2) }
+            if current && isProgress { Text("进行中").font(.caption2) }
+            if complete { Text("完成").font(.caption2) }
         }
         .foregroundStyle(color).padding(.vertical, 5)
         .accessibilityElement(children: .combine)
@@ -525,10 +525,10 @@ private struct ESimMessageCard: View {
     private var busy: Bool { message == RouterESimViewModel.busyText }
     private var guidance: String? {
         let text = message.lowercased()
-        if text.contains("agent password required") { return "Set the router agent password in Agent Settings, then try your action again." }
-        if text.contains("airplane") || text.contains("low-power") { return "Open Router Settings → Mobile Network to check the modem mode." }
-        if text.contains("different esim card") { return "Reloading the profiles on the card now in your router. Review the list before trying again." }
-        if text.contains("404") || text.contains("not found") { return "This action may need a newer router agent. Your saved profiles are unchanged." }
+        if text.contains("agent password required") { return "在代理设置中设置路由器代理密码，然后重试您的操作。" }
+        if text.contains("airplane") || text.contains("low-power") { return "打开路由器设置→移动网络检查调制解调器模式。" }
+        if text.contains("different esim card") { return "现在在路由器中重新加载卡上的配置文件。重试之前请查看该列表。" }
+        if text.contains("404") || text.contains("not found") { return "此操作可能需要更新的路由器代理。您保存的配置文件未更改。" }
         return nil
     }
     var body: some View {
@@ -541,8 +541,8 @@ private struct ESimMessageCard: View {
                     Text(message).font(.subheadline).foregroundStyle(.secondary).textSelection(.enabled)
                     if let guidance { Text(guidance).font(.caption).foregroundStyle(.secondary) }
                     if isError && !housekeeping {
-                        Button("Reload profiles", action: retry).buttonStyle(.bordered).disabled(!canRetry)
-                        Text("Reloading only reads the list. It doesn’t repeat your action.").font(.caption2).foregroundStyle(.secondary)
+                        Button("重新加载配置文件", action: retry).buttonStyle(.bordered).disabled(!canRetry)
+                        Text("重新加载仅读取列表。它不会重复您的操作。").font(.caption2).foregroundStyle(.secondary)
                     }
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -558,9 +558,9 @@ private struct ESimListErrorCard: View {
     let retry: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Couldn’t refresh profiles", systemImage: "arrow.clockwise.circle").font(.subheadline.weight(.semibold))
+            Label("无法刷新配置文件", systemImage: "arrow.clockwise.circle").font(.subheadline.weight(.semibold))
             Text(text).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
-            Button("Try again", action: retry).font(.caption.weight(.semibold)).buttonStyle(.bordered).disabled(!canRetry)
+            Button("重试", action: retry).font(.caption.weight(.semibold)).buttonStyle(.bordered).disabled(!canRetry)
         }
         .frame(maxWidth: .infinity, alignment: .leading).padding(14)
         .background(.orange.opacity(0.07), in: .rect(cornerRadius: 12))
@@ -583,10 +583,10 @@ private struct ESimReceiptsCard: View {
                         Text("Operator receipts").font(.subheadline.weight(.semibold))
                         Text(sending ? "Sending…" : "\(count) waiting · Retried automatically").font(.caption).foregroundStyle(.secondary)
                     }.frame(maxWidth: .infinity, alignment: .leading)
-                    if sending { ProgressView().accessibilityLabel("Sending operator receipts") }
+                    if sending { ProgressView().accessibilityLabel("发送运营商收据") }
                 }
                 DisclosureGroup("Why are these waiting?", isExpanded: $expanded) {
-                    Text("Your eSIM sends operators a receipt when a profile is added, switched or deleted. The router retries every 10 minutes while mobile data is connected. You don’t need to keep this screen open.")
+                    Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送收据。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。")
                         .font(.caption).foregroundStyle(.secondary).padding(.top, 6)
                 }.font(.caption)
                 Button(action: send) { Label(sending ? "Sending receipts…" : "Send now", systemImage: "arrow.up.circle") }
@@ -610,7 +610,7 @@ private struct ESimChipCard: View {
                     HStack(spacing: 10) {
                         Image(systemName: "simcard.2").foregroundStyle(.blue)
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("eSIM card").font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
+                            Text("eSIM 卡").font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
                             Text("Card details & identifiers").font(.caption).foregroundStyle(.secondary)
                         }
                         Spacer()

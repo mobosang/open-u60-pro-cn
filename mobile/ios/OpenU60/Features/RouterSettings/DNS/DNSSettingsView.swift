@@ -17,7 +17,7 @@ struct DNSSettingsView: View {
             // MARK: - DNS Mode
 
             Section {
-                Picker("Mode", selection: $viewModel.selectedMode) {
+                Picker("模式", selection: $viewModel.selectedMode) {
                     ForEach(DNSMode.allCases) { mode in
                         Text(mode.label).tag(mode)
                     }
@@ -32,13 +32,13 @@ struct DNSSettingsView: View {
             // MARK: - DNS Servers
 
             if viewModel.selectedMode != .auto {
-                Section("DNS Servers") {
-                    TextField("Primary", text: $viewModel.editPrimary)
+                Section("DNS 服务器") {
+                    TextField("首选", text: $viewModel.editPrimary)
                         .keyboardType(.decimalPad)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
 
-                    TextField("Secondary", text: $viewModel.editSecondary)
+                    TextField("备用", text: $viewModel.editSecondary)
                         .keyboardType(.decimalPad)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
@@ -48,7 +48,7 @@ struct DNSSettingsView: View {
             // MARK: - DoH Upstream
 
             if viewModel.selectedMode == .doh {
-                Section("DoH Upstream") {
+                Section("DoH 上游服务器") {
                     TextField("URL", text: $viewModel.editUpstream)
                         .keyboardType(.URL)
                         .textContentType(.URL)
@@ -58,14 +58,14 @@ struct DNSSettingsView: View {
             }
 
             if viewModel.selectedMode == .dot {
-                Section("DNS over TLS") {
-                    TextField("Server (host:853)", text: $viewModel.editDotEndpoint)
+                Section("DNS 通过 TLS") {
+                    TextField("服务器（主机：853）", text: $viewModel.editDotEndpoint)
                         .keyboardType(.URL)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
 
-                    TextField("TLS certificate name", text: $viewModel.editDotServerName)
+                    TextField("TLS证书名称", text: $viewModel.editDotServerName)
                         .keyboardType(.URL)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
@@ -79,7 +79,7 @@ struct DNSSettingsView: View {
                 Button {
                     Task { await viewModel.apply() }
                 } label: {
-                    Text("Apply")
+                    Text("应用")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading)
@@ -101,33 +101,33 @@ struct DNSSettingsView: View {
                                           upstream: "https://9.9.9.9:5053/dns-query")
                 }
             } header: {
-                Text("Quick Setup")
+                Text("快速设置")
             } footer: {
-                Text("Fills DNS fields. Tap Apply to save.")
+                Text("填充 DNS 字段。点击“应用”进行保存。")
             }
 
             // MARK: - DoH Cache
 
             if viewModel.doh.enabled {
-                Section("DoH Cache") {
+                Section("DoH 缓存") {
                     LabeledContent("Entries", value: "\(viewModel.doh.cacheEntries)")
                     LabeledContent("Hits", value: "\(viewModel.doh.cacheHits)")
                     LabeledContent("Misses", value: "\(viewModel.doh.cacheMisses)")
                     LabeledContent("Hit Ratio", value: String(format: "%.1f%%", viewModel.doh.hitRatio))
 
-                    Button("Inspect Cache") {
+                    Button("检查缓存") {
                         viewModel.showCacheInspector = true
                     }
                     .disabled(viewModel.cacheEntries.isEmpty)
 
-                    Button("Clear Cache") {
+                    Button("清除缓存") {
                         Task { await viewModel.clearCache() }
                     }
                     .disabled(viewModel.isLoading || viewModel.doh.cacheEntries == 0)
                 }
             }
         }
-        .navigationTitle("DNS Settings")
+        .navigationTitle("DNS设置")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

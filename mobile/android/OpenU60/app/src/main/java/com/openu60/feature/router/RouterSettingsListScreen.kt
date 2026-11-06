@@ -39,7 +39,7 @@ fun RouterSettingsListScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Router Settings") })
+            TopAppBar(title = { Text("路由器设置") })
         },
     ) { padding ->
         Column(

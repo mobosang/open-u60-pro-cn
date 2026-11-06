@@ -15,7 +15,7 @@ struct CallView: View {
             // Top bar
             HStack {
                 Spacer()
-                Button("Close") { dismiss() }
+                Button("关闭") { dismiss() }
                     .padding()
             }
 
@@ -75,7 +75,7 @@ struct CallView: View {
                             .font(.title2)
                             .foregroundStyle(.secondary)
                     }
-                    .accessibilityLabel("Delete last digit")
+                    .accessibilityLabel("删除最后一位数字")
                 }
             }
             .frame(height: 44)
@@ -95,7 +95,7 @@ struct CallView: View {
                     .frame(width: 72, height: 72)
                     .background(.green, in: Circle())
             }
-            .accessibilityLabel("Call")
+            .accessibilityLabel("呼叫")
             .disabled(viewModel.phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
     }
@@ -123,7 +123,7 @@ struct CallView: View {
                     viewModel.appendDigit(digit)
                 }
 
-                Button("Hide Keypad") {
+                Button("隐藏键盘") {
                     viewModel.showKeypad = false
                 }
                 .font(.subheadline)
@@ -131,7 +131,7 @@ struct CallView: View {
                 HStack(spacing: 40) {
                     callControlButton(
                         icon: viewModel.isMuted ? "mic.slash.fill" : "mic.fill",
-                        label: "Mute",
+                        label: "静音",
                         isActive: viewModel.isMuted
                     ) {
                         Task { await viewModel.toggleMute() }
@@ -139,7 +139,7 @@ struct CallView: View {
 
                     callControlButton(
                         icon: "number",
-                        label: "Keypad",
+                        label: "键盘",
                         isActive: false
                     ) {
                         viewModel.showKeypad = true
@@ -147,7 +147,7 @@ struct CallView: View {
 
                     callControlButton(
                         icon: "speaker.wave.3.fill",
-                        label: "Speaker",
+                        label: "演讲者",
                         isActive: false
                     ) {
                         // Speaker toggle placeholder for Phase 2 audio bridge
@@ -180,7 +180,7 @@ struct CallView: View {
             Text(from)
                 .font(.title)
                 .fontWeight(.light)
-            Text("Incoming Call")
+            Text("来电")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -197,7 +197,7 @@ struct CallView: View {
                         .frame(width: 72, height: 72)
                         .background(.red, in: Circle())
                 }
-                .accessibilityLabel("Decline")
+                .accessibilityLabel("拒绝")
 
                 // Answer
                 Button {
@@ -209,7 +209,7 @@ struct CallView: View {
                         .frame(width: 72, height: 72)
                         .background(.green, in: Circle())
                 }
-                .accessibilityLabel("Answer")
+                .accessibilityLabel("答案")
             }
         }
         .padding(.top, 40)
@@ -227,7 +227,7 @@ struct CallView: View {
                 .frame(width: 72, height: 72)
                 .background(.red, in: Circle())
         }
-        .accessibilityLabel("End call")
+        .accessibilityLabel("结束通话")
         .padding(.bottom, 40)
     }
 

@@ -66,7 +66,7 @@ pub fn complete(v: Value) -> Result<Value, String> {
     if fmt::int(&v["enable"]).is_some() && fmt::int(&v["roam_enable"]).is_some() {
         Ok(v)
     } else {
-        Err("Mobile data state unavailable".into())
+        Err("移动数据状态不可用".into())
     }
 }
 
@@ -109,8 +109,8 @@ pub fn data_footer(d: &Value) -> String {
     let status = d["connect_status"].as_str().unwrap_or("");
     let on = num(d, "enable", 1) == 1;
     match (on, connected(d)) {
-        (false, true) => "Mobile data setting is off, but the connection is still active.".into(),
-        (false, false) => "Mobile data is disabled.".into(),
+        (false, true) => "移动数据设置已关闭，但连接仍然有效。".into(),
+        (false, false) => "移动数据已禁用。".into(),
         (true, true) => {
             // Swift's `capitalized`: "ipv4_connected" -> "Ipv4 Connected".
             let words: Vec<String> = status
@@ -120,10 +120,10 @@ pub fn data_footer(d: &Value) -> String {
                     c.next().map(|f| f.to_uppercase().chain(c.flat_map(char::to_lowercase)).collect()).unwrap_or_default()
                 })
                 .collect();
-            format!("Connected \u{2014} {}", words.join(" "))
+            format!("已连接 \u{2014} {}", words.join(" "))
         }
-        (true, false) if !status.is_empty() => "Disconnected".into(),
-        (true, false) => "Disabling mobile data will disconnect the cellular connection.".into(),
+        (true, false) if !status.is_empty() => "未连接".into(),
+        (true, false) => "禁用移动数据将断开蜂窝连接。".into(),
     }
 }
 
@@ -290,14 +290,14 @@ pub fn page(pd: &PageData) -> Markup {
         // The app's message row, above everything (its data read's error
         // replaces the airplane mode one).
         @match (pd.reads.first(), pd.reads.get(1)) {
-            (Some(Err(e)), _) => p.msg.err role="alert" { "Failed to load: " (fmt::truncate(e, 120)) },
-            (_, Some(Err(_))) => p.msg.err role="alert" { "Failed to load airplane mode status" },
+            (Some(Err(e)), _) => p.msg.err role="alert" { "加载失败： " (fmt::truncate(e, 120)) },
+            (_, Some(Err(_))) => p.msg.err role="alert" { "加载飞行模式状态失败" },
             _ => {}
         }
-        (kit::section(Some("Connectivity"), data.map(|d| foot(&data_footer(d))), html! {
+        (kit::section(Some("网络连接"), data.map(|d| foot(&data_footer(d))), html! {
             // Their posts carry the page's single-use token (sent once).
-            (kit::switch_row(&hidden, "Airplane Mode", airplane, Act::Link(&lpm), post(AIRPLANE.path, "mode", "ONLINE")))
-            (kit::switch_row(&hidden, "Mobile Data", data_on, data_on_act, data_off_act))
+            (kit::switch_row(&hidden, "飞行模式", airplane, Act::Link(&lpm), post(AIRPLANE.path, "mode", "ONLINE")))
+            (kit::switch_row(&hidden, "移动数据", data_on, data_on_act, data_off_act))
         }))
         // The scan's own form: its button sits under Network Selection
         // (a remote browser is asked first).
@@ -314,25 +314,25 @@ pub fn page(pd: &PageData) -> Markup {
             input type="hidden" name="roam0" value=(u8::from(roaming));
             input type="hidden" name="sel0" value=(sel_now);
             fieldset.mnf disabled[off] {
-                (kit::section(Some("Connection Mode"), None, segmented("Mode", "cm", [("cm-a", "1", "Automatic"), ("cm-m", "0", "Manual")], &cm.to_string(), &cm.to_string())))
-                (kit::section(None, Some(foot("Enabling roaming may incur additional charges from your carrier.")), html! {
+                (kit::section(Some("连接方式"), None, segmented("模式", "cm", [("cm-a", "1", "自动"), ("cm-m", "0", "手动")], &cm.to_string(), &cm.to_string())))
+                (kit::section(None, Some(foot("启用漫游可能会向您的运营商收取额外费用。")), html! {
                     li.it {
                         label.tl for="roam" {
-                            span { "Data Roaming" }
+                            span { "数据漫游" }
                             input.sr #roam type="checkbox" role="switch" name="roam" value="1" checked[roaming] data-i[roaming];
                             span.sw aria-hidden="true" {}
                         }
                     }
                 }))
-                (kit::section(Some("Network Selection"), None, html! {
-                    (segmented("Mode", "sel", [("sel-a", "auto_select", "Automatic"), ("sel-m", "manual_select", "Manual")], sel, sel_now))
-                    li.man { button.it.cv.bt type="submit" form="mn-scan" { "Scan Networks" } }
+                (kit::section(Some("网络选择"), None, html! {
+                    (segmented("模式", "sel", [("sel-a", "auto_select", "自动"), ("sel-m", "manual_select", "手动")], sel, sel_now))
+                    li.man { button.it.cv.bt type="submit" form="mn-scan" { "扫描网络" } }
                     @if let Some(list) = found {
                         @for n in list { (network_row(n)) }
-                        @if list.is_empty() { li.man.it.muted { "No networks found." } }
+                        @if list.is_empty() { li.man.it.muted { "未找到网络。" } }
                     }
                 }))
-                (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Apply" } } }))
+                (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "应用" } } }))
             }
         }
     }
@@ -406,20 +406,20 @@ fn apply_question(i: &Input, remote: bool) -> Option<Question> {
     let mut head = None;
     let mut lines: Vec<String> = Vec::new();
     if roam_on {
-        head = Some(("Turn on data roaming?", "Turn on data roaming"));
-        lines.extend(["Your operator may charge for data used abroad.".into(), "This also turns mobile data on if it is off.".into()]);
+        head = Some(("开启数据漫游？", "开启数据漫游"));
+        lines.extend(["您的运营商可能会对在国外使用的数据收费。".into(), "如果移动数据已关闭，此操作也会将其打开。".into()]);
     }
     if roam_off {
-        head = head.or(Some(("Turn off data roaming?", "Turn off data roaming")));
-        lines.extend(["Mobile data stops while the router is abroad.".into(), "You are connected remotely: if the router is abroad, this page can\u{2019}t be reached until roaming is turned back on at the router.".into()]);
+        head = head.or(Some(("关闭数据漫游？", "关闭数据漫游")));
+        lines.extend(["当路由器在国外时，移动数据会停止。".into(), "您已远程连接：如果路由器在国外，则只有在路由器上重新打开漫游功能后才能访问此页面\u{2019}。".into()]);
     }
     if auto {
-        head = head.or(Some(("Switch to automatic network selection?", "Apply")));
-        lines.push("The modem chooses a network itself. It may re-register, which drops the connection for a moment.".into());
+        head = head.or(Some(("切换到自动网络选择？", "应用")));
+        lines.push("调制解调器自行选择网络。它可能会重新注册，从而暂时断开连接。".into());
     }
     if manual {
-        head = head.or(Some(("Switch to manual connection mode?", "Apply")));
-        lines.push("Mobile data no longer reconnects by itself after the connection drops.".into());
+        head = head.or(Some(("切换到手动连接模式？", "应用")));
+        lines.push("连接断开后，移动数据不再自行重新连接。".into());
     }
     let (title, label) = head?;
     Some(asking(title, lines, label, remote, auto || manual))
@@ -432,9 +432,9 @@ pub fn question(kind: Kind, i: &Input, remote: bool, found: Option<&Result<Value
     match kind {
         Kind::Apply => apply_question(i, remote),
         Kind::Scan if remote => Some(asking(
-            "Scan for networks?",
-            vec!["The modem searches for up to a minute. Some modems pause mobile data while they search.".into()],
-            "Scan Networks",
+            "扫描网络？",
+            vec!["调制解调器搜索最多一分钟。某些调制解调器在搜索时会暂停移动数据。".into()],
+            "扫描网络",
             remote,
             true,
         )),
@@ -442,20 +442,20 @@ pub fn question(kind: Kind, i: &Input, remote: bool, found: Option<&Result<Value
             let (plmn, rat) = (i.val("plmn"), i.val("rat"));
             let net = match found {
                 None => None,
-                Some(Err(e)) => return Some(nothing("Failed to load the networks", vec![fmt::truncate(e, 120)])),
+                Some(Err(e)) => return Some(nothing("加载网络失败", vec![fmt::truncate(e, 120)])),
                 Some(Ok(r)) => match offered(r, plmn, rat) {
                     Some(n) => Some(n),
-                    None => return Some(nothing("This network is not in the last scan.", vec!["Scan again to see the networks available now.".into()])),
+                    None => return Some(nothing("该网络不在上次扫描中。", vec!["再次扫描以查看现在可用的网络。".into()])),
                 },
             };
             let name = net.map(|n| n.name).filter(|n| !n.is_empty()).unwrap_or_else(|| plmn.to_owned());
             Some(asking(
-                format!("Register to {name}?"),
+                format!("注册{name}？"),
                 vec![
-                    format!("The modem leaves its current network and registers to {name} ({plmn})."),
-                    "If this network does not accept your SIM, the router loses service until it registers to another one.".into(),
+                    format!("调制解调器离开当前网络并注册到 {name} ({plmn})。"),
+                    "如果该网络不接受您的 SIM，路由器将失去服务，直到它注册到另一个网络。".into(),
                 ],
-                "Register",
+                "注册",
                 remote,
                 true,
             ))
@@ -472,36 +472,36 @@ pub fn send(app: &AppState, kind: Kind, i: &Input, claim: &mut Claim) -> Result<
     match kind {
         Kind::Apply => {
             // Merged with the state as it is now; unread: nothing is sent.
-            let cur = wwan(app, None).map_err(|e| (503, format!("Failed: {}", fmt::truncate(&e, 120))))?;
+            let cur = wwan(app, None).map_err(|e| (503, format!("失败：{}", fmt::truncate(&e, 120))))?;
             let mode = (i.val("cm") != i.val("cm0")).then(|| i64::from(i.val("cm") == "1"));
             let roaming = (i.val("roam") != i.val("roam0")).then(|| i.val("roam") == "1");
             let wrote = mode.is_some() || roaming.is_some();
             if wrote {
                 claim.disarm();
-                super::call(app, Method::Put, "/api/modem/data", &apply_body(&cur, mode, roaming)).map_err(failed("Failed: "))?;
+                super::call(app, Method::Put, "/api/modem/data", &apply_body(&cur, mode, roaming)).map_err(failed("失败： "))?;
             }
             if i.val("sel") == "auto_select" && i.val("sel0") != "auto_select" {
                 claim.disarm();
                 let body = json!({"net_select_mode": "auto_select"});
                 // After the data write: say that part was applied.
-                let prefix = if wrote { "Connection settings applied; Automatic selection failed: " } else { "Failed: " };
+                let prefix = if wrote { "应用连接设置；自动选择失败： " } else { "失败： " };
                 super::call(app, Method::Put, "/api/modem/network-mode", &body).map_err(failed(prefix))?;
             }
             Ok(())
         }
         Kind::Scan => {
             claim.disarm();
-            super::call(app, Method::Post, "/api/modem/scan", &json!({})).map(|_| ()).map_err(failed("Scan failed: "))
+            super::call(app, Method::Post, "/api/modem/scan", &json!({})).map(|_| ()).map_err(failed("扫描失败： "))
         }
         _ => {
             // Only a network the last scan offers (a crafted link sends nothing).
-            let found = super::api_get(app, RESULTS).map_err(|e| (503, format!("Failed: {}", fmt::truncate(&e, 120))))?;
+            let found = super::api_get(app, RESULTS).map_err(|e| (503, format!("失败：{}", fmt::truncate(&e, 120))))?;
             if offered(&found, i.val("plmn"), i.val("rat")).is_none() {
-                return Err((409, "This network is not in the last scan. Scan again.".into()));
+                return Err((409, "该网络不在上次扫描中。再次扫描。".into()));
             }
             claim.disarm();
             let body = json!({"m_mcc_mnc": i.val("plmn"), "m_rat": i.val("rat")});
-            super::call(app, Method::Post, "/api/modem/register", &body).map(|_| ()).map_err(failed("Failed: "))
+            super::call(app, Method::Post, "/api/modem/register", &body).map(|_| ()).map_err(failed("失败： "))
         }
     }
 }
@@ -518,8 +518,8 @@ pub fn next(kind: Kind, i: &Input, r: Result<(), &str>) -> Next {
         (_, Err(msg)) => Next::Line(back(kind, i), Some(false), msg.to_owned()),
         (Kind::Apply, Ok(())) if apply_target(i) != "-:-" => Next::Op(&ops::APPLY, apply_target(i)),
         // Manual stays chosen (the router changes only when registering).
-        (Kind::Apply, Ok(())) if i.val("sel") == "manual_select" => Next::Line(format!("{PATH}?sel=manual"), Some(true), "Settings applied".into()),
-        (Kind::Apply, Ok(())) => Next::Line(PATH.into(), Some(true), "Settings applied".into()),
+        (Kind::Apply, Ok(())) if i.val("sel") == "manual_select" => Next::Line(format!("{PATH}?sel=manual"), Some(true), "应用的设置".into()),
+        (Kind::Apply, Ok(())) => Next::Line(PATH.into(), Some(true), "应用的设置".into()),
         (Kind::Scan, Ok(())) => Next::Op(&ops::NETSCAN, ""),
         (_, Ok(())) => Next::Op(&ops::REGISTER, ""),
     }
@@ -541,20 +541,20 @@ pub fn reboot_page(pd: &PageData) -> Markup {
     let err = pd.form.and_then(|f| f.error("password"));
     html! {
         div.narrow {
-            p { "Due to a firmware limitation, the cellular radio cannot be restored without rebooting. The router will restart (about 60 seconds)." }
+            p { "由于固件限制，不重新启动就无法恢复蜂窝无线电。路由器将重新启动（大约 60 秒）。" }
             @if pd.remote { p { (REMOTE) } }
             form.panel method="post" action=(REBOOT) {
                 (pd.csrf())
                 (once_field(&pd.once()))
                 div.field {
-                    label for="rpw" { "Router Password" }
+                    label for="rpw" { "路由器管理密码" }
                     input #rpw type="password" name="password" autocomplete="current-password" required
                         aria-invalid=[err.map(|_| "true")] aria-describedby=[err.map(|_| "rpw-err")];
                     @if let Some(e) = err { p.ferr #rpw-err { (e) } }
                 }
                 p.actions {
-                    button.btn.btn-danger type="submit" { "Reboot Now" }
-                    a.btn.btn-quiet href=(PATH) { "Cancel" }
+                    button.btn.btn-danger type="submit" { "立即重新启动" }
+                    a.btn.btn-quiet href=(PATH) { "取消" }
                 }
             }
         }
@@ -594,30 +594,30 @@ mod tests {
     #[test]
     fn mobile_data_footer_follows_the_app() {
         let d = |enable: i64, status: &str| data_footer(&json!({"enable": enable, "connect_status": status}));
-        assert_eq!(d(1, "ipv4_ipv6_connected"), "Connected \u{2014} Ipv4 Ipv6 Connected");
-        assert_eq!(d(1, "disconnected"), "Disconnected");
-        assert_eq!(d(1, ""), "Disabling mobile data will disconnect the cellular connection.");
-        assert_eq!(d(0, "disconnected"), "Mobile data is disabled.");
-        assert_eq!(d(0, "ipv6_connected"), "Mobile data setting is off, but the connection is still active.");
+        assert_eq!(d(1, "ipv4_ipv6_connected"), "已连接 \u{2014} Ipv4 Ipv6 已连接");
+        assert_eq!(d(1, "disconnected"), "未连接");
+        assert_eq!(d(1, ""), "禁用移动数据将断开蜂窝连接。");
+        assert_eq!(d(0, "disconnected"), "移动数据已禁用。");
+        assert_eq!(d(0, "ipv6_connected"), "移动数据设置已关闭，但连接仍然有效。");
     }
 
     /// The app's list, or the firmware's "stat,name,plmn,rat;" string.
     #[test]
     fn networks_parse_both_shapes() {
         let app = json!({"m_netselect_contents": [
-            {"name": "Test Net", "mcc_mnc": "00101", "rat": "LTE", "status": "current"},
-            {"operator_name": "Other", "plmn": "001002", "rat": 7, "status": "forbidden"},
-            {"name": "Third", "mcc_mnc": "00103", "rat": "NR"},
+            {"name": "测试网", "mcc_mnc": "00101", "rat": "LTE", "status": "current"},
+            {"operator_name": "其他", "plmn": "001002", "rat": 7, "status": "forbidden"},
+            {"name": "第三", "mcc_mnc": "00103", "rat": "NR"},
         ]});
         let n = parse_networks(&app);
-        assert_eq!(n[0], Network { name: "Test Net".into(), plmn: "00101".into(), rat: "LTE".into(), status: "current" });
-        assert_eq!((n[1].name.as_str(), n[1].plmn.as_str(), n[1].rat.as_str(), n[1].status), ("Other", "001002", "7", "forbidden"));
+        assert_eq!(n[0], Network { name: "测试网".into(), plmn: "00101".into(), rat: "LTE".into(), status: "current" });
+        assert_eq!((n[1].name.as_str(), n[1].plmn.as_str(), n[1].rat.as_str(), n[1].status), ("其他", "001002", "7", "forbidden"));
         assert_eq!(n[2].status, "available");
         let fw = json!({"m_netselect_contents": "2,Test Net,00101,7;1,Other Net,00102,12;3,Barred,00103,2;x,Bad,1,7;"});
         let n = parse_networks(&fw);
         assert_eq!(n.len(), 3);
         assert_eq!((n[0].status, n[1].status, n[2].status), ("current", "available", "forbidden"));
-        assert_eq!((n[1].name.as_str(), n[1].plmn.as_str(), n[1].rat.as_str()), ("Other Net", "00102", "12"));
+        assert_eq!((n[1].name.as_str(), n[1].plmn.as_str(), n[1].rat.as_str()), ("其他网", "00102", "12"));
         assert!(parse_networks(&json!({})).is_empty());
     }
 
@@ -630,29 +630,29 @@ mod tests {
         assert_eq!(apply_target(&i("0", "0", "manual_select")), "0:-");
         assert_eq!(apply_target(&i("1", "1", "manual_select")), "-:1");
         assert_eq!(apply_target(&i("1", "0", "auto_select")), "-:-");
-        assert!(matches!(next(Kind::Apply, &i("1", "0", "auto_select"), Ok(())), Next::Line(to, Some(true), l) if l == "Settings applied" && to == PATH));
+        assert!(matches!(next(Kind::Apply, &i("1", "0", "auto_select"), Ok(())), Next::Line(to, Some(true), l) if l == "应用的设置" && to == PATH));
         // Manual alone: the app's line, and Manual stays chosen.
-        assert!(matches!(next(Kind::Apply, &i("1", "0", "manual_select"), Ok(())), Next::Line(to, Some(true), l) if l == "Settings applied" && to == "/ui/router/mobile-network?sel=manual"));
+        assert!(matches!(next(Kind::Apply, &i("1", "0", "manual_select"), Ok(())), Next::Line(to, Some(true), l) if l == "应用的设置" && to == "/ui/router/mobile-network?sel=manual"));
         assert!(matches!(next(Kind::Apply, &i("0", "1", "manual_select"), Ok(())), Next::Op(_, "0:1")));
         // Roaming on asks; off only remotely; anything else does not.
-        assert_eq!(question(Kind::Apply, &i("1", "1", "manual_select"), false, None).unwrap().title, "Turn on data roaming?");
+        assert_eq!(question(Kind::Apply, &i("1", "1", "manual_select"), false, None).unwrap().title, "开启数据漫游？");
         assert!(question(Kind::Apply, &i("0", "0", "manual_select"), false, None).is_none());
         let off = Input::of(&[("cm", "1"), ("roam", "0"), ("sel", "auto_select"), ("cm0", "1"), ("roam0", "1"), ("sel0", "auto_select")]);
         assert!(question(Kind::Apply, &off, false, None).is_none());
-        assert_eq!(question(Kind::Apply, &off, true, None).unwrap().title, "Turn off data roaming?");
+        assert_eq!(question(Kind::Apply, &off, true, None).unwrap().title, "关闭数据漫游？");
         // Remotely, also Automatic selection and Manual connection mode
         // (each can cut the connection), with the remote line.
         let q = question(Kind::Apply, &i("1", "0", "auto_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.last().map(String::as_str)), ("Switch to automatic network selection?", Some(REMOTE)));
+        assert_eq!((q.title.as_str(), q.lines.last().map(String::as_str)), ("切换到自动网络选择？", Some(REMOTE)));
         assert!(question(Kind::Apply, &i("1", "0", "auto_select"), false, None).is_none());
         let q = question(Kind::Apply, &i("0", "0", "manual_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.len()), ("Switch to manual connection mode?", 2));
+        assert_eq!((q.title.as_str(), q.lines.len()), ("切换到手动连接模式？", 2));
         // Several at once: one question naming each.
         let q = question(Kind::Apply, &i("0", "1", "auto_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.len()), ("Turn on data roaming?", 5));
+        assert_eq!((q.title.as_str(), q.lines.len()), ("开启数据漫游？", 5));
         // A scan asks only remotely.
         assert!(question(Kind::Scan, &i("1", "0", "auto_select"), false, None).is_none());
-        assert_eq!(question(Kind::Scan, &i("1", "0", "auto_select"), true, None).unwrap().label, Some("Scan Networks"));
+        assert_eq!(question(Kind::Scan, &i("1", "0", "auto_select"), true, None).unwrap().label, Some("扫描网络"));
     }
 
     /// The fields are checked; the name shown is the scan's, and only a
@@ -667,17 +667,17 @@ mod tests {
         }
         let i = Input::of(&[("plmn", "00101"), ("rat", "7")]);
         // Only asked whether there is a question: yes.
-        assert_eq!(question(Kind::Register, &i, true, None).unwrap().label, Some("Register"));
+        assert_eq!(question(Kind::Register, &i, true, None).unwrap().label, Some("注册"));
         let found = Ok(json!({"m_netselect_contents": "1,Test Net,00101,7;3,Barred,00103,7;"}));
         let q = question(Kind::Register, &i, true, Some(&found)).unwrap();
-        assert_eq!((q.title.as_str(), q.label), ("Register to Test Net?", Some("Register")));
+        assert_eq!((q.title.as_str(), q.label), ("注册测试网？", Some("注册")));
         assert_eq!(q.lines.last().unwrap(), REMOTE);
         // Not offered (not found, forbidden, another RAT) or unread: nothing to do.
         for (plmn, rat) in [("99999", "7"), ("00103", "7"), ("00101", "12")] {
             let q = question(Kind::Register, &Input::of(&[("plmn", plmn), ("rat", rat)]), false, Some(&found)).unwrap();
-            assert_eq!((q.title.as_str(), q.label), ("This network is not in the last scan.", None), "{plmn}");
+            assert_eq!((q.title.as_str(), q.label), ("该网络不在上次扫描中。", None), "{plmn}");
         }
         let q = question(Kind::Register, &i, false, Some(&Err("ubus <down>".into()))).unwrap();
-        assert_eq!((q.title.as_str(), q.label), ("Failed to load the networks", None));
+        assert_eq!((q.title.as_str(), q.label), ("加载网络失败", None));
     }
 }

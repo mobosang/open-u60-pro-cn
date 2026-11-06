@@ -99,8 +99,8 @@ impl Default for OpTable {
 }
 
 const MODEM: &[Topic] = &[Topic::Modem];
-const MOBILE_NETWORK: (&str, &str) = ("/ui/router/mobile-network", "Mobile Network");
-const UNCONFIRMED: &str = "Change not confirmed";
+const MOBILE_NETWORK: (&str, &str) = ("/ui/router/mobile-network", "移动网络");
+const UNCONFIRMED: &str = "变更未确认";
 
 const fn modem_op(titles: [&'static str; 2], steps: &'static [&'static str], status: fn(&str, Duration, &Views) -> OpStatus) -> OpSpec {
     OpSpec {
@@ -116,23 +116,23 @@ const fn modem_op(titles: [&'static str; 2], steps: &'static [&'static str], sta
 }
 
 pub static DATA_ON: OpSpec = modem_op(
-    ["Turning mobile data on", "Mobile data turned on"],
-    &["Turning on mobile data\u{2026}", "Connecting\u{2026}"],
+    ["开启移动数据", "移动数据已开启"],
+    &["开启移动数据\u{2026}", "正在连接\u{2026}"],
     |_, e, v| op_status(OpKind::MobileData { on: true }, e, v.value(Topic::Modem)),
 );
 pub static DATA_OFF: OpSpec = modem_op(
-    ["Turning mobile data off", "Mobile data turned off"],
-    &["Disconnecting\u{2026}"],
+    ["关闭移动数据", "移动数据已关闭"],
+    &["断开\u{2026}"],
     |_, e, v| op_status(OpKind::MobileData { on: false }, e, v.value(Topic::Modem)),
 );
 pub static AIRPLANE_ON: OpSpec = modem_op(
-    ["Turning airplane mode on", "Airplane mode turned on"],
-    &["Turning the radio off\u{2026}"],
+    ["开启飞行模式", "飞行模式开启"],
+    &["关闭收音机\u{2026}"],
     |_, e, v| op_status(OpKind::Airplane { on: true }, e, v.value(Topic::Modem)),
 );
 pub static AIRPLANE_OFF: OpSpec = modem_op(
-    ["Turning airplane mode off", "Airplane mode turned off"],
-    &["Radio on, registering\u{2026}", "Connecting\u{2026}"],
+    ["关闭飞行模式", "飞行模式已关闭"],
+    &["收音机打开，正在注册\u{2026}", "正在连接\u{2026}"],
     |_, e, v| op_status(OpKind::Airplane { on: false }, e, v.value(Topic::Modem)),
 );
 
@@ -142,11 +142,11 @@ pub static AIRPLANE_OFF: OpSpec = modem_op(
 /// Network Mode page it was started from.
 const fn net_mode_op(back: &'static str, tab: Tab) -> OpSpec {
     OpSpec {
-        titles: ["Changing network mode", "Network mode updated", "Mode sent \u{2014} router may still be switching", "Mode sent \u{2014} router may still be switching"],
-        steps: &["Switching network mode\u{2026}"],
+        titles: ["更改网络模式", "网络模式更新", "\u{2014}路由器发送的模式可能仍在切换", "\u{2014}路由器发送的模式可能仍在切换"],
+        steps: &["切换网络模式\u{2026}"],
         topics: &[Topic::Signal],
         status: net_mode_status,
-        back: (back, "Network Mode"),
+        back: (back, "网络模式"),
         tab,
         timeout_ok: true,
         view: None,
@@ -162,10 +162,10 @@ const NET_MODE_TIMEOUT: Duration = Duration::from_secs(10);
 pub fn net_mode_status(target: &str, elapsed: Duration, v: &Views) -> OpStatus {
     let cur = v.value(Topic::Signal).and_then(|s| s["net_select"].as_str());
     match cur {
-        Some(c) if c == target => OpStatus::Done { msg: "The modem reports the new mode." },
+        Some(c) if c == target => OpStatus::Done { msg: "调制解调器报告新模式。" },
         _ if elapsed < NET_MODE_TIMEOUT => OpStatus::Pending { step: 0 },
-        None => OpStatus::TimedOut { msg: "Couldn't read the modem state." },
-        Some(_) => OpStatus::TimedOut { msg: "The modem has not reported the new mode yet. Check again in a moment." },
+        None => OpStatus::TimedOut { msg: "无法读取调制解调器状态。" },
+        Some(_) => OpStatus::TimedOut { msg: "调制解调器尚未报告新模式。稍后再检查一次。" },
     }
 }
 
@@ -175,8 +175,8 @@ pub fn net_mode_status(target: &str, elapsed: Duration, v: &Views) -> OpStatus {
 /// one of `APPLY_TARGETS`: "<connect mode>:<roaming>", "-" for a value
 /// Apply left as it was.
 pub static APPLY: OpSpec = OpSpec {
-    titles: ["Applying settings", "Settings applied", "Settings sent \u{2014} router may still be applying", "Settings sent \u{2014} router may still be applying"],
-    steps: &["Applying settings\u{2026}"],
+    titles: ["应用设置", "应用的设置", "发送给\u{2014}路由器的设置可能仍在应用", "发送给\u{2014}路由器的设置可能仍在应用"],
+    steps: &["应用设置\u{2026}"],
     topics: MODEM,
     status: apply_status,
     back: MOBILE_NETWORK,
@@ -197,10 +197,10 @@ pub fn apply_status(target: &str, elapsed: Duration, v: &Views) -> OpStatus {
             && (roam == "-" || fmt::int(&d["roam_enable"]).map(|r| r != 0) == Some(roam == "1"))
     });
     match (data, shows) {
-        (Some(_), true) => OpStatus::Done { msg: "The modem reports the new settings." },
+        (Some(_), true) => OpStatus::Done { msg: "调制解调器报告新设置。" },
         _ if elapsed < APPLY_TIMEOUT => OpStatus::Pending { step: 0 },
-        (None, _) => OpStatus::TimedOut { msg: "Couldn't read the modem state." },
-        _ => OpStatus::TimedOut { msg: "The modem has not reported the new settings yet. Check again in a moment." },
+        (None, _) => OpStatus::TimedOut { msg: "无法读取调制解调器状态。" },
+        _ => OpStatus::TimedOut { msg: "调制解调器尚未报告新设置。稍后再检查一次。" },
     }
 }
 
@@ -208,11 +208,11 @@ pub fn apply_status(target: &str, elapsed: Duration, v: &Views) -> OpStatus {
 /// until the modem reports it done, for 60 s (the app polls 30 times, 2 s
 /// apart). Its way back shows the networks found (`?scan=1`).
 pub static NETSCAN: OpSpec = OpSpec {
-    titles: ["Scanning networks", "Scan complete", "Scan timed out", "Scan failed"],
-    steps: &["Scanning for networks\u{2026}"],
+    titles: ["扫描网络", "扫描完成", "扫描超时", "扫描失败"],
+    steps: &["扫描网络\u{2026}"],
     topics: &[Topic::Netscan],
     status: |_, e, v| scan_status(e, v.value(Topic::Netscan)),
-    back: ("/ui/router/mobile-network?scan=1", "Mobile Network"),
+    back: ("/ui/router/mobile-network?scan=1", "移动网络"),
     tab: Tab::Router,
     timeout_ok: false,
     view: None,
@@ -222,7 +222,7 @@ pub static NETSCAN: OpSpec = OpSpec {
 /// `netscan` until the modem reports its result, for 30 s (the app polls
 /// 15 times, 2 s apart).
 pub static REGISTER: OpSpec = OpSpec {
-    titles: ["Registering to network", "Registered to network", "Registration timed out", "Registration failed"],
+    titles: ["注册网络", "注册网络", "注册超时", "Registration failed"],
     steps: &["Registering\u{2026}"],
     topics: &[Topic::Netscan],
     status: |_, e, v| register_status(e, v.value(Topic::Netscan)),
@@ -255,11 +255,11 @@ pub fn scan_status(elapsed: Duration, netscan: Option<&Value>) -> OpStatus {
     let st = netscan.map(|n| text(&n["scan"]["m_netselect_status"]));
     match st.as_deref() {
         _ if elapsed < FIRST_READ => OpStatus::Pending { step: 0 },
-        Some(s) if scan_done(s) => OpStatus::Done { msg: "Choose a network under Network Selection." },
-        Some(s) if s.contains("fail") => OpStatus::Failed { msg: "The modem reports that the scan failed." },
+        Some(s) if scan_done(s) => OpStatus::Done { msg: "在网络选择下选择一个网络。" },
+        Some(s) if s.contains("fail") => OpStatus::Failed { msg: "调制解调器报告扫描失败。" },
         _ if elapsed < Duration::from_secs(60) => OpStatus::Pending { step: 0 },
-        None => OpStatus::TimedOut { msg: "Couldn't read the scan status." },
-        Some(_) => OpStatus::TimedOut { msg: "The modem has not finished the scan after a minute." },
+        None => OpStatus::TimedOut { msg: "无法读取扫描状态。" },
+        Some(_) => OpStatus::TimedOut { msg: "调制解调器在一分钟后尚未完成扫描。" },
     }
 }
 
@@ -269,11 +269,11 @@ pub fn register_status(elapsed: Duration, netscan: Option<&Value>) -> OpStatus {
     let r = netscan.map(|n| text(&n["register"]["m_netselect_result"]));
     match r.as_deref() {
         _ if elapsed < FIRST_READ => OpStatus::Pending { step: 0 },
-        Some(r) if r == "1" || r.contains("success") => OpStatus::Done { msg: "The modem reports it is registered." },
-        Some(r) if r == "0" || r.contains("fail") => OpStatus::Failed { msg: "The modem reports that the registration failed." },
+        Some(r) if r == "1" || r.contains("success") => OpStatus::Done { msg: "调制解调器报告它已注册。" },
+        Some(r) if r == "0" || r.contains("fail") => OpStatus::Failed { msg: "调制解调器报告注册失败。" },
         _ if elapsed < Duration::from_secs(30) => OpStatus::Pending { step: 0 },
-        None => OpStatus::TimedOut { msg: "Couldn't read the registration result." },
-        Some(_) => OpStatus::TimedOut { msg: "The modem has not reported a result after 30 seconds." },
+        None => OpStatus::TimedOut { msg: "无法读取注册结果。" },
+        Some(_) => OpStatus::TimedOut { msg: "调制解调器在 30 秒后未报告结果。" },
     }
 }
 
@@ -327,35 +327,35 @@ pub fn op_status(kind: OpKind, elapsed: Duration, modem: Option<&Value>) -> OpSt
         OpKind::Airplane { .. } => mode.is_empty(),
     };
     match kind {
-        _ if late && unread => OpStatus::TimedOut { msg: "Couldn't read the modem state." },
-        OpKind::MobileData { on: true } if connected => OpStatus::Done { msg: "Mobile data is on and connected." },
+        _ if late && unread => OpStatus::TimedOut { msg: "无法读取调制解调器状态。" },
+        OpKind::MobileData { on: true } if connected => OpStatus::Done { msg: "移动数据已开启并已连接。" },
         // The radio is off: nothing connects until airplane mode is off.
         OpKind::MobileData { on: true } if !mode.is_empty() && mode != "ONLINE" => {
-            OpStatus::Done { msg: "Mobile data is on. It connects when airplane mode is turned off." }
+            OpStatus::Done { msg: "移动数据已开启。当飞行模式关闭时它会连接。" }
         }
         OpKind::MobileData { on: true } if late => {
-            OpStatus::TimedOut { msg: "Mobile data is on but not connected yet. Check signal and APN." }
+            OpStatus::TimedOut { msg: "移动数据已开启但尚未连接。检查信号和APN。" }
         }
         OpKind::MobileData { on: true } => OpStatus::Pending { step: usize::from(enable == Some(1)) },
-        OpKind::MobileData { on: false } if data.is_some() && !connected => OpStatus::Done { msg: "Mobile data is off." },
+        OpKind::MobileData { on: false } if data.is_some() && !connected => OpStatus::Done { msg: "移动数据已关闭。" },
         OpKind::MobileData { on: false } if late => {
-            OpStatus::TimedOut { msg: "Mobile data is still connected. Check again in a moment." }
+            OpStatus::TimedOut { msg: "移动数据仍处于连接状态。稍后再检查一次。" }
         }
         OpKind::Airplane { on: true } if !mode.is_empty() && mode != "ONLINE" => {
-            OpStatus::Done { msg: "Airplane mode is on. The radio is off." }
+            OpStatus::Done { msg: "飞行模式已开启。收音机已关闭。" }
         }
-        OpKind::Airplane { on: true } if late => OpStatus::TimedOut { msg: "The radio has not turned off yet." },
+        OpKind::Airplane { on: true } if late => OpStatus::TimedOut { msg: "收音机还没有关闭。" },
         OpKind::Airplane { on: false } if mode == "ONLINE" && connected => {
-            OpStatus::Done { msg: "The radio is on and mobile data is connected." }
+            OpStatus::Done { msg: "收音机已打开并且移动数据已连接。" }
         }
         // Mobile data is off: there is no connection to wait for.
         OpKind::Airplane { on: false } if mode == "ONLINE" && enable == Some(0) => {
-            OpStatus::Done { msg: "The radio is on. Mobile data is off." }
+            OpStatus::Done { msg: "收音机已打开。移动数据已关闭。" }
         }
         OpKind::Airplane { on: false } if late && mode == "ONLINE" => {
-            OpStatus::TimedOut { msg: "The radio is on but there's no data connection yet." }
+            OpStatus::TimedOut { msg: "收音机已打开，但尚未建立数据连接。" }
         }
-        OpKind::Airplane { on: false } if late => OpStatus::TimedOut { msg: "The radio has not turned on yet." },
+        OpKind::Airplane { on: false } if late => OpStatus::TimedOut { msg: "收音机尚未打开。" },
         OpKind::Airplane { on: false } => OpStatus::Pending { step: usize::from(mode == "ONLINE") },
         _ => OpStatus::Pending { step: 0 },
     }
@@ -388,15 +388,15 @@ mod tests {
         assert!(matches!(op_status(on, at(5), Some(&modem("ONLINE", 1, "ipv4_ipv6_connected"))), OpStatus::Done { .. }));
         assert_eq!(op_status(on, at(44), None), OpStatus::Pending { step: 0 });
         // Unread at the timeout: nothing is claimed.
-        assert_eq!(op_status(on, at(45), None), OpStatus::TimedOut { msg: "Couldn't read the modem state." });
+        assert_eq!(op_status(on, at(45), None), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         // In airplane mode it cannot connect: done at once, and said so.
         assert_eq!(
             op_status(on, at(1), Some(&modem("LPM", 1, "disconnected"))),
-            OpStatus::Done { msg: "Mobile data is on. It connects when airplane mode is turned off." }
+            OpStatus::Done { msg: "移动数据已开启。当飞行模式关闭时它会连接。" }
         );
         assert_eq!(
             op_status(on, at(45), Some(&modem("ONLINE", 1, "disconnected"))),
-            OpStatus::TimedOut { msg: "Mobile data is on but not connected yet. Check signal and APN." }
+            OpStatus::TimedOut { msg: "移动数据已开启但尚未连接。检查信号和APN。" }
         );
         let off = OpKind::MobileData { on: false };
         assert_eq!(op_status(off, at(1), Some(&modem("ONLINE", 1, "ipv4_connected"))), OpStatus::Pending { step: 0 });
@@ -405,7 +405,7 @@ mod tests {
         // An unreadable state is not "disconnected".
         assert_eq!(op_status(off, at(2), Some(&json!({"data": null}))), OpStatus::Pending { step: 0 });
         assert!(matches!(op_status(off, at(30), Some(&modem("ONLINE", 0, "ipv6_connected"))), OpStatus::TimedOut { .. }));
-        assert_eq!(op_status(off, at(30), Some(&json!({"data": null}))), OpStatus::TimedOut { msg: "Couldn't read the modem state." });
+        assert_eq!(op_status(off, at(30), Some(&json!({"data": null}))), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
     }
 
     #[test]
@@ -419,18 +419,18 @@ mod tests {
         assert_eq!(op_status(off, at(9), Some(&modem("ONLINE", 1, "disconnected"))), OpStatus::Pending { step: 1 });
         assert_eq!(
             op_status(off, at(12), Some(&modem("ONLINE", 1, "ipv4_connected"))),
-            OpStatus::Done { msg: "The radio is on and mobile data is connected." }
+            OpStatus::Done { msg: "收音机已打开并且移动数据已连接。" }
         );
         assert_eq!(
             op_status(off, at(12), Some(&modem("ONLINE", 0, "disconnected"))),
-            OpStatus::Done { msg: "The radio is on. Mobile data is off." }
+            OpStatus::Done { msg: "收音机已打开。移动数据已关闭。" }
         );
         assert_eq!(
             op_status(off, at(60), Some(&modem("ONLINE", 1, "disconnected"))),
-            OpStatus::TimedOut { msg: "The radio is on but there's no data connection yet." }
+            OpStatus::TimedOut { msg: "收音机已打开，但尚未建立数据连接。" }
         );
-        assert_eq!(op_status(off, at(60), Some(&modem("LPM", 1, ""))), OpStatus::TimedOut { msg: "The radio has not turned on yet." });
-        assert_eq!(op_status(on, at(20), None), OpStatus::TimedOut { msg: "Couldn't read the modem state." });
+        assert_eq!(op_status(off, at(60), Some(&modem("LPM", 1, ""))), OpStatus::TimedOut { msg: "收音机尚未打开。" });
+        assert_eq!(op_status(on, at(20), None), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         assert!(!OpStatus::Pending { step: 0 }.finished() && OpStatus::Done { msg: "" }.finished());
     }
 
@@ -439,18 +439,18 @@ mod tests {
         let (pending, done, late) = (OpStatus::Pending { step: 0 }, OpStatus::Done { msg: "" }, OpStatus::TimedOut { msg: "" });
         let op = |spec| Op { spec, started: BootInstant::from_duration(at(1)), arg: "" };
         let data_on = op(&DATA_ON);
-        assert_eq!((data_on.title(pending), data_on.title(done)), ("Turning mobile data on", "Mobile data turned on"));
+        assert_eq!((data_on.title(pending), data_on.title(done)), ("开启移动数据", "移动数据已开启"));
         let lpm_off = op(&AIRPLANE_OFF);
-        assert_eq!((lpm_off.title(pending), lpm_off.title(done)), ("Turning airplane mode off", "Airplane mode turned off"));
-        assert_eq!(op(&DATA_OFF).title(late), "Change not confirmed");
-        assert_eq!(op(&AIRPLANE_ON).spec.steps, ["Turning the radio off\u{2026}"]);
+        assert_eq!((lpm_off.title(pending), lpm_off.title(done)), ("关闭飞行模式", "飞行模式已关闭"));
+        assert_eq!(op(&DATA_OFF).title(late), "变更未确认");
+        assert_eq!(op(&AIRPLANE_ON).spec.steps, ["关闭收音机\u{2026}"]);
         // Every modem operation leads back to Mobile Network, under Router.
         for spec in [&DATA_ON, &DATA_OFF, &AIRPLANE_ON, &AIRPLANE_OFF] {
-            assert_eq!((spec.back, spec.tab, spec.topics), (("/ui/router/mobile-network", "Mobile Network"), Tab::Router, MODEM));
+            assert_eq!((spec.back, spec.tab, spec.topics), (("/ui/router/mobile-network", "移动网络"), Tab::Router, MODEM));
         }
         // The status reads the modem topic at the view's time.
         let v = Views::new(BootInstant::from_duration(at(21)), vec![]);
-        assert_eq!(op(&AIRPLANE_ON).status(&v), OpStatus::TimedOut { msg: "Couldn't read the modem state." });
+        assert_eq!(op(&AIRPLANE_ON).status(&v), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         assert_eq!(op(&AIRPLANE_OFF).status(&v), OpStatus::Pending { step: 0 });
     }
 
@@ -466,25 +466,25 @@ mod tests {
             };
             Views::new(BootInstant::from_duration(at(1)), vec![(Topic::Signal, slot)])
         };
-        let st = |sel: &str, secs| net_mode_status("Only_LTE", at(secs), &signal(sel));
+        let st = |sel: &str, secs| net_mode_status("仅_LTE", at(secs), &signal(sel));
         assert_eq!(st("WL_AND_5G", 2), OpStatus::Pending { step: 0 });
-        assert_eq!(st("Only_LTE", 4), OpStatus::Done { msg: "The modem reports the new mode." });
-        assert_eq!(st("Only_LTE", 30), OpStatus::Done { msg: "The modem reports the new mode." });
+        assert_eq!(st("仅_LTE", 4), OpStatus::Done { msg: "调制解调器报告新模式。" });
+        assert_eq!(st("仅_LTE", 30), OpStatus::Done { msg: "调制解调器报告新模式。" });
         assert_eq!(st("WL_AND_5G", 9), OpStatus::Pending { step: 0 });
         assert!(matches!(st("WL_AND_5G", 10), OpStatus::TimedOut { msg } if msg.contains("not reported the new mode")));
         let unread = Views::new(BootInstant::from_duration(at(1)), vec![]);
-        assert_eq!(net_mode_status("Only_LTE", at(10), &unread), OpStatus::TimedOut { msg: "Couldn't read the modem state." });
+        assert_eq!(net_mode_status("仅_LTE", at(10), &unread), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         // The heading follows the app's messages; each mount leads back to its own page.
-        let op = Op { spec: &NET_MODE_ROUTER, started: BootInstant::from_duration(at(1)), arg: "Only_LTE" };
-        assert_eq!(op.title(OpStatus::Done { msg: "" }), "Network mode updated");
-        assert_eq!(op.title(OpStatus::TimedOut { msg: "" }), "Mode sent \u{2014} router may still be switching");
-        assert_eq!((NET_MODE_ROUTER.back, NET_MODE_ROUTER.tab), (("/ui/router/network-mode", "Network Mode"), Tab::Router));
-        assert_eq!((NET_MODE_SIGNAL.back, NET_MODE_SIGNAL.tab), (("/ui/signal/network-mode", "Network Mode"), Tab::Dashboard));
+        let op = Op { spec: &NET_MODE_ROUTER, started: BootInstant::from_duration(at(1)), arg: "仅_LTE" };
+        assert_eq!(op.title(OpStatus::Done { msg: "" }), "网络模式更新");
+        assert_eq!(op.title(OpStatus::TimedOut { msg: "" }), "\u{2014}路由器发送的模式可能仍在切换");
+        assert_eq!((NET_MODE_ROUTER.back, NET_MODE_ROUTER.tab), (("/ui/router/network-mode", "网络模式"), Tab::Router));
+        assert_eq!((NET_MODE_SIGNAL.back, NET_MODE_SIGNAL.tab), (("/ui/signal/network-mode", "网络模式"), Tab::Dashboard));
         // The status reads the operation's own target.
-        let mut v = signal("Only_LTE");
+        let mut v = signal("仅_LTE");
         v.now = BootInstant::from_duration(at(3));
-        assert_eq!(op.status(&v), OpStatus::Done { msg: "The modem reports the new mode." });
-        assert_eq!(Op { arg: "Only_5G", ..op }.status(&v), OpStatus::Pending { step: 0 });
+        assert_eq!(op.status(&v), OpStatus::Done { msg: "调制解调器报告新模式。" });
+        assert_eq!(Op { arg: "仅_5G", ..op }.status(&v), OpStatus::Pending { step: 0 });
     }
 
     #[test]
@@ -498,25 +498,25 @@ mod tests {
         let num = json!({"scan": {"m_netselect_status": 2}});
         assert!(matches!(scan_status(at(4), Some(&num)), OpStatus::Done { .. }));
         assert_eq!(scan_status(at(59), Some(&n("manual_selecting", ""))), OpStatus::Pending { step: 0 });
-        assert_eq!(scan_status(at(60), Some(&n("manual_selecting", ""))), OpStatus::TimedOut { msg: "The modem has not finished the scan after a minute." });
-        assert_eq!(scan_status(at(60), None), OpStatus::TimedOut { msg: "Couldn't read the scan status." });
+        assert_eq!(scan_status(at(60), Some(&n("manual_selecting", ""))), OpStatus::TimedOut { msg: "调制解调器在一分钟后尚未完成扫描。" });
+        assert_eq!(scan_status(at(60), None), OpStatus::TimedOut { msg: "无法读取扫描状态。" });
         assert!(matches!(scan_status(at(3), Some(&n("manual_select_fail", ""))), OpStatus::Failed { .. }));
         assert_eq!(register_status(at(1), Some(&n("", "success"))), OpStatus::Pending { step: 0 });
         for ok in ["success", "1", "manual_success"] {
             assert!(matches!(register_status(at(2), Some(&n("", ok))), OpStatus::Done { .. }), "{ok}");
         }
         for bad in ["fail", "0", "manual_fail"] {
-            assert_eq!(register_status(at(5), Some(&n("", bad))), OpStatus::Failed { msg: "The modem reports that the registration failed." });
+            assert_eq!(register_status(at(5), Some(&n("", bad))), OpStatus::Failed { msg: "调制解调器报告注册失败。" });
         }
         assert_eq!(register_status(at(29), Some(&n("", ""))), OpStatus::Pending { step: 0 });
-        assert_eq!(register_status(at(30), Some(&n("", ""))), OpStatus::TimedOut { msg: "The modem has not reported a result after 30 seconds." });
+        assert_eq!(register_status(at(30), Some(&n("", ""))), OpStatus::TimedOut { msg: "调制解调器在 30 秒后未报告结果。" });
         assert_eq!(NETSCAN.back.0, "/ui/router/mobile-network?scan=1");
         let op = Op { spec: &REGISTER, started: BootInstant::from_duration(at(1)), arg: "" };
         // The app's words: a timeout is not called a failure.
         let st = [OpStatus::Done { msg: "" }, OpStatus::TimedOut { msg: "" }, OpStatus::Failed { msg: "" }];
-        assert_eq!(st.map(|s| op.title(s)), ["Registered to network", "Registration timed out", "Registration failed"]);
+        assert_eq!(st.map(|s| op.title(s)), ["注册网络", "注册超时", "Registration failed"]);
         let scan = Op { spec: &NETSCAN, ..op };
-        assert_eq!(st.map(|s| scan.title(s)), ["Scan complete", "Scan timed out", "Scan failed"]);
+        assert_eq!(st.map(|s| scan.title(s)), ["扫描完成", "扫描超时", "扫描失败"]);
         assert!(OpStatus::Failed { msg: "" }.finished());
     }
 
@@ -527,7 +527,7 @@ mod tests {
         assert_eq!(apply_status("1:1", at(9), &views_of(&m(json!(1), json!(0)))), OpStatus::Pending { step: 0 });
         assert!(matches!(apply_status("1:1", at(10), &views_of(&m(json!(1), json!(0)))), OpStatus::TimedOut { msg } if msg.contains("not reported")));
         let none = Views::new(BootInstant::from_duration(at(1)), vec![]);
-        assert_eq!(apply_status("1:0", at(10), &none), OpStatus::TimedOut { msg: "Couldn't read the modem state." });
+        assert_eq!(apply_status("1:0", at(10), &none), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         assert!(APPLY.timeout_ok && APPLY_TARGETS.contains(&"0:1"));
         // "-": a value Apply left as it was.
         assert!(matches!(apply_status("-:1", at(2), &views_of(&m(json!(0), json!("1")))), OpStatus::Done { .. }));

@@ -16,15 +16,15 @@ use crate::web::screen::{Bar, Block, Read, Screen, Search};
 pub static SMS: Screen = Screen {
     path: sms::LIST,
     id: "sms",
-    title: "Messages",
+    title: "短信",
     tab: Tab::Sms,
-    bar: Bar::Icons(&[(sms::FORWARD, Icon::Gear, "SMS Forwarding")], &[(sms::NEW, Icon::Compose, "New Message")]),
+    bar: Bar::Icons(&[(sms::FORWARD, Icon::Gear, "短信转发")], &[(sms::NEW, Icon::Compose, "新建短信")]),
     topics: &[Topic::Sms],
     live: &sms::FRAGMENTS,
     blocks: &[Block::Custom(sms::list)],
     arg: Some(|v, _| sms::received(v)),
     // Web additions: the app returns to the list without a word.
-    saved: &[("sent", "Message sent"), ("deleted", "Conversation deleted")],
+    saved: &[("sent", "消息已发送"), ("deleted", "对话已删除")],
     // The app's search bar (the stream only says "New message").
     search: Search::Live,
     ..Screen::BLANK
@@ -35,14 +35,14 @@ pub static SMS: Screen = Screen {
 /// Read without its secrets (`forward::public`).
 const READS: &[Read] = &[Read::Fn(public_read)];
 
-const FORWARD_BASE: Screen = Screen { title: "SMS Forwarding", reads: READS, saved: &forward::SAVED, saved_ok: true, ..Screen::BLANK };
+const FORWARD_BASE: Screen = Screen { title: "短信转发", reads: READS, saved: &forward::SAVED, saved_ok: true, ..Screen::BLANK };
 
 /// Pushed from Messages' gear.
 pub static FORWARD: Screen = Screen {
     path: "/ui/sms/forward",
     id: "smsforward",
     tab: Tab::Sms,
-    bar: Bar::Back(sms::LIST, "Messages"),
+    bar: Bar::Back(sms::LIST, "短信"),
     blocks: &[Block::Custom(|pd| forward::page(pd, &forward::SMS))],
     ..FORWARD_BASE
 };
@@ -52,7 +52,7 @@ pub static TOOLS_FORWARD: Screen = Screen {
     path: "/ui/tools/sms-forward",
     id: "toolsforward",
     tab: Tab::Tools,
-    bar: Bar::Back("/ui/tools", "Tools"),
+    bar: Bar::Back("/ui/tools", "工具"),
     blocks: &[Block::Custom(|pd| forward::page(pd, &forward::TOOLS))],
     ..FORWARD_BASE
 };
@@ -63,9 +63,9 @@ pub static TOOLS_FORWARD: Screen = Screen {
 pub static DELETE: Screen = Screen {
     path: "/ui/sms/forward/rules/delete",
     id: "fwdelete",
-    title: "Confirm",
+    title: "确认",
     tab: Tab::Sms,
-    bar: Bar::Back("/ui/sms/forward", "SMS Forwarding"),
+    bar: Bar::Back("/ui/sms/forward", "短信转发"),
     reads: READS,
     blocks: &[Block::Custom(|pd| forward::page_delete(pd, &forward::SMS))],
     status: Some(forward::delete_status),
@@ -76,7 +76,7 @@ pub static TOOLS_DELETE: Screen = Screen {
     path: "/ui/tools/sms-forward/rules/delete",
     id: "toolsfwdelete",
     tab: Tab::Tools,
-    bar: Bar::Back("/ui/tools/sms-forward", "SMS Forwarding"),
+    bar: Bar::Back("/ui/tools/sms-forward", "短信转发"),
     blocks: &[Block::Custom(|pd| forward::page_delete(pd, &forward::TOOLS))],
     ..DELETE
 };
@@ -86,9 +86,9 @@ pub static TOOLS_DELETE: Screen = Screen {
 pub static LOG: Screen = Screen {
     path: "/ui/sms/forward/log",
     id: "smsfwdlog",
-    title: "Forward Log",
+    title: "转发日志",
     tab: Tab::Sms,
-    bar: Bar::BackLink("/ui/sms/forward", "SMS Forwarding", "/ui/sms/forward/log/clear", "Clear"),
+    bar: Bar::BackLink("/ui/sms/forward", "短信转发", "/ui/sms/forward/log/clear", "清除"),
     reads: &[Read::Fn(public_log)],
     blocks: &[Block::Custom(|pd| forward::log(pd, &forward::SMS))],
     saved: &forward::LOG_SAVED,
@@ -100,7 +100,7 @@ pub static TOOLS_LOG: Screen = Screen {
     path: "/ui/tools/sms-forward/log",
     id: "toolsfwdlog",
     tab: Tab::Tools,
-    bar: Bar::BackLink("/ui/tools/sms-forward", "SMS Forwarding", "/ui/tools/sms-forward/log/clear", "Clear"),
+    bar: Bar::BackLink("/ui/tools/sms-forward", "短信转发", "/ui/tools/sms-forward/log/clear", "清除"),
     blocks: &[Block::Custom(|pd| forward::log(pd, &forward::TOOLS))],
     ..LOG
 };
@@ -109,9 +109,9 @@ pub static TOOLS_LOG: Screen = Screen {
 pub static CLEAR: Screen = Screen {
     path: "/ui/sms/forward/log/clear",
     id: "fwclear",
-    title: "Confirm",
+    title: "确认",
     tab: Tab::Sms,
-    bar: Bar::Back("/ui/sms/forward/log", "Forward Log"),
+    bar: Bar::Back("/ui/sms/forward/log", "转发日志"),
     blocks: &[Block::Custom(|pd| forward::ask_clear(pd, &forward::SMS))],
     ..Screen::BLANK
 };
@@ -120,7 +120,7 @@ pub static TOOLS_CLEAR: Screen = Screen {
     path: "/ui/tools/sms-forward/log/clear",
     id: "toolsfwclear",
     tab: Tab::Tools,
-    bar: Bar::Back("/ui/tools/sms-forward/log", "Forward Log"),
+    bar: Bar::Back("/ui/tools/sms-forward/log", "转发日志"),
     blocks: &[Block::Custom(|pd| forward::ask_clear(pd, &forward::TOOLS))],
     ..CLEAR
 };
@@ -223,7 +223,7 @@ mod tests {
         for (m, back, page, delete, actions, (log, clear, clear_action)) in [
             (
                 &forward::SMS,
-                ("/ui/sms", "Messages"),
+                ("/ui/sms", "短信"),
                 &FORWARD,
                 &DELETE,
                 [&FW_ENABLED, &FW_SETTINGS, &FW_TOGGLE, &FW_DELETE],
@@ -231,7 +231,7 @@ mod tests {
             ),
             (
                 &forward::TOOLS,
-                ("/ui/tools", "Tools"),
+                ("/ui/tools", "工具"),
                 &TOOLS_FORWARD,
                 &TOOLS_DELETE,
                 [&TOOLS_FW_ENABLED, &TOOLS_FW_SETTINGS, &TOOLS_FW_TOGGLE, &TOOLS_FW_DELETE],
@@ -242,15 +242,15 @@ mod tests {
             assert_eq!(log.path, format!("{}/log", m.base));
             assert_eq!((log.tab, clear.tab), (m.tab, m.tab));
             let clear_path = format!("{}/clear", m.log);
-            assert!(matches!(log.bar, Bar::BackLink(href, "SMS Forwarding", to, "Clear") if href == m.base && to == clear_path));
-            assert!(matches!(clear.bar, Bar::Back(href, "Forward Log") if href == m.log));
+            assert!(matches!(log.bar, Bar::BackLink(href, "短信转发", to, "清除") if href == m.base && to == clear_path));
+            assert!(matches!(clear.bar, Bar::Back(href, "转发日志") if href == m.log));
             assert_eq!((clear.path, clear_action.path), (clear_path.as_str(), clear_path.as_str()));
             assert_eq!(clear_action.screen.path, m.log);
             assert_eq!(clear_action.confirm_at.unwrap()(&crate::web::action::Valid::of(&[])), clear_path);
             assert_eq!(page.path, m.base);
             assert_eq!((page.tab, delete.tab), (m.tab, m.tab));
             assert_eq!(delete.path, format!("{}/rules/delete", m.base));
-            assert!(matches!(delete.bar, Bar::Back(href, "SMS Forwarding") if href == m.base));
+            assert!(matches!(delete.bar, Bar::Back(href, "短信转发") if href == m.base));
             assert!(matches!(page.bar, Bar::Back(href, label) if (href, label) == back));
             for (a, rest) in actions.iter().zip(["/enabled", "/settings", "/rules/toggle", "/rules/delete"]) {
                 assert_eq!(a.path, format!("{}{rest}", m.base));

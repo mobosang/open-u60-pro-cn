@@ -5,43 +5,43 @@ export interface FAQItem {
 
 export const faqData: FAQItem[] = [
   {
-    question: "Is this safe for my router?",
+    question: "这对我的路由器安全吗？",
     answer:
-      "The agent is a user-space process — it doesn't modify firmware or the kernel. It uses the same ubus/AT interfaces that ZTE's own apps use. Destructive actions (factory reset, reboot) require explicit confirmation. The agent can be stopped or removed at any time.",
+      "代理是一个用户空间进程——它不会修改固件或内核。它使用与 ZTE 自己的应用程序相同的 ubus/AT 接口。破坏性操作（恢复出厂设置、重新启动）需要明确确认。该代理可以随时停止或删除。",
   },
   {
-    question: "Which browsers support the web setup?",
+    question: "哪些浏览器支持网页设置？",
     answer:
-      "The WebUSB-based setup wizard requires Chrome or Edge on desktop. Safari, Firefox, and mobile browsers do not support WebUSB. For non-Chrome users, use the CLI setup script instead.",
+      "基于 WebUSB 的设置向导需要桌面上的 Chrome 或 Edge。 Safari、Firefox 和移动浏览器不支持 WebUSB。对于非 Chrome 用户，请改用 CLI 设置脚本。",
   },
   {
-    question: "Does this work on other ZTE routers?",
+    question: "这适用于其他 ZTE 路由器吗？",
     answer:
-      "Currently only the ZTE U60 Pro (MU5250) is supported. The ubus API structure may differ on other ZTE models. Contributions for other devices are welcome.",
+      "目前仅支持 ZTE U60 Pro (MU5250)。其他 ZTE 型号上的 ubus API 结构可能有所不同。欢迎为其他设备做出贡献。",
   },
   {
-    question: "How do I update the agent?",
+    question: "如何更新代理？",
     answer:
-      "Run the deploy script again (deploy.sh) or use the web setup wizard. The new binary will replace the old one and the agent will restart automatically.",
+      "再次运行部署脚本 (deploy.sh) 或使用 Web 设置向导。新的二进制文件将替换旧的二进制文件，并且代理将自动重新启动。",
   },
   {
-    question: "Can I use SSH instead of WebUSB?",
+    question: "我可以使用SSH代替WebUSB吗？",
     answer:
-      "Yes. The setup script can optionally install Dropbear SSH on the device. After initial setup via USB, subsequent deploys can use SSH over WiFi (port 2222).",
+      "是的。安装脚本可以选择在设备上安装 Dropbear SSH。通过 USB 进行初始设置后，后续部署可以通过 WiFi（端口 2222）使用 SSH。",
   },
   {
-    question: "What if the agent crashes or I want to remove it?",
+    question: "如果代理崩溃或者我想删除它怎么办？",
     answer:
-      "The agent auto-restarts on boot via rc.local. To remove it: connect via ADB or SSH, delete /data/zte-agent and /data/local/tmp/start_zte_agent.sh, then remove the rc.local entry. A factory reset will also clean everything.",
+      "代理在启动时通过 rc.local 自动重新启动。要删除它：通过 ADB 或 SSH 连接，删除 /data/zte-agent 和 /data/local/tmp/start_zte_agent.sh，然后删除 rc.local 条目。恢复出厂设置也会清除所有内容。",
   },
   {
-    question: "Does the agent need internet access?",
+    question: "代理需要上网吗？",
     answer:
-      "No. The agent runs entirely on the LAN (port 9090). It never makes outbound connections. The mobile apps connect directly to the agent over WiFi.",
+      "否。代理完全在 LAN（端口 9090）上运行。它从不进行出站连接。移动应用程序通过 WiFi 直接连接到代理。",
   },
   {
-    question: "What about the mobile apps?",
+    question: "移动应用程序怎么样？",
     answer:
-      "Native companion apps for iOS (SwiftUI) and Android (Jetpack Compose) are included. They connect directly to the agent over WiFi — no cloud services required. App Store/Play Store releases are coming soon.",
+      "包括适用于 iOS (SwiftUI) 和 Android (Jetpack Compose) 的本机配套应用程序。它们通过 WiFi 直接连接到代理，无需云服务。 App Store/Play Store 版本即将推出。",
   },
 ];

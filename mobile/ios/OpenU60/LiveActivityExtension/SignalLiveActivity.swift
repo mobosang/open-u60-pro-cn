@@ -12,9 +12,9 @@ struct SignalLiveActivity: Widget {
         ActivityConfiguration(for: SignalActivityAttributes.self) { context in
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Label("U60 Pro · Modem signal", systemImage: "wifi.router.fill").font(.headline)
+                    Label("U60 Pro·调制解调器信号", systemImage: "wifi.router.fill").font(.headline)
                     Spacer()
-                    if context.isStale { Text("Stale").foregroundStyle(.orange).font(.caption.bold()) }
+                    if context.isStale { Text("陈旧").foregroundStyle(.orange).font(.caption.bold()) }
                 }
                 signalRow(context.state, stale: context.isStale)
             }
@@ -88,7 +88,7 @@ struct SignalLiveActivity: Widget {
                 if state.mode.showsLTE, let count = state.lteCarrierCount, count > 1 {
                     Text("LTE CA").font(.system(size: 9))
                 }
-                Text(stale ? "Stale" : "Sample age")
+                Text(stale ? "陈旧" : "Sample age")
                     .font(.system(size: 9))
                     .foregroundStyle(stale ? Color.orange : Color.secondary)
                 Text(Date(timeIntervalSince1970: Double(state.sampledAt)), style: .timer)
@@ -122,7 +122,7 @@ struct SignalLiveActivity: Widget {
                 Text("\(sinr, specifier: "%.0f") dB")
                     .font(.title3.bold()).monospacedDigit().contentTransition(.numericText())
             } else {
-                Text("Unavailable").font(.caption).foregroundStyle(.secondary)
+                Text("不可用").font(.caption).foregroundStyle(.secondary)
             }
             Text("SINR").font(.caption2).foregroundStyle(.secondary)
         }
@@ -147,7 +147,7 @@ struct SignalLiveActivity: Widget {
     @ViewBuilder
     private func compactBars(_ bars: Int?, active: Bool, stale: Bool) -> some View {
         if active { SignalBarsView(bars: bars, stale: stale) }
-        else { Text("–").font(.caption).foregroundStyle(.secondary).accessibilityLabel("Not reported active") }
+        else { Text("–").font(.caption).foregroundStyle(.secondary).accessibilityLabel("未报告活跃") }
     }
 
     private func radio(_ name: String, bars: Int?, rsrp: Double?, sinr: Double?, stale: Bool = false, active: Bool = true) -> some View {
@@ -161,7 +161,7 @@ struct SignalLiveActivity: Widget {
             } else if let rsrp {
                 Text("\(rsrp, specifier: "%.0f") dBm")
                     .font(.title3.bold()).monospacedDigit().contentTransition(.numericText())
-            } else { Text("Unavailable").font(.caption).foregroundStyle(.secondary) }
+            } else { Text("不可用").font(.caption).foregroundStyle(.secondary) }
             if active, let sinr {
                 Text("SINR \(sinr, specifier: "%.0f") dB")
                     .font(.caption2).monospacedDigit().contentTransition(.numericText())

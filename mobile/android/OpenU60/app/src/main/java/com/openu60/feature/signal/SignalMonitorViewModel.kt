@@ -102,7 +102,7 @@ class SignalMonitorViewModel @Inject constructor(
             if (authManager.reauthenticate()) {
                 fetchSignal()
             } else {
-                _state.value = _state.value.copy(isLoading = false, error = "Session expired")
+                _state.value = _state.value.copy(isLoading = false, error = "会话已过期")
             }
         } catch (e: Exception) {
             _state.value = _state.value.copy(isLoading = false, error = e.message)

@@ -39,7 +39,7 @@ fn grid(pd: &PageData, nr: bool, title: &str, action: &str, name: &str, list: &[
                         div {
                             @for b in list {
                                 @let facts = lock_facts(nr, *b);
-                                label title=[facts.as_ref().map(|(n, f)| format!("Band {b} \u{2014} {n} \u{b7} {f}"))] {
+                                label title=[facts.as_ref().map(|(n, f)| format!("频段 {b} \u{2014} {n} \u{b7} {f}"))] {
                                     input.sr type="checkbox" name=(name) value=(b) checked[chosen.contains(b)];
                                     span { "B" (b) @if let Some((n, _)) = &facts { small { (n) } } }
                                 }
@@ -50,10 +50,10 @@ fn grid(pd: &PageData, nr: bool, title: &str, action: &str, name: &str, list: &[
                 li { button.it.cv.snd type="submit" { (kit::icon(Icon::Lock)) " " (apply) } }
                 li.it.fld {
                     details {
-                        summary { "Band details" }
+                        summary { "频段详情" }
                         ul.devs {
                             @for b in list {
-                                @if let Some((n, f)) = lock_facts(nr, *b) { li { b { "Band " (b) " \u{2014} " (n) } small { (f) } } }
+                                @if let Some((n, f)) = lock_facts(nr, *b) { li { b { "频段  " (b) " \u{2014} " (n) } small { (f) } } }
                             }
                         }
                     }
@@ -66,9 +66,9 @@ fn grid(pd: &PageData, nr: bool, title: &str, action: &str, name: &str, list: &[
 pub fn page(pd: &PageData) -> Markup {
     html! {
         (kit::section(None, None, html! {
-            li { a.it.bt.danger href=(UNLOCK) { (kit::icon(Icon::LockOpen)) span { "Unlock All Bands" } } }
+            li { a.it.bt.danger href=(UNLOCK) { (kit::icon(Icon::LockOpen)) span { "解除所有频段锁定" } } }
         }))
-        (grid(pd, true, "5G NR Bands", NR, "nr", &LOCK_NR, "Apply NR Lock"))
-        (grid(pd, false, "LTE Bands", LTE, "lte", &LOCK_LTE, "Apply LTE Lock"))
+        (grid(pd, true, "5G NR Bands", NR, "nr", &LOCK_NR, "应用 NR 频段锁定"))
+        (grid(pd, false, "LTE 频段", LTE, "lte", &LOCK_LTE, "应用 LTE 频段锁定"))
     }
 }

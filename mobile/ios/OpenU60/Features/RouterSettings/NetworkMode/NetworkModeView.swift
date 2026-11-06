@@ -14,12 +14,12 @@ struct NetworkModeView: View {
                 }
             }
 
-            Section("Current") {
-                LabeledContent("Network Mode", value: displayLabel(for: viewModel.config.netSelect, in: NetworkModeConfig.netSelectOptions))
+            Section("当前") {
+                LabeledContent("网络模式", value: displayLabel(for: viewModel.config.netSelect, in: NetworkModeConfig.netSelectOptions))
             }
 
-            Section("Network Mode") {
-                Picker("Mode", selection: $viewModel.selectedNetSelect) {
+            Section("网络模式") {
+                Picker("模式", selection: $viewModel.selectedNetSelect) {
                     ForEach(NetworkModeConfig.netSelectOptions, id: \.value) { option in
                         Text(option.label).tag(option.value)
                     }
@@ -31,13 +31,13 @@ struct NetworkModeView: View {
                 Button {
                     Task { await viewModel.applyMode() }
                 } label: {
-                    Text("Apply")
+                    Text("应用")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading || viewModel.selectedNetSelect == viewModel.config.netSelect)
             }
         }
-        .navigationTitle("Network Mode")
+        .navigationTitle("网络模式")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

@@ -77,8 +77,8 @@ const FORM: &str = "eaddf";
 const DECODE_LIMIT: Duration = if cfg!(test) { Duration::from_secs(4) } else { Duration::from_secs(15) };
 
 // The app's input errors (`RouterESimAddView`, `RouterESimActivationCode`).
-const INVALID: &str = "This QR code isn't an eSIM activation code.";
-const ONE_CODE: &str = "Choose a photo with one eSIM QR code.";
+const INVALID: &str = "该二维码不是 eSIM 激活码。";
+const ONE_CODE: &str = "选择一张带有eSIM二维码的照片。";
 const UNREADABLE: &str = "Couldn\u{2019}t read this photo. Choose another image or enter the code manually.";
 const NEED_CC: &str = "Enter the confirmation code from your operator (up to 64 characters).";
 // Web additions: no input, two, an image the router does not read, the
@@ -168,7 +168,7 @@ pub fn live(v: &Views) -> bool {
 /// `#eadd-bar`: the nav bar's "Close" while a download runs, else "Done"
 /// (the app's toolbar), live: it reads "Done" once the download ends.
 pub fn bar(v: &Views) -> Markup {
-    html! { a #eadd-bar .nl href=(PATH) { (if live(v) { "Close" } else { "Done" }) } }
+    html! { a #eadd-bar .nl href=(PATH) { (if live(v) { "关闭" } else { "完成" }) } }
 }
 
 /// The download card rather than the entry: while one runs, or `?dl=1`
@@ -240,30 +240,30 @@ fn card(v: &Views) -> Markup {
             }
             @match st {
                 "confirm" => {
-                    h2 { "Install " (name) "?" }
+                    h2 { "安装 " (name) "?" }
                     @if let Some(n) = d["name"].as_str().map(str::trim).filter(|n| !n.is_empty() && *n != name) { p.cap { (fmt::truncate(n, 64)) } }
-                    p.det { "The profile will be installed on your router\u{2019}s eSIM and stay inactive until you switch to it. Confirm within 2 minutes." }
-                    p.actions { button.btn.btn-wide.teal type="submit" form=(FORM) formaction=(INSTALL) { "Install profile" } }
+                    p.det { "该配置文件将安装在您的路由器 \u{2019}s eSIM 上并保持非活动状态，直到您切换到它。 2分钟内确认。" }
+                    p.actions { button.btn.btn-wide.teal type="submit" form=(FORM) formaction=(INSTALL) { "安装配置文件" } }
                 }
                 "done" => {
-                    p.det { "Added to your router. Your current profile is still active." }
+                    p.det { "添加到您的路由器。您当前的配置文件仍然有效。" }
                     p.actions {
                         @if d["iccid"].as_str().is_some_and(|i| !i.is_empty()) {
-                            a.btn.teal href=(format!("{}?new=1", esim::SWITCH)) { "Switch to it now" }
+                            a.btn.teal href=(format!("{}?new=1", esim::SWITCH)) { "立即切换" }
                         } @else {
-                            a.btn.btn-quiet href=(PATH) { "Refresh profiles" }
+                            a.btn.btn-quiet href=(PATH) { "刷新配置文件" }
                         }
-                        a.btn.btn-quiet href=(PATH) { "Later" }
+                        a.btn.btn-quiet href=(PATH) { "后来" }
                     }
                 }
                 "failed" => {
                     p { (error.map_or_else(|| "The operator couldn\u{2019}t add this profile.".to_owned(), scrub)) }
                     // The app's Try again opens the code field.
-                    p.actions { a.btn href=(MANUAL) { "Try again" } }
+                    p.actions { a.btn href=(MANUAL) { "重试" } }
                 }
                 "cancelled" | "idle" => {
                     @if error.is_some_and(|e| e.contains("2 minutes")) { p.det { "It wasn\u{2019}t confirmed within 2 minutes." } }
-                    p.actions { a.btn.btn-quiet href=(ADD) { "Add eSIM" } }
+                    p.actions { a.btn.btn-quiet href=(ADD) { "添加 eSIM" } }
                 }
                 _ => p.det {
                     (if installing {
@@ -286,7 +286,7 @@ pub fn note(n: Notice) -> Markup {
     let text = match n {
         Notice::Saved(m) => m.to_owned(),
         Notice::Flash(_, m) => m,
-        Notice::Failed(e) => format!("Failed: {}", fmt::truncate(&e, 120)),
+        Notice::Failed(e) => format!("失败：{}", fmt::truncate(&e, 120)),
     };
     html! {
         div.eerr role="alert" {
@@ -561,8 +561,8 @@ async fn add(ctx: Ctx, req: Request) -> Response {
         Sent::Ran(resp) => resp,
         Sent::Done(Ok(())) | Sent::Unknown => session::see_other(DL),
         Sent::Done(Err((status, e))) => show(shown, again("note", &e, &[]), status).await,
-        Sent::Expired => show(shown, again("input", "This page expired, so nothing was sent. Try again.", &[]), 409).await,
-        Sent::Busy => show(shown, again("input", "Failed: the router is busy. Try again in a few seconds.", &[]), 503).await,
+        Sent::Expired => show(shown, again("input", "该页面已过期，因此未发送任何内容。再试一次。", &[]), 409).await,
+        Sent::Busy => show(shown, again("input", "失败：路由器正忙。几秒钟后重试。", &[]), 503).await,
     }
 }
 
@@ -593,7 +593,7 @@ async fn decide(ctx: Ctx, req: Request, k: Post) -> Response {
     let work: OnceJob = Box::new(move |app: &AppState, claim| {
         let d = match super::api_get(app, DOWNLOAD) {
             Ok(d) => d,
-            Err(e) => return line(app, &flash, owner, None, format!("Failed: {}", fmt::truncate(&e, 120))),
+            Err(e) => return line(app, &flash, owner, None, format!("失败：{}", fmt::truncate(&e, 120))),
         };
         let st = esim::state(Some(&d));
         let installing = d["step"].as_str().is_some_and(|s| s.starts_with("es10b_load_bound_profile_package"));
@@ -627,8 +627,8 @@ async fn decide(ctx: Ctx, req: Request, k: Post) -> Response {
         Sent::Done(Err(_)) if ctx.flash.get(&token, owner, ctx.app.auth.now()).is_some() => session::see_other(&format!("{DL}&r={token}")),
         Sent::Done(Err((_, e))) => note(&e),
         Sent::Done(Ok(())) | Sent::Unknown => session::see_other(DL),
-        Sent::Expired => note("This page expired, so nothing was sent. Try again."),
-        Sent::Busy => note("Failed: the router is busy. Try again in a few seconds."),
+        Sent::Expired => note("该页面已过期，因此未发送任何内容。再试一次。"),
+        Sent::Busy => note("失败：路由器正忙。几秒钟后重试。"),
     }
 }
 

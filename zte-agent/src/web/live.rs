@@ -96,8 +96,8 @@ impl LivePage {
 pub fn live_on(page: &str, hb: &str) -> Markup {
     html! {
         p #live-status .live .on .(hb) {
-            span.ok { "Live" }
-            span.lost { " No updates for 15 s \u{b7} " a href=(page) { "Refresh" } }
+            span.ok { "直播" }
+            span.lost { " No updates for 15 s \u{b7} " a href=(page) { "刷新" } }
         }
     }
 }
@@ -107,8 +107,8 @@ pub fn live_on(page: &str, hb: &str) -> Markup {
 pub fn live_pill(page: &str, hb: &str) -> Markup {
     html! {
         p #live-status .live .on .ps .(hb) {
-            span.ok { b { "Connected" } }
-            span.lost { a href=(page) { "Offline" span.sr { ". Refresh" } } }
+            span.ok { b { "已连接" } }
+            span.lost { a href=(page) { "离线" span.sr { ". Refresh" } } }
         }
     }
 }
@@ -123,7 +123,7 @@ fn ending(pill: bool, msg: &str, link: Option<(&str, &str)>) -> Vec<String> {
     };
     if pill {
         vec![
-            html! { p #live-status .live .ps { span.off { b { "Offline" } } } }.into_string(),
+            html! { p #live-status .live .ps { span.off { b { "离线" } } } }.into_string(),
             html! { p #live-note { (note) } }.into_string(),
         ]
     } else {
@@ -139,7 +139,7 @@ fn login_href(next: Option<&str>) -> String {
 }
 
 fn signed_out(pill: bool, next: Option<&str>) -> Vec<String> {
-    ending(pill, "Signed out.", Some(("Log in", &login_href(next))))
+    ending(pill, "已退出。", Some(("登录", &login_href(next))))
 }
 
 /// One `datastar-patch-elements` frame for every element of a batch.
@@ -265,9 +265,9 @@ impl Emitter for PageEmitter {
         let (page, pill) = (self.page.page.as_str(), self.page.pill);
         let parts = match reason {
             ByeReason::TokenExpired | ByeReason::LoggedOut => signed_out(pill, self.page.next),
-            ByeReason::Lifetime => ending(pill, "Live updates paused after 30 minutes.", Some(("Resume", page))),
-            ByeReason::Evicted => ending(pill, "Opened in another tab.", Some(("Refresh", page))),
-            ByeReason::Standby => ending(pill, "The router went into standby.", Some(("Refresh", page))),
+            ByeReason::Lifetime => ending(pill, "实时更新在 30 分钟后暂停。", Some(("简历", page))),
+            ByeReason::Evicted => ending(pill, "在另一个选项卡中打开。", Some(("刷新", page))),
+            ByeReason::Standby => ending(pill, "路由器进入待机状态。", Some(("刷新", page))),
         };
         vec![patch(&parts)]
     }
@@ -308,7 +308,7 @@ fn one(parts: Vec<String>) -> Response {
 fn op_gone() -> Response {
     one(vec![html! {
         section #op-progress .card {
-            p.msg.info role="status" { "This change has finished." }
+            p.msg.info role="status" { "本次变更已完成。" }
         }
         p #live-status .live {}
     }
@@ -326,7 +326,7 @@ fn open(
     key: u64,
 ) -> Response {
     if session_header(req) != Some("true") {
-        return text(StatusCode::BAD_REQUEST, "Datastar request expected");
+        return text(StatusCode::BAD_REQUEST, "预期 Datastar 请求");
     }
     let Some(p) = session::find_session(&ctx.app.auth, req.headers()) else {
         return one(signed_out(pill, next));
@@ -342,7 +342,7 @@ fn open(
     let sub = match hub.subscribe(SubscribeReq { owner: p.id, topics, signal_hint, replace_same: Some(key) }) {
         Ok(sub) => sub,
         Err(Refused::Full) => {
-            return one(ending(page.pill, "Live updates busy (too many open pages).", Some(("Refresh", &page.page))));
+            return one(ending(page.pill, "实时更新繁忙（打开页面太多）。", Some(("刷新", &page.page))));
         }
     };
     let env = StreamEnv {
@@ -497,8 +497,8 @@ mod tests {
         // temperatures blank after 10 s; the battery card shows no age (the
         // app's cards have none), so it is not sent.
         assert_eq!(ids(&parts), ["card-traffic", "card-health", "age", "live-status"], "{parts:?}");
-        assert!(parts[0].contains("Last traffic sample · 16s ago · waiting for device"));
-        assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("Updated 20 s ago")));
+        assert!(parts[0].contains("最后一次流量样本 · 16 秒前 · 等待设备"));
+        assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("20 秒前更新")));
         assert!(parts.last().unwrap().contains("class=\"live on ps hb-b\""));
     }
 
@@ -749,7 +749,7 @@ mod tests {
         let mut files = Vec::new();
         rust_files(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/web"), &mut files);
         assert!(files.len() > 10, "{files:?}");
-        let raw = concat!("PreEs", "caped");
+        let raw = concat!("前言", "caped");
         for f in files {
             assert!(!std::fs::read_to_string(&f).unwrap().contains(raw), "{} uses {raw}", f.display());
         }
@@ -808,7 +808,7 @@ mod tests {
         let online = SlotView { version: 1, at: now, value_at: now, value: Some(Arc::new(json!({"status": {"operate_mode": "ONLINE"}}))), error: None };
         let parts = elements(&em.open(vec![(Topic::Modem, online.clone())], now));
         assert_eq!(parts[0], "<h1 id=\"op-title\">Turning airplane mode on</h1>");
-        assert!(parts[1].contains("Turning the radio off") && parts[2].contains("hb-o"));
+        assert!(parts[1].contains("关闭收音机") && parts[2].contains("hb-o"));
         assert!(!em.finished());
         // Byte-equal to the page's heading and progress card.
         let mut views = Views::new(now, vec![(Topic::Modem, online)]);
@@ -819,7 +819,7 @@ mod tests {
         let parts = elements(&em.changes(vec![(Topic::Modem, lpm)], now));
         // The heading turns to the past tense with the outcome.
         assert_eq!(parts[0], "<h1 id=\"op-title\">Airplane mode turned on</h1>");
-        assert!(parts[1].contains("Airplane mode is on. The radio is off."));
+        assert!(parts[1].contains("飞行模式已开启。收音机已关闭。"));
         assert_eq!(parts[2], "<p class=\"live\" id=\"live-status\"></p>");
         assert!(em.finished());
     }

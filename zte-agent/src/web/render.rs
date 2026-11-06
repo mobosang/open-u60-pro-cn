@@ -99,7 +99,7 @@ pub fn fragment(fragments: &[Fragment], id: &str, v: &Views) -> Markup {
 /// shows none), else nothing.
 pub fn error_line(v: &Views, topics: &[Topic]) -> Markup {
     match topics.iter().find_map(|&t| v.slot(t)?.error.as_deref()) {
-        Some(err) => html! { p.age.err { "Couldn't update: " (fmt::truncate(err, 120)) } },
+        Some(err) => html! { p.age.err { "无法更新： " (fmt::truncate(err, 120)) } },
         None => html! {},
     }
 }
@@ -120,9 +120,9 @@ pub fn age_line(v: &Views, topics: &[Topic]) -> Markup {
         })
         .max();
     match stale {
-        Some(secs) if secs < 10 => html! { p.age { "Updated " (secs) " s ago" } },
-        Some(secs) if secs < 120 => html! { p.age { "Updated " (secs / 5 * 5) " s ago" } },
-        Some(secs) => html! { p.age { "Updated " (secs / 60) " min ago" } },
+        Some(secs) if secs < 10 => html! { p.age { "更新 " (secs) " s ago" } },
+        Some(secs) if secs < 120 => html! { p.age { "更新 " (secs / 5 * 5) " s ago" } },
+        Some(secs) => html! { p.age { "更新 " (secs / 60) " min ago" } },
         None => html! {},
     }
 }
@@ -177,7 +177,7 @@ pub fn page(ctx: &PageCtx, body: Markup) -> Markup {
     let live = ctx.live.filter(|url| is_live_url(url));
     html! {
         (DOCTYPE)
-        html lang="en" data-nonce=[live.map(|_| ctx.nonce)] {
+        html lang="zh-CN" data-nonce=[live.map(|_| ctx.nonce)] {
             head {
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover";
@@ -203,7 +203,7 @@ pub fn page(ctx: &PageCtx, body: Markup) -> Markup {
                 }
             }
             body {
-                a.skip href="#main" { "Skip to content" }
+                a.skip href="#main" { "跳至正文" }
                 @if ctx.tab.is_some() {
                     header.bar {
                         div.lead { (ctx.lead) }
@@ -278,13 +278,13 @@ pub fn once_field(token: &str) -> Markup {
 pub fn live_snapshot(refresh: &str) -> Markup {
     html! {
         p #live-status .snap {
-            "Snapshot from page load"
+            "页面加载快照"
             span.ages {
                 span.age1 { " · over 1 min old" }
                 span.age5 { " · over 5 min old" }
             }
             " · "
-            a href=(refresh) { "Refresh" }
+            a href=(refresh) { "刷新" }
         }
     }
 }
@@ -295,7 +295,7 @@ pub fn live_snapshot(refresh: &str) -> Markup {
 pub fn status_pill(refresh: &str) -> Markup {
     html! {
         p #live-status .snap .ps {
-            a href=(refresh) { "Snapshot" span.sr { " from page load. Refresh" } }
+            a href=(refresh) { "快照" span.sr { " from page load. Refresh" } }
         }
     }
 }
@@ -315,10 +315,10 @@ pub fn error_page(title: &str, msg: &str, nonce: &str, retry: Option<&str>) -> M
             p { (msg) }
             p.actions {
                 @if let Some(href) = retry {
-                    a.btn href=(href) { "Try again" }
+                    a.btn href=(href) { "重试" }
                 }
                 @if retry != Some("/ui/") {
-                    a.btn.btn-quiet[retry.is_some()] href="/ui/" { "Back to dashboard" }
+                    a.btn.btn-quiet[retry.is_some()] href="/ui/" { "返回仪表盘" }
                 }
             }
         }
@@ -335,10 +335,10 @@ pub fn error_page(title: &str, msg: &str, nonce: &str, retry: Option<&str>) -> M
 pub fn hop_page(target: &str, nonce: &str) -> Response {
     let body = html! {
         div.narrow.vc {
-            p.actions.ctr { a.btn href=(target) { "Continue" } }
+            p.actions.ctr { a.btn href=(target) { "继续" } }
         }
     };
-    html(200, page(&PageCtx { title: "Opening", nonce, go: Some(target), ..PageCtx::default() }, body))
+    html(200, page(&PageCtx { title: "开幕", nonce, go: Some(target), ..PageCtx::default() }, body))
 }
 
 /// `text/html` with `status` (the header middleware adds the security headers).
@@ -355,45 +355,45 @@ pub fn error(status: u16, title: &str, msg: &str, nonce: &str) -> Response {
 }
 
 pub fn bad_request(nonce: &str) -> Response {
-    error(400, "Bad request", "The request could not be understood.", nonce)
+    error(400, "错误的请求", "该请求无法被理解。", nonce)
 }
 
 pub fn not_found(nonce: &str) -> Response {
-    error(404, "Page not found", "There is no page at this address.", nonce)
+    error(404, "找不到页面", "该地址没有页面。", nonce)
 }
 
 /// A post that failed the origin or CSRF check; `form` is the page that
 /// shows the form again (a standalone window has no Back button).
 pub fn form_refused(nonce: &str, form: &str) -> Response {
-    let msg = "This form expired or came from another site. Open it again and retry.";
-    html(403, error_page("Form not accepted", msg, nonce, Some(form)))
+    let msg = "此表格已过期或来自其他网站。再次打开并重试。";
+    html(403, error_page("表格不被接受", msg, nonce, Some(form)))
 }
 
 /// No lane permit in time: the device is busy with other calls.
 pub fn busy(nonce: &str, retry: &str) -> Response {
-    let msg = "The router is busy. Try again in a few seconds.";
-    html(503, error_page("Router busy", msg, nonce, Some(retry)))
+    let msg = "路由器正忙。几秒钟后重试。";
+    html(503, error_page("路由器忙", msg, nonce, Some(retry)))
 }
 
 pub fn internal(nonce: &str) -> Response {
-    error(500, "Something went wrong", "The page could not be built. Try again.", nonce)
+    error(500, "出了点问题", "无法建立页面。再试一次。", nonce)
 }
 
 /// Every `/ui` page while the agent has no password.
 pub fn no_password(nonce: &str) -> Response {
     let body = html! {
         div.narrow {
-            h1 { "Set an agent password" }
+            h1 { "设置代理密码" }
             p {
-                "The web interface needs an agent password. Add "
+                "Web界面需要代理密码。添加 "
                 code { "ZTE_AGENT_PASSWORD=<password>" }
                 " to the agent's start script on the router, then restart the agent."
             }
             // A standalone window has no reload button.
-            p.actions { a.btn href="/ui/" { "Try again" } }
+            p.actions { a.btn href="/ui/" { "重试" } }
         }
     };
-    html(403, page(&PageCtx { title: "Set an agent password", nonce, ..PageCtx::default() }, body))
+    html(403, page(&PageCtx { title: "设置代理密码", nonce, ..PageCtx::default() }, body))
 }
 
 #[cfg(test)]
@@ -404,7 +404,7 @@ mod tests {
     fn live_page_carries_the_nonce_in_three_places() {
         let ctx = PageCtx { title: "T", nonce: "00ff", live: Some("/ui/live/x"), ..PageCtx::default() };
         let s = page(&ctx, html! { p { "x" } }).into_string();
-        assert!(s.starts_with("<!DOCTYPE html><html lang=\"en\" data-nonce=\"00ff\">"), "{s}");
+        assert!(s.starts_with("<!DOCTYPE html><html lang=\"zh-CN\" data-nonce=\"00ff\">"), "{s}");
         assert!(s.contains(&format!(r#"<script type="module" src="{DATASTAR_JS}" nonce="00ff"></script>"#)));
         // Opened only once the page is visible (Datastar itself does not
         // check at the start); the URL is the only value in the expression.
@@ -428,7 +428,7 @@ mod tests {
         assert_eq!(s.matches("<script").count(), 1, "{s}");
         assert!(s.contains(&format!(r#"<script src="{THEME_JS}" nonce="00ff" defer></script>"#)), "{s}");
         assert!(!s.contains("datastar") && !s.contains("data-init") && !s.contains("data-nonce") && s.matches("00ff").count() == 1, "{s}");
-        assert!(s.starts_with("<!DOCTYPE html><html lang=\"en\">"));
+        assert!(s.starts_with("<!DOCTYPE html><html lang=\"zh-CN\">"));
     }
 
     #[test]
@@ -443,10 +443,10 @@ mod tests {
 
     #[test]
     fn error_pages_offer_a_way_on() {
-        let s = error_page("Router busy", "m", "00", Some("/ui/")).into_string();
+        let s = error_page("路由器忙", "m", "00", Some("/ui/")).into_string();
         assert_eq!(s.matches("href=\"/ui/\"").count(), 1, "one link per target: {s}");
-        let s = error_page("Form not accepted", "m", "00", Some("/ui/login")).into_string();
-        assert!(s.contains("href=\"/ui/login\"") && s.contains("Back to dashboard"));
+        let s = error_page("表格不被接受", "m", "00", Some("/ui/login")).into_string();
+        assert!(s.contains("href=\"/ui/login\"") && s.contains("返回仪表盘"));
     }
 
     #[test]

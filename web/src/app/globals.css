@@ -147,3 +147,10 @@
     animation: none;
   }
 }
+
+/* System fonts also cover Chinese without downloading Google Fonts. */
+:root {
+  --font-syne: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-jakarta: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-jetbrains: "Cascadia Code", Consolas, monospace;
+}

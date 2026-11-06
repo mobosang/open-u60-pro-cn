@@ -33,7 +33,7 @@ fun ToolsListScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Tools") })
+            TopAppBar(title = { Text("工具") })
         },
     ) { padding ->
         Column(
@@ -45,118 +45,118 @@ fun ToolsListScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                "Network Tools",
+                "网络工具",
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             ToolItem(
                 icon = Icons.Default.Info,
-                title = "Device Info",
-                subtitle = "SIM, IMEI, WAN IPs",
+                title = "设备信息",
+                subtitle = "SIM、IMEI、WAN IP",
                 onClick = onNavigateToDeviceInfo,
             )
             ToolItem(
                 icon = Icons.Default.Devices,
-                title = "Connected Devices",
-                subtitle = "View connected clients and DHCP leases",
+                title = "已连接设备",
+                subtitle = "查看已连接的客户端和 DHCP 租约",
                 onClick = onNavigateToClients,
             )
             ToolItem(
                 icon = Icons.Default.CellTower,
-                title = "Band Lock",
-                subtitle = "Lock NR/LTE bands",
+                title = "频段锁定",
+                subtitle = "锁定NR/LTE频段",
                 onClick = onNavigateToBandLock,
             )
             ToolItem(
                 icon = Icons.Default.Adb,
-                title = "Enable ADB",
-                subtitle = "Enable USB debug mode",
+                title = "启用亚行",
+                subtitle = "启用USB调试模式",
                 onClick = onNavigateToEnableADB,
             )
             ToolItem(
                 icon = Icons.Default.Schedule,
-                title = "Scheduler",
-                subtitle = "Schedule automated tasks",
+                title = "调度程序",
+                subtitle = "安排自动化任务",
                 onClick = onNavigateToScheduler,
             )
             ToolItem(
                 icon = Icons.Default.ForwardToInbox,
-                title = "SMS Forwarding",
-                subtitle = "Auto-forward SMS to Telegram, webhooks, etc.",
+                title = "短信转发",
+                subtitle = "自动转发短信到Telegram、webhooks等。",
                 onClick = onNavigateToSMSForward,
             )
             ToolItem(
                 icon = Icons.Default.Usb,
-                title = "USB Mode",
-                subtitle = "USB mode and powerbank control",
+                title = "USB 模式",
+                subtitle = "USB 模式和移动电源控制",
                 onClick = onNavigateToUSBMode,
             )
             ToolItem(
                 icon = Icons.Default.Speed,
-                title = "Speed Test",
-                subtitle = "Test WAN throughput",
+                title = "速度测试",
+                subtitle = "测试 WAN 吞吐量",
                 onClick = onNavigateToSpeedTest,
             )
             ToolItem(
                 icon = Icons.Default.Wifi,
-                title = "LAN Speed Test",
-                subtitle = "Test WiFi link to router",
+                title = "局域网速度测试",
+                subtitle = "测试 WiFi 到路由器的链路",
                 onClick = onNavigateToLANSpeedTest,
             )
             ToolItem(
                 icon = Icons.Default.Memory,
-                title = "Process Monitor",
-                subtitle = "View processes, kill bloat daemons",
+                title = "过程监视器",
+                subtitle = "查看进程、杀死膨胀守护进程",
                 onClick = onNavigateToProcessList,
             )
             ToolItem(
                 icon = Icons.Default.Terminal,
-                title = "AT Terminal",
-                subtitle = "Send raw AT commands to modem",
+                title = "AT 终端",
+                subtitle = "发送原始 AT 命令到调制解调器",
                 onClick = onNavigateToATTerminal,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "Config Tools",
+                "配置工具",
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             ToolItem(
                 icon = Icons.Default.Security,
-                title = "Config Decrypt/Encrypt",
-                subtitle = "Offline ZXHN config file tool",
+                title = "配置解密/加密",
+                subtitle = "离线ZXHN配置文件工具",
                 onClick = onNavigateToConfigTool,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "ADB-Only Tools",
+                "ADB专用工具",
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             ToolItem(
                 icon = Icons.Default.Timer,
-                title = "TTL Fix",
-                subtitle = "Requires ADB USB connection",
-                onClick = { onNavigateToPlaceholder("TTL Fix") },
+                title = "TTL修复",
+                subtitle = "需要 ADB USB 连接",
+                onClick = { onNavigateToPlaceholder("TTL修复") },
                 enabled = false,
             )
             ToolItem(
                 icon = Icons.Default.Terminal,
-                title = "SSH Access",
-                subtitle = "Requires ADB USB connection",
-                onClick = { onNavigateToPlaceholder("SSH Access") },
+                title = "SSH 访问",
+                subtitle = "需要 ADB USB 连接",
+                onClick = { onNavigateToPlaceholder("SSH 访问") },
                 enabled = false,
             )
             ToolItem(
                 icon = Icons.Default.FolderOpen,
-                title = "Device Explorer",
-                subtitle = "Requires ADB USB connection",
-                onClick = { onNavigateToPlaceholder("Device Explorer") },
+                title = "设备资源管理器",
+                subtitle = "需要 ADB USB 连接",
+                onClick = { onNavigateToPlaceholder("设备资源管理器") },
                 enabled = false,
             )
         }

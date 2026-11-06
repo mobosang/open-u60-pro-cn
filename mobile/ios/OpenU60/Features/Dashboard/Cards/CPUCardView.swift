@@ -39,7 +39,7 @@ struct CPUDetailSheet: View {
         NavigationStack {
             List {
                 HStack {
-                    Label("CPU Usage", systemImage: "cpu")
+                    Label("CPU 使用率", systemImage: "cpu")
                     Spacer()
                     if cpuAvailable {
                         CPUUsageValue(value: systemInfo.cpuUsagePercent, font: .body, color: .secondary)
@@ -50,7 +50,7 @@ struct CPUDetailSheet: View {
                 }
                 row("CPU Cores", icon: "square.grid.2x2", value: "\(systemInfo.cpuCores)")
                 HStack {
-                    Label("CPU · hottest sensor", systemImage: "thermometer.medium")
+                    Label("CPU·最热传感器", systemImage: "thermometer.medium")
                     Spacer()
                     TemperatureValueText(value: thermal.cpuTemp).foregroundStyle(.secondary)
                 }
@@ -66,7 +66,7 @@ struct CPUDetailSheet: View {
                     showProcessList = true
                 } label: {
                     HStack {
-                        Label("Processes", systemImage: "list.number")
+                        Label("流程", systemImage: "list.number")
                         Spacer()
                         if !bloatSummary.isEmpty {
                             Text(bloatSummary)
@@ -80,7 +80,7 @@ struct CPUDetailSheet: View {
                 }
                 .foregroundStyle(.primary)
             }
-            .navigationTitle("CPU & Memory")
+            .navigationTitle("中央处理器和内存")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showProcessList) {
                 ProcessListSheet(client: client)
@@ -143,11 +143,11 @@ struct TemperatureCardView: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: 16) {
-                Label("Temperatures", systemImage: "thermometer.medium")
+                Label("温度", systemImage: "thermometer.medium")
                     .font(.headline)
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     VStack(alignment: .leading, spacing: 12) {
-                        temperatureRow("CPU · hottest sensor", icon: "cpu",
+                        temperatureRow("CPU·最热传感器", icon: "cpu",
                             value: thermal.cpuTemp, fresh: isFresh(thermalUpdatedAt, at: context.date))
                         temperatureRow("Battery", icon: "battery.100",
                             value: battery.temperature,
@@ -176,7 +176,7 @@ struct TemperatureCardView: View {
                                     if let temperature = sensor.temperatureC {
                                         TemperatureValueText(value: temperature)
                                     } else {
-                                        Text("Unavailable").font(.caption).foregroundStyle(.secondary)
+                                        Text("不可用").font(.caption).foregroundStyle(.secondary)
                                     }
                                 }
                                 .accessibilityElement(children: .combine)
@@ -186,7 +186,7 @@ struct TemperatureCardView: View {
                     }
                     .font(.subheadline)
                 }
-                Text("CPU shows the hottest CPU zone. Board numbers follow the device’s sensor names. Unavailable means the device is not reporting a valid temperature.")
+                Text("CPU 显示最热的 CPU 区域。板号遵循设备的传感器名称。不可用意味着设备未报告有效的温度。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -203,7 +203,7 @@ struct TemperatureCardView: View {
     }
 
     private func freshnessText(at now: Date) -> String {
-        guard let thermalUpdatedAt else { return "Temperature readings unavailable · retrying automatically" }
+        guard let thermalUpdatedAt else { return "温度读数不可用·自动重试" }
         let seconds = max(0, Int(now.timeIntervalSince(thermalUpdatedAt)))
         return seconds < 10 ? "Updated \(seconds)s ago · refreshes every 2s" : "Last sample \(seconds)s ago · waiting for device"
     }
@@ -213,7 +213,7 @@ struct TemperatureCardView: View {
             Label(title, systemImage: icon).font(.subheadline)
             Spacer()
             if fresh && value == nil {
-                Text("Unavailable").font(.caption).foregroundStyle(.secondary)
+                Text("不可用").font(.caption).foregroundStyle(.secondary)
             } else {
                 TemperatureValueText(value: fresh ? value : nil).font(.body.weight(.semibold))
             }

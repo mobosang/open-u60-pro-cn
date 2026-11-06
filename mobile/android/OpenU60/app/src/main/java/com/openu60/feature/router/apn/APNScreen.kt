@@ -32,7 +32,7 @@ fun APNScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("APN Settings") },
+                title = { Text("APN 设置") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -77,7 +77,7 @@ fun APNScreen(
                 // Mode toggle
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("APN Mode", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("APN模式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
@@ -86,7 +86,7 @@ fun APNScreen(
                                 enabled = !state.isLoading,
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Auto")
+                            Text("自动")
                             Spacer(modifier = Modifier.width(16.dp))
                             RadioButton(
                                 selected = state.config.isManual,
@@ -94,7 +94,7 @@ fun APNScreen(
                                 enabled = !state.isLoading,
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Manual")
+                            Text("手动")
                         }
                     }
                 }
@@ -102,11 +102,11 @@ fun APNScreen(
                 // Profiles
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Profiles", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("配置文件", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         if (state.config.profiles.isEmpty()) {
-                            Text("No APN profiles", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("无 APN 配置文件", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
 
                         state.config.profiles.forEach { profile ->
@@ -125,7 +125,7 @@ fun APNScreen(
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(profile.name.ifBlank { "Unnamed" }, fontWeight = FontWeight.Medium)
                                         Text(
-                                            "APN: ${profile.apn}  ${profile.pdpTypeLabel}",
+                                            "APN：${profile.apn} ${profile.pdpTypeLabel}",
                                             style = MaterialTheme.typography.bodySmall,
                                             fontFamily = FontFamily.Monospace,
                                         )
@@ -133,7 +133,7 @@ fun APNScreen(
                                     Row {
                                         if (!profile.active) {
                                             TextButton(onClick = { viewModel.activateProfile(profile.id) }) {
-                                                Text("Activate")
+                                                Text("激活")
                                             }
                                         }
                                         IconButton(onClick = { viewModel.showEditForm(profile) }) {
@@ -179,7 +179,7 @@ private fun APNFormDialog(
                 OutlinedTextField(
                     value = profile.name,
                     onValueChange = { onProfileChange(profile.copy(name = it)) },
-                    label = { Text("Name") },
+                    label = { Text("名称") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
@@ -196,7 +196,7 @@ private fun APNFormDialog(
                     OutlinedTextField(
                         value = profile.pdpTypeLabel,
                         onValueChange = {},
-                        label = { Text("PDP Type") },
+                        label = { Text("PDP 类型") },
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(pdpExpanded) },
                         modifier = Modifier.menuAnchor().fillMaxWidth(),
@@ -217,7 +217,7 @@ private fun APNFormDialog(
                     OutlinedTextField(
                         value = profile.authModeLabel,
                         onValueChange = {},
-                        label = { Text("Auth Mode") },
+                        label = { Text("认证模式") },
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(authExpanded) },
                         modifier = Modifier.menuAnchor().fillMaxWidth(),
@@ -237,14 +237,14 @@ private fun APNFormDialog(
                     OutlinedTextField(
                         value = profile.username,
                         onValueChange = { onProfileChange(profile.copy(username = it)) },
-                        label = { Text("Username") },
+                        label = { Text("用户名") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = profile.password,
                         onValueChange = { onProfileChange(profile.copy(password = it)) },
-                        label = { Text("Password") },
+                        label = { Text("密码") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -252,10 +252,10 @@ private fun APNFormDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onSave, enabled = profile.name.isNotBlank() && profile.apn.isNotBlank()) { Text("Save") }
+            TextButton(onClick = onSave, enabled = profile.name.isNotBlank() && profile.apn.isNotBlank()) { Text("保存") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text("取消") }
         },
     )
 }

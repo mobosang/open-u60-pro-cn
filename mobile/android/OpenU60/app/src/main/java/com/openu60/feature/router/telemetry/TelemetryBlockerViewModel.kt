@@ -71,7 +71,7 @@ class TelemetryBlockerViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.postJSON("/api/firewall/domain-filter/rule", mapOf("domain" to domain))
-                _state.value = _state.value.copy(newDomain = "", message = "Rule added", messageIsError = false)
+                _state.value = _state.value.copy(newDomain = "", message = "已添加规则", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) addRule(domain) else setError(e.message)
@@ -86,7 +86,7 @@ class TelemetryBlockerViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.deleteJSON("/api/firewall/domain-filter/rule", mapOf("id" to id))
-                _state.value = _state.value.copy(message = "Rule removed", messageIsError = false)
+                _state.value = _state.value.copy(message = "规则已删除", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) removeRule(id) else setError(e.message)

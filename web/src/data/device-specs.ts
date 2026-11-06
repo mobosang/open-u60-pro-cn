@@ -9,12 +9,12 @@ export interface BandInfo {
 }
 
 export const deviceSpecs: DeviceSpec[] = [
-  { label: "Chipset", value: "Qualcomm Snapdragon X75" },
+  { label: "芯片组", value: "高通骁龙X75" },
   { label: "CPU", value: "4x Cortex-A55 @ 2.2 GHz" },
-  { label: "Modem", value: "5G-A Sub-6 + mmWave" },
-  { label: "WiFi", value: "WiFi 7 (802.11be), EHT160" },
-  { label: "Battery", value: "10,000\u00a0mAh" },
-  { label: "Display", value: '3.5" IPS LCD touchscreen' },
+  { label: "调制解调器", value: "5G-A Sub-6 + mmWave" },
+  { label: "WiFi", value: "WiFi 7 (802.11be)、EHT160" },
+  { label: "电池", value: "10,000\u00a0mAh" },
+  { label: "显示", value: '3.5" IPS LCD touchscreen' },
   { label: "RAM", value: "1.6\u00a0GB" },
   { label: "Storage", value: "8\u00a0GB eMMC" },
   { label: "OS", value: "OpenWrt 23.05 (ZWRT)" },

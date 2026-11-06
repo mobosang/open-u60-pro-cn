@@ -27,7 +27,7 @@ fun DoHCacheInspectorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("DoH Cache") },
+                title = { Text("DoH 缓存") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -61,7 +61,7 @@ fun DoHCacheInspectorScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("No cache entries", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("没有缓存条目", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(
@@ -87,12 +87,12 @@ fun DoHCacheInspectorScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
                                     Text(
-                                        "Type: ${entry.type}",
+                                        "类型：${entry.type}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                     Text(
-                                        "TTL: ${entry.ttl}s",
+                                        "TTL：${entry.ttl}s",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontFamily = FontFamily.Monospace,

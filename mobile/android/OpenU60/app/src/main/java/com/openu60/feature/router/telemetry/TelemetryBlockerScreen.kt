@@ -28,7 +28,7 @@ fun TelemetryBlockerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Telemetry Blocker") },
+                title = { Text("遥测拦截") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -72,7 +72,7 @@ fun TelemetryBlockerScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Domain Filter", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("域过滤器", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Switch(checked = state.config.enabled, onCheckedChange = { viewModel.toggleFilter(it) })
                     }
                 }
@@ -84,19 +84,19 @@ fun TelemetryBlockerScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 ) {
-                    Text("Block All ZTE Telemetry")
+                    Text("阻止所有 ZTE 遥测")
                 }
 
                 // Add domain
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Add Domain", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("添加域名", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             OutlinedTextField(
                                 value = state.newDomain,
                                 onValueChange = { viewModel.updateNewDomain(it) },
-                                label = { Text("Domain") },
+                                label = { Text("域名") },
                                 modifier = Modifier.weight(1f),
                                 singleLine = true,
                             )
@@ -104,7 +104,7 @@ fun TelemetryBlockerScreen(
                             Button(
                                 onClick = { viewModel.addRule(state.newDomain) },
                                 enabled = state.newDomain.isNotBlank() && !state.isLoading,
-                            ) { Text("Add") }
+                            ) { Text("添加") }
                         }
                     }
                 }
@@ -112,10 +112,10 @@ fun TelemetryBlockerScreen(
                 // Rule list
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Blocked Domains (${state.config.rules.size})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("被阻止的域名 (${state.config.rules.size})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         if (state.config.rules.isEmpty()) {
-                            Text("No rules", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("没有规则", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         } else {
                             state.config.rules.forEach { rule ->
                                 Row(

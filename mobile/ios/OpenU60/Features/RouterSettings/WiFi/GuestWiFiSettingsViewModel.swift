@@ -41,7 +41,7 @@ final class GuestWiFiSettingsViewModel {
             return
         }
 
-        showMessage("Failed to load guest WiFi settings", isError: true)
+        showMessage("加载访客 WiFi 设置失败", isError: true)
         isLoading = false
     }
 
@@ -60,10 +60,10 @@ final class GuestWiFiSettingsViewModel {
 
         do {
             let _ = try await client.putJSON("/api/wifi/guest", body: params)
-            showMessage("Guest WiFi settings applied", isError: false)
+            showMessage("已应用访客 WiFi 设置", isError: false)
             updateConfigFromEdits()
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false

@@ -32,47 +32,47 @@ struct RouterSettingsListView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Cellular") {
+                Section("蜂窝网络") {
                     NavigationLink(value: Route.mobileNetwork) {
-                        Label("Mobile Network", systemImage: "cellularbars")
+                        Label("移动网络", systemImage: "cellularbars")
                     }
 
                     NavigationLink(value: Route.networkMode) {
-                        Label("Network Mode", systemImage: "antenna.radiowaves.left.and.right")
+                        Label("网络模式", systemImage: "antenna.radiowaves.left.and.right")
                     }
 
                     NavigationLink(value: Route.cellLock) {
-                        Label("Cell Lock", systemImage: "lock.fill")
+                        Label("小区锁定", systemImage: "lock.fill")
                     }
 
                     NavigationLink(value: Route.smartTowerConnect) {
-                        Label("Smart Tower Connect", systemImage: "antenna.radiowaves.left.and.right")
+                        Label("智能基站连接", systemImage: "antenna.radiowaves.left.and.right")
                     }
 
                     NavigationLink(value: Route.signalDetection) {
-                        Label("Signal Detection", systemImage: "waveform.badge.magnifyingglass")
+                        Label("信号检测", systemImage: "waveform.badge.magnifyingglass")
                     }
 
                     NavigationLink(value: Route.sim) {
-                        Label("SIM Card", systemImage: "simcard")
+                        Label("SIM 卡", systemImage: "simcard")
                     }
 
                     NavigationLink(value: Route.routerESim) {
-                        Label("eSIM Profiles", systemImage: "simcard.2")
+                        Label("eSIM 配置文件", systemImage: "simcard.2")
                     }
 
                     NavigationLink(value: Route.simServices) {
-                        Label("SIM Services", systemImage: "phone.badge.waveform")
+                        Label("SIM 服务", systemImage: "phone.badge.waveform")
                     }
                 }
 
-                Section("Connectivity") {
+                Section("网络连接") {
                     NavigationLink(value: Route.wifi) {
                         Label("WiFi", systemImage: "wifi")
                     }
 
                     NavigationLink(value: Route.guestWiFi) {
-                        Label("Guest WiFi", systemImage: "person.2")
+                        Label("访客 WiFi", systemImage: "person.2")
                     }
 
                     NavigationLink(value: Route.apn) {
@@ -88,33 +88,33 @@ struct RouterSettingsListView: View {
                     }
                 }
 
-                Section("Security") {
+                Section("安全") {
                     NavigationLink(value: Route.firewall) {
                         Label("Firewall", systemImage: "shield.lefthalf.filled")
                     }
 
                     NavigationLink(value: Route.telemetryBlocker) {
-                        Label("Telemetry Blocker", systemImage: "eye.slash")
+                        Label("遥测拦截", systemImage: "eye.slash")
                     }
 
                     NavigationLink(value: Route.vpnPassthrough) {
-                        Label("VPN Passthrough", systemImage: "lock.shield")
+                        Label("VPN 穿透", systemImage: "lock.shield")
                     }
                 }
 
-                Section("Quality") {
+                Section("服务质量") {
                     NavigationLink(value: Route.qos) {
-                        Label("QoS", systemImage: "speedometer")
+                        Label("服务质量", systemImage: "speedometer")
                     }
                 }
 
-                Section("System") {
+                Section("系统") {
                     NavigationLink(value: Route.deviceControls) {
-                        Label("Device Controls", systemImage: "power")
+                        Label("设备控制", systemImage: "power")
                     }
                 }
             }
-            .navigationTitle("Router")
+            .navigationTitle("路由器")
             .navigationDestination(for: Route.self) { route in
                 destination(for: route)
             }

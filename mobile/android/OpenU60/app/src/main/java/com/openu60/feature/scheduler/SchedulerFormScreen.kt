@@ -33,7 +33,7 @@ fun SchedulerFormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("New Scheduled Job") },
+                title = { Text("新安排的工作") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -70,7 +70,7 @@ fun SchedulerFormScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Job Name") },
+                label = { Text("职位名称") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
@@ -78,7 +78,7 @@ fun SchedulerFormScreen(
             // Action template
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Action", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text("操作", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     ActionTemplate.entries.forEach { template ->
                         Row(
@@ -99,7 +99,7 @@ fun SchedulerFormScreen(
             // Schedule type
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Schedule", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text("计划", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     Row {
                         listOf("recurring" to "Recurring", "once" to "One-time").forEach { (value, label) ->
@@ -121,7 +121,7 @@ fun SchedulerFormScreen(
                     OutlinedTextField(
                         value = scheduleTime,
                         onValueChange = { scheduleTime = it },
-                        label = { Text("Time (HH:MM)") },
+                        label = { Text("时间（时:分）") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -153,7 +153,7 @@ fun SchedulerFormScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Restore After", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("恢复后", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Switch(checked = enableRestore, onCheckedChange = { enableRestore = it })
                         }
                         if (enableRestore) {
@@ -161,7 +161,7 @@ fun SchedulerFormScreen(
                             OutlinedTextField(
                                 value = restoreTime,
                                 onValueChange = { restoreTime = it },
-                                label = { Text("Restore Time (HH:MM)") },
+                                label = { Text("恢复时间（时:分）") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                             )
@@ -185,7 +185,7 @@ fun SchedulerFormScreen(
                 },
                 enabled = name.isNotBlank() && !state.isLoading,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Create Job") }
+            ) { Text("创造就业机会") }
         }
     }
 }

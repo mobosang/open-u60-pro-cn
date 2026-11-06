@@ -17,15 +17,15 @@ struct SchedulerView: View {
             if viewModel.jobs.isEmpty && !viewModel.isLoading {
                 Section {
                     ContentUnavailableView {
-                        Label("No Automations", systemImage: "clock.arrow.2.circlepath")
+                        Label("无自动化", systemImage: "clock.arrow.2.circlepath")
                     } description: {
-                        Text("Schedule actions like airplane mode, reboot, or WiFi toggles to run automatically on the device.")
+                        Text("安排飞行模式、重新启动或 WiFi 切换等操作在设备上自动运行。")
                     }
                 }
             }
 
             if !viewModel.jobs.isEmpty {
-                Section("Automations") {
+                Section("自动化") {
                     ForEach(viewModel.jobs) { job in
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
@@ -61,7 +61,7 @@ struct SchedulerView: View {
                             Button(role: .destructive) {
                                 Task { await viewModel.deleteJob(id: job.id) }
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label("删除", systemImage: "trash")
                             }
                         }
                     }
@@ -72,11 +72,11 @@ struct SchedulerView: View {
                 Button {
                     viewModel.presentedSheet = .add
                 } label: {
-                    Label("New Automation", systemImage: "plus")
+                    Label("新的自动化", systemImage: "plus")
                 }
             }
         }
-        .navigationTitle("Automations")
+        .navigationTitle("自动化")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

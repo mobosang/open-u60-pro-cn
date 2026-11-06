@@ -92,12 +92,12 @@ fn state(sim: &Value) -> String {
 fn status(raw: &str) -> (String, Option<&'static str>) {
     let (label, class) = match raw.to_ascii_lowercase().as_str() {
         "" | "unknown" => (DASH, None),
-        "sim ready" => ("Ready", Some("c-green")),
-        "sim undetected" => ("No SIM", Some("c-red")),
-        "wait pin" => ("PIN Required", Some("c-orange")),
-        "wait puk" => ("PUK Required", Some("c-orange")),
-        "sim destroy" => ("SIM Destroyed", Some("c-red")),
-        "error" | "sim_error" => ("Error", Some("c-red")),
+        "sim ready" => ("准备好了", Some("c-green")),
+        "sim undetected" => ("无SIM", Some("c-red")),
+        "wait pin" => ("PIN 必填", Some("c-orange")),
+        "wait puk" => ("PUK 必填", Some("c-orange")),
+        "sim destroy" => ("SIM 被摧毁", Some("c-red")),
+        "error" | "sim_error" => ("错误", Some("c-red")),
         _ => return (raw.to_owned(), None),
     };
     (label.to_owned(), class)
@@ -195,7 +195,7 @@ fn changed(v: &Views) -> Markup {
     html! {
         div #sim-chg {
             @if v.arg != 0 && now != 0 && now != v.arg {
-                p.msg.info role="status" { "The SIM changed. " a href="" { "Refresh" } }
+                p.msg.info role="status" { "SIM 已更改。 " a href="" { "刷新" } }
             }
         }
     }
@@ -218,13 +218,13 @@ fn banners(v: &Views) -> Markup {
     let sim = v.value(Topic::Sim);
     html! {
         div #sim-ban {
-            @if let Some(e) = err { p.msg.err role="alert" { "Failed to load SIM info: " (fmt::truncate(e, 120)) } }
+            @if let Some(e) = err { p.msg.err role="alert" { "加载SIM信息失败： " (fmt::truncate(e, 120)) } }
             @if let Some(sim) = sim {
                 @if pin_locked(sim) {
-                    (banner(Icon::Lock, "c-orange", "SIM PIN Required", "Enter your PIN to unlock the SIM card", PIN, "Enter PIN"))
+                    (banner(Icon::Lock, "c-orange", "SIM PIN 必填", "输入你的PIN来解锁SIM卡", PIN, "输入PIN"))
                 }
                 @if puk_locked(sim) {
-                    (banner(Icon::LockWarn, "c-red", "SIM PUK Required", "Too many wrong PIN attempts. Enter PUK to unlock.", PUK, "Enter PUK"))
+                    (banner(Icon::LockWarn, "c-red", "SIM PUK 必填", "PIN 尝试错误太多。输入PUK进行解锁。", PUK, "输入PUK"))
                 }
             }
         }
@@ -237,19 +237,19 @@ fn card(v: &Views) -> Markup {
     let (label, tone) = status(&state(sim));
     let (mcc, mnc) = (text(sim, "mdm_mcc"), text(sim, "mdm_mnc"));
     let network = if mcc.is_empty() && mnc.is_empty() { DASH.to_owned() } else { format!("{mcc}/{mnc}") };
-    let operator = text(sim, "Operator");
+    let operator = text(sim, "运营商");
     html! {
         section.group #sim-card {
-            h2 { "SIM Card" }
+            h2 { "SIM 卡" }
             ul.list {
-                (row("Status", &label, tone))
+                (row("状态", &label, tone))
                 (row("ICCID", &or_dash(tail(text(sim, "sim_iccid"))), None))
                 (row("IMSI", &or_dash(imsi(text(sim, "sim_imsi"), mcc, mnc)), None))
                 (row("MSISDN", &or_dash(tail(text(sim, "msisdn"))), None))
                 (row("SPN", &or_dash(spn(text(sim, "spn_name_data"))), None))
                 (row("MCC/MNC", &network, None))
-                @if !operator.is_empty() { (row("Operator", operator, None)) }
-                (row("SIM Slot", &or_dash(text(sim, "current_sim_slot").to_owned()), None))
+                @if !operator.is_empty() { (row("运营商", operator, None)) }
+                (row("SIM 插槽", &or_dash(text(sim, "current_sim_slot").to_owned()), None))
             }
         }
     }
@@ -263,14 +263,14 @@ fn pins(v: &Views) -> Markup {
     let puk = fmt::int(&sim["puknumber"]).unwrap_or(0);
     html! {
         section.group #sim-pin {
-            h2 { "PIN Management" }
+            h2 { "PIN 管理" }
             ul.list {
-                (row("PIN Lock", if on { "Enabled" } else { "Disabled" }, on.then_some("c-green")))
-                (row("PIN Attempts", &pin.to_string(), (pin == 1).then_some("c-red")))
-                (row("PUK Attempts", &puk.to_string(), (1..=3).contains(&puk).then_some("c-orange")))
+                (row("PIN 锁", if on { "已启用" } else { "已禁用" }, on.then_some("c-green")))
+                (row("PIN 尝试", &pin.to_string(), (pin == 1).then_some("c-red")))
+                (row("PUK 尝试", &puk.to_string(), (1..=3).contains(&puk).then_some("c-orange")))
                 @if !pin_locked(sim) && !puk_locked(sim) {
-                    @if on { (action(LOCK_OFF, Icon::LockOpen, "Disable PIN Lock")) } @else { (action(LOCK_ON, Icon::Lock, "Enable PIN Lock")) }
-                    (action(CHANGE, Icon::Pencil, "Change PIN"))
+                    @if on { (action(LOCK_OFF, Icon::LockOpen, "禁用 PIN 锁定")) } @else { (action(LOCK_ON, Icon::Lock, "启用 PIN 锁定")) }
+                    (action(CHANGE, Icon::Pencil, "更改PIN"))
                 }
             }
         }
@@ -290,9 +290,9 @@ pub fn page(pd: &PageData) -> Markup {
         (banners(v))
         (card(v))
         (pins(v))
-        (kit::section(Some("SIM Lock"), None, html! {
-            (row("Unlock Attempts", &left.to_string(), None))
-            @if left > 0 { (action(NCK, Icon::LockOpen, "Enter Unlock Code")) }
+        (kit::section(Some("SIM锁"), None, html! {
+            (row("解锁尝试", &left.to_string(), None))
+            @if left > 0 { (action(NCK, Icon::LockOpen, "输入解锁码")) }
         }))
     }
 }
@@ -350,21 +350,21 @@ impl Sheet {
     /// The app's success message.
     fn done(self) -> &'static str {
         match self {
-            Sheet::Pin => "PIN verified",
-            Sheet::LockOn => "PIN lock enabled",
-            Sheet::LockOff => "PIN lock disabled",
-            Sheet::Change => "PIN changed successfully",
-            Sheet::Puk => "PUK verified, new PIN set",
-            Sheet::Nck => "SIM unlocked successfully",
+            Sheet::Pin => "PIN 已验证",
+            Sheet::LockOn => "PIN 锁定使能",
+            Sheet::LockOff => "PIN 锁定禁用",
+            Sheet::Change => "PIN 更改成功",
+            Sheet::Puk => "PUK 已验证，新 PIN 套装",
+            Sheet::Nck => "SIM解锁成功",
         }
     }
 
     fn label(self) -> &'static str {
         match self {
-            Sheet::LockOn => "Enable",
-            Sheet::LockOff => "Disable",
-            Sheet::Change => "Change PIN",
-            _ => "Unlock",
+            Sheet::LockOn => "启用",
+            Sheet::LockOff => "禁用",
+            Sheet::Change => "更改PIN",
+            _ => "解锁",
         }
     }
 
@@ -376,7 +376,7 @@ impl Sheet {
     }
 }
 
-const UNREAD: &str = "The attempts left can't be read right now, so nothing can be sent. Try again in a moment.";
+const UNREAD: &str = "现在无法读取剩余的尝试，因此无法发送任何内容。稍后再试一次。";
 
 /// The attempts this sheet spends from, as read.
 fn attempts(k: Sheet, sim: Option<&Value>, unlocks: Option<i64>) -> Option<i64> {
@@ -389,7 +389,7 @@ fn attempts(k: Sheet, sim: Option<&Value>, unlocks: Option<i64>) -> Option<i64> 
 
 /// Enter PIN once the SIM wants its PUK (the last wrong PIN locked it):
 /// said with a way on to Enter PUK.
-const NEEDS_PUK: &str = "The SIM is locked after too many wrong PINs and now needs its PUK.";
+const NEEDS_PUK: &str = "SIM 在多次错误 PIN 后被锁定，现在需要 PUK。";
 
 /// Why this sheet has nothing to do for the SIM as read. A PIN sheet
 /// whose SIM could not be read leaves it to the device; a PUK or unlock
@@ -398,7 +398,7 @@ const NEEDS_PUK: &str = "The SIM is locked after too many wrong PINs and now nee
 fn refusal(k: Sheet, sim: Option<&Value>, unlocks: Option<i64>) -> Option<&'static str> {
     if k == Sheet::Nck {
         return match unlocks {
-            Some(0) => Some("No unlock attempts are left."),
+            Some(0) => Some("没有剩余解锁尝试。"),
             None => Some(UNREAD),
             Some(_) => None,
         };
@@ -407,16 +407,16 @@ fn refusal(k: Sheet, sim: Option<&Value>, unlocks: Option<i64>) -> Option<&'stat
     let locked = pin_locked(sim) || puk_locked(sim);
     match k {
         Sheet::Pin if puk_locked(sim) => Some(NEEDS_PUK),
-        Sheet::Pin if !pin_locked(sim) => Some("The SIM is not waiting for its PIN."),
-        Sheet::Puk if !puk_locked(sim) => Some("The SIM is not waiting for its PUK."),
+        Sheet::Pin if !pin_locked(sim) => Some("SIM 不等待其 PIN。"),
+        Sheet::Puk if !puk_locked(sim) => Some("SIM 不等待其 PUK。"),
         Sheet::Puk => match attempts(k, Some(sim), None) {
-            Some(0) => Some("No PUK attempts are left."),
+            Some(0) => Some("没有剩余 PUK 尝试。"),
             None => Some(UNREAD),
             Some(_) => None,
         },
-        Sheet::LockOn | Sheet::LockOff | Sheet::Change if locked => Some("Unlock the SIM first."),
-        Sheet::LockOn if pin_enabled(sim) => Some("The PIN lock is already on."),
-        Sheet::LockOff if !pin_enabled(sim) => Some("The PIN lock is already off."),
+        Sheet::LockOn | Sheet::LockOff | Sheet::Change if locked => Some("首先解锁SIM。"),
+        Sheet::LockOn if pin_enabled(sim) => Some("PIN 锁已打开。"),
+        Sheet::LockOff if !pin_enabled(sim) => Some("PIN 锁已关闭。"),
         _ => None,
     }
 }
@@ -426,22 +426,22 @@ fn refusal(k: Sheet, sim: Option<&Value>, unlocks: Option<i64>) -> Option<&'stat
 fn lines(k: Sheet, left: Option<i64>, remote: bool) -> Vec<&'static str> {
     let mut out = Vec::new();
     match k {
-        Sheet::LockOn => out.push("The SIM will ask for this PIN every time the router starts. Until it is entered, the router has no mobile connection."),
-        Sheet::LockOff => out.push("The SIM will no longer ask for a PIN when the router starts."),
+        Sheet::LockOn => out.push("每次路由器启动时，SIM 都会请求该 PIN。在输入之前，路由器没有移动连接。"),
+        Sheet::LockOff => out.push("当路由器启动时，SIM 将不再请求 PIN。"),
         _ => {}
     }
     let last = left == Some(1);
     match k {
-        Sheet::Pin if last => out.push("This is the last attempt: a wrong PIN locks the SIM until its PUK is entered."),
+        Sheet::Pin if last => out.push("这是最后一次尝试：错误的 PIN 会锁定 SIM，直到输入其 PUK。"),
         Sheet::LockOn | Sheet::LockOff | Sheet::Change if last => {
-            out.push("This is the last attempt: a wrong PIN locks the SIM, and the router loses its mobile connection until the PUK is entered.")
+            out.push("这是最后一次尝试：错误的 PIN 锁定 SIM，路由器失去移动连接，直到输入 PUK。")
         }
         Sheet::LockOn | Sheet::LockOff | Sheet::Change => {
-            out.push("A wrong PIN uses an attempt. With none left, the SIM locks and the router loses its mobile connection until the PUK is entered.")
+            out.push("错误的 PIN 使用尝试。如果没有剩余，SIM 将锁定，路由器将失去其移动连接，直到进入 PUK。")
         }
-        Sheet::Puk if last => out.push("This is the last attempt: a wrong PUK blocks the SIM for good."),
-        Sheet::Puk => out.push("A wrong PUK uses an attempt. With none left, the SIM is blocked for good."),
-        Sheet::Nck if last => out.push("This is the last attempt: a wrong code can leave the router locked to its network for good."),
+        Sheet::Puk if last => out.push("这是最后一次尝试：错误的 PUK 会永久阻止 SIM。"),
+        Sheet::Puk => out.push("错误的 PUK 使用尝试。由于没有剩余，SIM 被永久封锁。"),
+        Sheet::Nck if last => out.push("这是最后一次尝试：错误的代码可能会使路由器永久锁定其网络。"),
         _ => {}
     }
     if remote && k.cuts() {
@@ -500,7 +500,7 @@ fn sheet(pd: &PageData, k: Sheet) -> Markup {
         return html! {
             @if let Some(n) = &pd.notice { (n) }
             @if why == UNREAD { p.msg.err role="alert" { (why) } } @else { p.msg.info role="status" { (why) } }
-            @if why == NEEDS_PUK { p.actions { a.btn href=(PUK) { "Enter PUK" } } }
+            @if why == NEEDS_PUK { p.actions { a.btn href=(PUK) { "输入PUK" } } }
         };
     }
     let left = attempts(k, sim, unlocks);
@@ -512,8 +512,8 @@ fn sheet(pd: &PageData, k: Sheet) -> Markup {
         @if let Some(n) = &pd.notice { (n) }
     };
     let new_pin = html! {
-        (secret("new", "New PIN", 8, err("new")))
-        (secret("new2", "Confirm New PIN", 8, err("new2")))
+        (secret("new", "新PIN", 8, err("new")))
+        (secret("new2", "确认新PIN", 8, err("new2")))
     };
     html! {
         form.rf.req method="post" action=(k.path()) {
@@ -523,17 +523,17 @@ fn sheet(pd: &PageData, k: Sheet) -> Markup {
             input type="hidden" name="left" value=(left.map(|n| n.to_string()).unwrap_or_default());
             @match k {
                 Sheet::Change => {
-                    (kit::section(Some("Current PIN"), None, secret("old", "Old PIN", 8, err("old"))))
-                    (kit::section(Some("New PIN"), Some(footer), new_pin))
+                    (kit::section(Some("当前PIN"), None, secret("old", "老PIN", 8, err("old"))))
+                    (kit::section(Some("新PIN"), Some(footer), new_pin))
                 }
                 Sheet::Puk => {
-                    (kit::section(None, Some(footer), secret("puk", "PUK Code", 8, err("puk"))))
-                    (kit::section(Some("New PIN"), None, new_pin))
+                    (kit::section(None, Some(footer), secret("puk", "PUK代码", 8, err("puk"))))
+                    (kit::section(Some("新PIN"), None, new_pin))
                 }
                 Sheet::Nck => (kit::section(None, Some(footer), html! {
                     li.it.fld {
-                        label.sr for="nck" { "Unlock Code (NCK)" }
-                        input #nck type="text" name="nck" placeholder="Unlock Code (NCK)" inputmode="numeric" maxlength="16" required
+                        label.sr for="nck" { "解锁代码（NCK）" }
+                        input #nck type="text" name="nck" placeholder="解锁代码（NCK）" inputmode="numeric" maxlength="16" required
                             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                             aria-invalid=[err("nck").map(|_| "true")] aria-describedby=[err("nck").map(|_| "nck-err")];
                         @if let Some(e) = err("nck") { p.ferr #nck-err { (e) } }
@@ -550,7 +550,7 @@ fn sheet(pd: &PageData, k: Sheet) -> Markup {
 
 // --- Posts ---
 
-const CHANGED: &str = "The attempts left have changed, so nothing was sent. Read the sheet again before trying.";
+const CHANGED: &str = "剩余的尝试已更改，因此未发送任何内容。尝试之前请再次阅读该表。";
 
 /// The checked fields (PINs and codes: in RAM for this post only).
 type Vals = Vec<(&'static str, String)>;
@@ -569,7 +569,7 @@ fn pin(form: &Form, name: &'static str, short: &str, fs: &mut FormState) -> Stri
     if v.chars().count() < 4 {
         fs.errors.push((name, short.into()));
     } else if v.len() > 8 || !digits(v) {
-        fs.errors.push((name, "A PIN is 4 to 8 digits.".into()));
+        fs.errors.push((name, "PIN 为 4 至 8 位数字。".into()));
     }
     v.to_owned()
 }
@@ -578,7 +578,7 @@ fn pin(form: &Form, name: &'static str, short: &str, fs: &mut FormState) -> Stri
 /// back with its messages and no values.
 fn parse(k: Sheet, form: &Form) -> Result<Vals, FormState> {
     let mut fs = FormState::default();
-    let short = if k == Sheet::Puk { "New PIN must be at least 4 digits" } else { "PIN must be at least 4 digits" };
+    let short = if k == Sheet::Puk { "新的PIN必须至少为4位数字" } else { "PIN 必须至少为 4 位数字" };
     let mut vals = Vec::new();
     match k {
         Sheet::Pin | Sheet::LockOn | Sheet::LockOff => vals.push(("pin", pin(form, "pin", short, &mut fs))),
@@ -586,18 +586,18 @@ fn parse(k: Sheet, form: &Form) -> Result<Vals, FormState> {
         Sheet::Puk => {
             let puk = form.get("puk").unwrap_or("").trim();
             if puk.chars().count() < 8 {
-                fs.errors.push(("puk", "PUK must be at least 8 digits".into()));
+                fs.errors.push(("puk", "PUK 必须至少为 8 位数字".into()));
             } else if puk.len() != 8 || !digits(puk) {
-                fs.errors.push(("puk", "A PUK is 8 digits.".into()));
+                fs.errors.push(("puk", "PUK 是 8 位数字。".into()));
             }
             vals.push(("puk", puk.to_owned()));
         }
         Sheet::Nck => {
             let code = form.get("nck").unwrap_or("").trim();
             if code.is_empty() {
-                fs.errors.push(("nck", "Unlock code is required".into()));
+                fs.errors.push(("nck", "需要解锁码".into()));
             } else if code.len() > 16 || !digits(code) {
-                fs.errors.push(("nck", "The unlock code is digits only, at most 16.".into()));
+                fs.errors.push(("nck", "解锁码仅为数字，最多 16 位。".into()));
             }
             vals.push(("nck", code.to_owned()));
         }
@@ -605,7 +605,7 @@ fn parse(k: Sheet, form: &Form) -> Result<Vals, FormState> {
     if matches!(k, Sheet::Change | Sheet::Puk) {
         let new = pin(form, "new", short, &mut fs);
         if fs.error("new").is_none() && form.get("new2").unwrap_or("").trim() != new {
-            fs.errors.push(("new2", "The new PINs do not match.".into()));
+            fs.errors.push(("new2", "新的 PIN 不匹配。".into()));
         }
         vals.push(("new", new));
     }
@@ -740,9 +740,9 @@ pub async fn post(ctx: Ctx, req: Request, k: Sheet) -> Response {
         Sent::Ran(resp) => resp,
         Sent::Done(Ok(())) => line(&ctx.app, &ctx.flash, owner, Some(true), k.done()),
         Sent::Done(Err((status, e))) => screen::show(&ctx, p, shown, s, Some(Notice::Failed(e)), status).await,
-        Sent::Expired => screen::show(&ctx, p, shown, s, again("This page expired, so nothing was sent. Try again."), 409).await,
-        Sent::Busy => screen::show(&ctx, p, shown, s, again("Failed: the router is busy. Try again in a few seconds."), 503).await,
-        Sent::Unknown => line(&ctx.app, &ctx.flash, owner, None, "The router may still be working on it. Check before trying again."),
+        Sent::Expired => screen::show(&ctx, p, shown, s, again("该页面已过期，因此未发送任何内容。再试一次。"), 409).await,
+        Sent::Busy => screen::show(&ctx, p, shown, s, again("失败：路由器正忙。几秒钟后重试。"), 503).await,
+        Sent::Unknown => line(&ctx.app, &ctx.flash, owner, None, "路由器可能仍在处理它。重试前请检查。"),
     }
 }
 
@@ -763,7 +763,7 @@ mod tests {
     fn the_card_follows_the_app_with_identifiers_masked() {
         let sim = json!({
             "sim_states": "sim ready", "sim_iccid": "8900100000009998877F", "sim_imsi": "001019999911111",
-            "msisdn": "+10000000042", "mdm_mcc": "001", "mdm_mnc": "01", "Operator": "Test Net",
+            "msisdn": "+10000000042", "mdm_mcc": "001", "mdm_mnc": "01", "运营商": "测试网",
             "current_sim_slot": "1", "spn_name_data": "0054006500730074", "pin_status": "1", "pinnumber": "1", "puknumber": 3,
         });
         let s = card(&views(sim.clone())).into_string();
@@ -789,9 +789,9 @@ mod tests {
         // Empty values: the app's "--"; a status from the modem state.
         let s = card(&views(json!({"modem_main_state": "modem_waitpuk"}))).into_string();
         assert!(s.contains("<span class=\"v c-orange\">PUK Required</span>") && s.contains("<span>ICCID</span><span class=\"v\">--</span>"), "{s}");
-        assert!(!s.contains("Operator"));
-        assert_eq!(status("sim undetected"), ("No SIM".into(), Some("c-red")));
-        assert_eq!(status("Something"), ("Something".into(), None));
+        assert!(!s.contains("运营商"));
+        assert_eq!(status("sim undetected"), ("无SIM".into(), Some("c-red")));
+        assert_eq!(status("一些东西"), ("一些东西".into(), None));
         // An IMSI whose network the card does not name: 3 + 2 digits.
         assert_eq!(imsi("310260000000042", "", ""), "310/26 …0042");
         assert_eq!(imsi("310260000000042", "310", "260"), "310/260 …0042");
@@ -818,14 +818,14 @@ mod tests {
         let f = |q: &str| Form::parse(q.as_bytes());
         assert_eq!(parse(Sheet::Pin, &f("pin=1234")).unwrap(), [("pin", "1234".to_owned())]);
         let fs = parse(Sheet::Pin, &f("pin=123")).unwrap_err();
-        assert_eq!((fs.error("pin"), fs.values.len()), (Some("PIN must be at least 4 digits"), 0));
-        assert_eq!(parse(Sheet::LockOn, &f("pin=12a4")).unwrap_err().error("pin"), Some("A PIN is 4 to 8 digits."));
-        assert_eq!(parse(Sheet::Change, &f("old=1234&new=5678&new2=5679")).unwrap_err().error("new2"), Some("The new PINs do not match."));
+        assert_eq!((fs.error("pin"), fs.values.len()), (Some("PIN 必须至少为 4 位数字"), 0));
+        assert_eq!(parse(Sheet::LockOn, &f("pin=12a4")).unwrap_err().error("pin"), Some("PIN 为 4 至 8 位数字。"));
+        assert_eq!(parse(Sheet::Change, &f("old=1234&new=5678&new2=5679")).unwrap_err().error("new2"), Some("新的 PIN 不匹配。"));
         assert_eq!(parse(Sheet::Change, &f("old=1234&new=5678&new2=5678")).unwrap().len(), 2);
         let fs = parse(Sheet::Puk, &f("puk=1234567&new=12&new2=12")).unwrap_err();
-        assert_eq!((fs.error("puk"), fs.error("new")), (Some("PUK must be at least 8 digits"), Some("New PIN must be at least 4 digits")));
-        assert_eq!(parse(Sheet::Puk, &f("puk=123456789&new=1234&new2=1234")).unwrap_err().error("puk"), Some("A PUK is 8 digits."));
-        assert_eq!(parse(Sheet::Nck, &f("nck=")).unwrap_err().error("nck"), Some("Unlock code is required"));
+        assert_eq!((fs.error("puk"), fs.error("new")), (Some("PUK 必须至少为 8 位数字"), Some("新的PIN必须至少为4位数字")));
+        assert_eq!(parse(Sheet::Puk, &f("puk=123456789&new=1234&new2=1234")).unwrap_err().error("puk"), Some("PUK 是 8 位数字。"));
+        assert_eq!(parse(Sheet::Nck, &f("nck=")).unwrap_err().error("nck"), Some("需要解锁码"));
         assert!(parse(Sheet::Nck, &f("nck=0000000000000042")).is_ok());
         let v: Vals = vec![("new", "5678".into()), ("puk", "12345678".into())];
         assert_eq!(body(Sheet::Puk, &v), json!({"pin_num": "5678", "puk_num": "12345678", "pin_encode_flag": "0"}));
@@ -840,26 +840,26 @@ mod tests {
     #[test]
     fn sheets_fit_the_sim_and_say_what_happens() {
         let ready = json!({"sim_states": "sim ready", "pin_status": "0"});
-        assert_eq!(refusal(Sheet::Pin, Some(&ready), None), Some("The SIM is not waiting for its PIN."));
+        assert_eq!(refusal(Sheet::Pin, Some(&ready), None), Some("SIM 不等待其 PIN。"));
         assert_eq!(refusal(Sheet::Pin, Some(&json!({"sim_states": "wait puk", "puknumber": 10})), None), Some(NEEDS_PUK));
-        assert_eq!(refusal(Sheet::LockOff, Some(&ready), None), Some("The PIN lock is already off."));
+        assert_eq!(refusal(Sheet::LockOff, Some(&ready), None), Some("PIN 锁已关闭。"));
         assert_eq!(refusal(Sheet::LockOn, Some(&ready), None), None);
-        assert_eq!(refusal(Sheet::Change, Some(&json!({"sim_states": "wait pin"})), None), Some("Unlock the SIM first."));
+        assert_eq!(refusal(Sheet::Change, Some(&json!({"sim_states": "wait pin"})), None), Some("首先解锁SIM。"));
         assert_eq!(refusal(Sheet::Pin, None, None), None);
-        assert_eq!(refusal(Sheet::Nck, None, Some(0)), Some("No unlock attempts are left."));
+        assert_eq!(refusal(Sheet::Nck, None, Some(0)), Some("没有剩余解锁尝试。"));
         // A PUK or unlock code is never sent without its attempts known.
         assert_eq!(refusal(Sheet::Nck, None, None), Some(UNREAD));
         assert_eq!(refusal(Sheet::Nck, None, Some(2)), None);
         let puk = |n: Value| json!({"sim_states": "wait puk", "puknumber": n});
         assert_eq!(refusal(Sheet::Puk, None, None), Some(UNREAD));
-        assert_eq!(refusal(Sheet::Puk, Some(&puk(json!(0))), None), Some("No PUK attempts are left."));
+        assert_eq!(refusal(Sheet::Puk, Some(&puk(json!(0))), None), Some("没有剩余 PUK 尝试。"));
         assert_eq!(refusal(Sheet::Puk, Some(&puk(Value::Null)), None), Some(UNREAD));
         assert_eq!(refusal(Sheet::Puk, Some(&puk(json!("2"))), None), None);
         assert_eq!(attempts(Sheet::Puk, Some(&puk(json!("2"))), None), Some(2));
         let f = |q: &str| shown_left(&Form::parse(q.as_bytes()));
         assert_eq!((f("left=3"), f("left="), f("x=1"), f("left=-1"), f("left=2a")), (Some(3), None, None, Some(-1), Some(-1)));
         let l = lines(Sheet::LockOn, Some(1), true);
-        assert!(l[0].starts_with("The SIM will ask for this PIN") && l[1].starts_with("This is the last attempt") && l[2] == super::super::confirm::REMOTE);
+        assert!(l[0].starts_with("SIM 将要求此 PIN") && l[1].starts_with("这是最后一次尝试") && l[2] == super::super::confirm::REMOTE);
         assert_eq!(lines(Sheet::Pin, Some(3), true), Vec::<&str>::new());
         assert_eq!(lines(Sheet::Nck, Some(1), true).len(), 1);
     }

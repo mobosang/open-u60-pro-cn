@@ -29,7 +29,7 @@ fun USBModeScreen(
     if (state.showModeSheet) {
         ModalBottomSheet(onDismissRequest = { viewModel.hideModeSheet() }) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Select USB Mode", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("选择USB模式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(12.dp))
                 listOf("none", "rndis", "ecm", "mtp", "adb").forEach { mode ->
                     ListItem(
@@ -46,7 +46,7 @@ fun USBModeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("USB Mode") },
+                title = { Text("USB 模式") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -86,12 +86,12 @@ fun USBModeScreen(
                 // Current status
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("USB Status", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("USB状态", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         InfoRow("Current Mode", state.usbStatus.mode.ifBlank { "--" })
                         InfoRow("Cable", if (state.usbStatus.cableAttached) "Attached (${state.usbStatus.typecCC})" else "Disconnected")
                         InfoRow("Data", if (state.usbStatus.dataConnected) "Connected" else "Disconnected")
-                        InfoRow("Powerbank", if (state.usbStatus.powerbankActive) "Active" else "Inactive")
+                        InfoRow("移动电源", if (state.usbStatus.powerbankActive) "Active" else "Inactive")
                     }
                 }
 
@@ -100,7 +100,7 @@ fun USBModeScreen(
                     onClick = { viewModel.showModeSheet() },
                     enabled = !state.isLoading,
                     modifier = Modifier.fillMaxWidth(),
-                ) { Text("Change USB Mode") }
+                ) { Text("更改 USB 模式") }
 
                 // Powerbank toggle
                 Card(modifier = Modifier.fillMaxWidth()) {
@@ -110,9 +110,9 @@ fun USBModeScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column {
-                            Text("Powerbank", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("移动电源", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Text(
-                                "Provide power to connected devices via USB",
+                                "通过 USB 为连接的设备供电",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

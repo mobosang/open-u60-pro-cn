@@ -51,7 +51,7 @@ struct SMSConversationView: View {
 
             // Input bar
             HStack(spacing: 8) {
-                TextField("Message", text: $messageText, axis: .vertical)
+                TextField("短信", text: $messageText, axis: .vertical)
                     .textFieldStyle(.plain)
                     .lineLimit(1...5)
                     .focused($isInputFocused)
@@ -76,7 +76,7 @@ struct SMSConversationView: View {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.title2)
                 }
-                .accessibilityLabel("Send")
+                .accessibilityLabel("发送")
                 .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSending)
             }
             .padding(.horizontal, 12)
@@ -123,7 +123,7 @@ private struct SMSBubbleView: View {
                         Image(systemName: "exclamationmark.circle.fill")
                             .foregroundStyle(.red)
                             .font(.caption2)
-                            .accessibilityLabel("Not delivered")
+                            .accessibilityLabel("未交付")
                     }
                     Text(message.date, style: .time)
                         .font(.caption2)

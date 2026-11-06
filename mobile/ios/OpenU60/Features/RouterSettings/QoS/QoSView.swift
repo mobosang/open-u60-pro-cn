@@ -14,15 +14,15 @@ struct QoSView: View {
                 }
             }
 
-            Section("Quality of Service") {
-                Toggle("Enable QoS", isOn: Binding(
+            Section("服务质量") {
+                Toggle("启用服务质量", isOn: Binding(
                     get: { viewModel.config.enabled },
                     set: { enabled in Task { await viewModel.toggle(enabled: enabled) } }
                 ))
                 .disabled(viewModel.isLoading)
             }
         }
-        .navigationTitle("QoS")
+        .navigationTitle("服务质量")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

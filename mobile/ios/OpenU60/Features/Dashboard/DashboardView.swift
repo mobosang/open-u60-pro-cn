@@ -75,7 +75,7 @@ struct DashboardView: View {
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
-            .navigationTitle("Dashboard")
+            .navigationTitle("仪表盘")
             .navigationBarTitleDisplayMode(.inline)
             .refreshable { await viewModel.refresh() }
             .toolbar {
@@ -99,7 +99,7 @@ struct DashboardView: View {
                 ScrollView {
                     VStack(spacing: 12) {
                         CPUCardScope(viewModel: viewModel)
-                        Button("CPU, memory & processes") { showCPUDetails = true }
+                        Button("CPU、内存和进程") { showCPUDetails = true }
                         TemperatureCardScope(viewModel: viewModel)
                     }.padding()
                 }
@@ -108,9 +108,9 @@ struct DashboardView: View {
                     CPUDetailScope(viewModel: viewModel, client: client)
                         .presentationDragIndicator(.visible)
                 }
-                .navigationTitle("CPU & temperatures")
+                .navigationTitle("CPU 和温度")
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { detail = nil } } }
+                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { detail = nil } } }
             }
         case .connection:
             NavigationStack {
@@ -127,7 +127,7 @@ struct DashboardView: View {
                     VStack(spacing: 12) {
                         if selected == .traffic {
                             CellularCardScope(viewModel: viewModel, compact: true)
-                            Text("These speeds show current cellular traffic across all connected devices. A speed test reports throughput over its test period; the live numbers change throughout that period.")
+                            Text("这些速度显示所有连接设备上当前的蜂窝流量。速度测试报告测试期间的吞吐量；在此期间，实时数据会发生变化。")
                                 .font(.subheadline).foregroundStyle(.secondary)
                         } else {
                             WiFiCardScope(viewModel: viewModel, showWiFiShare: $showWiFiShare)
@@ -143,7 +143,7 @@ struct DashboardView: View {
                 .background(Color(.systemGroupedBackground))
                 .navigationTitle(selected.rawValue)
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { detail = nil } } }
+                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { detail = nil } } }
             }
         }
     }
@@ -154,7 +154,7 @@ struct DashboardView: View {
             configs.append(SIMAlertBanner.Config(
                 id: "puk",
                 icon: "exclamationmark.lock.fill",
-                title: "SIM PUK Required",
+                title: "SIM PUK 必填",
                 message: "Too many wrong PIN attempts. Go to Router > SIM Card to enter your PUK.",
                 color: .red
             ))
@@ -163,7 +163,7 @@ struct DashboardView: View {
             configs.append(SIMAlertBanner.Config(
                 id: "pin",
                 icon: "lock.fill",
-                title: "SIM PIN Required",
+                title: "SIM PIN 必填",
                 message: "Your SIM card is locked. Go to Router > SIM Card to enter your PIN.",
                 color: .orange
             ))
@@ -172,8 +172,8 @@ struct DashboardView: View {
             configs.append(SIMAlertBanner.Config(
                 id: "airplane",
                 icon: "airplane",
-                title: "Airplane Mode",
-                message: "Cellular radio is off. The modem is powered down — no signal or data.",
+                title: "飞行模式",
+                message: "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。",
                 color: .blue
             ))
         }
@@ -181,7 +181,7 @@ struct DashboardView: View {
             configs.append(SIMAlertBanner.Config(
                 id: "data",
                 icon: "antenna.radiowaves.left.and.right.slash",
-                title: "Mobile Data Off",
+                title: "移动数据关闭",
                 message: "Cellular radio is on but data is disabled. Go to Router > Mobile Network to enable it.",
                 color: .orange
             ))
@@ -335,7 +335,7 @@ private struct ConnectionSignalDetail: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button("完成") { dismiss() }
                 }
             }
             .onAppear {
@@ -393,11 +393,11 @@ private struct TemperatureCardScope: View {
 }
 
 private enum DashboardDetail: String, Identifiable {
-    case connection = "Connection & signal"
+    case connection = "连接与信号"
     case traffic = "Live traffic"
     case battery = "Battery"
-    case health = "CPU & temperatures"
-    case wifi = "Wi-Fi & devices"
+    case health = "CPU 和温度"
+    case wifi = "Wi-Fi 和设备"
     var id: String { rawValue }
 }
 
@@ -421,7 +421,7 @@ private struct ConnectionOverview: View {
         let lte = viewModel.lteSignal
         CardView {
             VStack(alignment: .leading, spacing: 10) {
-                OverviewHeading(title: "Connection & signal", icon: "antenna.radiowaves.left.and.right")
+                OverviewHeading(title: "连接与信号", icon: "antenna.radiowaves.left.and.right")
                 HStack(alignment: .firstTextBaseline) {
                     Text(info.provider.isEmpty ? "No operator" : info.provider).font(.title3.bold())
                     Spacer()
@@ -434,8 +434,8 @@ private struct ConnectionOverview: View {
                         AnimatedNumber(value: Int(rsrp), font: .caption.weight(.semibold), suffix: " dBm")
                     } else { Text("—").font(.caption) }
                     Spacer()
-                    if info.roaming { Text("Roaming").font(.caption).foregroundStyle(.orange) }
-                    Text("Radio details").font(.caption).foregroundStyle(.secondary)
+                    if info.roaming { Text("漫游").font(.caption).foregroundStyle(.orange) }
+                    Text("电台详情").font(.caption).foregroundStyle(.secondary)
                 }
             }
         }
@@ -449,7 +449,7 @@ private struct HealthOverview: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: 10) {
-                OverviewHeading(title: "CPU & heat", icon: "cpu")
+                OverviewHeading(title: "CPU与散热", icon: "cpu")
                 if viewModel.cpuUpdatedAt != nil {
                     CPUUsageValue(value: viewModel.systemInfo.cpuUsagePercent)
                 } else { Text("—").font(.title3.bold()) }
@@ -479,7 +479,7 @@ private struct WiFiOverview: View {
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: 10) {
-                OverviewHeading(title: "Wi-Fi & devices", icon: "wifi")
+                OverviewHeading(title: "Wi-Fi 和设备", icon: "wifi")
                 HStack(alignment: .firstTextBaseline) {
                     Text(viewModel.wifiStatus.wifiOn ? "Wi-Fi on" : "Wi-Fi off")
                         .font(.subheadline).foregroundStyle(viewModel.wifiStatus.wifiOn ? .green : .secondary)
@@ -487,7 +487,7 @@ private struct WiFiOverview: View {
                     AnimatedNumber(value: viewModel.connectedDevices.count, font: .title3.bold())
                     Text("devices").font(.caption).foregroundStyle(.secondary)
                 }
-                Text("Networks, sharing & connected devices")
+                Text("网络、共享和连接设备")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }
@@ -501,7 +501,7 @@ private struct ConnectionAddresses: View {
     var body: some View {
         CardView(padding: 12) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("WAN addresses").font(.headline)
+                Text("广域网地址").font(.headline)
                 LabeledContent("IPv4", value: viewModel.wanIPv4.isEmpty ? "—" : viewModel.wanIPv4)
                 LabeledContent("IPv6", value: viewModel.wanIPv6.isEmpty ? "—" : viewModel.wanIPv6)
             }.font(.caption).textSelection(.enabled)

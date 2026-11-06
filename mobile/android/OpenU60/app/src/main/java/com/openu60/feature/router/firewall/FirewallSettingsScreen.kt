@@ -70,7 +70,7 @@ fun FirewallSettingsScreen(
                 // Firewall toggles
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("General", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("概述", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         ToggleRow("Firewall", state.config.enabled) { viewModel.toggleFirewall(it) }
                         ToggleRow("NAT", state.config.nat) { viewModel.toggleNAT(it) }
@@ -81,7 +81,7 @@ fun FirewallSettingsScreen(
                 // Firewall level
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Firewall Level", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("防火墙级别", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         listOf("low", "medium", "high").forEach { level ->
                             Row(
@@ -120,7 +120,7 @@ fun FirewallSettingsScreen(
                         Button(
                             onClick = { viewModel.setDMZ(state.config.dmzEnabled, dmzHost) },
                             enabled = !state.isLoading,
-                        ) { Text("Save DMZ") }
+                        ) { Text("保存非军事区") }
                     }
                 }
 
@@ -132,13 +132,13 @@ fun FirewallSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Port Forward Rules", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("端口转发规则", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             IconButton(onClick = { viewModel.showAddForm() }) {
                                 Icon(Icons.Default.Add, contentDescription = "Add rule")
                             }
                         }
                         if (state.portForwardRules.isEmpty()) {
-                            Text("No rules configured", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("未配置规则", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         } else {
                             state.portForwardRules.forEach { rule ->
                                 Row(
@@ -204,8 +204,8 @@ private fun PortForwardFormInline(
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Add Port Forward Rule", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            Text("添加端口转发规则", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("名称") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("tcp", "udp", "both").forEach { proto ->
                     FilterChip(
@@ -222,8 +222,8 @@ private fun PortForwardFormInline(
                 Button(
                     onClick = { onSubmit(name, protocol, wanPort, lanIP, lanPort) },
                     enabled = !isLoading && name.isNotBlank() && wanPort.isNotBlank() && lanIP.isNotBlank() && lanPort.isNotBlank(),
-                ) { Text("Add") }
-                OutlinedButton(onClick = onCancel) { Text("Cancel") }
+                ) { Text("添加") }
+                OutlinedButton(onClick = onCancel) { Text("取消") }
             }
         }
     }

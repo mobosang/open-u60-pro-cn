@@ -11,7 +11,7 @@ struct DevicesCardView: View {
                     withAnimation { showAllDevices.toggle() }
                 } label: {
                     HStack {
-                        Label("Connected Devices", systemImage: "laptopcomputer.and.iphone")
+                        Label("已连接设备", systemImage: "laptopcomputer.and.iphone")
                             .font(.headline)
                         Spacer()
                         AnimatedNumber(value: connectedDevices.count,

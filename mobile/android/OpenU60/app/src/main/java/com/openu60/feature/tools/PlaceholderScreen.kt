@@ -44,7 +44,7 @@ fun PlaceholderScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                "Requires ADB USB",
+                "需要 ADB USB",
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.height(8.dp))

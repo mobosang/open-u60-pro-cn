@@ -28,7 +28,7 @@ fun MobileNetworkScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mobile Network") },
+                title = { Text("移动网络") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -72,7 +72,7 @@ fun MobileNetworkScreen(
                         ),
                     ) {
                         Text(
-                            "The modem may not recover from airplane mode without a full reboot. This is a known firmware limitation.",
+                            "如果不完全重新启动，调制解调器可能无法从飞行模式中恢复。这是已知的固件限制。",
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                         )
@@ -90,7 +90,7 @@ fun MobileNetworkScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Airplane Mode")
+                            Text("飞行模式")
                             Switch(
                                 checked = state.airplaneModeEnabled,
                                 onCheckedChange = { viewModel.setAirplaneMode(it) },
@@ -103,7 +103,7 @@ fun MobileNetworkScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Mobile Data")
+                            Text("移动数据")
                             Switch(
                                 checked = state.config.isDataEnabled,
                                 onCheckedChange = { viewModel.setMobileData(it) },
@@ -116,7 +116,7 @@ fun MobileNetworkScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Roaming")
+                            Text("漫游")
                             Switch(
                                 checked = state.config.isRoamingEnabled,
                                 onCheckedChange = {},
@@ -136,7 +136,7 @@ fun MobileNetworkScreen(
                 // Network scan
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Network Scan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("网络扫描", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Button(
@@ -147,9 +147,9 @@ fun MobileNetworkScreen(
                             if (state.isScanning) {
                                 CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Scanning...")
+                                Text("扫描...")
                             } else {
-                                Text("Scan Available Networks")
+                                Text("扫描可用网络")
                             }
                         }
 

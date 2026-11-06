@@ -29,15 +29,15 @@ fun DeviceControlScreen(
     if (state.showRebootConfirm) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissRebootConfirm() },
-            title = { Text("Reboot Device") },
-            text = { Text("Are you sure you want to reboot the device?") },
+            title = { Text("重启设备") },
+            text = { Text("您确定要重新启动设备吗？") },
             confirmButton = {
                 TextButton(onClick = { viewModel.reboot() }) {
-                    Text("Reboot", color = MaterialTheme.colorScheme.error)
+                    Text("重启", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.dismissRebootConfirm() }) { Text("Cancel") }
+                TextButton(onClick = { viewModel.dismissRebootConfirm() }) { Text("取消") }
             },
         )
     }
@@ -46,15 +46,15 @@ fun DeviceControlScreen(
     if (state.showResetConfirm) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissResetConfirm() },
-            title = { Text("Factory Reset") },
-            text = { Text("This will erase all settings and restore the device to factory defaults. This action cannot be undone.") },
+            title = { Text("恢复出厂设置") },
+            text = { Text("这将清除所有设置并将设备恢复为出厂默认设置。此操作无法撤消。") },
             confirmButton = {
                 TextButton(onClick = { viewModel.factoryReset() }) {
-                    Text("Reset", color = MaterialTheme.colorScheme.error)
+                    Text("重置", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.dismissResetConfirm() }) { Text("Cancel") }
+                TextButton(onClick = { viewModel.dismissResetConfirm() }) { Text("取消") }
             },
         )
     }
@@ -62,7 +62,7 @@ fun DeviceControlScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Device Control") },
+                title = { Text("设备控制") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -105,10 +105,10 @@ fun DeviceControlScreen(
                 if (state.chargeControlLoaded) {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Charge Limit", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("充电上限", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            ToggleRow("Charge Limit", state.chargeLimitEnabled) {
+                            ToggleRow("充电上限", state.chargeLimitEnabled) {
                                 viewModel.setChargeLimit(it, state.chargeLimit)
                             }
 
@@ -116,7 +116,7 @@ fun DeviceControlScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
                                 var sliderValue by remember(state.chargeLimit) { mutableFloatStateOf(state.chargeLimit.toFloat()) }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("Stop at ", style = MaterialTheme.typography.bodyLarge)
+                                    Text("停在 ", style = MaterialTheme.typography.bodyLarge)
                                     AnimatedNumber(
                                         value = sliderValue.toInt(),
                                         style = MaterialTheme.typography.bodyLarge,
@@ -139,7 +139,7 @@ fun DeviceControlScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("Resume gap: ", style = MaterialTheme.typography.bodyLarge)
+                                        Text("恢复充电差值： ", style = MaterialTheme.typography.bodyLarge)
                                         AnimatedNumber(
                                             value = state.hysteresis,
                                             style = MaterialTheme.typography.bodyLarge,
@@ -177,7 +177,7 @@ fun DeviceControlScreen(
                                 )
                             } else {
                                 Text(
-                                    "Stops charging at the set level. Extends battery lifespan.",
+                                    "在设定级别停止充电。延长电池寿命。",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -189,7 +189,7 @@ fun DeviceControlScreen(
                 // Other toggles
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Power Settings", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("电源设置", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         if (state.powerSaveLoaded) {
@@ -209,7 +209,7 @@ fun DeviceControlScreen(
                                 val currentIndex = presets.indexOf(currentMinutes).coerceAtLeast(0)
                                 var sliderIndex by remember(currentIndex) { mutableFloatStateOf(currentIndex.toFloat()) }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("Idle timeout: ", style = MaterialTheme.typography.bodyLarge)
+                                    Text("空闲超时： ", style = MaterialTheme.typography.bodyLarge)
                                     AnimatedNumber(
                                         value = presets[sliderIndex.toInt().coerceIn(0, presets.lastIndex)],
                                         style = MaterialTheme.typography.bodyLarge,
@@ -230,7 +230,7 @@ fun DeviceControlScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    "Sleeps when no WiFi clients are connected and idle timeout expires.",
+                                    "当没有 WiFi 客户端连接并且空闲超时到期时休眠。",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -242,20 +242,20 @@ fun DeviceControlScreen(
                 // Reboot & Reset
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Device Actions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("设备操作", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(12.dp))
                         Button(
                             onClick = { viewModel.showRebootConfirm() },
                             enabled = !controlsDisabled,
                             modifier = Modifier.fillMaxWidth(),
-                        ) { Text("Reboot Device") }
+                        ) { Text("重启设备") }
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedButton(
                             onClick = { viewModel.showResetConfirm() },
                             enabled = !controlsDisabled,
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                        ) { Text("Factory Reset") }
+                        ) { Text("恢复出厂设置") }
                     }
                 }
             }

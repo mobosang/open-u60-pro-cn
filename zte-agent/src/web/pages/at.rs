@@ -52,13 +52,13 @@ pub const CLEAR: &str = "/ui/tools/at/clear";
 
 /// The app's quick commands without "AT+CGSN" (IMEI).
 const QUICK: [(&str, &str); 7] = [
-    ("AT", "Ping"),
-    ("ATI", "Device info"),
-    ("AT+CSQ", "Signal quality"),
-    ("AT+COPS?", "Operator"),
-    ("AT+CPIN?", "SIM status"),
-    ("AT+CGDCONT?", "APN config"),
-    ("AT+CLCC", "Active calls"),
+    ("AT", "延迟测试"),
+    ("ATI", "设备信息"),
+    ("AT+CSQ", "信号质量"),
+    ("AT+COPS?", "运营商"),
+    ("AT+CPIN?", "SIM状态"),
+    ("AT+CGDCONT?", "APN配置"),
+    ("AT+CLCC", "活跃通话"),
 ];
 
 /// The app's dangerous patterns (on the command in capitals).
@@ -69,7 +69,7 @@ const DANGER_WEB: [&str; 4] = ["+CGATT=0", "+CGACT=0", "+CLCK=", "+CPWD="];
 
 const MAX_CMD: usize = 256;
 const MAX_RESP: usize = 4096;
-const EXPIRED: &str = "This form expired, so the command was not sent. Send it again.";
+const EXPIRED: &str = "此表单已过期，因此未发送命令。再发送一次。";
 
 /// `s` with every run of at least `min` ASCII digits replaced by `f(run)`.
 fn digit_runs(s: &str, min: usize, f: impl Fn(&str) -> String) -> String {
@@ -156,7 +156,7 @@ fn record(cmd: &str, timeout: u8, r: &Result<Value, (u16, String)>) -> AtEntry {
             let s = |k: &str| d[k].as_str().unwrap_or("").to_owned();
             entry(cmd, &s("response"), &s("port"), d["elapsed_ms"].as_u64().unwrap_or(0), false, timeout)
         }
-        Err((_, e)) => entry(cmd, &format!("Error: {}", fmt::truncate(e, 120)), "", 0, true, timeout),
+        Err((_, e)) => entry(cmd, &format!("错误：{}", fmt::truncate(e, 120)), "", 0, true, timeout),
     }
 }
 
@@ -172,27 +172,27 @@ pub fn page(pd: &PageData) -> Markup {
     let timeout = pd.form.and_then(|f| f.value("timeout")).and_then(|t| t.parse::<u8>().ok());
     let timeout = timeout.or_else(|| history.first().map(|e| e.timeout)).unwrap_or(3);
     let port_label = match name {
-        Some(n) if available => format!("Port {n} available"),
-        Some(n) => format!("Port {n} unavailable"),
-        None => "No port detected".to_owned(),
+        Some(n) if available => format!("端口 {n} 可用"),
+        Some(n) => format!("端口 {n} 不可用"),
+        None => "未检测到端口".to_owned(),
     };
     html! {
         div.atp {
             span.dot.bad[!available] {}
-            span.muted aria-label=(port_label) { (name.unwrap_or("No port detected")) }
+            span.muted aria-label=(port_label) { (name.unwrap_or("未检测到端口")) }
             @if !history.is_empty() {
-                form.sf method="post" action=(CLEAR) { (pd.csrf()) button.lk type="submit" { "Clear" } }
+                form.sf method="post" action=(CLEAR) { (pd.csrf()) button.lk type="submit" { "清除" } }
             }
         }
-        nav.atq aria-label="Quick commands" {
+        nav.atq aria-label="快速命令" {
             @for (cmd, label) in QUICK {
                 a href=(format!("{PATH}?cmd={}#cmd", percent_encode(cmd))) { code { (cmd) } small { (label) } }
             }
         }
         @if history.is_empty() {
-            (kit::empty_state(Icon::Terminal, "No Commands Sent", "Enter an AT command below or tap a quick command above."))
+            (kit::empty_state(Icon::Terminal, "尚未发送命令", "在下面输入 AT 命令或点击上面的快捷命令。"))
         } @else {
-            ol.ath aria-label="History" {
+            ol.ath aria-label="历史" {
                 @for e in &history {
                     li class=[e.err.then_some("er")] {
                         b.mono { "> " (e.cmd) }
@@ -206,14 +206,14 @@ pub fn page(pd: &PageData) -> Markup {
             (pd.csrf())
             (render::once_field(&pd.once()))
             p.to {
-                label.lb for="to" { "Timeout:" }
-                input #to type="number" name="timeout" min="1" max="30" value=(timeout) aria-label="Command timeout in seconds";
+                label.lb for="to" { "超时：" }
+                input #to type="number" name="timeout" min="1" max="30" value=(timeout) aria-label="命令超时（以秒为单位）";
                 "s"
             }
             div.reply {
-                input #cmd type="text" name="cmd" value=(typed) placeholder="AT command..." aria-label="AT command"
+                input #cmd type="text" name="cmd" value=(typed) placeholder="AT命令..." aria-label="AT指令"
                     maxlength=(MAX_CMD) autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false";
-                button.send type="submit" aria-label="Send command" { (kit::icon(Icon::PaperPlane)) }
+                button.send type="submit" aria-label="发送命令" { (kit::icon(Icon::PaperPlane)) }
             }
         }
     }
@@ -232,7 +232,7 @@ pub fn clear(ctx: &Ctx, owner: crate::auth::SessionId) {
 fn danger_page(ctx: &Ctx, p: &Principal, nonce: &str, cmd: &str, sent: &str, timeout: u8, token: &str, remote: bool) -> Response {
     let body = html! {
         div.narrow {
-            h2.q { "Dangerous Command" }
+            h2.q { "危险命令" }
             ul.consequences {
                 // As the history shows it: PINs and PUKs as "••••", long digit runs masked.
                 li { "The command \"" (shown(sent)) "\" may disrupt connectivity or require a reboot. Are you sure?" }
@@ -244,18 +244,18 @@ fn danger_page(ctx: &Ctx, p: &Principal, nonce: &str, cmd: &str, sent: &str, tim
                 input type="hidden" name="cmd" value=(cmd);
                 input type="hidden" name="timeout" value=(timeout);
                 p.actions {
-                    button.btn.btn-danger type="submit" name="confirm" value="1" { "Send Anyway" }
-                    button.btn.btn-quiet type="submit" name="edit" value="1" { "Cancel" }
+                    button.btn.btn-danger type="submit" name="confirm" value="1" { "无论如何发送" }
+                    button.btn.btn-quiet type="submit" name="edit" value="1" { "取消" }
                 }
             }
         }
     };
     let pc = PageCtx {
-        title: "Dangerous Command",
+        title: "危险命令",
         tab: Some(kit::Tab::Tools),
         nonce,
-        lead: kit::back(PATH, "AT Terminal"),
-        heading: Some(html! { h1 { "Confirm" } }),
+        lead: kit::back(PATH, "AT 终端"),
+        heading: Some(html! { h1 { "确认" } }),
         ..PageCtx::default()
     };
     render::html(200, render::page(&pc, body))
@@ -293,9 +293,9 @@ pub async fn post(ctx: Ctx, req: Request) -> Response {
     }
     let now = ctx.app.auth.now();
     let refused = if !cmd.to_ascii_uppercase().starts_with("AT") {
-        Some("Error: Command must start with AT")
+        Some("错误：命令必须以 AT 开头")
     } else if cmd.contains('\\') {
-        Some("Error: Command must not contain a backslash")
+        Some("错误：命令不得包含反斜杠")
     } else {
         None
     };
@@ -333,11 +333,11 @@ pub async fn post(ctx: Ctx, req: Request) -> Response {
         Sent::Done(_) => session::see_other(PATH),
         Sent::Expired => show(r, Some(Notice::Flash(Some(false), EXPIRED.into())), 400).await,
         Sent::Unknown => {
-            let msg = "The command may still be running. Check the history before sending it again.";
+            let msg = "该命令可能仍在运行。再次发送之前请检查历史记录。";
             show(r, Some(Notice::Flash(None, msg.into())), 409).await
         }
         Sent::Busy => {
-            let msg = "Failed: the router is busy. Try again in a few seconds.";
+            let msg = "失败：路由器正忙。几秒钟后重试。";
             show(r, Some(Notice::Flash(Some(false), msg.into())), 503).await
         }
     }
@@ -370,7 +370,7 @@ mod tests {
         assert!(e.resp.contains("1111") && !e.resp.contains("0010199999"), "{}", e.resp);
         assert_eq!(e.clock.len(), 8);
         let e = record("AT", 3, &Err((503, "no serial port found".into())));
-        assert_eq!((e.resp.as_str(), e.err), ("Error: no serial port found", true));
+        assert_eq!((e.resp.as_str(), e.err), ("错误：未找到串口", true));
         let long = Ok(json!({"response": "x".repeat(10_000)}));
         assert_eq!(record("AT", 3, &long).resp.len(), MAX_RESP + "\u{2026}".len());
         // Masked before the cut: an IMEI across byte 4096 shows no digits

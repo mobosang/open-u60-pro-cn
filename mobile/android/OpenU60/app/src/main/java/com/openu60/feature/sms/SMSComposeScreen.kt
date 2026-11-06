@@ -26,7 +26,7 @@ fun SMSComposeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("New Message") },
+                title = { Text("新建短信") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -79,7 +79,7 @@ fun SMSComposeScreen(
             OutlinedTextField(
                 value = number,
                 onValueChange = { number = it },
-                label = { Text("Phone number") },
+                label = { Text("电话号码") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 singleLine = true,
@@ -88,7 +88,7 @@ fun SMSComposeScreen(
             OutlinedTextField(
                 value = message,
                 onValueChange = { message = it },
-                label = { Text("Message") },
+                label = { Text("短信") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),

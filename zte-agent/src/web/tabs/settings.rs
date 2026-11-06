@@ -16,7 +16,7 @@ use crate::web::screen::{Bar, Block, PageData, Screen};
 pub static SETTINGS: Screen = Screen {
     path: "/ui/settings",
     id: "settings",
-    title: "Settings",
+    title: "设置",
     tab: Tab::Settings,
     blocks: &[
         Block::Custom(session),
@@ -25,10 +25,10 @@ pub static SETTINGS: Screen = Screen {
         // LAN HTTPS (a web addition: `pages::https`).
         Block::Custom(https::section),
         Block::Rows(
-            "About",
+            "关于",
             &[
-                ("App", "OpenU60"),
-                ("Device", "ZTE U60 Pro (MU5250)"),
+                ("应用程序", "OpenU60"),
+                ("设备", "ZTE U60 Pro (MU5250)"),
                 ("API", concat!("zte-agent web UI ", env!("CARGO_PKG_VERSION"))),
             ],
         ),
@@ -43,39 +43,39 @@ pub static INSTALL: Screen = Screen {
     id: "install",
     title: "Install on Your Devices",
     tab: Tab::Settings,
-    bar: Bar::Back("/ui/settings", "Settings"),
+    bar: Bar::Back("/ui/settings", "设置"),
     blocks: &[Block::Custom(https::install)],
     ..Screen::BLANK
 };
 
 fn session(_: &PageData) -> Markup {
-    kit::section(Some("Session"), None, html! {
-        li.it { span { "Signed in in this browser" } }
-        li { a.it.danger href="/ui/logout" { span { "Log out" } } }
+    kit::section(Some("会议"), None, html! {
+        li.it { span { "在此浏览器中登录" } }
+        li { a.it.danger href="/ui/logout" { span { "退出登录" } } }
     })
 }
 
-const SAVED_HERE: &str = "Saved in this browser.";
+const SAVED_HERE: &str = "保存在此浏览器中。";
 
 /// The app's slider as a list of its values (a range input shows no value
 /// without JavaScript) and "Save".
 fn polling(pd: &PageData) -> Markup {
     let cur = pd.prefs.refresh_ms;
     let footer = html! {
-        p.foot { "Live upload and download use a separate 1-second refresh, matching the modem\u{2019}s update rate." }
+        p.foot { "实时上传和下载使用单独的 1 秒刷新，与调制解调器 \u{2019} 的更新速率相匹配。" }
         p.foot { (SAVED_HERE) }
     };
-    kit::section(Some("Polling"), Some(footer), html! {
+    kit::section(Some("投票"), Some(footer), html! {
         li.it {
             form.sf method="post" action=(prefs::REFRESH) {
                 (pd.csrf())
-                label for="ms" { "Refresh interval" }
+                label for="ms" { "刷新间隔" }
                 select #ms name="ms" {
                     @for ms in (1000..=10_000).step_by(500) {
                         option value=(ms) selected[ms == cur] { (prefs::refresh_label(ms)) }
                     }
                 }
-                button.btn.sm type="submit" { "Save" }
+                button.btn.sm type="submit" { "保存" }
             }
         }
     })
@@ -85,11 +85,11 @@ fn polling(pd: &PageData) -> Markup {
 /// pressed.
 fn appearance(pd: &PageData) -> Markup {
     let cur = pd.prefs.theme;
-    kit::section(Some("Appearance"), Some(html! { p.foot { (SAVED_HERE) } }), html! {
+    kit::section(Some("外观"), Some(html! { p.foot { (SAVED_HERE) } }), html! {
         li.it {
             form.sf method="post" action=(prefs::THEME) {
                 (pd.csrf())
-                div.seg.th role="group" aria-label="Theme" {
+                div.seg.th role="group" aria-label="主题" {
                     @for t in Theme::ALL {
                         button type="submit" name="theme" value=(t.key()) aria-pressed=(if t == cur { "true" } else { "false" }) { (t.label()) }
                     }
@@ -100,13 +100,13 @@ fn appearance(pd: &PageData) -> Markup {
 }
 
 fn legal(_: &PageData) -> Markup {
-    kit::section(Some("Legal"), None, html! {
+    kit::section(Some("法律声明"), None, html! {
         li.it {
             p.cap {
                 "This app is not affiliated with, endorsed by, or sponsored by ZTE Corporation. \
                  ZTE and U60 Pro are trademarks of ZTE Corporation."
             }
         }
-        li { a.it href="https://open-u60-pro.vercel.app/privacy" rel="noopener noreferrer" { span { "Privacy Policy" } } }
+        li { a.it href="https://open-u60-pro.vercel.app/privacy" rel="noopener noreferrer" { span { "隐私政策" } } }
     })
 }

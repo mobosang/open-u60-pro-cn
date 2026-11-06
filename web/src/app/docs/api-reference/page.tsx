@@ -12,7 +12,7 @@ export default function APIReferencePage() {
     <div className="space-y-8">
       <div>
         <h1 className="mb-2 font-display text-2xl font-bold text-wrap-balance">
-          API Reference
+          API参考
         </h1>
         <p className="text-text-dim">
           {totalEndpoints} endpoints across {totalCategories} categories. All

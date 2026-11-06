@@ -28,7 +28,7 @@ fun ClientsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Connected Devices (${state.clients.size})") },
+                title = { Text("连接设备 (${state.clients.size})") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -56,7 +56,7 @@ fun ClientsScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("No devices found")
+                    Text("未找到设备")
                 }
             } else {
                 LazyColumn(

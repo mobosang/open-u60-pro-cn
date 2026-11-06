@@ -95,22 +95,22 @@ pub fn section(pd: &PageData) -> Markup {
     if !s.on {
         let foot = html! {
             p.foot {
-                "Serves this web UI over HTTPS on port " (s.port) " with a certificate from the router\u{2019}s own \
+                "通过端口上的 HTTPS 提供此 Web UI " (s.port) " with a certificate from the router\u{2019}s own \
                  certificate authority, so Chrome, Edge and Samsung Internet can install it as an app. Each phone or \
                  computer trusts that authority once."
             }
             @if let Some(ca) = &s.kept {
-                p.foot { "The certificate authority " (ca) " is still on the router: Turn On HTTPS issues a new certificate from it, so devices that trust it need nothing new." }
+                p.foot { "证书颁发机构 " (ca) " is still on the router: Turn On HTTPS issues a new certificate from it, so devices that trust it need nothing new." }
             }
             (error)
         };
         return kit::section(Some(TITLE), Some(foot), html! {
-            (kit::kv_row(Some(Icon::Lock), "HTTPS", "Off"))
-            li { a.it href=(ON) { span { "Turn On HTTPS" } } }
-            @if s.kept.is_some() || s.error.is_some() { li { a.it.danger href=(RESET) { span { "Reset HTTPS" } } } }
+            (kit::kv_row(Some(Icon::Lock), "HTTPS", "关闭"))
+            li { a.it href=(ON) { span { "开启HTTPS" } } }
+            @if s.kept.is_some() || s.error.is_some() { li { a.it.danger href=(RESET) { span { "复位HTTPS" } } } }
         });
     }
-    let state = if s.listening.is_some() { "On" } else { "On \u{b7} not listening" };
+    let state = if s.listening.is_some() { "On" } else { "关于\u{b7}不听" };
     let foot = html! {
         @if pd.secure {
             p.foot { "You are using HTTPS. Install the web UI from your browser\u{2019}s menu." }
@@ -128,7 +128,7 @@ pub fn section(pd: &PageData) -> Markup {
         (url_rows(&s))
         (kit::link_row(PAGE, Some(Icon::Shield), "Install on Your Devices"))
         @if s.renew_due { li { a.it href=(RENEW) { span { "Renew Certificate" } } } }
-        li { a.it.danger href=(RESET) { span { "Reset HTTPS" } } }
+        li { a.it.danger href=(RESET) { span { "复位HTTPS" } } }
     })
 }
 
@@ -145,7 +145,7 @@ pub fn install(pd: &PageData) -> Markup {
         return html! {
             div.vc {
                 (kit::empty_state(Icon::Lock, "HTTPS is off", "Turn it on in Settings first."))
-                p.actions.ctr { a.btn href=(SETTINGS) { "Settings" } }
+                p.actions.ctr { a.btn href=(SETTINGS) { "设置" } }
             }
         };
     }
@@ -167,36 +167,36 @@ pub fn install(pd: &PageData) -> Markup {
     };
     html! {
         (kit::section(Some("Certificate Authority"), Some(fp_foot), html! {
-            (kit::kv_row(None, "Name", ca))
+            (kit::kv_row(None, "名称", ca))
             (kit::kv_row(None, "Can vouch for", &s.covers.join(" and ")))
             // Line breaks only between the byte pairs; screen readers get
             // the whole value once.
             li.it { span.cvb { span { "SHA-256 fingerprint" } span.sr { (s.sha256) } small.mono.fp translate="no" aria-hidden="true" { @for (i, pair) in s.sha256.split(':').enumerate() { @if i > 0 { ":" wbr; } (pair) } } } }
         }))
-        (kit::section(Some("Download"), Some(html! { p.foot { "The same certificate in two formats. It holds no secret." } }), html! {
-            li { a.it href=(DOWNLOAD_PROFILE) download="u60-pro-ca.mobileconfig" { (kit::icon(Icon::Doc)) span { "Profile for iPhone and iPad" } } }
-            li { a.it href=(DOWNLOAD_CRT) download="u60-pro-ca.crt" { (kit::icon(Icon::Doc)) span { "Certificate (.crt) for Android, Mac and Windows" } } }
+        (kit::section(Some("下载"), Some(html! { p.foot { "The same certificate in two formats. It holds no secret." } }), html! {
+            li { a.it href=(DOWNLOAD_PROFILE) download="u60-pro-ca.mobileconfig" { (kit::icon(Icon::Doc)) span { "iPhone 和 iPad 的配置文件" } } }
+            li { a.it href=(DOWNLOAD_CRT) download="u60-pro-ca.crt" { (kit::icon(Icon::Doc)) span { "适用于 Android、Mac 和 Windows 的证书 (.crt)" } } }
         }))
         (kit::section(Some("iPhone and iPad"), None, steps(&[
-            html! { "In Safari, tap " b { "Profile for iPhone and iPad" } ", then " b { "Allow" } "." },
-            html! { "Open " b { "Settings" } " \u{203a} " b { "Profile Downloaded" } " \u{203a} " b { "Install" } "." },
-            html! { b { "Settings" } " \u{203a} " b { "General" } " \u{203a} " b { "About" } " \u{203a} " b { "Certificate Trust Settings" } ": turn on full trust for " b { (ca) } "." },
+            html! { "在 Safari 中，点击 " b { "iPhone 和 iPad 的配置文件" } ", then " b { "允许" } "." },
+            html! { "打开 " b { "设置" } " \u{203a} " b { "简介已下载" } " \u{203a} " b { "安装" } "." },
+            html! { b { "设置" } " \u{203a} " b { "概述" } " \u{203a} " b { "关于" } " \u{203a} " b { "证书信任设置" } ": turn on full trust for " b { (ca) } "." },
         ])))
-        (kit::section(Some("Android"), Some(html! { p.foot { "The menu names differ by maker: search Settings for \u{201c}CA certificate\u{201d}." } }), steps(&[
-            html! { "Tap " b { "Certificate (.crt)" } " to download it." },
-            html! { b { "Settings" } " \u{203a} " b { "Security & privacy" } " \u{203a} " b { "More security & privacy" } " \u{203a} " b { "Encryption & credentials" } " \u{203a} " b { "Install a certificate" } " \u{203a} " b { "CA certificate" } " \u{203a} " b { "Install anyway" } ", confirm with your screen lock, then pick the downloaded file." },
+        (kit::section(Some("安卓"), Some(html! { p.foot { "菜单名称因制造商而异：搜索 \u{201c}CA 证书 \u{201d} 的设置。" } }), steps(&[
+            html! { "点击 " b { "证书（.crt）" } " to download it." },
+            html! { b { "设置" } " \u{203a} " b { "安全与隐私" } " \u{203a} " b { "更高的安全性和隐私性" } " \u{203a} " b { "加密和凭证" } " \u{203a} " b { "安装证书" } " \u{203a} " b { "CA证书" } " \u{203a} " b { "无论如何安装" } ", confirm with your screen lock, then pick the downloaded file." },
         ])))
-        (kit::section(Some("Mac"), None, steps(&[
-            html! { "Download the certificate (.crt) and open it: Keychain Access adds it to your login keychain." },
-            html! { "Double-click " b { (ca) } " \u{203a} " b { "Trust" } " \u{203a} " b { "When using this certificate: Always Trust" } ", then close the window and confirm." },
+        (kit::section(Some("麦克"), None, steps(&[
+            html! { "下载证书（.crt）并打开它：Keychain Access 将其添加到您的登录钥匙串中。" },
+            html! { "双击 " b { (ca) } " \u{203a} " b { "信任" } " \u{203a} " b { "使用此证书时：始终信任" } ", then close the window and confirm." },
         ])))
-        (kit::section(Some("Windows"), Some(html! { p.foot { "Firefox 120 and later uses the certificates you add to Windows, macOS or Android. On Linux, or with that setting off: Settings \u{203a} Privacy & Security \u{203a} Certificates \u{203a} View Certificates\u{2026} \u{203a} Authorities \u{203a} Import\u{2026}, and trust it for websites." } }), steps(&[
-            html! { "Download the certificate (.crt) and open it \u{203a} " b { "Install Certificate" } " \u{203a} " b { "Current User" } "." },
-            html! { b { "Place all certificates in the following store" } " \u{203a} " b { "Browse" } " \u{203a} " b { "Trusted Root Certification Authorities" } " \u{203a} " b { "Finish" } " \u{203a} " b { "Yes" } "." },
+        (kit::section(Some("窗户"), Some(html! { p.foot { "Firefox 120 及更高版本使用您添加到 Windows、macOS 或 Android 的证书。在 Linux 上，或关闭该设置： 设置 \u{203a} 隐私和安全 \u{203a} 证书 \u{203a} 查看证书 \u{2026} \u{203a} 权限 \u{203a} 导入 \u{2026}，并信任它的网站。" } }), steps(&[
+            html! { "下载证书（.crt）并打开\u{203a} " b { "安装证书" } " \u{203a} " b { "当前用户" } "." },
+            html! { b { "将所有证书放入以下存储中" } " \u{203a} " b { "浏览" } " \u{203a} " b { "受信任的根证书颁发机构" } " \u{203a} " b { "完成" } " \u{203a} " b { "是的" } "." },
         ])))
-        (kit::section(Some("Then Install the App"), Some(html! {
-            p.foot { "Open one of these addresses and log in. Chrome: menu \u{203a} " b { "Install" } " (Android: " b { "Add to Home screen" } "). Safari on iPhone: \u{2022}\u{2022}\u{2022} \u{203a} Share \u{203a} View More \u{203a} " b { "Add to Home Screen" } ". Safari on Mac: File \u{203a} " b { "Add to Dock" } "." }
-            p.foot { "A device that uses its own DNS (Android\u{2019}s Private DNS set to a provider, DNS over HTTPS in the browser, a VPN) may not find " (s.name) "; the address always works. Each address keeps its own login." }
+        (kit::section(Some("然后安装应用程序"), Some(html! {
+            p.foot { "打开这些地址之一并登录。Chrome：菜单\u{203a} " b { "安装" } " (Android: " b { "添加到主屏幕" } "). Safari on iPhone: \u{2022}\u{2022}\u{2022} \u{203a} Share \u{203a} View More \u{203a} " b { "添加到主屏幕" } ". Safari on Mac: File \u{203a} " b { "添加到 Dock" } "." }
+            p.foot { "使用自己的 DNS 的设备（Android\u{2019}s Private DNS 设置为提供商，浏览器中的 DNS over HTTPS，VPN）可能找不到 " (s.name) "; the address always works. Each address keeps its own login." }
         }), url_rows(&s)))
     }
 }
@@ -235,9 +235,9 @@ impl Post {
 /// The clock line of Turn On and Renew.
 fn clock_line(c: Utc) -> String {
     match c {
-        Utc::Verified(t) => format!("The certificates are dated from the router\u{2019}s clock, checked over the internet: {}.", utc_stamp(t)),
+        Utc::Verified(t) => format!("证书的日期来自路由器 \u{2019} 的时钟，通过互联网检查：{}。", utc_stamp(t)),
         _ => format!(
-            "The certificates are dated from the router\u{2019}s clock: {}. It could not be checked over the internet; if this date is wrong, cancel and try again later.",
+            "证书的日期是从路由器 \u{2019} 的时钟开始的：{}。无法通过互联网进行检查；如果此日期错误，请取消并稍后重试。",
             utc_stamp(c.secs())
         ),
     }
@@ -245,7 +245,7 @@ fn clock_line(c: Utc) -> String {
 
 /// That plain http keeps working, on the port it is bound to.
 fn plain_http() -> String {
-    format!("Plain http on port {} keeps working, for the apps too.", crate::httpd::http_port())
+    format!("端口 {} 上的纯 http 继续工作，对于应用程序也是如此。", crate::httpd::http_port())
 }
 
 /// The question: its title, lines and button (none: nothing to do).
@@ -256,10 +256,10 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
     match k {
         Post::On if s.on && s.listening.is_some() => ("HTTPS is already on".into(), Vec::new(), None),
         Post::On if s.on => (
-            "Listen again?".into(),
+            "再听一遍？".into(),
             vec![
                 format!("HTTPS is on, but the router is not listening on port {port}{}", s.error.as_deref().map_or(".".into(), |e| format!(": {e}"))),
-                "Try again once whatever held the port has stopped. Nothing else changes.".into(),
+                "一旦持有端口的任何东西停止，请重试。其他什么都没有改变。".into(),
             ],
             Some("Try Again"),
         ),
@@ -279,7 +279,7 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
                 clock_line(s.clock),
                 plain_http(),
             ],
-            Some("Turn On HTTPS"),
+            Some("开启HTTPS"),
         ),
         Post::On => (
             "Turn on HTTPS?".into(),
@@ -292,7 +292,7 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
                 clock_line(s.clock),
                 plain_http(),
             ],
-            Some("Turn On HTTPS"),
+            Some("开启HTTPS"),
         ),
         Post::Renew => (
             "Renew the certificate?".into(),
@@ -308,7 +308,7 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
                 format!("This deletes the certificate files left on the router{}.", s.kept.as_deref().map_or(String::new(), |c| format!(" ({c})"))),
                 "Remove that certificate authority from every device that trusts it. If you turn HTTPS on again, each device must trust the new one.".into(),
             ],
-            Some("Reset HTTPS"),
+            Some("复位HTTPS"),
         ),
         Post::Reset => {
             let mut lines = vec![
@@ -318,7 +318,7 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
             if secure {
                 lines.push(format!("This page is open over HTTPS and stops working: continue on the http address (port {}).", crate::httpd::http_port()));
             }
-            ("Reset HTTPS?".into(), lines, Some("Reset HTTPS"))
+            ("Reset HTTPS?".into(), lines, Some("复位HTTPS"))
         }
     }
 }
@@ -335,8 +335,8 @@ pub fn get(ctx: &Ctx, p: &crate::auth::Principal, req: &Request, k: Post) -> Res
         title: &title,
         tab: Some(Tab::Settings),
         nonce: &nonce,
-        lead: kit::back(SETTINGS, "Settings"),
-        heading: Some(html! { h1 { "Confirm" } }),
+        lead: kit::back(SETTINGS, "设置"),
+        heading: Some(html! { h1 { "确认" } }),
         ..PageCtx::default()
     };
     render::html(200, render::page(&pc, action::ask(render::csrf_field(&ctx.app.auth, p), &a)))
@@ -402,8 +402,8 @@ pub async fn post(ctx: Ctx, req: Request, k: Post) -> Response {
         Sent::Done(Ok(())) => note(Some(true), done(k)),
         Sent::Done(Err((_, e))) => note(Some(false), &e),
         Sent::Expired => note(Some(false), "This page expired, so nothing was changed. Try again."),
-        Sent::Unknown => note(None, "The router may still be working on it. Check before trying again."),
-        Sent::Busy => note(Some(false), "Failed: the router is busy. Try again in a few seconds."),
+        Sent::Unknown => note(None, "路由器可能仍在处理它。重试前请检查。"),
+        Sent::Busy => note(Some(false), "失败：路由器正忙。几秒钟后重试。"),
     }
 }
 
@@ -424,14 +424,14 @@ pub fn download(ctx: &Ctx, method: &HttpMethod, path: &str) -> Option<Response> 
         _ => return None,
     };
     if method != HttpMethod::GET && method != HttpMethod::HEAD {
-        return Some(plain(405, "Method not allowed"));
+        return Some(plain(405, "方法不允许"));
     }
     let file = if crt {
         ctx.app.tls.ca_der().map(|der| (der, "application/x-x509-ca-cert", "u60-pro-ca.crt"))
     } else {
         ctx.app.tls.mobileconfig().map(|p| (p.into_bytes(), "application/x-apple-aspen-config", "u60-pro-ca.mobileconfig"))
     };
-    let Some((body, ct, file)) = file else { return Some(plain(404, "Not found")) };
+    let Some((body, ct, file)) = file else { return Some(plain(404, "未找到")) };
     let mut resp = Response::new(Body::from(body));
     let h = resp.headers_mut();
     h.insert(CONTENT_TYPE, HeaderValue::from_static(ct));

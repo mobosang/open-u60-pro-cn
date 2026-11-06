@@ -89,9 +89,9 @@ pub fn refresh(pd: &PageData) -> Option<String> {
 /// The app's `phaseLabel`.
 fn phase_label(phase: &str) -> String {
     match phase {
-        "latency" => "Testing Latency...".into(),
-        "download" => "Downloading...".into(),
-        "upload" => "Uploading...".into(),
+        "latency" => "测试延迟...".into(),
+        "download" => "正在下载...".into(),
+        "upload" => "正在上传...".into(),
         p => {
             let mut c = p.chars();
             c.next().map(|f| f.to_uppercase().chain(c).collect()).unwrap_or_default()
@@ -118,10 +118,10 @@ fn message(v: &Views) -> Markup {
     let watched = v.arg & 1 == 0 && v.slot(Topic::Speedtest).is_some_and(|s| s.version > v.arg >> 1);
     let p = progress(v).filter(|_| watched);
     let note = match p.and_then(|p| p["phase"].as_str()) {
-        Some("complete") => Some((true, "Speed test complete".to_owned())),
-        Some("cancelled") => Some((true, "Speed test cancelled".to_owned())),
+        Some("complete") => Some((true, "速度测试完成".to_owned())),
+        Some("cancelled") => Some((true, "速度测试取消".to_owned())),
         Some("error") => {
-            let e = p.and_then(|p| p["error"].as_str()).filter(|e| !e.is_empty()).unwrap_or("Speed test failed");
+            let e = p.and_then(|p| p["error"].as_str()).filter(|e| !e.is_empty()).unwrap_or("速度测试失败");
             Some((false, fmt::truncate(e, 120)))
         }
         _ => None,
@@ -155,7 +155,7 @@ fn controls(v: &Views) -> Markup {
             p.stn {
                 @if phase == "download" { (kit::icon(Icon::ArrowDown)) }
                 @if phase == "upload" { span.c-orange { (kit::icon(Icon::ArrowUp)) } }
-                b.num { (roll(v, "mbps", &format!("{mbps:.1}"))) } " " span.muted { "Mbps" }
+                b.num { (roll(v, "mbps", &format!("{mbps:.1}"))) } " " span.muted { "兆比特/秒" }
             }
         }
     }
@@ -171,16 +171,16 @@ fn results(v: &Views) -> Markup {
     };
     html! {
         div #st-res {
-            (kit::section(Some("Results"), None, html! {
-                (row("Ping", "ping_ms", "ms", 1).unwrap_or_default())
-                (row("Jitter", "jitter_ms", "ms", 1).unwrap_or_default())
-                (row("Download", "download_mbps", "Mbps", 2).unwrap_or_default())
-                (row("Upload", "upload_mbps", "Mbps", 2).unwrap_or_default())
+            (kit::section(Some("结果"), None, html! {
+                (row("延迟测试", "ping_ms", "ms", 1).unwrap_or_default())
+                (row("抖动", "jitter_ms", "ms", 1).unwrap_or_default())
+                (row("下载", "download_mbps", "兆比特/秒", 2).unwrap_or_default())
+                (row("上传", "upload_mbps", "兆比特/秒", 2).unwrap_or_default())
             }))
-            (kit::section(Some("Transfer"), None, html! {
-                (kit::kv_row(None, "Downloaded", &bytes(p["download_bytes"].as_u64().unwrap_or(0))))
-                (kit::kv_row(None, "Uploaded", &bytes(p["upload_bytes"].as_u64().unwrap_or(0))))
-                @if let Some(s) = p["server"].as_str().filter(|s| !s.is_empty()) { (kit::kv_row(None, "Server", s)) }
+            (kit::section(Some("转账"), None, html! {
+                (kit::kv_row(None, "已下载", &bytes(p["download_bytes"].as_u64().unwrap_or(0))))
+                (kit::kv_row(None, "已上传", &bytes(p["upload_bytes"].as_u64().unwrap_or(0))))
+                @if let Some(s) = p["server"].as_str().filter(|s| !s.is_empty()) { (kit::kv_row(None, "服务器", s)) }
             }))
         }
     }
@@ -209,18 +209,18 @@ pub fn page(pd: &PageData) -> Markup {
     html! {
         (render::live_snapshot(PATH))
         @if let Some(Err(e)) = pd.reads.first() {
-            p.msg.err role="alert" { "Failed to load servers: " (fmt::truncate(e, 120)) }
+            p.msg.err role="alert" { "加载服务器失败： " (fmt::truncate(e, 120)) }
         }
         (message(v))
         @if let Some(n) = &pd.notice { (n) }
         // The picker and Start belong to this GET form (`form=`), which
         // asks first; Stop has a form of its own.
         form #st-go method="get" action=(START) {}
-        (kit::section(Some("Server"), None, html! {
+        (kit::section(Some("服务器"), None, html! {
             li.it {
-                label for="srv" { "Server" }
+                label for="srv" { "服务器" }
                 select #srv name="server" form="st-go" {
-                    option value="" selected[chosen.is_none()] { "Select a server" }
+                    option value="" selected[chosen.is_none()] { "选择服务器" }
                     @for s in &servers {
                         @if let Some(id) = id_of(s) { option value=(id) selected[Some(id) == chosen] { (server_label(s)) } }
                     }
@@ -228,15 +228,15 @@ pub fn page(pd: &PageData) -> Markup {
             }
         }))
         section.group {
-            h2 { "Controls" }
+            h2 { "控制" }
             ul.list {
                 (controls(v))
-                li.go { button.it.cv.snd type="submit" form="st-go" { "Start Speed Test" } }
+                li.go { button.it.cv.snd type="submit" form="st-go" { "启动速度测试" } }
                 li.halt {
                     form.sf method="post" action=(STOP) {
                         (pd.csrf())
                         input type="hidden" name="server" value=(chosen.unwrap_or(0));
-                        button.it.cv.snd.danger type="submit" { "Stop Test" }
+                        button.it.cv.snd.danger type="submit" { "停止测试" }
                     }
                 }
             }
@@ -262,9 +262,9 @@ pub fn stop_at(v: &Valid) -> String {
 /// The app's "Speed test stopped"; a test that had already ended: said so.
 pub fn stopped(_: &Valid, data: &Value) -> (Option<bool>, String) {
     if data["status"] == "stopping" {
-        (Some(true), "Speed test stopped".into())
+        (Some(true), "速度测试停止".into())
     } else {
-        (None, "No speed test is running.".into())
+        (None, "没有运行速度测试。".into())
     }
 }
 
@@ -289,9 +289,9 @@ mod tests {
         assert_eq!(bytes(1536), "1.5 KB");
         assert_eq!(bytes(10_000_000), "9.5 MB");
         assert_eq!(bytes(3 * 1024 * 1024 * 1024), "3.00 GB");
-        assert_eq!(phase_label("latency"), "Testing Latency...");
-        assert_eq!(phase_label("upload"), "Uploading...");
-        assert_eq!(phase_label("idle"), "Idle");
+        assert_eq!(phase_label("latency"), "测试延迟...");
+        assert_eq!(phase_label("upload"), "正在上传...");
+        assert_eq!(phase_label("idle"), "闲置");
         assert_eq!(phase_label(""), "");
     }
 

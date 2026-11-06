@@ -30,9 +30,9 @@ struct FirewallSettingsView: View {
                         get: { viewModel.config.level },
                         set: { level in Task { await viewModel.setLevel(level) } }
                     )) {
-                        Text("Low").tag("low")
-                        Text("Medium").tag("medium")
-                        Text("High").tag("high")
+                        Text("低").tag("low")
+                        Text("中等").tag("medium")
+                        Text("高").tag("high")
                     }
                     .disabled(viewModel.isLoading)
                 }
@@ -40,7 +40,7 @@ struct FirewallSettingsView: View {
                 LabeledContent("WAN Ping", value: viewModel.config.wanPingFilter ? "Blocked" : "Allowed")
             }
 
-            Section("NAT / UPnP") {
+            Section("网络地址转换/UPnP") {
                 Toggle("NAT", isOn: Binding(
                     get: { viewModel.config.nat },
                     set: { enabled in Task { await viewModel.toggleNAT(enabled: enabled) } }
@@ -70,8 +70,8 @@ struct FirewallSettingsView: View {
                 .disabled(viewModel.isLoading)
             }
 
-            Section("Port Forwarding") {
-                Toggle("Enable", isOn: Binding(
+            Section("端口转发") {
+                Toggle("启用", isOn: Binding(
                     get: { viewModel.config.portForwardEnabled },
                     set: { enabled in Task { await viewModel.togglePortForward(enabled: enabled) } }
                 ))
@@ -104,7 +104,7 @@ struct FirewallSettingsView: View {
                             Button(role: .destructive) {
                                 Task { await viewModel.deletePortForward(rule) }
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label("删除", systemImage: "trash")
                             }
                         }
                     }
@@ -112,7 +112,7 @@ struct FirewallSettingsView: View {
             }
 
             if !viewModel.filterRules.isEmpty {
-                Section("MAC/IP/Port Filters") {
+                Section("MAC/IP/端口过滤器") {
                     ForEach(viewModel.filterRules) { rule in
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
@@ -124,7 +124,7 @@ struct FirewallSettingsView: View {
                                     .foregroundStyle(rule.enabled ? .green : .secondary)
                             }
                             if !rule.srcMac.isEmpty {
-                                Text("MAC: \(rule.srcMac)")
+                                Text("MAC：\(rule.srcMac)")
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                             if !rule.srcIP.isEmpty || !rule.destIP.isEmpty {

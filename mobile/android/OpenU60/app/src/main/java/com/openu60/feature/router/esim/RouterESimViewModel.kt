@@ -185,7 +185,7 @@ class RouterESimViewModel @Inject constructor(
                 if (outcomeUnknown(e)) {
                     // The card command failed or timed out, but the card may have switched: the agent checks.
                     beginFollowingSwitch(target)
-                    _state.value = _state.value.copy(message = "The router is checking whether the switch happened.", messageIsError = false)
+                    _state.value = _state.value.copy(message = "路由器正在检查是否发生切换。", messageIsError = false)
                     return@launch
                 }
                 reconnectTracker = null

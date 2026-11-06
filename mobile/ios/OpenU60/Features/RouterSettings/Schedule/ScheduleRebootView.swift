@@ -14,14 +14,14 @@ struct ScheduleRebootView: View {
                 }
             }
 
-            Section("Schedule") {
-                Toggle("Enable Auto Reboot", isOn: $viewModel.editEnabled)
+            Section("计划") {
+                Toggle("启用自动重启", isOn: $viewModel.editEnabled)
 
                 if viewModel.editEnabled {
-                    DatePicker("Time", selection: $viewModel.editTime, displayedComponents: .hourAndMinute)
+                    DatePicker("时间", selection: $viewModel.editTime, displayedComponents: .hourAndMinute)
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Days")
+                        Text("天")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 8) {
@@ -54,13 +54,13 @@ struct ScheduleRebootView: View {
                 Button {
                     Task { await viewModel.apply() }
                 } label: {
-                    Text("Apply")
+                    Text("应用")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading)
             }
         }
-        .navigationTitle("Scheduled Reboot")
+        .navigationTitle("定时重启")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

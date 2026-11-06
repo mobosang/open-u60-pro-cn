@@ -52,7 +52,7 @@ struct SignalMonitorView<ConnectionDetails: View>: View {
             .padding(.vertical, 10)
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Connection & signal")
+        .navigationTitle("连接与信号")
         .refreshable { await viewModel.refresh() }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -84,7 +84,7 @@ private struct DataSessionPanel: View, Equatable {
     var body: some View {
         CardView(padding: 12) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Data Session")
+                Text("数据会话")
                     .font(.headline)
 
                 if let qci = bearer.qci {
@@ -93,10 +93,10 @@ private struct DataSessionPanel: View, Equatable {
                 if let ambrText = bearer.ambrText {
                     MetaRow(label: "AMBR", value: ambrText)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("Rate cap")
+                        .accessibilityLabel("费率上限")
                         .accessibilityValue(ambrAccessibilityValue)
 
-                    Text("Down / up. Operator rate cap, set when the data session started. Not a speed test.")
+                    Text("向下/向上。运营商速率上限，在数据会话开始时设置。不是速度测试。")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -126,11 +126,11 @@ private struct SignalHistoryChart: View {
     var body: some View {
         CardView(padding: 12) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Signal History")
+                Text("信号历史")
                     .font(.headline)
 
                 if history.isEmpty {
-                    Text("Collecting data...")
+                    Text("正在采集数据...")
                         .foregroundStyle(.secondary)
                         .frame(height: 110)
                         .frame(maxWidth: .infinity)
@@ -193,7 +193,7 @@ private struct SignalHistoryChart: View {
             }
         }
         .frame(height: 160)
-        .accessibilityLabel("Signal strength history")
+        .accessibilityLabel("信号强度历史记录")
     }
 }
 
@@ -241,7 +241,7 @@ private struct CellularPanelData: Equatable {
             band: signal.band,
             pci: signal.pci,
             cellID: signal.cellID,
-            channelLabel: "Channel",
+            channelLabel: "信道",
             channel: signal.channel,
             bandwidth: signal.bandwidth,
             caActive: !signal.sccCarriers.isEmpty,
@@ -317,10 +317,10 @@ private struct CellularPanel: View, Equatable {
                 Text(Color.rsrpQuality(data.rsrp))
                     .font(.caption.bold())
                     .foregroundStyle(Color.rsrpColor(data.rsrp))
-                    .accessibilityLabel("Signal quality")
+                    .accessibilityLabel("信号质量")
                     .accessibilityValue(Color.rsrpQuality(data.rsrp))
             } else {
-                Text("Disconnected")
+                Text("未连接")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -342,14 +342,14 @@ private struct CellularPanel: View, Equatable {
 
     private var metadata: some View {
         VStack(alignment: .leading, spacing: 4) {
-            MetaRow(label: "Band", value: SignalFormat.band(data.band, technology: data.technology, isPCC: data.caActive))
+            MetaRow(label: "频段", value: SignalFormat.band(data.band, technology: data.technology, isPCC: data.caActive))
             MetaRow(label: "PCI", value: data.pci)
-            MetaRow(label: "Cell ID", value: data.cellID)
+            MetaRow(label: "小区 ID", value: data.cellID)
             MetaRow(label: data.channelLabel, value: data.channel)
-            MetaRow(label: "Bandwidth", value: SignalFormat.bandwidth(data.bandwidth, band: data.band, technology: data.technology))
+            MetaRow(label: "带宽", value: SignalFormat.bandwidth(data.bandwidth, band: data.band, technology: data.technology))
             MetaRow(label: "CA", value: data.caActive ? "Active (\(data.numCC) CC)" : "Inactive")
             if data.showsTotalBandwidth, data.caActive, let total = totalBandwidth {
-                MetaRow(label: "Total BW", value: "\(total) MHz")
+                MetaRow(label: "总带宽", value: "\(total) MHz")
             }
         }
     }
@@ -405,7 +405,7 @@ private struct WCDMAPanel: View {
                         Text(Color.rscpQuality(signal.rscp))
                             .font(.caption.bold())
                             .foregroundStyle(Color.rscpColor(signal.rscp))
-                            .accessibilityLabel("Signal quality")
+                            .accessibilityLabel("信号质量")
                             .accessibilityValue(Color.rscpQuality(signal.rscp))
                     }
                 }

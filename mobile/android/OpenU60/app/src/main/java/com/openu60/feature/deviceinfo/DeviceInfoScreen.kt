@@ -25,7 +25,7 @@ fun DeviceInfoScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Device Info") },
+                title = { Text("设备信息") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -62,7 +62,7 @@ fun DeviceInfoScreen(
                     }
                 }
 
-                InfoSection("Device") {
+                InfoSection("设备") {
                     InfoRow("IMEI", state.identity.imei)
                 }
 
@@ -75,7 +75,7 @@ fun DeviceInfoScreen(
                     InfoRow("MCC/MNC", "${state.identity.mcc}/${state.identity.mnc}")
                 }
 
-                InfoSection("Network") {
+                InfoSection("网络") {
                     InfoRow("WAN IPv4", state.identity.wanIPv4)
                     InfoRow("WAN IPv6", state.identity.wanIPv6.firstOrNull() ?: "")
                     InfoRow("LAN IP", state.identity.lanIP)

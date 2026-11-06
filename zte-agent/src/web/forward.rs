@@ -44,9 +44,9 @@ const LIST_MAX: usize = 500;
 const URL_MAX: usize = 2048;
 const TEXT_MAX: usize = 512;
 
-pub const REQUIRED: &str = "Required.";
-pub const AGAIN: &str = "Enter it again: the server changed.";
-pub const AGAIN_URL: &str = "Enter the value again: the URL changed.";
+pub const REQUIRED: &str = "必填。";
+pub const AGAIN: &str = "再次输入：服务器发生变化。";
+pub const AGAIN_URL: &str = "再次输入值：URL 已更改。";
 const BAD_URL: &str = "Enter a URL starting with https:// or http://.";
 const SAVED_URL: &str = "The saved URL does not start with https:// or http://. Enter it again.";
 
@@ -98,9 +98,9 @@ pub static DESTS: [Dest; 6] = [
         key: "telegram",
         label: "Telegram",
         fields: &[
-            f("tg_token", "bot_token", "Bot Token", Kind::Secret, true),
-            f("tg_chat", "chat_id", "Chat ID", Kind::Text, true),
-            f("tg_silent", "silent", "Silent", Kind::Check, false),
+            f("tg_token", "bot_token", "机器人令牌", Kind::Secret, true),
+            f("tg_chat", "chat_id", "聊天 ID", Kind::Text, true),
+            f("tg_silent", "silent", "静默通知", Kind::Check, false),
         ],
     },
     Dest {
@@ -108,18 +108,18 @@ pub static DESTS: [Dest; 6] = [
         label: "Webhook",
         fields: &[
             f("wh_url", "url", "URL", Kind::SecretUrl, true),
-            Field { default: "POST", ..f("wh_method", "method", "Method", Kind::Method, false) },
-            f("wh_h", "headers", "Headers", Kind::Headers, false),
+            Field { default: "POST", ..f("wh_method", "method", "方法", Kind::Method, false) },
+            f("wh_h", "headers", "请求头", Kind::Headers, false),
         ],
     },
-    Dest { key: "sms", label: "SMS", fields: &[f("sms_number", "forward_number", "Forward to number", Kind::Tel, true)] },
+    Dest { key: "sms", label: "SMS", fields: &[f("sms_number", "forward_number", "转发至号码", Kind::Tel, true)] },
     Dest {
         key: "ntfy",
         label: "ntfy",
         fields: &[
-            Field { default: "https://ntfy.sh", ..f("nt_url", "url", "Server URL", Kind::Url, true) },
-            f("nt_topic", "topic", "Topic", Kind::Text, true),
-            f("nt_token", "token", "Token (optional)", Kind::Secret, false),
+            Field { default: "https://ntfy.sh", ..f("nt_url", "url", "服务器地址", Kind::Url, true) },
+            f("nt_topic", "topic", "主题", Kind::Text, true),
+            f("nt_token", "token", "令牌（可选）", Kind::Secret, false),
         ],
     },
     Dest { key: "discord", label: "Discord", fields: &[f("dc_url", "webhook_url", "Webhook URL", Kind::SecretUrl, true)] },
@@ -128,7 +128,7 @@ pub static DESTS: [Dest; 6] = [
 
 /// The filter types (value, the app's label).
 pub const FILTERS: [(&str, &str); 4] =
-    [("all", "All Messages"), ("sender", "By Sender"), ("content", "By Content"), ("sender_and_content", "Sender + Content")];
+    [("all", "全部短信"), ("sender", "按发件人"), ("content", "按内容"), ("sender_and_content", "发件人+内容")];
 
 pub fn dest(key: &str) -> Option<&'static Dest> {
     DESTS.iter().find(|d| d.key == key)
@@ -274,10 +274,10 @@ fn list(v: &Value) -> String {
 pub fn filter_summary(filter: &Value) -> String {
     let (p, k) = (list(&filter["patterns"]), list(&filter["keywords"]));
     match filter["type"].as_str().unwrap_or("all") {
-        "sender" => format!("Sender: {p}"),
-        "content" => format!("Keywords: {k}"),
-        "sender_and_content" => format!("Sender: {p} + Keywords: {k}"),
-        _ => "All messages".to_owned(),
+        "sender" => format!("发件人：{p}"),
+        "content" => format!("关键词：{k}"),
+        "sender_and_content" => format!("发件人：{p} + 关键字：{k}"),
+        _ => "全部短信".to_owned(),
     }
 }
 
@@ -286,9 +286,9 @@ pub fn filter_summary(filter: &Value) -> String {
 pub fn dest_summary(d: &Value) -> String {
     let s = |k: &str| d[k].as_str().unwrap_or("").to_owned();
     match d["type"].as_str().unwrap_or("") {
-        "telegram" => format!("Telegram (chat: {})", s("chat_id")),
+        "telegram" => format!("Telegram（聊天：{}）", s("chat_id")),
         "webhook" if s("host").is_empty() => "Webhook".to_owned(),
-        "webhook" => format!("Webhook ({})", s("host")),
+        "webhook" => format!("Webhook（{}）", s("host")),
         "sms" => format!("SMS ({})", s("forward_number")),
         "ntfy" => format!("ntfy ({})", s("topic")),
         "discord" => "Discord".to_owned(),
@@ -524,9 +524,9 @@ pub type Errors = Vec<(String, String)>;
 /// Trimmed text: at most `max` characters and no control characters.
 fn text(v: &str, max: usize) -> Result<(), String> {
     if v.chars().count() > max {
-        Err(format!("Enter at most {max} characters."))
+        Err(format!("最多输入 {max} 个字符。"))
     } else if v.chars().any(char::is_control) {
-        Err("Remove line breaks and control characters.".to_owned())
+        Err("删除换行符和控制字符。".to_owned())
     } else {
         Ok(())
     }
@@ -605,9 +605,9 @@ pub fn resolve(input: &Input, sources: &[&Secrets]) -> Resolved {
         } else if url != typed {
             None
         } else if f.kind == Kind::Url && without_userinfo(&url) != url {
-            Some("Leave the user name and password out of the URL.".to_owned())
+            Some("将用户名和密码保留在 URL 之外。".to_owned())
         } else if f.kind == Kind::Url && url.contains(['?', '#']) {
-            Some("Enter the server address only, without ? or #.".to_owned())
+            Some("仅输入服务器地址，不输入？或者 ＃。".to_owned())
         } else {
             None
         };
@@ -682,15 +682,15 @@ pub fn resolve(input: &Input, sources: &[&Secrets]) -> Resolved {
                 for (i, (name, value)) in input.headers.iter().enumerate() {
                     let field = |k: &str| format!("{k}{i}");
                     if name.is_empty() {
-                        errors.push((field("wh_hn"), "Enter the header name.".to_owned()));
+                        errors.push((field("wh_hn"), "输入标题名称。".to_owned()));
                         continue;
                     }
                     if !header_name(name) {
-                        errors.push((field("wh_hn"), "Not a valid header name.".to_owned()));
+                        errors.push((field("wh_hn"), "不是有效的标头名称。".to_owned()));
                         continue;
                     }
                     if reserved(name) {
-                        errors.push((field("wh_hn"), "This header can't be set.".to_owned()));
+                        errors.push((field("wh_hn"), "无法设置此标头。".to_owned()));
                         continue;
                     }
                     // The value and whether it is the rule's as saved.
@@ -719,7 +719,7 @@ pub fn resolve(input: &Input, sources: &[&Secrets]) -> Resolved {
                             Err(e) => errors.push((field("wh_hv"), e)),
                         },
                         None if sources.iter().any(|s| s.has_header(name)) => errors.push((field("wh_hv"), AGAIN_URL.to_owned())),
-                        None => errors.push((field("wh_hv"), "Enter the value.".to_owned())),
+                        None => errors.push((field("wh_hv"), "输入值。".to_owned())),
                     }
                 }
                 wire.insert(f.key.into(), json!(rows.iter().map(|(n, v)| json!({"name": n, "value": v})).collect::<Vec<_>>()));
@@ -730,7 +730,7 @@ pub fn resolve(input: &Input, sources: &[&Secrets]) -> Resolved {
                 } else if f.kind == Kind::Tel {
                     super::sms::check_number(&super::sms::clean_number(typed)).err()
                 } else if f.name == "nt_topic" && !typed.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_') {
-                    Some("Use letters, digits, - and _ only.".to_owned())
+                    Some("仅使用字母、数字、- 和 _。".to_owned())
                 } else {
                     text(typed, if f.name == "nt_topic" { 64 } else { TEXT_MAX }).err()
                 };
@@ -1038,7 +1038,7 @@ mod tests {
     }
 
     fn input(pairs: &[(&str, &str)]) -> Input {
-        let mut all = vec![("name", "Fake rule"), ("ft", "all")];
+        let mut all = vec![("name", "假规则"), ("ft", "all")];
         all.extend_from_slice(pairs);
         Input::parse(&form(&all)).expect("a valid form")
     }
@@ -1072,10 +1072,10 @@ mod tests {
             (
                 vec![
                     ("dt", "webhook"), ("wh_url", "https://example.com/hook"), ("wh_method", "PUT"),
-                    ("wh_hn0", "X-Request-Source"), ("wh_hv0", "u60-test"), ("wh_hn2", "X-Fake"), ("wh_hv2", "1"),
+                    ("wh_hn0", "X-请求源"), ("wh_hv0", "u60-test"), ("wh_hn2", "X假货"), ("wh_hv2", "1"),
                 ],
                 json!({"type": "webhook", "url": "https://example.com/hook", "method": "PUT",
-                       "headers": [{"name": "X-Request-Source", "value": "u60-test"}, {"name": "X-Fake", "value": "1"}]}),
+                       "headers": [{"name": "X-请求源", "value": "u60-test"}, {"name": "X假货", "value": "1"}]}),
             ),
             (
                 vec![("dt", "webhook"), ("wh_url", "http://example.com/hook"), ("wh_method", "POST")],
@@ -1145,21 +1145,21 @@ mod tests {
         assert_eq!(errors(&[("dt", "discord"), ("dc_url", "https://")], &[])[0].0, "dc_url");
         assert_eq!(
             errors(&[("dt", "ntfy"), ("nt_url", "https://user:pw@ntfy.example.com"), ("nt_topic", "a/b")], &[]),
-            vec![err("nt_url", "Leave the user name and password out of the URL."), err("nt_topic", "Use letters, digits, - and _ only.")]
+            vec![err("nt_url", "将用户名和密码保留在 URL 之外。"), err("nt_topic", "仅使用字母、数字、- 和 _。")]
         );
         assert_eq!(errors(&[("dt", "sms"), ("sms_number", "+1555<0123>")], &[])[0].0, "sms_number");
-        assert_eq!(errors(&[("dt", "telegram"), ("tg_token", "a\u{7}b"), ("tg_chat", "1")], &[])[0].1, "Remove line breaks and control characters.");
+        assert_eq!(errors(&[("dt", "telegram"), ("tg_token", "a\u{7}b"), ("tg_chat", "1")], &[])[0].1, "删除换行符和控制字符。");
         // Header rows: a value without a name, a bad name, a name without a value.
         let e = errors(
-            &[("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hv0", "v"), ("wh_hn1", "Bad Name"), ("wh_hv1", "v"), ("wh_hn2", "X-New")],
+            &[("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hv0", "v"), ("wh_hn1", "恶名"), ("wh_hv1", "v"), ("wh_hn2", "X-新")],
             &[],
         );
-        assert_eq!(e, vec![err("wh_hn0", "Enter the header name."), err("wh_hn1", "Not a valid header name."), err("wh_hv2", "Enter the value.")]);
+        assert_eq!(e, vec![err("wh_hn0", "输入标题名称。"), err("wh_hn1", "不是有效的标头名称。"), err("wh_hv2", "输入值。")]);
         // Name and lists.
         let blank = Input::parse(&form(&[("name", "  "), ("ft", "all"), ("dt", "sms")])).unwrap();
         assert_eq!(rule_parts(&blank).unwrap_err(), vec![err("name", REQUIRED)]);
         let long = Input::parse(&form(&[("name", &"n".repeat(101)), ("ft", "all"), ("dt", "sms")])).unwrap();
-        assert_eq!(rule_parts(&long).unwrap_err(), vec![err("name", "Enter at most 100 characters.")]);
+        assert_eq!(rule_parts(&long).unwrap_err(), vec![err("name", "最多输入 100 个字符。")]);
     }
 
     fn stored(d: Value) -> Secrets {
@@ -1177,14 +1177,14 @@ mod tests {
         assert_eq!(ok["bot_token"], TOKEN);
         // Another type's rule keeps nothing.
         let wh = stored(json!({"type": "webhook", "url": "https://example.com/hook/FAKE-PATH", "method": "POST",
-                               "headers": [{"name": "Authorization", "value": AUTH}, {"name": "X-Two", "value": "2"}]}));
+                               "headers": [{"name": "Authorization", "value": AUTH}, {"name": "X-二", "value": "2"}]}));
         assert_eq!(errors(&[("dt", "telegram"), ("tg_chat", "2")], &[&wh]), vec![err("tg_token", REQUIRED)]);
         // ntfy: the same server keeps the token; another server needs it again.
         let nt = stored(json!({"type": "ntfy", "url": "https://ntfy.example.com", "topic": "t", "token": "tk_FAKE"}));
         let same = resolved(&[("dt", "ntfy"), ("nt_url", "HTTPS://NTFY.example.com/"), ("nt_topic", "other")], &[&nt]).unwrap();
         assert_eq!(same["token"], "tk_FAKE");
         let moved = &[("dt", "ntfy"), ("nt_url", "https://evil.example"), ("nt_topic", "t")];
-        assert_eq!(errors(moved, &[&nt]), vec![err("nt_token", "Enter it again: the server changed.")]);
+        assert_eq!(errors(moved, &[&nt]), vec![err("nt_token", "再次输入：服务器发生变化。")]);
         let typed = resolved(&[moved.as_slice(), &[("nt_token", "tk_NEW")]].concat(), &[&nt]).unwrap();
         assert_eq!(typed["token"], "tk_NEW");
         let removed = resolved(&[moved.as_slice(), &[("nt_token_clear", "1")]].concat(), &[&nt]).unwrap();
@@ -1192,16 +1192,16 @@ mod tests {
         let cleared = resolved(&[("dt", "ntfy"), ("nt_url", "https://ntfy.example.com"), ("nt_topic", "t"), ("nt_token_clear", "1")], &[&nt]);
         assert_eq!(cleared.unwrap().get("token"), None);
         // Webhook: an empty URL keeps the saved one, and its header values by name (any case).
-        let kept = resolved(&[("dt", "webhook"), ("wh_hn0", "authorization"), ("wh_hn1", "X-Two"), ("wh_hv1", "new")], &[&wh]).unwrap();
+        let kept = resolved(&[("dt", "webhook"), ("wh_hn0", "authorization"), ("wh_hn1", "X-二"), ("wh_hv1", "new")], &[&wh]).unwrap();
         assert_eq!(kept["url"], "https://example.com/hook/FAKE-PATH");
-        assert_eq!(kept["headers"], json!([{"name": "authorization", "value": AUTH}, {"name": "X-Two", "value": "new"}]));
+        assert_eq!(kept["headers"], json!([{"name": "authorization", "value": AUTH}, {"name": "X-二", "value": "new"}]));
         let typed_same = resolved(&[("dt", "webhook"), ("wh_url", "https://example.com/hook/FAKE-PATH"), ("wh_hn0", "Authorization")], &[&wh]);
         assert_eq!(typed_same.unwrap()["headers"][0]["value"], AUTH);
         // Another URL, even on the same host: the header values are typed again.
         for url in ["https://example.com/other", "https://evil.example/hook/FAKE-PATH"] {
             assert_eq!(
                 errors(&[("dt", "webhook"), ("wh_url", url), ("wh_hn0", "Authorization")], &[&wh]),
-                vec![err("wh_hv0", "Enter the value again: the URL changed.")]
+                vec![err("wh_hv0", "再次输入值：URL 已更改。")]
             );
         }
         // Discord: an empty URL keeps the saved one; a Slack rule's never.
@@ -1215,14 +1215,14 @@ mod tests {
         let nt_draft = Secrets { dest: "ntfy", server: "https://a.example".into(), url: "https://a.example".into(),
                                  fields: vec![("nt_token", "tk_A".into())], ..Secrets::default() };
         let e = errors(&[("dt", "ntfy"), ("nt_url", "https://b.example"), ("nt_topic", "t")], &[&nt_draft]);
-        assert_eq!(e, vec![err("nt_token", "Enter it again: the server changed.")]);
+        assert_eq!(e, vec![err("nt_token", "再次输入：服务器发生变化。")]);
         // What an answer keeps: the chosen type's secrets typed into the
         // form (valid ones), never the rule's own.
-        let pairs = [("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-Two"), ("wh_hv1", "new"), ("tg_token", "x")];
+        let pairs = [("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-二"), ("wh_hv1", "new"), ("tg_token", "x")];
         let keep = resolve(&input(&pairs), &[&wh]).secrets;
         assert_eq!((keep.dest, keep.saved, keep.url.as_str()), ("webhook", false, "https://example.com/hook/FAKE-PATH"));
         assert_eq!(keep.get("wh_url"), None);
-        assert_eq!(keep.headers, vec![("X-Two".to_owned(), "new".to_owned())]);
+        assert_eq!(keep.headers, vec![("X-二".to_owned(), "new".to_owned())]);
         assert_eq!(keep.get("tg_token"), None);
         let typed = resolve(&input(&[("dt", "discord"), ("dc_url", "https://discord.com/api/webhooks/2/FAKE-NEW")]), &[&dc]).secrets;
         assert_eq!(typed.get("dc_url"), Some("https://discord.com/api/webhooks/2/FAKE-NEW"));
@@ -1255,7 +1255,7 @@ mod tests {
         // would send the kept Authorization to another site on that address).
         for name in ["Host", "host", "X-Forwarded-Host", "Forwarded", "Proxy-Authorization", "Transfer-Encoding", "Content-Length", "Connection"] {
             let e = errors(&[("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", name), ("wh_hv1", "attacker.example")], &[&wh]);
-            assert_eq!(e, vec![err("wh_hn1", "This header can't be set.")], "{name}");
+            assert_eq!(e, vec![err("wh_hn1", "无法设置此标头。")], "{name}");
         }
         // A saved URL the app took without a scheme: said so, not "Enter a URL".
         let bare = stored(json!({"type": "webhook", "url": "example.com/hook/FAKE-PATH", "method": "POST", "headers": []}));
@@ -1264,7 +1264,7 @@ mod tests {
         // An ntfy server URL is the server only: the topic follows it.
         assert_eq!(
             errors(&[("dt", "ntfy"), ("nt_url", "https://ntfy.example.com/?auth=FAKE-Q"), ("nt_topic", "t")], &[]),
-            vec![err("nt_url", "Enter the server address only, without ? or #.")]
+            vec![err("nt_url", "仅输入服务器地址，不输入？或者 ＃。")]
         );
     }
 
@@ -1276,7 +1276,7 @@ mod tests {
     fn a_form_shown_again_has_no_secrets() {
         let i = input(&[
             ("dt", "webhook"), ("wh_url", "https://example.com/FAKE-PATH"), ("tg_token", TOKEN), ("nt_url", "https://u:FAKE-PW@n.example/b?auth=FAKE-Q"),
-            ("wh_hn0", "Authorization: Bearer FAKE-SECRET"), ("wh_hn1", "X-Bad Bearer FAKE-SECRET"), ("wh_hv1", "v"), ("wh_hn3", "X-Ok"), ("wh_hv3", "FAKE-SECRET"),
+            ("wh_hn0", "Authorization: Bearer FAKE-SECRET"), ("wh_hn1", "X-Bad Bearer 假秘密"), ("wh_hv1", "v"), ("wh_hn3", "X-Ok"), ("wh_hv3", "FAKE-SECRET"),
         ]);
         assert_eq!(i.headers[0], ("Authorization".to_owned(), AUTH.to_owned()));
         assert_eq!(i.rows, 4);
@@ -1294,9 +1294,9 @@ mod tests {
     fn the_public_config_has_no_secrets() {
         let data = json!({"config": {"enabled": true, "poll_interval_secs": 45, "mark_read_after_forward": true, "delete_after_forward": false,
             "rules": [
-                {"id": 1, "name": "Bot", "enabled": true, "filter": {"type": "all"},
+                {"id": 1, "name": "机器人", "enabled": true, "filter": {"type": "all"},
                  "destination": {"type": "telegram", "bot_token": TOKEN, "chat_id": "-100123", "silent": true}},
-                {"id": 2, "name": "Hook", "enabled": false, "filter": {"type": "sender", "patterns": ["BANK", "+1555*"]},
+                {"id": 2, "name": "钩子", "enabled": false, "filter": {"type": "sender", "patterns": ["BANK", "+1555*"]},
                  "destination": {"type": "webhook", "url": "https://user:pw@Example.com:8443/hook/FAKE-PATH?k=FAKE-Q", "method": "PUT",
                                  "headers": [{"name": "Authorization", "value": AUTH}]}},
                 {"id": 3, "name": "N", "enabled": true, "filter": {"type": "content", "keywords": ["code"]},
@@ -1320,12 +1320,12 @@ mod tests {
         assert_eq!(
             summaries,
             [
-                ("All messages", "Telegram (chat: -100123)"),
-                ("Sender: BANK, +1555*", "Webhook (example.com:8443)"),
-                ("Keywords: code", "ntfy (fake)"),
-                ("Sender: A + Keywords: b, c", "Discord"),
-                ("All messages", "SMS (+15555550123)"),
-                ("All messages", "Slack"),
+                ("全部短信", "Telegram（聊天：-100123）"),
+                ("发件人：银行，+1555*", "Webhook (example.com:8443)"),
+                ("关键词：代码", "ntfy (fake)"),
+                ("发件人：A + 关键字：b、c", "Discord"),
+                ("全部短信", "SMS (+15555550123)"),
+                ("全部短信", "Slack"),
             ]
             .map(|(a, b)| (a.to_owned(), b.to_owned()))
         );

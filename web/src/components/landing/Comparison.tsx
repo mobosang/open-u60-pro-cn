@@ -19,7 +19,7 @@ export function Comparison() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
         >
-          Why Use This Instead?
+          为什么要使用这个？
         </motion.h2>
 
         <motion.div
@@ -38,7 +38,7 @@ export function Comparison() {
                   zte-agent
                 </th>
                 <th className="px-4 py-3 text-left font-mono text-xs font-semibold text-text-dim">
-                  ZTE Official
+                  ZTE官方
                 </th>
               </tr>
             </thead>

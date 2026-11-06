@@ -78,7 +78,7 @@ class CellLockViewModel @Inject constructor(
                 agentClient.postJSON("/api/modem/cell-lock", params)
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    message = "Cell lock applied",
+                    message = "应用单元锁",
                     messageIsError = false,
                 )
                 refresh()
@@ -98,7 +98,7 @@ class CellLockViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     status = CellLockStatus.empty,
                     isLoading = false,
-                    message = "Cell lock removed",
+                    message = "单元锁已移除",
                     messageIsError = false,
                     nrPCI = "", nrEARFCN = "", nrBand = "",
                     ltePCI = "", lteEARFCN = "",
@@ -122,7 +122,7 @@ class CellLockViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     neighbors = neighbors,
                     isLoading = false,
-                    message = "Found ${neighbors.size} neighbor cells",
+                    message = "找到 ${neighbors.size} 邻居小区",
                     messageIsError = false,
                 )
             } catch (e: AgentError.Unauthorized) {

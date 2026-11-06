@@ -128,7 +128,7 @@ final class SIMViewModel {
             oldPinInput = ""
             newPinInput = ""
             showChangePinSheet = false
-            showMessage("PIN changed successfully", isError: false)
+            showMessage("PIN 更改成功", isError: false)
         } catch {
             oldPinInput = ""
             await reportSheetFailure(error)
@@ -154,7 +154,7 @@ final class SIMViewModel {
                 ])
             pinInput = ""
             showEnterPinSheet = false
-            showMessage("PIN verified", isError: false)
+            showMessage("PIN 已验证", isError: false)
             await refresh()
         } catch {
             pinInput = ""
@@ -186,7 +186,7 @@ final class SIMViewModel {
             pukInput = ""
             newPinInput = ""
             showEnterPukSheet = false
-            showMessage("PUK verified, new PIN set", isError: false)
+            showMessage("PUK 已验证，新 PIN 套装", isError: false)
             await refresh()
         } catch {
             pukInput = ""
@@ -209,7 +209,7 @@ final class SIMViewModel {
             let _ = try await client.postJSON("/api/sim/unlock", body: ["nck": nckInput])
             nckInput = ""
             showUnlockSheet = false
-            showMessage("SIM unlocked successfully", isError: false)
+            showMessage("SIM解锁成功", isError: false)
             await refresh()
         } catch {
             nckInput = ""
@@ -229,7 +229,7 @@ final class SIMViewModel {
         if refreshingLockTrials {
             await refreshLockTrials()
         }
-        let text = "Failed: \(error.localizedDescription)"
+        let text = "失败：\(error.localizedDescription)"
         sheetError = text
         showMessage(text, isError: true)
     }
@@ -250,7 +250,7 @@ final class SIMViewModel {
             return SIMParser.parseSIMInfo(data)
         } catch {
             if !error.isCancellation {
-                showMessage("Failed to load SIM info: \(error.localizedDescription)", isError: true)
+                showMessage("加载SIM信息失败：\(error.localizedDescription)", isError: true)
             }
             return nil
         }

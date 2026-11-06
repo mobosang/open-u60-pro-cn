@@ -63,7 +63,7 @@ final class SMSForwardViewModel {
             config.pollIntervalSecs = pollIntervalSecs
             config.markReadAfterForward = markRead
             config.deleteAfterForward = deleteAfter
-            showMessage("Settings saved", isError: false)
+            showMessage("已保存设置", isError: false)
         } catch {
             report(error, as: "Failed")
         }
@@ -99,7 +99,7 @@ final class SMSForwardViewModel {
             ]
             body["enabled"] = true
             let _ = try await client.postJSON("/api/sms/forward/rules", body: body)
-            showMessage("Rule created", isError: false)
+            showMessage("规则已创建", isError: false)
             await refresh()
         } catch {
             report(error, as: "Failed")
@@ -118,7 +118,7 @@ final class SMSForwardViewModel {
                 "destination": SMSForwardParser.destinationToDict(destination),
             ]
             let _ = try await client.putJSON("/api/sms/forward/rules", body: body)
-            showMessage("Rule updated", isError: false)
+            showMessage("规则更新", isError: false)
             await refresh()
         } catch {
             report(error, as: "Failed")
@@ -130,7 +130,7 @@ final class SMSForwardViewModel {
         do {
             let _ = try await client.deleteJSON("/api/sms/forward/rules", body: ["id": id])
             config.rules.removeAll { $0.id == id }
-            showMessage("Rule deleted", isError: false)
+            showMessage("规则已删除", isError: false)
         } catch {
             report(error, as: "Failed")
         }
@@ -156,7 +156,7 @@ final class SMSForwardViewModel {
                 "destination": SMSForwardParser.destinationToDict(destination),
             ]
             let _ = try await client.postJSON("/api/sms/forward/test", body: body)
-            showMessage("Test message sent", isError: false)
+            showMessage("测试消息发送", isError: false)
         } catch {
             report(error, as: "Test failed")
         }
@@ -179,7 +179,7 @@ final class SMSForwardViewModel {
     func clearLog() async {
         do {
             let _ = try await client.postJSON("/api/sms/forward/log/clear")
-            showMessage("Log cleared", isError: false)
+            showMessage("日志已清除", isError: false)
             // Held forwards survive a clear: show the entries the agent kept.
             await fetchLog()
         } catch {
@@ -190,7 +190,7 @@ final class SMSForwardViewModel {
     func retryForward(index: Int) async {
         do {
             let _ = try await client.postJSON("/api/sms/forward/retry", body: ["index": index])
-            showMessage("Retry succeeded", isError: false)
+            showMessage("重试成功", isError: false)
             await fetchLog()
         } catch {
             guard !error.isCancellation else { return }

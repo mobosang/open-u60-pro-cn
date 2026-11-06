@@ -26,7 +26,7 @@ fun SignalMonitorScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Signal Monitor") })
+            TopAppBar(title = { Text("信号监测") })
         },
     ) { padding ->
         if (authState != AuthState.LOGGED_IN) {
@@ -36,7 +36,7 @@ fun SignalMonitorScreen(
                     .padding(padding),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Login required to monitor signal")
+                Text("监控信号需要登录")
             }
             return@Scaffold
         }
@@ -143,7 +143,7 @@ fun SignalMonitorScreen(
                 state.bearer?.let { bearer ->
                     val ambrText = bearer.ambrText
                     SignalPanel(
-                        title = "Data Session",
+                        title = "数据会话",
                         rows = buildList {
                             bearer.qci?.let { add(SignalRow(state.qosLabel, it.toString())) }
                             ambrText?.let { add(SignalRow("AMBR", it)) }
@@ -267,7 +267,7 @@ private fun RSRPHistoryCard(history: List<com.openu60.core.model.SignalSnapshot>
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "RSRP History",
+                "RSRP 历史",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
@@ -278,13 +278,13 @@ private fun RSRPHistoryCard(history: List<com.openu60.core.model.SignalSnapshot>
 
             if (nrValues.isNotEmpty()) {
                 Text(
-                    "NR: min ${nrValues.min().toInt()} / avg ${nrValues.average().toInt()} / max ${nrValues.max().toInt()} dBm",
+                    "NR：最小值 ${nrValues.min().toInt()} / 平均值 ${nrValues.average().toInt()} / 最大值 ${nrValues.max().toInt()} dBm",
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
             if (lteValues.isNotEmpty()) {
                 Text(
-                    "LTE: min ${lteValues.min().toInt()} / avg ${lteValues.average().toInt()} / max ${lteValues.max().toInt()} dBm",
+                    "LTE：最小值 ${lteValues.min().toInt()} / 平均值 ${lteValues.average().toInt()} / 最大值 ${lteValues.max().toInt()} dBm",
                     style = MaterialTheme.typography.bodySmall,
                 )
             }

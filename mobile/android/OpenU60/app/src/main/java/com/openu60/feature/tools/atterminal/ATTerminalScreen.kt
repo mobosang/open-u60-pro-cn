@@ -48,7 +48,7 @@ fun ATTerminalScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("AT Terminal")
+                        Text("AT 终端")
                         if (state.portName != null) {
                             Text(
                                 state.portName!!,
@@ -107,7 +107,7 @@ fun ATTerminalScreen(
                         OutlinedTextField(
                             value = state.currentCommand,
                             onValueChange = { viewModel.setCommand(it) },
-                            placeholder = { Text("AT command...") },
+                            placeholder = { Text("AT命令...") },
                             singleLine = true,
                             textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
                             modifier = Modifier.weight(1f),
@@ -168,12 +168,12 @@ fun ATTerminalScreen(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        "No commands sent yet",
+                        "尚未发送命令",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        "Tap a quick command or type one below",
+                        "点击快速命令或输入以下命令",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -193,7 +193,7 @@ fun ATTerminalScreen(
                         entry = entry,
                         onLongPress = {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            clipboard.setPrimaryClip(ClipData.newPlainText("AT Response", entry.response))
+                            clipboard.setPrimaryClip(ClipData.newPlainText("AT 响应", entry.response))
                             Toast.makeText(context, "Response copied", Toast.LENGTH_SHORT).show()
                         },
                     )
@@ -206,7 +206,7 @@ fun ATTerminalScreen(
     if (state.showDangerConfirm) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissDangerConfirm() },
-            title = { Text("Dangerous Command") },
+            title = { Text("危险命令") },
             text = {
                 Text("\"${state.pendingDangerousCommand}\" may disable the modem, reset settings, or disconnect the network. Are you sure?")
             },
@@ -217,12 +217,12 @@ fun ATTerminalScreen(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text("Send Anyway")
+                    Text("无论如何发送")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissDangerConfirm() }) {
-                    Text("Cancel")
+                    Text("取消")
                 }
             },
         )

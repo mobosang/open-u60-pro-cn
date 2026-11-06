@@ -45,7 +45,7 @@ fun SMSForwardConfigScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("SMS Forwarding") },
+                title = { Text("短信转发") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -93,7 +93,7 @@ fun SMSForwardConfigScreen(
                 item {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Global Settings", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("全局设置", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(12.dp))
 
                             Row(
@@ -101,7 +101,7 @@ fun SMSForwardConfigScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text("Enabled")
+                                Text("已启用")
                                 Switch(checked = state.config.enabled, onCheckedChange = { viewModel.toggleEnabled(it) })
                             }
 
@@ -111,7 +111,7 @@ fun SMSForwardConfigScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text("Mark Read After Forward")
+                                Text("转发后标记为已读")
                                 Switch(checked = markRead, onCheckedChange = { markRead = it })
                             }
 
@@ -120,7 +120,7 @@ fun SMSForwardConfigScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text("Delete After Forward")
+                                Text("转发后删除")
                                 Switch(checked = deleteAfter, onCheckedChange = { deleteAfter = it })
                             }
 
@@ -131,7 +131,7 @@ fun SMSForwardConfigScreen(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 enabled = !state.isLoading,
-                            ) { Text("Save Settings") }
+                            ) { Text("保存设置") }
                         }
                     }
                 }
@@ -144,12 +144,12 @@ fun SMSForwardConfigScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            "Rules (${state.config.rules.size})",
+                            "规则 (${state.config.rules.size})",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
                         OutlinedButton(onClick = onNavigateToLog) {
-                            Text("View Log")
+                            Text("查看日志")
                         }
                     }
                 }
@@ -161,7 +161,7 @@ fun SMSForwardConfigScreen(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text("No forwarding rules", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("无转发规则", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }

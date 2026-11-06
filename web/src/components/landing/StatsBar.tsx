@@ -4,10 +4,10 @@ import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 
 const stats = [
-  { value: "1", label: "Process", sub: "vs 44" },
-  { value: "~0.8\u00a0MB", label: "Memory", sub: "vs 225\u00a0MB" },
-  { value: "143", label: "Endpoints", sub: "REST API" },
-  { value: "16", label: "Categories", sub: "Full Coverage" },
+  { value: "1", label: "流程", sub: "vs 44" },
+  { value: "~0.8\u00a0MB", label: "内存", sub: "vs 225\u00a0MB" },
+  { value: "143", label: "端点", sub: "REST API" },
+  { value: "16", label: "类别", sub: "全覆盖" },
 ];
 
 export function StatsBar() {

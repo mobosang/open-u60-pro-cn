@@ -45,10 +45,10 @@ fn body(csrf: &str, once: &str, fields: &[(&str, &str)]) -> String {
 fn wifi_status() -> Value {
     json!({
         "wifi_onoff": "1", "wifi6_switch": "0", "radio2_disabled": "0", "radio5_disabled": "0",
-        "ssid_2g": "Fake-Net", "ssid_5g": "Fake-Net-5G", "key_2g": "FAKEKEY-2g-0001", "key_5g": "FAKEKEY-5g-0001",
+        "ssid_2g": "假网", "ssid_5g": "Fake-Net-5G", "key_2g": "FAKEKEY-2g-0001", "key_5g": "FAKEKEY-5g-0001",
         "channel_2g": "auto", "channel_5g": "36", "htmode_2g": "EHT20", "htmode_5g": "EHT80", "txpower_2g": "100", "txpower_5g": "100",
         "encryption_2g": "psk2+ccmp", "encryption_5g": "sae-mixed", "hidden_2g": "0", "hidden_5g": "0",
-        "disabled_2g": "0", "disabled_5g": "1", "ssid": "Fake-Guest", "key": "FAKEKEY-guest-01", "encryption": "psk2+ccmp",
+        "disabled_2g": "0", "disabled_5g": "1", "ssid": "假客", "key": "FAKEKEY-guest-01", "encryption": "psk2+ccmp",
         "hidden": "0", "isolate": "1", "guest_active_time": "60", "remaining_seconds": "3909",
     })
 }
@@ -56,7 +56,7 @@ fn wifi_status() -> Value {
 /// The WiFi form as the page draws it, with these fields changed.
 fn wifi_fields(over: &[(&'static str, &'static str)]) -> Vec<(&'static str, &'static str)> {
     let mut f = vec![
-        ("wifi", "1"), ("r2", "1"), ("ssid_2g", "Fake-Net"), ("key_2g", ""), ("channel_2g", "auto"), ("htmode_2g", "EHT20"),
+        ("wifi", "1"), ("r2", "1"), ("ssid_2g", "假网"), ("key_2g", ""), ("channel_2g", "auto"), ("htmode_2g", "EHT20"),
         ("txpower_2g", "100"), ("encryption_2g", "psk2+ccmp"), ("r5", "1"), ("ssid_5g", "Fake-Net-5G"), ("key_5g", ""),
         ("channel_5g", "36"), ("htmode_5g", "EHT80"), ("txpower_5g", "100"), ("encryption_5g", "sae-mixed"),
     ];
@@ -91,7 +91,7 @@ async fn wifi_form_question_and_reconnect_page() {
         "name=\"ssid_2g\" value=\"Fake-Net\"", "<input id=\"key_2g\" type=\"password\" name=\"key_2g\" placeholder=\"Leave empty to keep\"",
         "<option value=\"sae-mixed\" selected>WPA2/WPA3 Mixed</option>", "<option value=\"EHT80\" selected>80 MHz</option>",
         "80 MHz: channels 36\u{2013}64, 100\u{2013}128, or 149\u{2013}161", "<h2>Advanced</h2>", "WiFi 7 (802.11be)",
-        "Applying changes will briefly disconnect WiFi while settings are restarted",
+        "应用更改将在重新启动设置时短暂断开 WiFi 的连接",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -140,7 +140,7 @@ async fn wifi_form_question_and_reconnect_page() {
     let rev = q.input("d");
     // Cancel: the form as typed, its token kept (the password still kept).
     let back = get_with(&c, &format!("{WIFI}?t={once}"), peer(200, 3), &cookie).await.text();
-    for want in ["name=\"ssid_2g\" value=\"Fake-Net-New\"", "Leave empty to keep the password you entered", same_token.as_str()] {
+    for want in ["name=\"ssid_2g\" value=\"Fake-Net-New\"", "留空以保留您输入的密码", same_token.as_str()] {
         assert!(back.contains(want), "{want} in {back}");
     }
     assert!(!back.contains("new-fake-pass"));
@@ -154,9 +154,9 @@ async fn wifi_form_question_and_reconnect_page() {
     page.assert_secure_html(200);
     let html = page.text();
     for want in [
-        "<title>Reconnect to WiFi \u{b7} U60 Pro</title>", "WiFi settings applied \u{2014} WiFi will restart briefly",
+        "<title>Reconnect to WiFi \u{b7} U60 Pro</title>", "WiFi 设置已应用 \u{2014} WiFi 将短暂重启",
         "Join \u{201c}Fake-Net-New\u{201d} (2.4 GHz) with the new password if it does not reconnect by itself.",
-        "Join \u{201c}Fake-Net-5G\u{201d} (5 GHz) if it does not reconnect by itself.", "href=\"/ui/router/wifi\">Back to WiFi Settings</a>",
+        "如果 \u{201c}Fake-Net-5G\u{201d} (5 GHz) 没有自行重新连接，请加入。", "href=\"/ui/router/wifi\">Back to WiFi Settings</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -199,14 +199,14 @@ async fn wifi_off_tx_power_failures_and_nothing_to_apply() {
     // TX power alone: no restart, no reconnect page.
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/wifi/settings", (200, json!({"ok": true, "data": {"status": "ok", "hot": true}})))], ..Default::default() });
     let (once, q) = ask(wifi_fields(&[("txpower_5g", "20")])).await;
-    assert!(q.text().contains("TX power changes at once; WiFi does not restart.") && q.text().contains("<button class=\"btn\" type=\"submit\">Apply</button>"), "{}", q.text());
+    assert!(q.text().contains("TX功率立即改变； WiFi不重启。") && q.text().contains("<button class=\"btn\" type=\"submit\">Apply</button>"), "{}", q.text());
     let r = post(&c, WIFI_APPLY, peer(201, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     let line = to(&r);
     assert_eq!(line, format!("{WIFI}?r={once}"));
     assert!(get_with(&c, &line, peer(201, 2), &cookie).await.text().contains("<p class=\"msg ok\" role=\"status\">WiFi settings applied</p>"));
     // A device failure: the form again as typed, with the line.
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/wifi/settings", (500, json!({"ok": false, "error": "uci busy (fake)"})))], ..Default::default() });
-    let (once, q) = ask(wifi_fields(&[("ssid_5g", "Fake-5G-B")])).await;
+    let (once, q) = ask(wifi_fields(&[("ssid_5g", "假5G-B")])).await;
     let r = post(&c, WIFI_APPLY, peer(201, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     let back = to(&r);
     assert_eq!(back, format!("{WIFI}?t={once}&r={once}"));
@@ -227,7 +227,7 @@ async fn a_failed_apply_keeps_the_typed_password_for_the_retry() {
     let _dev = device::set(&c.app, fail_once);
     let page = get_with(&c, WIFI, peer(208, 2), &cookie).await;
     let (csrf, once) = (page.input("csrf"), page.input("once"));
-    let typed = wifi_fields(&[("ssid_2g", "FakeNet-Fail"), ("key_2g", "new-fake-pass-2")]);
+    let typed = wifi_fields(&[("ssid_2g", "FakeNet-失败"), ("key_2g", "new-fake-pass-2")]);
     let r = post(&c, WIFI_APPLY, peer(208, 2), &cookie, &body(&csrf, &once, &typed)).await;
     let q = get_with(&c, &to(&r), peer(208, 2), &cookie).await;
     let r = post(&c, WIFI_APPLY, peer(208, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
@@ -254,14 +254,14 @@ async fn a_failed_apply_keeps_the_typed_password_for_the_retry() {
     }
     // The retry, the password field left empty: the question says the new
     // password, and the device gets it.
-    let r = post(&c, WIFI_APPLY, peer(208, 2), &cookie, &body(&csrf, &next, &wifi_fields(&[("ssid_2g", "FakeNet-Fail")]))).await;
+    let r = post(&c, WIFI_APPLY, peer(208, 2), &cookie, &body(&csrf, &next, &wifi_fields(&[("ssid_2g", "FakeNet-失败")]))).await;
     assert_eq!(to(&r), format!("{WIFI_APPLY}?t={next}"));
     let q = get_with(&c, &to(&r), peer(208, 2), &cookie).await;
     assert!(q.text().contains("devices must join \u{201c}FakeNet-Fail\u{201d} again with the new password."), "{}", q.text());
     assert!(!q.text().contains("new-fake-pass"));
     let r = post(&c, WIFI_APPLY, peer(208, 2), &cookie, &format!("csrf={csrf}&once={next}&d={}&confirm=1", q.input("d"))).await;
     assert_eq!(to(&r), format!("/ui/router/wifi/applied?t={next}"));
-    let sent = json!({"ssid_2g": "FakeNet-Fail", "key_2g": "new-fake-pass-2"});
+    let sent = json!({"ssid_2g": "FakeNet-失败", "key_2g": "new-fake-pass-2"});
     assert_eq!(calls(&c), vec![("/api/wifi/settings".to_owned(), sent.clone()), ("/api/wifi/settings".to_owned(), sent)]);
     // Sent: gone from the draft; the old page again has nothing to keep.
     for t in [&once, &next] {
@@ -284,7 +284,7 @@ async fn a_carried_password_goes_with_its_token() {
     let _dev = device::set(&c.app, fail_once);
     let page = get_with(&c, WIFI, peer(209, 2), &cookie).await;
     let (csrf, once) = (page.input("csrf"), page.input("once"));
-    let typed = wifi_fields(&[("ssid_2g", "FakeNet-Gone"), ("key_2g", "new-fake-pass-3")]);
+    let typed = wifi_fields(&[("ssid_2g", "FakeNet-消失"), ("key_2g", "new-fake-pass-3")]);
     let r = post(&c, WIFI_APPLY, peer(209, 2), &cookie, &body(&csrf, &once, &typed)).await;
     let q = get_with(&c, &to(&r), peer(209, 2), &cookie).await;
     let r = post(&c, WIFI_APPLY, peer(209, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
@@ -315,20 +315,20 @@ async fn guest_wifi_form_and_apply() {
     for want in [
         "<h1>Guest WiFi</h1>", "<h2>Radio Bands</h2>", "<input class=\"sr gb\" id=\"g2\" type=\"checkbox\" role=\"switch\" name=\"g2\" value=\"1\" checked>",
         "<input class=\"sr gb\" id=\"g5\" type=\"checkbox\" role=\"switch\" name=\"g5\" value=\"1\">", "<h2>Network</h2>", "name=\"gssid\" value=\"Fake-Guest\"",
-        "placeholder=\"Leave empty to keep\"", "Client Isolation", "<h2>Timer</h2>", "<option value=\"60\" selected>1 hour</option>",
-        "Guest WiFi will automatically turn off after 1 hour", "1h 05m 09s remaining", "href=\"/ui/router/guest-wifi\">Refresh</a>",
+        "placeholder=\"Leave empty to keep\"", "客户端隔离", "<h2>Timer</h2>", "<option value=\"60\" selected>1 hour</option>",
+        "访客WiFi 1小时后自动关闭", "1h 05m 09s remaining", "href=\"/ui/router/guest-wifi\">Refresh</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
     assert!(!html.contains("FAKEKEY"));
     let (csrf, once) = (r.input("csrf"), r.input("once"));
-    let fields = [("g2", "1"), ("gssid", "Fake-Guest-2"), ("gkey", "guest-fake-pass"), ("genc", "psk2+ccmp"), ("giso", "1"), ("gtime", "120")];
+    let fields = [("g2", "1"), ("gssid", "假客人2"), ("gkey", "guest-fake-pass"), ("genc", "psk2+ccmp"), ("giso", "1"), ("gtime", "120")];
     let r = post(&c, GUEST_APPLY, peer(202, 2), &cookie, &body(&csrf, &once, &fields)).await;
     let q = get_with(&c, &to(&r), peer(202, 2), &cookie).await;
     let html = q.text();
     for want in [
-        "<h2 class=\"q\">Apply Guest WiFi settings?</h2>", "Guests must join \u{201c}Fake-Guest-2\u{201d} again with the new password.",
-        "Guest WiFi turns off by itself after 2 hours.", "guests included",
+        "<h2 class=\"q\">Apply Guest WiFi settings?</h2>", "访客必须使用新密码再次加入\u{201c}Fake-Guest-2\u{201d}。",
+        "Guest WiFi 2小时后自行关闭。", "guests included",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -337,7 +337,7 @@ async fn guest_wifi_form_and_apply() {
     let line = to(&r);
     assert_eq!(
         calls(&c),
-        vec![("/api/wifi/guest".to_owned(), json!({"guest_ssid": "Fake-Guest-2", "guest_key": "guest-fake-pass", "guest_active_time": "120"}))]
+        vec![("/api/wifi/guest".to_owned(), json!({"guest_ssid": "假客人2", "guest_key": "guest-fake-pass", "guest_active_time": "120"}))]
     );
     // Every Wi-Fi network restarts: the reconnect page (from the draft, no
     // device read, never the password); a replay lands on it again.
@@ -347,8 +347,8 @@ async fn guest_wifi_form_and_apply() {
     let html = page.text();
     for want in [
         "<title>Reconnect to WiFi \u{b7} U60 Pro</title>", "<p class=\"msg ok\" role=\"status\">Guest WiFi settings applied</p>",
-        "Join \u{201c}Fake-Net\u{201d} if it does not reconnect by itself.", "Join \u{201c}Fake-Net-5G\u{201d} if it does not reconnect by itself.",
-        "Guests join \u{201c}Fake-Guest-2\u{201d} with the new password.", "href=\"/ui/router/guest-wifi\">Back to Guest WiFi</a>",
+        "如果\u{201c}Fake-Net\u{201d}没有自行重连，则加入。", "如果\u{201c}Fake-Net-5G\u{201d}没有自行重连，则加入。",
+        "访客使用新密码加入\u{201c}Fake-Guest-2\u{201d}。", "href=\"/ui/router/guest-wifi\">Back to Guest WiFi</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -358,32 +358,32 @@ async fn guest_wifi_form_and_apply() {
     assert_eq!(calls(&c).len(), 1);
     // A band of a running guest network: named; an open network: said so.
     let once = get_with(&c, GUEST, peer(202, 2), &cookie).await.input("once");
-    let fields = [("g2", "1"), ("g5", "1"), ("gssid", "Fake-Guest"), ("genc", "none"), ("giso", "1"), ("gtime", "60")];
+    let fields = [("g2", "1"), ("g5", "1"), ("gssid", "假客"), ("genc", "none"), ("giso", "1"), ("gtime", "60")];
     let r = post(&c, GUEST_APPLY, peer(202, 2), &cookie, &body(&csrf, &once, &fields)).await;
     let html = get_with(&c, &to(&r), peer(202, 2), &cookie).await.text();
     for want in [
-        "<h2 class=\"q\">Apply Guest WiFi settings?</h2>", "The 5 GHz guest network turns on.",
+        "<h2 class=\"q\">Apply Guest WiFi settings?</h2>", "5 GHz 访客网络开启。",
         "\u{201c}Fake-Guest\u{201d} is an open network: anyone nearby can join it, without a password, and reach this router.",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // A secured network needs a password the router can keep.
     let once = get_with(&c, GUEST, peer(202, 2), &cookie).await.input("once");
-    let r = post(&c, GUEST_APPLY, peer(202, 2), &cookie, &body(&csrf, &once, &[("g5", "1"), ("gssid", "Fake&Guest"), ("gkey", "short"), ("genc", "sae"), ("gtime", "0")])).await;
+    let r = post(&c, GUEST_APPLY, peer(202, 2), &cookie, &body(&csrf, &once, &[("g5", "1"), ("gssid", "假客"), ("gkey", "short"), ("genc", "sae"), ("gtime", "0")])).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("The router can&#39;t store these characters") || r.text().contains("The router can't store these characters"), "{}", r.text());
-    assert!(r.text().contains("Use 8 to 63 characters"));
+    assert!(r.text().contains("路由器无法存储这些字符") || r.text().contains("路由器无法存储这些字符"), "{}", r.text());
+    assert!(r.text().contains("使用 8 至 63 个字符"));
 }
 
 /// The router's APN lists (made-up profiles; a password that must never
 /// reach a page).
 fn apn_device(mode: &str) -> device::Device {
     let list = json!({"apnListArray": [
-        {"profileId": "manu1", "profilename": "Fake Home", "wanapn": "home.fake.example", "pdpType": "3", "pppAuthMode": "1", "username": "fakeuser", "password": "FAKE-APN-PW", "isEnable": "1"},
-        {"profileId": "manu2", "profilename": "Fake Travel", "wanapn": "travel.fake.example", "pdpType": 1, "pppAuthMode": 0, "username": "", "password": "", "isEnable": "0"},
+        {"profileId": "manu1", "profilename": "假家", "wanapn": "home.fake.example", "pdpType": "3", "pppAuthMode": "1", "username": "fakeuser", "password": "FAKE-APN-PW", "isEnable": "1"},
+        {"profileId": "manu2", "profilename": "假旅行", "wanapn": "travel.fake.example", "pdpType": 1, "pppAuthMode": 0, "username": "", "password": "", "isEnable": "0"},
         {"profileId": "manu3", "profilename": "", "wanapn": ""},
     ]});
-    let auto = json!({"apnListArray": [{"profileId": "auto1", "profilename": "Fake Auto", "wanapn": "auto.fake.example", "pdpType": "3", "pppAuthMode": "0", "isEnable": "0"}]});
+    let auto = json!({"apnListArray": [{"profileId": "auto1", "profilename": "假汽车", "wanapn": "auto.fake.example", "pdpType": "3", "pppAuthMode": "0", "isEnable": "0"}]});
     device::Device {
         gets: vec![("/api/router/apn/mode", Ok(json!({"apn_mode": mode}))), ("/api/router/apn/profiles", Ok(list)), ("/api/router/apn/auto-profiles", Ok(auto))],
         ..Default::default()
@@ -404,7 +404,7 @@ async fn apn_list_sheets_and_changes() {
         "<h1>APN Settings</h1>", "<h2>Current APN</h2>", "<b>Fake Home</b>", "<h2>APN Mode</h2>",
         "<a class=\"sw\" href=\"/ui/router/apn/mode?manual=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"Manual APN\">",
         "<h2>Manual Profiles</h2>", "<a class=\"it bt\" href=\"/ui/router/apn/new\">", "<span>Add APN</span>", "href=\"/ui/router/apn/edit?id=manu1\"",
-        "<small class=\"c-green\">Active</small>", "IPv4v6 / PAP", "IPv4 / None", "href=\"/ui/router/apn/activate?id=manu2\"",
+        "<small class=\"c-green\">Active</small>", "IPv4v6/PAP", "IPv4/无", "href=\"/ui/router/apn/activate?id=manu2\"",
         "href=\"/ui/router/apn/delete?id=manu2\"",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -427,14 +427,14 @@ async fn apn_list_sheets_and_changes() {
     let r = get_with(&c, "/ui/router/apn/edit", peer(203, 2), &cookie).await;
     r.assert_secure_html(404);
     let html = r.text();
-    assert!(html.contains("APN not found") && html.contains("href=\"/ui/router/apn\">Back to APN Settings</a>"), "{html}");
+    assert!(html.contains("APN 未找到") && html.contains("href=\"/ui/router/apn\">Back to APN Settings</a>"), "{html}");
     assert!(!html.contains("<form class=\"rf apf\"") && !html.contains("action=\"/ui/router/apn/save\""), "{html}");
     let auto = get_with(&c, "/ui/router/apn/auto?id=auto1", peer(203, 2), &cookie).await.text();
     assert!(auto.contains("<h1>Auto APN</h1>") && auto.contains("auto.fake.example") && auto.contains("<span class=\"v\">Inactive</span>"), "{auto}");
     // Activate: asked (remote line), sent once.
     let q = get_with(&c, "/ui/router/apn/activate?id=manu2", tailnet(40203), &cookie).await;
     let html = q.text();
-    assert!(html.contains("<h2 class=\"q\">Use \u{201c}Fake Travel\u{201d}?</h2>") && html.contains("You are connected remotely") && html.contains(">Activate</button>"), "{html}");
+    assert!(html.contains("<h2 class=\"q\">Use \u{201c}Fake Travel\u{201d}?</h2>") && html.contains("您已远程连接") && html.contains(">Activate</button>"), "{html}");
     let csrf = q.input("csrf");
     let go = format!("csrf={csrf}&id=manu2&once={}&confirm=1", q.input("once"));
     let r = post(&c, "/ui/router/apn/activate", peer(203, 2), &cookie, &go).await;
@@ -451,7 +451,7 @@ async fn apn_list_sheets_and_changes() {
     let q = get_with(&c, "/ui/router/apn/delete?id=manu2", peer(203, 2), &cookie).await;
     let token = q.input("once");
     let r = post(&c, "/ui/router/apn/delete", peer(203, 2), &cookie, &format!("csrf={csrf}&id=manu1&once={token}&confirm=1")).await;
-    assert!(get_with(&c, &to(&r), peer(203, 2), &cookie).await.text().contains("Cannot delete the active APN"));
+    assert!(get_with(&c, &to(&r), peer(203, 2), &cookie).await.text().contains("无法删除活动的APN"));
     assert_eq!(calls(&c).len(), 1);
     // The mode: asked, then the app's body.
     let q = get_with(&c, "/ui/router/apn/mode?manual=0", peer(203, 2), &cookie).await;
@@ -460,24 +460,24 @@ async fn apn_list_sheets_and_changes() {
     assert_eq!(calls(&c).last().unwrap(), &("/api/router/apn/mode".to_owned(), json!({"apn_mode": 0})));
     // Edit with the password left empty: the stored one, merged on the router.
     let once = get_with(&c, "/ui/router/apn/edit?id=manu1", peer(203, 2), &cookie).await.input("once");
-    let fields = [("id", "manu1"), ("name", "Fake Home"), ("apn", "home2.fake.example"), ("pdp", "3"), ("auth", "1"), ("user", "fakeuser"), ("def", "1")];
+    let fields = [("id", "manu1"), ("name", "假家"), ("apn", "home2.fake.example"), ("pdp", "3"), ("auth", "1"), ("user", "fakeuser"), ("def", "1")];
     let r = post(&c, "/ui/router/apn/save", peer(203, 2), &cookie, &body(&csrf, &once, &fields)).await;
     let q = get_with(&c, &to(&r), peer(203, 2), &cookie).await;
     assert!(q.text().contains("<h2 class=\"q\">Save \u{201c}Fake Home\u{201d}?</h2>") && q.text().contains("href=\"/ui/router/apn/edit?id=manu1&amp;t="), "{}", q.text());
     let r = post(&c, "/ui/router/apn/save", peer(203, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
-    assert!(get_with(&c, &to(&r), peer(203, 2), &cookie).await.text().contains("APN updated"));
+    assert!(get_with(&c, &to(&r), peer(203, 2), &cookie).await.text().contains("APN更新"));
     assert_eq!(
         calls(&c).last().unwrap(),
-        &("/api/router/apn/profiles".to_owned(), json!({"profileId": "manu1", "profilename": "Fake Home", "wanapn": "home2.fake.example", "pdpType": 3,
+        &("/api/router/apn/profiles".to_owned(), json!({"profileId": "manu1", "profilename": "假家", "wanapn": "home2.fake.example", "pdpType": 3,
             "pppAuthMode": 1, "username": "fakeuser", "password": "FAKE-APN-PW"}))
     );
     // New APN: the app's checks.
     let once = get_with(&c, "/ui/router/apn/new", peer(203, 2), &cookie).await.input("once");
-    let r = post(&c, "/ui/router/apn/save", peer(203, 2), &cookie, &body(&csrf, &once, &[("name", "Fake Travel"), ("apn", "bad apn"), ("pdp", "3"), ("auth", "0")])).await;
+    let r = post(&c, "/ui/router/apn/save", peer(203, 2), &cookie, &body(&csrf, &once, &[("name", "假旅行"), ("apn", "bad apn"), ("pdp", "3"), ("auth", "0")])).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("An APN with this name already exists") && r.text().contains("Use up to 100 letters"), "{}", r.text());
+    assert!(r.text().contains("同名的 APN 已存在") && r.text().contains("最多使用 100 个字母"), "{}", r.text());
     let r = post(&c, "/ui/router/apn/save", peer(203, 2), &cookie, &body(&csrf, &once, &[("name", ""), ("apn", ""), ("pdp", "3"), ("auth", "0")])).await;
-    assert_eq!(r.text().matches("Name and APN are required").count(), 2);
+    assert_eq!(r.text().matches("姓名和APN为必填项").count(), 2);
 }
 
 /// LAN / DHCP: the start shown as an address; the checks; the question
@@ -493,7 +493,7 @@ async fn lan_checks_asks_and_links_the_new_address() {
     let html = r.text();
     for want in [
         "<h1>LAN / DHCP</h1>", "<h2>LAN</h2>", "name=\"ip\" value=\"192.168.0.1\"", "<h2>DHCP Server</h2>", "name=\"start\" value=\"192.168.0.100\"",
-        "name=\"end\" value=\"192.168.0.149\"", "name=\"lease\" value=\"12h\"", "Lease Time (seconds)",
+        "name=\"end\" value=\"192.168.0.149\"", "name=\"lease\" value=\"12h\"", "租用时间（秒）",
         // The range and lease time are hidden while DHCP is off (CSS).
         "<form class=\"rf lnf\"", "<li class=\"it fld dh\"><label for=\"start\">",
     ] {
@@ -503,16 +503,16 @@ async fn lan_checks_asks_and_links_the_new_address() {
     let fields = [("ip", "192.168.8.1"), ("mask", "255.255.255.0"), ("dhcp", "1"), ("start", "192.168.0.100"), ("end", "192.168.0.149"), ("lease", "12h")];
     let r = post(&c, LAN_APPLY, peer(204, 2), &cookie, &body(&csrf, &once, &fields)).await;
     r.assert_secure_html(400);
-    assert_eq!(r.text().matches("Use an address from 192.168.8.1 to 192.168.8.254.").count(), 2, "{}", r.text());
+    assert_eq!(r.text().matches("使用 192.168.8.1 到 192.168.8.254 之间的地址。").count(), 2, "{}", r.text());
     let fields = [("ip", "192.168.8.1"), ("mask", "255.255.255.0"), ("dhcp", "1"), ("start", "192.168.8.100"), ("end", "192.168.8.149"), ("lease", "12h")];
     let r = post(&c, LAN_APPLY, peer(204, 2), &cookie, &body(&csrf, &once, &fields)).await;
     let q = get_with(&c, &to(&r), peer(204, 2), &cookie).await;
     let html = q.text();
-    assert!(html.contains("The router\u{2019}s address changes from 192.168.0.1 to 192.168.8.1.") && html.contains("open http://192.168.8.1:9090/ui/ afterwards"), "{html}");
+    assert!(html.contains("路由器\u{2019}的地址从192.168.0.1更改为192.168.8.1。") && html.contains("open http://192.168.8.1:9090/ui/ afterwards"), "{html}");
     assert!(html.contains("disconnects for a moment, this browser too.") && !html.contains("connected remotely"), "{html}");
     // Over Tailscale: the address on the router's network, the remote line.
     let remote = get_with(&c, &to(&r), tailnet(40204), &cookie).await.text();
-    assert!(remote.contains("The router\u{2019}s address on its network changes from 192.168.0.1 to 192.168.8.1.") && !remote.contains("this browser too"), "{remote}");
+    assert!(remote.contains("路由器\u{2019}的网络地址从192.168.0.1更改为192.168.8.1。") && !remote.contains("this browser too"), "{remote}");
     assert!(remote.contains("You are connected remotely:") && !remote.contains("open http://"), "{remote}");
     let r = post(&c, LAN_APPLY, peer(204, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     let done = to(&r);
@@ -524,7 +524,7 @@ async fn lan_checks_asks_and_links_the_new_address() {
             "ignore": 0, "zte_start": "192.168.8.100", "zte_end": "192.168.8.149", "leasetime": "12h"}))]
     );
     let html = get_with(&c, &done, peer(204, 2), &cookie).await.text();
-    assert!(html.contains("LAN settings updated") && html.contains("<a class=\"btn\" href=\"http://192.168.8.1:9090/ui/\" rel=\"noreferrer\">Open 192.168.8.1</a>"), "{html}");
+    assert!(html.contains("局域网设置已更新") && html.contains("<a class=\"btn\" href=\"http://192.168.8.1:9090/ui/\" rel=\"noreferrer\">Open 192.168.8.1</a>"), "{html}");
 }
 
 /// DNS: the app's mode and sections from the DoH status; presets fill the
@@ -547,7 +547,7 @@ async fn dns_modes_presets_cache_and_clear() {
     for want in [
         "<h1>DNS Settings</h1>", "<h2>DNS Mode</h2>", "id=\"dm-doh\" name=\"mode\" value=\"doh\" checked", "Encrypt DNS queries over HTTPS.",
         "name=\"dns1\" value=\"9.9.9.9\"", "<h2>DoH Upstream</h2>", "name=\"url\" value=\"https://1.1.1.1/dns-query\"", "<h2>Quick Setup</h2>",
-        "href=\"/ui/router/dns?preset=google\"><span>Google (8.8.8.8)</span>", "Fills DNS fields. Tap Apply to save.", "<h2>DoH Cache</h2>",
+        "href=\"/ui/router/dns?preset=google\"><span>Google (8.8.8.8)</span>", "填充 DNS 字段。点击“应用”进行保存。", "<h2>DoH Cache</h2>",
         "<span>Hit Ratio</span><span class=\"v\">75.0%</span>", "href=\"/ui/router/dns/cache\">Inspect Cache</a>", "href=\"/ui/router/dns/cache-clear\">Clear Cache</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -557,14 +557,14 @@ async fn dns_modes_presets_cache_and_clear() {
     let (csrf, once) = (r.input("csrf"), r.input("once"));
     let r = post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &body(&csrf, &once, &[("mode", "custom"), ("dns1", ""), ("dns2", ""), ("url", "")])).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("Primary DNS cannot be empty"));
+    assert!(r.text().contains("主DNS不能为空"));
     // Custom while DoH runs: asked (it turns DoH off), then the app's two calls.
     let fields = [("mode", "custom"), ("dns1", "1.1.1.1"), ("dns2", "1.0.0.1"), ("url", "")];
     let r = post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &body(&csrf, &once, &fields)).await;
     let q = get_with(&c, &to(&r), peer(205, 2), &cookie).await;
     let html = q.text();
     assert!(html.contains("<h2 class=\"q\">Use custom DNS servers?</h2>") && html.contains("through 1.1.1.1 and 1.0.0.1") && html.contains("DNS over HTTPS turns off."), "{html}");
-    assert!(!html.contains("You are connected remotely"), "{html}");
+    assert!(!html.contains("您已远程连接"), "{html}");
     let r = post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     assert!(get_with(&c, &to(&r), peer(205, 2), &cookie).await.text().contains("<p class=\"msg ok\" role=\"status\">DNS set to Custom (1.1.1.1)</p>"));
     assert_eq!(
@@ -586,14 +586,14 @@ async fn dns_modes_presets_cache_and_clear() {
     let q = ask(vec![("mode", "doh"), ("dns1", "9.9.9.9"), ("dns2", ""), ("url", "https://1.1.1.1/dns-query")]).await;
     assert!(q.contains("<h2 class=\"q\">Nothing to apply</h2>") && !q.contains("name=\"confirm\""), "{q}");
     let q = ask(vec![("mode", "doh"), ("dns1", "1.1.1.1"), ("dns2", ""), ("url", "https://1.1.1.1/dns-query")]).await;
-    assert!(q.contains("<h2 class=\"q\">Change the DNS servers?</h2>") && q.contains("The router\u{2019}s DNS servers become 1.1.1.1.") && !q.contains("encrypted"), "{q}");
+    assert!(q.contains("<h2 class=\"q\">Change the DNS servers?</h2>") && q.contains("路由器\u{2019}的DNS服务器变为1.1.1.1。") && !q.contains("encrypted"), "{q}");
     // A remote browser: the router's own lookups use the new servers too.
     let once = get_with(&c, DNS, tailnet(40205), &cookie).await.input("once");
     let r = post(&c, "/ui/router/dns/apply", tailnet(40205), &cookie, &body(&csrf, &once, &[("mode", "custom"), ("dns1", "8.8.8.8"), ("dns2", ""), ("url", "")])).await;
     let q = get_with(&c, &to(&r), tailnet(40205), &cookie).await.text();
     assert!(
         q.contains("<h2 class=\"q\">Use custom DNS servers?</h2>")
-            && q.contains("You are connected remotely: the router\u{2019}s own lookups (Tailscale reconnects, SMS forwarding webhooks) use these servers too, so servers that can\u{2019}t be reached can cut remote access."),
+            && q.contains("您已远程连接：路由器\u{2019}自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达\u{2019}的服务器可以切断远程访问。"),
         "{q}"
     );
     // DoH: they go through the DoH server.
@@ -601,7 +601,7 @@ async fn dns_modes_presets_cache_and_clear() {
     let r = post(&c, "/ui/router/dns/apply", tailnet(40205), &cookie, &body(&csrf, &once, &[("mode", "doh"), ("dns1", "1.1.1.1"), ("url", "https://9.9.9.9/dns-query")])).await;
     let q = get_with(&c, &to(&r), tailnet(40205), &cookie).await.text();
     assert!(
-        q.contains("You are connected remotely: the router\u{2019}s own lookups (Tailscale reconnects, SMS forwarding webhooks) go through this DoH server too, so a server that can\u{2019}t be reached can cut remote access.")
+        q.contains("您已远程连接：路由器\u{2019}自己的查找（Tailscale重新连接、短信转发webhook）也经过此DoH服务器，因此可以到达\u{2019}的服务器可以切断远程访问。")
             && !q.contains("use these servers too"),
         "{q}"
     );
@@ -610,7 +610,7 @@ async fn dns_modes_presets_cache_and_clear() {
     let once = get_with(&c, DNS, peer(205, 2), &cookie).await.input("once");
     let r = post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &body(&csrf, &once, &[("mode", "doh"), ("dns1", "1.1.1.1"), ("url", "https://9.9.9.9/dns-query")])).await;
     let q = get_with(&c, &to(&r), peer(205, 2), &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">Change the DoH server?</h2>") && q.text().contains("The router\u{2019}s DNS servers become 1.1.1.1."), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">Change the DoH server?</h2>") && q.text().contains("路由器\u{2019}的DNS服务器变为1.1.1.1。"), "{}", q.text());
     assert!(!q.text().contains("connected remotely"), "{}", q.text());
     post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     let sent: Vec<String> = calls(&c).into_iter().map(|(p, _)| p).collect();
@@ -630,7 +630,7 @@ async fn dns_modes_presets_cache_and_clear() {
     assert!(found.text().contains("<h1>DNS Cache (11)</h1>") && !found.text().contains("site4.fake.example"), "{}", found.text());
     // Clear: asked, then the app's call and line.
     let q = get_with(&c, "/ui/router/dns/cache-clear", peer(205, 2), &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">Clear the DNS cache?</h2>") && q.text().contains("The 60 cached answers are removed"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">Clear the DNS cache?</h2>") && q.text().contains("删除 60 个缓存答案"), "{}", q.text());
     let r = post(&c, "/ui/router/dns/cache-clear", peer(205, 2), &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     assert!(get_with(&c, &to(&r), peer(205, 2), &cookie).await.text().contains("DNS cache cleared"));
     assert_eq!(calls(&c).last().unwrap().0, "/api/doh/cache/clear");
@@ -648,14 +648,14 @@ async fn sessions_tokens_and_logout() {
     let page = get_with(&c, WIFI, peer(206, 2), &cookie).await;
     let csrf = page.input("csrf");
     // An unknown token: nothing drafted.
-    let r = post(&c, WIFI_APPLY, peer(206, 2), &cookie, &body(&csrf, "00000000000000ff", &wifi_fields(&[("ssid_2g", "X-Fake")]))).await;
-    assert!(get_with(&c, &to(&r), peer(206, 2), &cookie).await.text().contains("This form expired, so nothing was sent."));
+    let r = post(&c, WIFI_APPLY, peer(206, 2), &cookie, &body(&csrf, "00000000000000ff", &wifi_fields(&[("ssid_2g", "X假货")]))).await;
+    assert!(get_with(&c, &to(&r), peer(206, 2), &cookie).await.text().contains("此表格已过期，因此未发送任何内容。"));
     // A question's post with another revision: nothing sent.
     let once = page.input("once");
     let r = post(&c, WIFI_APPLY, peer(206, 2), &cookie, &body(&csrf, &once, &wifi_fields(&[("key_2g", "another-fake-pass")]))).await;
     assert_eq!(r.status, 303);
     let r = post(&c, WIFI_APPLY, peer(206, 2), &cookie, &format!("csrf={csrf}&once={once}&d=0000000000000000&confirm=1")).await;
-    assert!(get_with(&c, &to(&r), peer(206, 2), &cookie).await.text().contains("This page expired, so nothing was sent."));
+    assert!(get_with(&c, &to(&r), peer(206, 2), &cookie).await.text().contains("该页面已过期，因此未发送任何内容。"));
     assert!(calls(&c).is_empty());
     assert!(c.drafts.get(&once, id, c.app.auth.now()).is_some());
     let logout = get_with(&c, "/ui/logout", peer(206, 2), &cookie).await.input("csrf");

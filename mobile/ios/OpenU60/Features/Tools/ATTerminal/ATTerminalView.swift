@@ -24,7 +24,7 @@ struct ATTerminalView: View {
     }()
 
     private var portAccessibilityLabel: String {
-        guard let port = viewModel.portName else { return "No port detected" }
+        guard let port = viewModel.portName else { return "未检测到端口" }
         return viewModel.portAvailable ? "Port \(port) available" : "Port \(port) unavailable"
     }
 
@@ -36,13 +36,13 @@ struct ATTerminalView: View {
                     .fill(viewModel.portAvailable ? .green : .red)
                     .frame(width: 10, height: 10)
                     .accessibilityHidden(true)
-                Text(viewModel.portName ?? "No port detected")
+                Text(viewModel.portName ?? "未检测到端口")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .accessibilityLabel(portAccessibilityLabel)
                 Spacer()
                 if !viewModel.history.isEmpty {
-                    Button("Clear") {
+                    Button("清除") {
                         viewModel.clearHistory()
                     }
                     .font(.caption)
@@ -82,9 +82,9 @@ struct ATTerminalView: View {
             // History
             if viewModel.history.isEmpty {
                 ContentUnavailableView {
-                    Label("No Commands Sent", systemImage: "terminal")
+                    Label("尚未发送命令", systemImage: "terminal")
                 } description: {
-                    Text("Enter an AT command below or tap a quick command above.")
+                    Text("在下面输入 AT 命令或点击上面的快捷命令。")
                 }
                 .frame(maxHeight: .infinity)
             } else {
@@ -104,12 +104,12 @@ struct ATTerminalView: View {
             VStack(spacing: 8) {
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
-                        Text("Timeout:")
+                        Text("超时：")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Stepper("\(viewModel.timeout)s", value: $viewModel.timeout, in: 1...30)
                             .labelsHidden()
-                            .accessibilityLabel("Command timeout in seconds")
+                            .accessibilityLabel("命令超时（以秒为单位）")
                         Text("\(viewModel.timeout)s")
                             .font(.caption.monospacedDigit())
                             .frame(width: 28, alignment: .trailing)
@@ -119,7 +119,7 @@ struct ATTerminalView: View {
                 .padding(.horizontal)
 
                 HStack(spacing: 8) {
-                    TextField("AT command...", text: $viewModel.currentCommand)
+                    TextField("AT命令...", text: $viewModel.currentCommand)
                         .textFieldStyle(.roundedBorder)
                         .font(.body.monospaced())
                         .textInputAutocapitalization(.characters)
@@ -138,23 +138,23 @@ struct ATTerminalView: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .accessibilityLabel("Send command")
+                    .accessibilityLabel("发送命令")
                     .disabled(viewModel.currentCommand.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isLoading)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 8)
             }
         }
-        .navigationTitle("AT Terminal")
+        .navigationTitle("AT 终端")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await viewModel.checkPort()
         }
-        .alert("Dangerous Command", isPresented: $viewModel.showDangerConfirm) {
-            Button("Cancel", role: .cancel) {
+        .alert("危险命令", isPresented: $viewModel.showDangerConfirm) {
+            Button("取消", role: .cancel) {
                 viewModel.pendingDangerousCommand = nil
             }
-            Button("Send Anyway", role: .destructive) {
+            Button("无论如何发送", role: .destructive) {
                 viewModel.confirmDangerousSend()
             }
         } message: {
@@ -179,7 +179,7 @@ struct ATTerminalView: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
-                .accessibilityLabel("Copy response")
+                .accessibilityLabel("复制回复")
             }
 
             // Response

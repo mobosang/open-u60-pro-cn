@@ -76,7 +76,7 @@ fun EnableADBScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Enable ADB") },
+                title = { Text("启用亚行") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -94,7 +94,7 @@ fun EnableADBScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             if (authState != AuthState.LOGGED_IN) {
-                Text("Login required to enable ADB")
+                Text("启用 ADB 需要登录")
                 return@Scaffold
             }
 
@@ -107,7 +107,7 @@ fun EnableADBScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "ADB Debug Mode Enabled",
+                    "ADB 调试模式启用",
                     style = MaterialTheme.typography.headlineSmall,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -126,7 +126,7 @@ fun EnableADBScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "Enable ADB Debug",
+                    "启用ADB调试",
                     style = MaterialTheme.typography.headlineSmall,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -158,7 +158,7 @@ fun EnableADBScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                     }
-                    Text("Enable ADB")
+                    Text("启用亚行")
                 }
             }
         }

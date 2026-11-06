@@ -15,25 +15,25 @@ struct LANSettingsView: View {
             }
 
             Section("LAN") {
-                TextField("IP Address", text: $viewModel.editLanIP)
+                TextField("IP地址", text: $viewModel.editLanIP)
                     .keyboardType(.decimalPad)
                     .autocorrectionDisabled()
-                TextField("Subnet Mask", text: $viewModel.editNetmask)
+                TextField("子网掩码", text: $viewModel.editNetmask)
                     .keyboardType(.decimalPad)
                     .autocorrectionDisabled()
             }
 
-            Section("DHCP Server") {
-                Toggle("Enable DHCP", isOn: $viewModel.editDhcpEnabled)
+            Section("DHCP服务器") {
+                Toggle("启用DHCP", isOn: $viewModel.editDhcpEnabled)
 
                 if viewModel.editDhcpEnabled {
-                    TextField("Start Address", text: $viewModel.editDhcpStart)
+                    TextField("起始地址", text: $viewModel.editDhcpStart)
                         .keyboardType(.decimalPad)
                         .autocorrectionDisabled()
-                    TextField("End Address", text: $viewModel.editDhcpEnd)
+                    TextField("结束地址", text: $viewModel.editDhcpEnd)
                         .keyboardType(.decimalPad)
                         .autocorrectionDisabled()
-                    TextField("Lease Time (seconds)", text: $viewModel.editLeaseTime)
+                    TextField("租用时间（秒）", text: $viewModel.editLeaseTime)
                         .keyboardType(.numberPad)
                 }
             }
@@ -42,7 +42,7 @@ struct LANSettingsView: View {
                 Button {
                     Task { await viewModel.apply() }
                 } label: {
-                    Text("Apply")
+                    Text("应用")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading)

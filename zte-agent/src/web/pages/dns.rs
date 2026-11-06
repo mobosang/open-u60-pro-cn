@@ -59,8 +59,8 @@ const PRESETS: [(&str, &str, &str, &str, &str); 3] = [
 ];
 
 const MODES: [(&str, &str, &str); 3] = [
-    ("auto", "Auto", "Use DNS servers assigned by your ISP."),
-    ("custom", "Custom", "Use custom DNS servers."),
+    ("auto", "自动", "Use DNS servers assigned by your ISP."),
+    ("custom", "自定义", "Use custom DNS servers."),
     ("doh", "DoH", "Encrypt DNS queries over HTTPS."),
 ];
 
@@ -191,7 +191,7 @@ pub fn page(pd: &PageData) -> Markup {
             (kit::section(Some("DNS Mode"), Some(footers), html! {
                 li.it.fld {
                     fieldset.chips {
-                        legend.sr { "Mode" }
+                        legend.sr { "模式" }
                         div {
                             @for (m, label, _) in MODES {
                                 label { input.sr type="radio" id=(format!("dm-{m}")) name="mode" value=(m) checked[m == mode]; span { (label) } }
@@ -201,31 +201,31 @@ pub fn page(pd: &PageData) -> Markup {
                 }
             }))
             div.dsv {
-                (kit::section(Some("DNS Servers"), None, html! {
-                    (text_row("dns1", "Primary", &typed("dns1", dns1), err("dns1"), "it fld", 15, Some("decimal")))
-                    (text_row("dns2", "Secondary", &typed("dns2", dns2), err("dns2"), "it fld", 15, Some("decimal")))
+                (kit::section(Some("DNS 服务器"), None, html! {
+                    (text_row("dns1", "首选", &typed("dns1", dns1), err("dns1"), "it fld", 15, Some("decimal")))
+                    (text_row("dns2", "备用", &typed("dns2", dns2), err("dns2"), "it fld", 15, Some("decimal")))
                 }))
             }
             div.doh {
-                (kit::section(Some("DoH Upstream"), None, text_row("url", "URL", &typed("url", url), err("url"), "it fld", 256, Some("url"))))
+                (kit::section(Some("DoH 上游服务器"), None, text_row("url", "URL", &typed("url", url), err("url"), "it fld", 256, Some("url"))))
             }
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Apply" } } }))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "应用" } } }))
         }
-        (kit::section(Some("Quick Setup"), Some(foot("Fills DNS fields. Tap Apply to save.")), html! {
+        (kit::section(Some("快速设置"), Some(foot("填充 DNS 字段。点击“应用”进行保存。")), html! {
             @for (key, label, ..) in PRESETS { li { a.it.bt href=(format!("{PATH}?preset={key}")) { span { (label) } } } }
         }))
         @if on {
-            (kit::section(Some("DoH Cache"), None, html! {
-                (kit::kv_row(None, "Entries", &entries.to_string()))
-                (kit::kv_row(None, "Hits", &hits.to_string()))
-                (kit::kv_row(None, "Misses", &misses.to_string()))
-                (kit::kv_row(None, "Hit Ratio", &format!("{ratio:.1}%")))
+            (kit::section(Some("DoH 缓存"), None, html! {
+                (kit::kv_row(None, "条目", &entries.to_string()))
+                (kit::kv_row(None, "命中次数", &hits.to_string()))
+                (kit::kv_row(None, "未命中次数", &misses.to_string()))
+                (kit::kv_row(None, "命中率", &format!("{ratio:.1}%")))
                 @if entries > 0 {
-                    li { a.it.bt href=(CACHE) { "Inspect Cache" } }
-                    li { a.it.bt href=(CLEAR) { "Clear Cache" } }
+                    li { a.it.bt href=(CACHE) { "检查缓存" } }
+                    li { a.it.bt href=(CLEAR) { "清除缓存" } }
                 } @else {
-                    li { span.it.bt aria-disabled="true" { "Inspect Cache" } }
-                    li { span.it.bt aria-disabled="true" { "Clear Cache" } }
+                    li { span.it.bt aria-disabled="true" { "检查缓存" } }
+                    li { span.it.bt aria-disabled="true" { "清除缓存" } }
                 }
             }))
         }
@@ -250,12 +250,12 @@ fn check_with(pairs: &[(String, String)], router: Option<Ipv4Addr>) -> Result<Va
     let mut errors: Vec<(&'static str, String)> = Vec::new();
     if mode != "auto" {
         if dns1.is_empty() {
-            errors.push(("dns1", "Primary DNS cannot be empty".into()));
+            errors.push(("dns1", "主DNS不能为空".into()));
         } else if !ipv4(&dns1) {
-            errors.push(("dns1", "Invalid primary DNS address".into()));
+            errors.push(("dns1", "无效的主 DNS 地址".into()));
         }
         if !dns2.is_empty() && !ipv4(&dns2) {
-            errors.push(("dns2", "Invalid secondary DNS address".into()));
+            errors.push(("dns2", "辅助 DNS 地址无效".into()));
         }
         for (name, s) in [("dns1", &dns1), ("dns2", &dns2)] {
             if let Some(e) = server_error(s, router) {
@@ -265,7 +265,7 @@ fn check_with(pairs: &[(String, String)], router: Option<Ipv4Addr>) -> Result<Va
     }
     if mode == "doh" {
         if url.is_empty() {
-            errors.push(("url", "DoH upstream URL cannot be empty".into()));
+            errors.push(("url", "DoH 上游 URL 不能为空".into()));
         } else {
             match url_host(&url) {
                 None => errors.push(("url", URL_FORMAT.into())),
@@ -284,8 +284,8 @@ fn check_with(pairs: &[(String, String)], router: Option<Ipv4Addr>) -> Result<Va
 /// For a remote browser: the router's own lookups use the new servers too
 /// (Custom), or the DoH server (DoH: dnsmasq forwards only to the DoH
 /// client then).
-const REMOTE: &str = "You are connected remotely: the router\u{2019}s own lookups (Tailscale reconnects, SMS forwarding webhooks) use these servers too, so servers that can\u{2019}t be reached can cut remote access.";
-const REMOTE_DOH: &str = "You are connected remotely: the router\u{2019}s own lookups (Tailscale reconnects, SMS forwarding webhooks) go through this DoH server too, so a server that can\u{2019}t be reached can cut remote access.";
+const REMOTE: &str = "您已远程连接：路由器\u{2019}自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达\u{2019}的服务器可以切断远程访问。";
+const REMOTE_DOH: &str = "您已远程连接：路由器\u{2019}自己的查找（Tailscale重新连接、短信转发webhook）也经过此DoH服务器，因此可以到达\u{2019}的服务器可以切断远程访问。";
 
 pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], remote: bool) -> Question {
     let doh = super::api_get(app, DOH_API).ok();
@@ -293,12 +293,12 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
     if kind == Kind::DnsClear {
         let n = doh.as_ref().and_then(|d| fmt::int(&d["stats"]["cache_entries"])).unwrap_or(0);
         return match (on, n) {
-            (false, _) => nothing("DNS over HTTPS is off", vec!["There is no cache to clear.".into()]),
-            (true, 0) => nothing("The DNS cache is empty", Vec::new()),
+            (false, _) => nothing("DNS over HTTPS 关闭", vec!["没有要清除的缓存。".into()]),
+            (true, 0) => nothing("DNS 缓存为空", Vec::new()),
             _ => asking(
-                "Clear the DNS cache?",
-                vec![format!("The {n} cached answers are removed; the next lookups ask the DoH server again.")],
-                "Clear Cache",
+                "清除DNS缓存？",
+                vec![format!("{n} 缓存的答案被删除；下一次查找再次询问 DoH 服务器。")],
+                "清除缓存",
                 false,
                 false,
             ),
@@ -319,16 +319,16 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         _ => on && same_url && manual == Some(true) && same_servers,
     };
     if unchanged {
-        return nothing("Nothing to apply", vec!["These are the router\u{2019}s settings already.".into()]);
+        return nothing("没有什么可申请的", vec!["这些已经是 router\u{2019} 的设置。".into()]);
     }
     let mut lines: Vec<String> = Vec::new();
     let title = match mode {
         "auto" => {
-            lines.push("Devices on the router use the DNS servers your operator assigns.".into());
-            "Switch DNS to Auto?"
+            lines.push("路由器上的设备使用运营商分配的 DNS 服务器。".into());
+            "将 DNS 切换为自动？"
         }
         "custom" => {
-            lines.push(format!("Devices on the router look up names through {servers}."));
+            lines.push(format!("路由器上的设备通过{servers}查找名称。"));
             lines.push("If these servers don\u{2019}t answer, websites stop loading for devices on the router until DNS is changed back.".into());
             "Use custom DNS servers?"
         }
@@ -360,7 +360,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
     if remote && mode != "auto" {
         lines.push(if mode == "custom" { REMOTE } else { REMOTE_DOH }.into());
     }
-    asking(title, lines, "Apply", false, false)
+    asking(title, lines, "应用", false, false)
 }
 
 pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: &mut Claim) -> Result<Done, (u16, String)> {
@@ -462,12 +462,12 @@ pub fn cache(pd: &PageData) -> Markup {
         form.srch method="post" action=(CACHE) role="search" {
             (pd.csrf())
             input type="search" name="q" value=(q) placeholder="Filter by domain" aria-label="Filter by domain" autocomplete="off" maxlength="64";
-            button.btn.sm type="submit" { "Search" }
-            @if !q.is_empty() { a.nl href=(CACHE) { "Cancel" } }
+            button.btn.sm type="submit" { "搜索" }
+            @if !q.is_empty() { a.nl href=(CACHE) { "取消" } }
         }
         @if entries.is_empty() {
             @let (title, sub) = match (on, q.is_empty()) {
-                (false, _) => ("DNS over HTTPS is off", "The cache fills while it runs."),
+                (false, _) => ("DNS over HTTPS 关闭", "The cache fills while it runs."),
                 (true, false) => ("No matches", "No cached domain contains this text."),
                 (true, true) => ("No cached entries", "Answers appear here as devices look up names."),
             };
@@ -480,12 +480,12 @@ pub fn cache(pd: &PageData) -> Markup {
             }))
             @if entries.len() > n {
                 @if q.is_empty() {
-                    p.ctr { a.btn.btn-quiet href=(more) { "Load More" } }
+                    p.ctr { a.btn.btn-quiet href=(more) { "加载更多" } }
                 } @else {
                     form.ctr method="post" action=(more) {
                         (pd.csrf())
                         input type="hidden" name="q" value=(q);
-                        button.btn.btn-quiet type="submit" { "Load More" }
+                        button.btn.btn-quiet type="submit" { "加载更多" }
                     }
                 }
             }
@@ -512,10 +512,10 @@ mod tests {
     #[test]
     fn the_apps_messages_then_the_url() {
         assert!(errors("mode=auto&dns1=&dns2=x&url=").is_empty());
-        assert_eq!(errors("mode=custom&dns1=&dns2=&url="), [("dns1", "Primary DNS cannot be empty".to_owned())]);
-        assert_eq!(errors("mode=custom&dns1=1.1.1&dns2=&url="), [("dns1", "Invalid primary DNS address".to_owned())]);
-        assert_eq!(errors("mode=custom&dns1=1.1.1.1&dns2=x&url="), [("dns2", "Invalid secondary DNS address".to_owned())]);
-        assert_eq!(errors("mode=doh&dns1=1.1.1.1&dns2=&url="), [("url", "DoH upstream URL cannot be empty".to_owned())]);
+        assert_eq!(errors("mode=custom&dns1=&dns2=&url="), [("dns1", "主DNS不能为空".to_owned())]);
+        assert_eq!(errors("mode=custom&dns1=1.1.1&dns2=&url="), [("dns1", "无效的主 DNS 地址".to_owned())]);
+        assert_eq!(errors("mode=custom&dns1=1.1.1.1&dns2=x&url="), [("dns2", "辅助 DNS 地址无效".to_owned())]);
+        assert_eq!(errors("mode=doh&dns1=1.1.1.1&dns2=&url="), [("url", "DoH 上游 URL 不能为空".to_owned())]);
         for bad in ["http://1.1.1.1/dns-query", "https://", "https:///x", "https://a b"] {
             assert_eq!(errors(&format!("mode=doh&dns1=1.1.1.1&url={}", crate::web::session::percent_encode(bad))).len(), 1, "{bad}");
         }

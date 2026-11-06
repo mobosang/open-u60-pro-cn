@@ -27,7 +27,7 @@ fun CellLockScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Cell Lock") },
+                title = { Text("小区锁定") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -71,7 +71,7 @@ fun CellLockScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Locked Cell", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("锁定单元格", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(8.dp))
                             if (state.status.nrPCI.isNotBlank()) {
                                 InfoRow("NR PCI", state.status.nrPCI)
@@ -89,7 +89,7 @@ fun CellLockScreen(
                 // Lock controls
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Lock to Cell", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("锁定单元格", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text("NR (5G)", style = MaterialTheme.typography.labelLarge)
@@ -111,7 +111,7 @@ fun CellLockScreen(
                             OutlinedTextField(
                                 value = state.nrBand,
                                 onValueChange = { viewModel.updateField("nrBand", it) },
-                                label = { Text("Band") },
+                                label = { Text("频段") },
                                 modifier = Modifier.weight(1f),
                                 singleLine = true,
                             )
@@ -142,13 +142,13 @@ fun CellLockScreen(
                                 onClick = { viewModel.lockCell() },
                                 enabled = !state.isLoading,
                                 modifier = Modifier.weight(1f),
-                            ) { Text("Lock") }
+                            ) { Text("锁") }
                             OutlinedButton(
                                 onClick = { viewModel.unlockCell() },
                                 enabled = !state.isLoading && state.status.locked,
                                 modifier = Modifier.weight(1f),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                            ) { Text("Unlock") }
+                            ) { Text("解锁") }
                         }
                     }
                 }
@@ -156,13 +156,13 @@ fun CellLockScreen(
                 // Neighbor scan
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Neighbor Cells", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("邻区", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
                             onClick = { viewModel.scanNeighbors() },
                             enabled = !state.isLoading,
                             modifier = Modifier.fillMaxWidth(),
-                        ) { Text("Scan Neighbors") }
+                        ) { Text("扫描邻居") }
 
                         if (state.neighbors.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(8.dp))
@@ -176,8 +176,8 @@ fun CellLockScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                     ) {
                                         Column {
-                                            Text("PCI: ${cell.pci}  EARFCN: ${cell.earfcn}", fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
-                                            Text("Band: ${cell.band}  RSRP: ${cell.rsrp}", fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
+                                            Text("PCI：${cell.pci} EARFCN：${cell.earfcn}", fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
+                                            Text("频段：${cell.band} RSRP：${cell.rsrp}", fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
                                         }
                                     }
                                 }

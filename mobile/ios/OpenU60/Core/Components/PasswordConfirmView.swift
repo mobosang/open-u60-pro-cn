@@ -21,7 +21,7 @@ struct PasswordConfirmView: View {
                 }
 
                 Section {
-                    SecureField("Router Password", text: $password)
+                    SecureField("路由器管理密码", text: $password)
                         .textContentType(.password)
                         .autocorrectionDisabled()
                 }
@@ -55,7 +55,7 @@ struct PasswordConfirmView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }
@@ -63,7 +63,7 @@ struct PasswordConfirmView: View {
 
     private func confirm() async {
         guard let storedPassword = KeychainHelper.load(key: "router_password") else {
-            error = "No stored password found. Please log in again."
+            error = "未找到存储的密码。请重新登录。"
             return
         }
 

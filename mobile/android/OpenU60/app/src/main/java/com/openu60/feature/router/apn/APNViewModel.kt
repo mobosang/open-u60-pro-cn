@@ -93,7 +93,7 @@ class APNViewModel @Inject constructor(
             .filter { it.id != profile.id }
             .map { it.name.lowercase() }
         if (profile.name.lowercase() in existingNames) {
-            _state.value = _state.value.copy(message = "Profile name already exists", messageIsError = true)
+            _state.value = _state.value.copy(message = "配置文件名称已存在", messageIsError = true)
             return
         }
 
@@ -114,7 +114,7 @@ class APNViewModel @Inject constructor(
                 } else {
                     agentClient.postJSON("/api/modem/apn/profile", params)
                 }
-                _state.value = _state.value.copy(showForm = false, editingProfile = null, isLoading = false, message = "Profile saved", messageIsError = false)
+                _state.value = _state.value.copy(showForm = false, editingProfile = null, isLoading = false, message = "配置文件已保存", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) saveProfile() else setError(e.message)
@@ -129,7 +129,7 @@ class APNViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.deleteJSON("/api/modem/apn/profile", mapOf("profileId" to id))
-                _state.value = _state.value.copy(isLoading = false, message = "Profile deleted", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "配置文件已删除", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) deleteProfile(id) else setError(e.message)
@@ -144,7 +144,7 @@ class APNViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.putJSON("/api/modem/apn/activate", mapOf("profileId" to id))
-                _state.value = _state.value.copy(isLoading = false, message = "Profile activated", messageIsError = false)
+                _state.value = _state.value.copy(isLoading = false, message = "已激活配置文件", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) activateProfile(id) else setError(e.message)

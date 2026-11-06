@@ -31,7 +31,7 @@ struct TabBarView: View {
             DashboardView(viewModel: dashboardVM, isAuthenticated: authManager.isAuthenticated,
                          client: client, authManager: authManager)
                 .tabItem {
-                    Label("Dashboard", systemImage: "gauge.with.needle")
+                    Label("仪表盘", systemImage: "gauge.with.needle")
                 }
                 .tag(Tab.dashboard)
 
@@ -43,19 +43,19 @@ struct TabBarView: View {
 
             ToolsListView(client: client, authManager: authManager)
                 .tabItem {
-                    Label("Tools", systemImage: "wrench.and.screwdriver")
+                    Label("工具", systemImage: "wrench.and.screwdriver")
                 }
                 .tag(Tab.tools)
 
             RouterSettingsListView(client: client, authManager: authManager)
                 .tabItem {
-                    Label("Router", systemImage: "wifi.router")
+                    Label("路由器", systemImage: "wifi.router")
                 }
                 .tag(Tab.router)
 
             SettingsView(client: client)
                 .tabItem {
-                    Label("Settings", systemImage: "gearshape")
+                    Label("设置", systemImage: "gearshape")
                 }
                 .tag(Tab.settings)
         }

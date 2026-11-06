@@ -67,7 +67,7 @@ struct OpenU60App: App {
                 Text("ZTE U60 Pro")
                     .font(.title.bold())
                 ProgressView()
-                    .accessibilityLabel("Signing in")
+                    .accessibilityLabel("登录")
             }
             .task {
                 if KeychainHelper.load(key: "router_password") != nil {

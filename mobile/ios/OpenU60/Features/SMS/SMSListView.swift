@@ -28,7 +28,7 @@ struct SMSListView: View {
     var body: some View {
         NavigationStack {
             List {
-                Picker("Storage", selection: Binding(
+                Picker("存储", selection: Binding(
                     get: { viewModel.storageFilter },
                     set: { newValue in
                         viewModel.storageFilter = newValue
@@ -53,7 +53,7 @@ struct SMSListView: View {
                 if viewModel.capacity.nvTotal > 0 {
                     Section {
                         HStack {
-                            Text("Storage")
+                            Text("存储")
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Text("\(viewModel.capacity.nvUsed)/\(viewModel.capacity.nvTotal)")
@@ -72,13 +72,13 @@ struct SMSListView: View {
                             Button(role: .destructive) {
                                 Task { await viewModel.deleteConversation(conversation) }
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label("删除", systemImage: "trash")
                             }
                         }
                     }
                 }
             }
-            .navigationTitle("Messages")
+            .navigationTitle("短信")
             .navigationDestination(for: String.self) { conversationId in
                 if let conversation = viewModel.conversations.first(where: { $0.id == conversationId }) {
                     SMSConversationView(viewModel: viewModel, conversation: conversation)
@@ -91,7 +91,7 @@ struct SMSListView: View {
                     } label: {
                         Image(systemName: "gearshape")
                     }
-                    .accessibilityLabel("SMS Forwarding")
+                    .accessibilityLabel("短信转发")
                 }
                 ToolbarItem(placement: .primaryAction) {
                     HStack(spacing: 24) {
@@ -100,13 +100,13 @@ struct SMSListView: View {
                         } label: {
                             Image(systemName: "phone")
                         }
-                        .accessibilityLabel("Call")
+                        .accessibilityLabel("呼叫")
                         Button {
                             showCompose = true
                         } label: {
                             Image(systemName: "square.and.pencil")
                         }
-                        .accessibilityLabel("New Message")
+                        .accessibilityLabel("新建短信")
                     }
                 }
             }
@@ -117,9 +117,9 @@ struct SMSListView: View {
                     ProgressView()
                 } else if !viewModel.isLoading && viewModel.conversations.isEmpty && viewModel.error == nil {
                     ContentUnavailableView(
-                        "No Messages",
+                        "暂无短信",
                         systemImage: "message",
-                        description: Text("SMS messages will appear here")
+                        description: Text("SMS消息将出现在这里")
                     )
                 } else if filteredConversations.isEmpty && !searchText.isEmpty {
                     ContentUnavailableView.search(text: searchText)

@@ -23,15 +23,15 @@ struct TemperatureSensor: Equatable, Identifiable {
     let temperatureC: Double?
 
     var label: String {
-        if name.hasPrefix("cpuss-") { return "CPU sensor " + name.dropFirst(6) }
-        if name.hasPrefix("sys-therm-") { return "Board sensor " + name.dropFirst(10) }
+        if name.hasPrefix("cpuss-") { return "CPU传感器 " + name.dropFirst(6) }
+        if name.hasPrefix("sys-therm-") { return "板传感器 " + name.dropFirst(10) }
         switch name {
-        case "battery": return "Battery"
+        case "battery": return "电池"
         case "usb": return "USB"
-        case "pmx75_tz": return "Power chip · PMX75"
-        case "pmg1110_tz": return "Power chip · PMG1110"
-        case "pm7550ba_tz": return "Power chip · PM7550BA"
-        case "xo-therm": return "Crystal oscillator"
+        case "pmx75_tz": return "电源芯片·PMX75"
+        case "pmg1110_tz": return "电源芯片·PMG1110"
+        case "pm7550ba_tz": return "电源芯片·PM7550BA"
+        case "xo-therm": return "晶体振荡器"
         default: return name
         }
     }
@@ -479,7 +479,7 @@ enum DeviceParser {
         case "sae-mixed", "sae+psk2": return "WPA2/3"
         case "psk-mixed", "psk+psk2": return "WPA/2"
         case "psk": return "WPA"
-        case "none", "": return "Open"
+        case "none", "": return "打开"
         default: return raw.uppercased()
         }
     }

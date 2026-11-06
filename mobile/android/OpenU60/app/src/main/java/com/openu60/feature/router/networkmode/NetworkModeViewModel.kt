@@ -60,7 +60,7 @@ class NetworkModeViewModel @Inject constructor(
                             _state.value = _state.value.copy(
                                 config = config,
                                 isLoading = false,
-                                message = "Network mode updated",
+                                message = "网络模式更新",
                                 messageIsError = false,
                             )
                             return@launch
@@ -70,7 +70,7 @@ class NetworkModeViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     config = _state.value.config.copy(netSelect = value),
                     isLoading = false,
-                    message = "Mode change sent",
+                    message = "已发送模式更改",
                     messageIsError = false,
                 )
             } catch (e: AgentError.Unauthorized) {

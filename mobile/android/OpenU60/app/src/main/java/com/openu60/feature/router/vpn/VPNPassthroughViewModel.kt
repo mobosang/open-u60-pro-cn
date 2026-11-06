@@ -50,7 +50,7 @@ class VPNPassthroughViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, message = null)
             try {
                 agentClient.putJSON("/api/vpn/passthrough", mapOf(field to if (value) "1" else "0"))
-                _state.value = _state.value.copy(message = "Updated", messageIsError = false)
+                _state.value = _state.value.copy(message = "更新", messageIsError = false)
                 refresh()
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) toggle(field, value) else setError(e.message)

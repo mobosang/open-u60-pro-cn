@@ -16,18 +16,18 @@ pub enum Tab {
 }
 
 const TABS: [(Tab, &str, &str, Icon); 5] = [
-    (Tab::Dashboard, "/ui/", "Dashboard", Icon::Gauge),
+    (Tab::Dashboard, "/ui/", "仪表盘", Icon::Gauge),
     (Tab::Sms, "/ui/sms", "SMS", Icon::Message),
-    (Tab::Tools, "/ui/tools", "Tools", Icon::Tools),
-    (Tab::Router, "/ui/router", "Router", Icon::Router),
-    (Tab::Settings, "/ui/settings", "Settings", Icon::Gear),
+    (Tab::Tools, "/ui/tools", "工具", Icon::Tools),
+    (Tab::Router, "/ui/router", "路由器", Icon::Router),
+    (Tab::Settings, "/ui/settings", "设置", Icon::Gear),
 ];
 
 /// The tab bar (after `main` in the DOM; CSS floats it at the bottom on
 /// phones and puts it under the nav bar on wide screens).
 pub fn tab_bar(cur: Tab) -> Markup {
     html! {
-        nav.tabs aria-label="Tabs" {
+        nav.tabs aria-label="标签" {
             @for (tab, href, label, i) in TABS {
                 a href=(href) aria-current=[(tab == cur).then_some("page")] { (icon(i)) span { (label) } }
             }
@@ -252,7 +252,7 @@ pub fn icon(i: Icon) -> Markup {
 pub fn signal_bars(bars: i64) -> Markup {
     let n = bars.clamp(0, 5);
     let lit = (n * 4 + 4) / 5;
-    let label = format!("Signal {n} of 5");
+    let label = format!("信号 {n} 为 5");
     html! {
         svg.i.bars viewBox="0 0 24 24" role="img" aria-label=(label) {
             @for (i, (x, y, h)) in [("3", "15", "5"), ("8", "11.5", "8.5"), ("13", "8", "12"), ("18", "4.5", "15.5")].into_iter().enumerate() {
@@ -286,7 +286,7 @@ pub fn icon_link(href: &str, i: Icon, label: &str) -> Markup {
 
 /// "Done": the nav bar's way back from a sheet.
 pub fn done(href: &str) -> Markup {
-    html! { a.nl href=(href) { "Done" } }
+    html! { a.nl href=(href) { "完成" } }
 }
 
 /// A card with an icon heading. With `href` the whole card is a link to
@@ -367,9 +367,9 @@ pub fn switch_row(csrf: &Markup, label: &str, state: Option<bool>, on: Act, off:
                 Some(true) => (act(csrf, &off, "sw", Some(true), label, "")),
                 Some(false) => (act(csrf, &on, "sw", Some(false), label, "")),
                 None => {
-                    span.v { "Unavailable" }
-                    (act(csrf, &on, "btn sm", None, &format!("Turn on {label}"), "On"))
-                    (act(csrf, &off, "btn sm", None, &format!("Turn off {label}"), "Off"))
+                    span.v { "不可用" }
+                    (act(csrf, &on, "btn sm", None, &format!("开启{label}"), "On"))
+                    (act(csrf, &off, "btn sm", None, &format!("关闭{label}"), "关闭"))
                 }
             }
         }

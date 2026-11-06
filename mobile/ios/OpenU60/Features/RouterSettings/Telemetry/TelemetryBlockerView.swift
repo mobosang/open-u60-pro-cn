@@ -14,7 +14,7 @@ struct TelemetryBlockerView: View {
                 }
             }
 
-            Section("Domain Filter") {
+            Section("域过滤器") {
                 LabeledContent("Status") {
                     Text(viewModel.filterConfig.enabled ? "Enabled" : "Disabled")
                         .foregroundStyle(viewModel.filterConfig.enabled ? .green : .secondary)
@@ -26,8 +26,8 @@ struct TelemetryBlockerView: View {
                 .disabled(viewModel.isLoading)
             }
 
-            Section("Quick Actions") {
-                Button("Block All ZTE Telemetry") {
+            Section("快速行动") {
+                Button("阻止所有 ZTE 遥测") {
                     Task { await viewModel.blockAllTelemetry() }
                 }
                 .disabled(viewModel.isLoading)
@@ -46,23 +46,23 @@ struct TelemetryBlockerView: View {
 
             Section {
                 HStack {
-                    TextField("Domain to block", text: $viewModel.newDomain)
+                    TextField("要阻止的域", text: $viewModel.newDomain)
                         .keyboardType(.URL)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
 
-                    Button("Add") {
+                    Button("添加") {
                         Task { await viewModel.addDomain(viewModel.newDomain) }
                     }
                     .disabled(viewModel.newDomain.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isLoading)
                 }
             } header: {
-                Text("Add Custom Domain")
+                Text("添加自定义域")
             }
 
             if !viewModel.filterConfig.rules.isEmpty {
-                Section("Blocked Domains") {
+                Section("被阻止的域") {
                     ForEach(viewModel.filterConfig.rules) { rule in
                         HStack {
                             VStack(alignment: .leading) {
@@ -84,7 +84,7 @@ struct TelemetryBlockerView: View {
                 }
             }
         }
-        .navigationTitle("Telemetry Blocker")
+        .navigationTitle("遥测拦截")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

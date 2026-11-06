@@ -58,7 +58,7 @@ async fn turn_on_from_settings_once() {
     let cookie = format!("zte_ui_session={}", login(&c, 230, 1).await);
     let p = peer(230, 2);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    for want in ["<h2>HTTPS &amp; Install as App</h2>", "<span>HTTPS</span><span class=\"v\">Off</span>", "href=\"/ui/settings/https/on\"", "Turn On HTTPS", "on port 9443"] {
+    for want in ["<h2>HTTPS &amp; Install as App</h2>", "<span>HTTPS</span><span class=\"v\">Off</span>", "href=\"/ui/settings/https/on\"", "开启HTTPS", "on port 9443"] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // The question: what happens, the router's clock (not checked), the token.
@@ -69,8 +69,8 @@ async fn turn_on_from_settings_once() {
         "Turn on HTTPS?",
         "its LAN address and u60.home.arpa",
         "never for other websites",
-        "It could not be checked over the internet",
-        "Plain http on port 9090 keeps working",
+        "无法通过互联网查看",
+        "端口 9090 上的纯 http 继续工作",
         "name=\"confirm\" value=\"1\"",
         ">Turn On HTTPS</button>",
     ] {
@@ -91,7 +91,7 @@ async fn turn_on_from_settings_once() {
     assert_eq!(c.app.tls.ca_der().unwrap(), ca);
     // Another session's token, or none: expired, nothing done.
     let r = post(&c, ON, p, &cookie, &format!("csrf={}&once=00112233aabbccdd&confirm=1", get_with(&c, SETTINGS, p, &cookie).await.input("csrf"))).await;
-    assert!(line(&c, &r, p, &cookie).await.contains("This page expired, so nothing was changed."));
+    assert!(line(&c, &r, p, &cookie).await.contains("该页面已过期，因此没有任何更改。"));
     // On: the addresses, Install on Your Devices, Reset; the http hint.
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
     for want in [
@@ -110,13 +110,13 @@ async fn turn_on_from_settings_once() {
     assert!(!html.contains(RENEW));
     // Over HTTPS: no hint; over Tailscale (loopback): no hint either.
     let html = get_secure(&c, SETTINGS, p, &cookie).await.text();
-    assert!(html.contains("You are using HTTPS.") && !html.contains("This page is plain http"));
+    assert!(html.contains("您正在使用 HTTPS。") && !html.contains("This page is plain http"));
     let html = get_with(&c, SETTINGS, Peer(SocketAddr::from(([127, 0, 0, 1], 40100))), &cookie).await.text();
-    assert!(!html.contains("This page is plain http") && !html.contains("You are using HTTPS."));
+    assert!(!html.contains("This page is plain http") && !html.contains("您正在使用 HTTPS。"));
     // On but not listening (a bind that failed): the question offers to
     // listen again, and its post tells the listener.
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("Listen again?") && html.contains(">Try Again</button>"), "{html}");
+    assert!(html.contains("再听一遍？") && html.contains(">Try Again</button>"), "{html}");
     let mut on = c.app.tls.subscribe();
     on.borrow_and_update();
     let (r, _) = confirm(&c, ON, p, &cookie).await;
@@ -230,15 +230,15 @@ async fn install_page_shows_the_ca_and_the_steps() {
         &format!("href=\"{DOWNLOAD_PROFILE}\""),
         &format!("href=\"{DOWNLOAD_CRT}\""),
         "<h2>iPhone and iPad</h2>",
-        "Certificate Trust Settings",
+        "证书信任设置",
         "<h2>Android</h2>",
-        "Install a certificate",
+        "安装证书",
         "<h2>Mac</h2>",
         "Always Trust",
         "<h2>Windows</h2>",
-        "Trusted Root Certification Authorities",
+        "受信任的根证书颁发机构",
         "href=\"https://u60.home.arpa:9443/console/\"",
-        "Add to Home Screen",
+        "添加到主屏幕",
         "Private DNS",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -310,7 +310,7 @@ async fn login_page_hint() {
         if secure { b.extension(Secure) } else { b }.body(Body::empty()).unwrap()
     };
     let r = send(&c, by_name(false)).await;
-    assert_eq!((r.status, r.text().as_str()), (403, "Host not allowed"));
+    assert_eq!((r.status, r.text().as_str()), (403, "主机不允许"));
     let r = send(&c, by_name(true)).await;
     assert!(r.status == 200 && !r.text().contains("To install"));
     // A failed login keeps it.

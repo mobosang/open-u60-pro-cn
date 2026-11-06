@@ -16,10 +16,10 @@ struct EnableADBView: View {
                 .font(.system(size: 64))
                 .foregroundStyle(.blue)
 
-            Text("Enable ADB Debug")
+            Text("启用ADB调试")
                 .font(.title2.bold())
 
-            Text("Sets the USB mode to debug, enabling ADB access over USB-C.")
+            Text("设置 USB 模式进行调试，允许通过 USB-C 进行 ADB 访问。")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -41,7 +41,7 @@ struct EnableADBView: View {
                         ProgressView()
                             .tint(.white)
                     } else {
-                        Label("Enable ADB", systemImage: "power")
+                        Label("启用亚行", systemImage: "power")
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -54,7 +54,7 @@ struct EnableADBView: View {
             Spacer()
             Spacer()
         }
-        .navigationTitle("Enable ADB")
+        .navigationTitle("启用亚行")
     }
 
     private func enableADB() async {

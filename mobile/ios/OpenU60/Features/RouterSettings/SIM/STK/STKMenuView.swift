@@ -22,7 +22,7 @@ struct STKMenuView: View {
 
             stkSection
         }
-        .navigationTitle("SIM Services")
+        .navigationTitle("SIM 服务")
         .overlay {
             if viewModel.isLoading {
                 ProgressView()
@@ -38,7 +38,7 @@ struct STKMenuView: View {
     private var ussdSection: some View {
         Section {
             HStack {
-                TextField("USSD code (e.g. *100#)", text: $viewModel.ussdCode)
+                TextField("USSD 代码（例如 *100#）", text: $viewModel.ussdCode)
                     .keyboardType(.phonePad)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
@@ -53,12 +53,12 @@ struct STKMenuView: View {
         } header: {
             Text("USSD")
         } footer: {
-            Text("Send carrier service codes to check balance, data plans, etc.")
+            Text("发送运营商服务代码以检查余额、数据计划等。")
         }
     }
 
     private var ussdResponseSection: some View {
-        Section("Response") {
+        Section("回应") {
             Text(viewModel.ussdResponse.response.isEmpty
                  ? viewModel.ussdResponse.rawResponse
                  : viewModel.ussdResponse.response)
@@ -67,7 +67,7 @@ struct STKMenuView: View {
 
             if viewModel.ussdResponse.sessionActive {
                 HStack {
-                    TextField("Reply", text: $viewModel.ussdReply)
+                    TextField("回复", text: $viewModel.ussdReply)
                         .keyboardType(.phonePad)
 
                     Button {
@@ -81,7 +81,7 @@ struct STKMenuView: View {
                 Button(role: .destructive) {
                     Task { await viewModel.cancelUSSD() }
                 } label: {
-                    Label("End Session", systemImage: "xmark.circle")
+                    Label("结束会议", systemImage: "xmark.circle")
                 }
             }
         }
@@ -106,39 +106,39 @@ struct STKMenuView: View {
             if viewModel.stkType == "input" {
                 if viewModel.stkYesNo {
                     HStack {
-                        Button("Yes") { Task { await viewModel.respondSTK(yes: true) } }
+                        Button("是的") { Task { await viewModel.respondSTK(yes: true) } }
                         Spacer()
                         Button("No") { Task { await viewModel.respondSTK(yes: false) } }
                     }
                 } else {
                     Group {
                         if viewModel.stkHidden {
-                            SecureField("SIM response", text: $viewModel.stkReply)
+                            SecureField("SIM 回应", text: $viewModel.stkReply)
                         } else {
-                            TextField("SIM response", text: $viewModel.stkReply)
+                            TextField("SIM 回应", text: $viewModel.stkReply)
                         }
                     }
                     .keyboardType(viewModel.stkDigitsOnly ? .phonePad : .default)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
-                    Text("Enter \(viewModel.stkMin)–\(viewModel.stkMax) characters")
+                    Text("输入\(viewModel.stkMin)–\(viewModel.stkMax)字符")
                         .font(.caption).foregroundStyle(.secondary)
-                    Button("Send Response") { Task { await viewModel.respondSTK() } }
+                    Button("发送响应") { Task { await viewModel.respondSTK() } }
                 }
             } else if viewModel.stkType == "display" {
-                Button("Continue") { Task { await viewModel.respondSTK() } }
+                Button("继续") { Task { await viewModel.respondSTK() } }
             }
             if !viewModel.stkRootMenu && viewModel.stkType != "status" {
-                Button("Back") { Task { await viewModel.goBackSTK() } }
-                Button("End SIM Session", role: .destructive) { Task { await viewModel.cancelSTK() } }
+                Button("返回") { Task { await viewModel.goBackSTK() } }
+                Button("结束 SIM 会话", role: .destructive) { Task { await viewModel.cancelSTK() } }
             }
             if viewModel.stkMenu.items.isEmpty && viewModel.stkType == "status" {
-                Button("Reload SIM Menu") { Task { await viewModel.loadSTKMenu() } }
+                Button("重新加载SIM菜单") { Task { await viewModel.loadSTKMenu() } }
             }
         } header: {
             Text(viewModel.stkMenu.title.isEmpty ? "SIM Toolkit" : viewModel.stkMenu.title)
         } footer: {
-            Text("Carrier-provided services from your SIM card")
+            Text("运营商通过您的 SIM 卡提供的服务")
         }
         .disabled(viewModel.isLoading || viewModel.stkBusy)
     }

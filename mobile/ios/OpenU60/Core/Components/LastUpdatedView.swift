@@ -18,11 +18,11 @@ struct LastUpdatedView: View {
     }
 
     private var accessibilityText: String {
-        guard date != nil else { return "Never updated" }
+        guard date != nil else { return "尚未更新" }
         if elapsed < 60 {
-            return "Updated \(elapsed) seconds ago"
+            return "几秒前更新\(elapsed)"
         }
-        return "Updated \(elapsed / 60) minutes \(elapsed % 60) seconds ago"
+        return "更新 \(elapsed / 60) 分钟 \(elapsed % 60) 秒前"
     }
 
     var body: some View {

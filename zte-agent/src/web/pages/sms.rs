@@ -69,13 +69,13 @@ const SEND: &str = "/ui/sms/send";
 const DELETE: &str = "/ui/sms/delete";
 /// Messages per page of a conversation.
 const PAGE: usize = 100;
-const EXPIRED: &str = "This form expired, so the message was not sent. Send it again.";
-const CHANGED: &str = "The conversation changed. Review and try again.";
+const EXPIRED: &str = "此表格已过期，因此消息未发送。再发送一次。";
+const CHANGED: &str = "谈话内容发生了变化。查看并重试。";
 /// The app's words for a send that failed without an error.
-const NOT_SENT: &str = "Message not sent";
+const NOT_SENT: &str = "消息未发送";
 /// A replay of a reply whose first post's outcome is unknown.
-const MAYBE: &str = "This message may not have been sent. Check the conversation before sending it again.";
-const BUSY: &str = "Failed to send: the router is busy. Try again in a few seconds.";
+const MAYBE: &str = "该消息可能尚未发送。再次发送之前请检查对话。";
+const BUSY: &str = "发送失败：路由器正忙。几秒钟后重试。";
 
 /// `base`, then the store and `extra` as its query (none when empty).
 fn url(base: &str, store: Store, extra: &str) -> String {
@@ -151,8 +151,8 @@ fn new_notice(v: &Views) -> Markup {
         div #sms-new {
             @if n > 0 {
                 p.msg.info role="status" {
-                    @if n == 1 { "New message" } @else { (n) " new messages" }
-                    " \u{b7} " a href="" { "Refresh" }
+                    @if n == 1 { "新消息" } @else { (n) " new messages" }
+                    " \u{b7} " a href="" { "刷新" }
                 }
             }
         }
@@ -170,10 +170,10 @@ fn search(store: Store, q: &str, csrf: &Markup) -> Markup {
     html! {
         form.srch #srch method="post" action=(url(LIST, store, "")) role="search" {
             (csrf)
-            input type="search" name="q" value=(q) placeholder="Search messages" aria-label="Search messages"
+            input type="search" name="q" value=(q) placeholder="搜索消息" aria-label="搜索消息"
                 autocomplete="off" maxlength="64";
-            button.btn.sm type="submit" { "Search" }
-            @if !q.is_empty() { a.nl href=(url(LIST, store, "")) { "Cancel" } }
+            button.btn.sm type="submit" { "搜索" }
+            @if !q.is_empty() { a.nl href=(url(LIST, store, "")) { "取消" } }
         }
     }
 }
@@ -182,7 +182,7 @@ fn search(store: Store, q: &str, csrf: &Markup) -> Markup {
 /// form posted to the other store's page (the search kept).
 fn storage(store: Store, searching: bool) -> Markup {
     html! {
-        nav.seg aria-label="Storage" {
+        nav.seg aria-label="存储" {
             @for (s, _, label) in Store::OPTIONS {
                 @let current = (s == store).then_some("true");
                 @if searching {
@@ -222,7 +222,7 @@ fn row(app: &AppState, csrf: &Markup, c: &Conv, store: Store, now: i64, off: i64
                 Some(k) => a.it.cv href=(format!("{}#end", thread_url(k, store, ""))) { (body) },
                 None => div.it.cv.ur[c.unread > 0] { (body) },
             }
-            @if let Some(k) = &key { a.del href=(delete_url(k, store)) { "Delete" span.sr { " conversation with " (c.number) } } }
+            @if let Some(k) = &key { a.del href=(delete_url(k, store)) { "删除" span.sr { " conversation with " (c.number) } } }
         }
     }
 }
@@ -247,22 +247,22 @@ pub fn list(pd: &PageData) -> Markup {
         (render::fragment(&FRAGMENTS, "sms-new", pd.views))
         (search(store, q, &csrf))
         (storage(store, !q.is_empty()))
-        @if let Some(e) = &error { (kit::notice(false, &format!("Failed: {}", fmt::truncate(e, 120)))) }
+        @if let Some(e) = &error { (kit::notice(false, &format!("失败：{}", fmt::truncate(e, 120)))) }
         @if let Some(p) = &partial { (kit::notice(false, &fmt::truncate(p, 160))) }
         // Both secondary, the count as a caption (the app's row).
         @if let Some((used, total)) = capacity {
-            (kit::section(None, None, html! { li.it { span.muted { "Storage" } span.tm { (used) "/" (total) } } }))
+            (kit::section(None, None, html! { li.it { span.muted { "存储" } span.tm { (used) "/" (total) } } }))
         }
         // The app's header, always, unpluralised ("1 Conversations").
         (kit::section(Some(&format!("{} Conversations", shown.len())), None, html! {
             @for c in &shown { (row(pd.app, &csrf, c, store, now, off)) }
         }))
         @if convs.is_empty() && error.is_none() {
-            (kit::empty_state(Icon::Message, "No Messages", "SMS messages will appear here"))
+            (kit::empty_state(Icon::Message, "暂无短信", "SMS消息将出现在这里"))
         } @else if shown.is_empty() && !q.is_empty() {
-            (kit::empty_state(Icon::Search, &format!("No Results for \u{201c}{q}\u{201d}"), "Check the spelling or try a new search."))
+            (kit::empty_state(Icon::Search, &format!("\u{201c}{q}\u{201d} 没有结果"), "检查拼写或尝试新的搜索。"))
         }
-        p.foot { "Calls are only in the OpenU60 app." }
+        p.foot { "通话仅在OpenU60应用程序中进行。" }
     }
 }
 
@@ -282,7 +282,7 @@ fn bubble(m: &Msg) -> Markup {
         li class=(class) {
             p { (m.content) }
             small {
-                @if m.tag == sms::FAILED { span.nd role="img" aria-label="Not delivered" { (kit::icon(Icon::Alert)) } }
+                @if m.tag == sms::FAILED { span.nd role="img" aria-label="未交付" { (kit::icon(Icon::Alert)) } }
                 @if let Some(t) = m.date {
                     @let off = sms::local_offset(t);
                     span title=(sms::day(t, off)) { (sms::clock(t, off)) }
@@ -318,7 +318,7 @@ fn shell(nonce: &str, title: &str, list: &str, h1: &str, live: Option<&str>, bod
         tab: Some(Tab::Sms),
         nonce,
         live,
-        lead: kit::back(list, "Messages"),
+        lead: kit::back(list, "短信"),
         heading: Some(html! { h1 { (h1) } }),
         ..PageCtx::default()
     };
@@ -327,11 +327,11 @@ fn shell(nonce: &str, title: &str, list: &str, h1: &str, live: Option<&str>, bod
 
 fn not_found(nonce: &str, list: &str) -> Response {
     let body = html! {
-        (kit::empty_state(Icon::Message, "Conversation not found",
-            "It may have been deleted. Links to conversations last until the agent restarts."))
-        p.ctr { a.btn href=(list) { "Back to Messages" } }
+        (kit::empty_state(Icon::Message, "未找到对话",
+            "可能已被删除。对话链接将持续到代理重新启动为止。"))
+        p.ctr { a.btn href=(list) { "返回消息" } }
     };
-    shell(nonce, "Conversation", list, "Conversation", None, body, 404)
+    shell(nonce, "对话", list, "对话", None, body, 404)
 }
 
 /// The reply bar (`#end`, where every way to a conversation lands, the
@@ -346,10 +346,10 @@ fn reply_bar(app: &AppState, t: &Thread, failure: Option<&Failure>, notice: Mark
                 (send_fields(app, t.p, t.once))
                 input type="hidden" name="t" value=(t.key);
                 @if t.store != Store::All { input type="hidden" name="store" value=(t.store.value()); }
-                textarea name="text" rows="1" placeholder="Message" aria-label="Message" maxlength="765" required {
+                textarea name="text" rows="1" placeholder="短信" aria-label="短信" maxlength="765" required {
                     (failure.map_or("", |f| f.text.as_str()))
                 }
-                button.send type="submit" aria-label="Send" { (kit::icon(Icon::ArrowUp)) }
+                button.send type="submit" aria-label="发送" { (kit::icon(Icon::ArrowUp)) }
             }
         }
     }
@@ -366,19 +366,19 @@ fn thread_page(app: &AppState, t: &Thread, failure: Option<&Failure>, read: bool
     let list = url(LIST, t.store, "");
     if !read {
         let status = failure.map_or(200, |f| f.status);
-        return shell(t.nonce, "Conversation", &list, "Conversation", None, reply_bar(app, t, failure, html! {}), status);
+        return shell(t.nonce, "对话", &list, "对话", None, reply_bar(app, t, failure, html! {}), status);
     }
     let mut views = super::read_topics(app, &[Topic::Sms]);
     views.arg = received(&views);
     let here = format!("{}#end", thread_url(t.key, t.store, ""));
     let (h1, status, content, live) = match sms::read(app, t.store) {
         Err(e) => {
-            let why = kit::notice(false, &format!("Failed: {}", fmt::truncate(&e, 120)));
+            let why = kit::notice(false, &format!("失败：{}", fmt::truncate(&e, 120)));
             if failure.is_none() {
-                let body = html! { (why) p.ctr { a.btn href=(here) { "Try again" } } };
-                return shell(t.nonce, "Conversation", &list, "Conversation", None, body, 503);
+                let body = html! { (why) p.ctr { a.btn href=(here) { "重试" } } };
+                return shell(t.nonce, "对话", &list, "对话", None, body, 503);
             }
-            ("Conversation".to_owned(), 503, why, None)
+            ("对话".to_owned(), 503, why, None)
         }
         Ok(l) => {
             let Some(c) = sms::find(app, sms::group(l.msgs, sms::now_unix()), t.key) else {
@@ -396,18 +396,18 @@ fn thread_page(app: &AppState, t: &Thread, failure: Option<&Failure>, read: bool
                         (render::csrf_field(&app.auth, t.p))
                         input type="hidden" name="t" value=(t.key);
                         @if t.store != Store::All { input type="hidden" name="store" value=(t.store.value()); }
-                        button.btn.sm.btn-quiet type="submit" { "Mark as read" }
+                        button.btn.sm.btn-quiet type="submit" { "标记为已读" }
                     }
                 }
                 // Scrolls in a box that starts at its end: any load shows the newest.
                 div.sc {
                     div {
                         @if start > 0 {
-                            p.pg { a href=(thread_url(t.key, t.store, &format!("before={}", c.msgs[start].id))) { "Earlier messages" } }
+                            p.pg { a href=(thread_url(t.key, t.store, &format!("before={}", c.msgs[start].id))) { "早期消息" } }
                         }
                         ol.bb { @for m in &c.msgs[start..end] { (bubble(m)) } }
                         @if end < c.msgs.len() {
-                            p.pg { a href=(here) { "Newest messages" } }
+                            p.pg { a href=(here) { "最新消息" } }
                         }
                     }
                 }
@@ -419,7 +419,7 @@ fn thread_page(app: &AppState, t: &Thread, failure: Option<&Failure>, read: bool
         (content)
         (reply_bar(app, t, failure, render::fragment(&FRAGMENTS, "sms-new", &views)))
     };
-    shell(t.nonce, "Conversation", &list, &h1, live.as_deref(), body, failure.map_or(status, |f| f.status))
+    shell(t.nonce, "对话", &list, &h1, live.as_deref(), body, failure.map_or(status, |f| f.status))
 }
 
 /// New Message (`SMSComposeView`): the number, the text with the app's
@@ -431,21 +431,21 @@ fn compose(app: &AppState, p: &Principal, nonce: &str, once: &Once, number: &str
         form.cmp method="post" action=(SEND) {
             (send_fields(app, p, once))
             (kit::section(None, None, html! {
-                li.it { input type="tel" name="number" value=(number) placeholder="Phone Number" aria-label="Phone Number"
+                li.it { input type="tel" name="number" value=(number) placeholder="电话号码" aria-label="电话号码"
                     autocomplete="off" maxlength="32" required autofocus; }
             }))
             (kit::section(None, Some(html! { p.foot { (sms::counter(text)) } }), html! {
-                li.it { textarea name="text" rows="3" placeholder="Message" aria-label="Message" maxlength="765" required { (text) } }
+                li.it { textarea name="text" rows="3" placeholder="短信" aria-label="短信" maxlength="765" required { (text) } }
             }))
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Send" } } }))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "发送" } } }))
             @if let Some(f) = failure { p.sfail role="alert" { span { (f.msg) } } }
         }
     };
     let pc = PageCtx {
-        title: "New Message",
+        title: "新建短信",
         tab: Some(Tab::Sms),
         nonce,
-        lead: html! { a.nl href=(LIST) { "Cancel" } },
+        lead: html! { a.nl href=(LIST) { "取消" } },
         ..PageCtx::default()
     };
     render::html(failure.map_or(200, |f| f.status), render::page(&pc, body))
@@ -457,17 +457,17 @@ fn compose(app: &AppState, p: &Principal, nonce: &str, once: &Once, number: &str
 fn ask_delete(app: &AppState, p: &Principal, nonce: &str, key: &str, store: Store, c: &Conv, changed: bool) -> Response {
     let list = url(LIST, store, "");
     let fp = c.fingerprint();
-    let line = format!("This will delete all {} messages from {}.", c.msgs.len(), c.number);
+    let line = format!("这将从 {} 中删除所有 {} 消息。", c.msgs.len(), c.number);
     let mut hidden = vec![("t", key), ("fp", fp.as_str())];
     if store != Store::All {
         hidden.push(("store", store.value()));
     }
     let q = Ask {
-        title: "Delete conversation?",
+        title: "删除对话？",
         lines: &[&line],
         action: DELETE,
         hidden: &hidden,
-        label: Some("Delete"),
+        label: Some("删除"),
         danger: true,
         cancel: &list,
     };
@@ -475,7 +475,7 @@ fn ask_delete(app: &AppState, p: &Principal, nonce: &str, key: &str, store: Stor
         @if changed { (kit::notice(false, CHANGED)) }
         (action::ask(render::csrf_field(&app.auth, p), &q))
     };
-    shell(nonce, "Delete conversation?", &list, "Confirm", None, body, if changed { 409 } else { 200 })
+    shell(nonce, "删除对话？", &list, "确认", None, body, if changed { 409 } else { 200 })
 }
 
 /// `GET` of a page of this module: New Message at once; a conversation
@@ -503,8 +503,8 @@ pub async fn get(ctx: &Ctx, p: Principal, nonce: String, query: Option<String>, 
                     Ok((None, _)) => not_found(&n, &list),
                     // A store that could not be read may hold more of it.
                     Err(e) | Ok((Some(_), Some(e))) => {
-                        let body = kit::notice(false, &format!("Failed: {}", fmt::truncate(&e, 160)));
-                        shell(&n, "Delete conversation?", &list, "Confirm", None, body, 503)
+                        let body = kit::notice(false, &format!("失败：{}", fmt::truncate(&e, 160)));
+                        shell(&n, "删除对话？", &list, "确认", None, body, 503)
                     }
                 })
             });
@@ -723,7 +723,7 @@ fn deliver(app: &AppState, nonce: &str, to: &To, text: &str, mut claim: Claim) -
         To::Thread(key, store) => match find(app, *store, key) {
             Ok((Some(c), _)) => c.number,
             Ok((None, _)) => return Ok(not_found(nonce, &url(LIST, *store, ""))),
-            Err(e) => return Err(failed(format!("Failed to send: {}", fmt::truncate(&e, 120)), 503)),
+            Err(e) => return Err(failed(format!("发送失败：{}", fmt::truncate(&e, 120)), 503)),
         },
     };
     claim.disarm();
@@ -733,7 +733,7 @@ fn deliver(app: &AppState, nonce: &str, to: &To, text: &str, mut claim: Claim) -
             Ok(session::see_other(&to.done()))
         }
         Err((status, e)) => {
-            let msg = format!("Failed to send: {}", fmt::truncate(&e, 120));
+            let msg = format!("发送失败：{}", fmt::truncate(&e, 120));
             claim.set(Token::Failed(claim.digest(), status, msg.clone()));
             Err(failed(msg, status))
         }
@@ -753,8 +753,8 @@ async fn delete(ctx: Ctx, p: Principal, nonce: String, key: String, store: Store
     let (flash, n) = (Arc::clone(&ctx.flash), nonce.clone());
     let job = Box::new(move |app: &AppState| {
         let failed = |e: &str| {
-            let msg = format!("Delete failed: {}", fmt::truncate(e, 160));
-            let Ok(id) = app.auth.random_hex(8) else { return render::error(503, "Delete failed", &msg, &n) };
+            let msg = format!("删除失败：{}", fmt::truncate(e, 160));
+            let Ok(id) = app.auth.random_hex(8) else { return render::error(503, "删除失败", &msg, &n) };
             let to = url(LIST, store, &format!("r={id}"));
             flash.insert(id, p.id, (Some(false), msg), app.auth.now());
             session::see_other(&to)

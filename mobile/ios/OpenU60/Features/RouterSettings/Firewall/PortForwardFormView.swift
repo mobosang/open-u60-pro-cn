@@ -14,7 +14,7 @@ struct PortForwardFormView: View {
         NavigationStack {
             Form {
                 Section("Rule") {
-                    TextField("Name", text: $name)
+                    TextField("名称", text: $name)
                     Picker("Protocol", selection: $protocol_) {
                         Text("TCP").tag("tcp")
                         Text("UDP").tag("udp")
@@ -53,11 +53,11 @@ struct PortForwardFormView: View {
                     .disabled(wanPort.isEmpty || lanIP.isEmpty || lanPort.isEmpty || viewModel.isLoading)
                 }
             }
-            .navigationTitle("New Port Forward")
+            .navigationTitle("新港口转发")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }

@@ -38,7 +38,7 @@ final class STCViewModel {
             editLteMax = config.lteWhitelistMax
             editNrsaMax = config.nrsaWhitelistMax
         } catch {
-            showMessage("Failed to load STC: \(error.localizedDescription)", isError: true)
+            showMessage("加载STC失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -54,13 +54,13 @@ final class STCViewModel {
                 "lte_whitelist_max": editLteMax,
                 "nrsa_whitelist_max": editNrsaMax
             ])
-            showMessage("STC parameters updated", isError: false)
+            showMessage("STC参数更新", isError: false)
             config.lteCollectTimer = editLteTimer
             config.nrsaCollectTimer = editNrsaTimer
             config.lteWhitelistMax = editLteMax
             config.nrsaWhitelistMax = editNrsaMax
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
 
         isLoading = false
@@ -70,10 +70,10 @@ final class STCViewModel {
         isLoading = true
         do {
             let _ = try await client.postJSON("/api/cell/stc/enable")
-            showMessage("STC enabled", isError: false)
+            showMessage("STC 启用", isError: false)
             config.enabled = true
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -82,10 +82,10 @@ final class STCViewModel {
         isLoading = true
         do {
             let _ = try await client.postJSON("/api/cell/stc/disable")
-            showMessage("STC disabled", isError: false)
+            showMessage("STC 禁用", isError: false)
             config.enabled = false
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }
@@ -94,10 +94,10 @@ final class STCViewModel {
         isLoading = true
         do {
             let _ = try await client.postJSON("/api/cell/stc/reset")
-            showMessage("STC whitelist reset", isError: false)
+            showMessage("STC白名单重置", isError: false)
             config.enabled = false
         } catch {
-            showMessage("Failed: \(error.localizedDescription)", isError: true)
+            showMessage("失败：\(error.localizedDescription)", isError: true)
         }
         isLoading = false
     }

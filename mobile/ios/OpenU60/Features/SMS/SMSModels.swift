@@ -191,7 +191,7 @@ enum SMSParser {
     /// Determine encode type for sending.
     static func getEncodeType(_ text: String) -> String {
         if text.unicodeScalars.allSatisfy({ gsm7Alphabet.contains($0) }) {
-            return "GSM7_default"
+            return "GSM7_默认"
         }
         return "UNICODE"
     }

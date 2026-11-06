@@ -83,8 +83,8 @@ const NOTIFICATIONS: &str = "/api/esim/notifications";
 
 /// The app's notice when the card is in use (a switch or a download runs,
 /// or the agent holds the card).
-pub const BUSY: &str = "The eSIM is busy; try again in a moment.";
-const GONE: &str = "This profile is no longer on your eSIM.";
+pub const BUSY: &str = "eSIM 忙；稍后再试。";
+const GONE: &str = "此配置文件不再位于您的 eSIM 上。";
 const NICK_MAX: usize = 64;
 
 // --- What the pages show of the agent's answers ---
@@ -117,7 +117,7 @@ impl Profile {
     /// As the card shows it.
     pub fn shown(&self) -> &str {
         match self.display() {
-            "" => "Unnamed profile",
+            "" => "未命名的配置文件",
             d => d,
         }
     }
@@ -135,9 +135,9 @@ impl Profile {
         } else if !self.name.is_empty() && !self.name.eq_ignore_ascii_case(d) {
             &self.name
         } else if self.enabled {
-            "Selected on your router"
+            "在您的路由器上选择"
         } else {
-            "Ready to switch"
+            "准备切换"
         }
     }
 }
@@ -246,7 +246,7 @@ fn remember(v: &Views, inv: &Inventory) {
 /// "Switch to <name>" (else the ICCID's last 4 digits).
 fn target(v: &Views, iccid: &str) -> String {
     let name = v.esim_names.as_ref().and_then(|n| n.of(iccid));
-    format!("Switch to {}", name.unwrap_or_else(|| tail(iccid)))
+    format!("切换至{}", name.unwrap_or_else(|| tail(iccid)))
 }
 
 /// The app's switch dialog: what happens, then its warnings.
@@ -381,16 +381,16 @@ fn switch_note(state: &str, reason: Option<&str>) -> Option<&'static str> {
     Some(match (state, reason) {
         ("card_busy", _) => "The eSIM is busy and refused the switch for now. The router keeps trying for up to 4 minutes.",
         ("no_data", Some("roaming_off")) => {
-            "This profile roams on a local network and Data Roaming is off. Turn on Data Roaming in Mobile Network."
+            "此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。"
         }
-        ("no_data", Some("data_off")) => "The profile is active, but Mobile Data is off. Turn it on in Mobile Network.",
-        ("no_data", _) => "The profile is active, but mobile data hasn't connected. Check the plan or coverage.",
-        ("modem_unconfirmed", _) => "The eSIM switched, but the router still uses the previous SIM. Restart the router to finish.",
-        ("card_unconfirmed", _) => "The eSIM couldn't be read after the switch. Refresh in a moment.",
+        ("no_data", Some("data_off")) => "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。",
+        ("no_data", _) => "配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。",
+        ("modem_unconfirmed", _) => "eSIM已更换，但路由器仍使用之前的SIM。重新启动路由器即可完成。",
+        ("card_unconfirmed", _) => "切换后无法读取eSIM。一会儿刷新一下。",
         ("not_applied", Some("card_busy")) => {
-            "The eSIM stayed busy and didn't switch; the previous profile is still active. Try again in a few minutes."
+            "eSIM 保持忙碌状态，不切换；之前的配置文件仍然有效。几分钟后重试。"
         }
-        ("not_applied", _) => "The switch didn't happen; the previous profile is still active.",
+        ("not_applied", _) => "切换没有发生；之前的配置文件仍然有效。",
         _ => return None,
     })
 }
@@ -503,7 +503,7 @@ fn conn_card(c: &Conn, id: &str, check: Option<&str>, back: Option<(&str, &str)>
     let attention = c.phase.attention();
     let on = c.phase == Phase::Connected;
     let step = c.phase.step();
-    let steps = [("Switch profile", Icon::SimCard), ("Reload SIM", Icon::Refresh), ("Connect to network", Icon::Antenna)];
+    let steps = [("切换配置文件", Icon::SimCard), ("重新加载SIM", Icon::Refresh), ("连接到网络", Icon::Antenna)];
     html! {
         section.card.econn.esw[c.target.is_some()].busy[progress].ewarn[attention] id=(id) {
             div.ehead {
@@ -531,19 +531,19 @@ fn conn_card(c: &Conn, id: &str, check: Option<&str>, back: Option<(&str, &str)>
                         li.done[done].cur[cur] aria-current=[cur.then_some("step")] {
                             span.dot { (kit::icon(if done { Icon::Check } else if cur && attention { Icon::Alert } else { icon })) }
                             span { (label) }
-                            @if cur && progress { small { "In progress" } }
-                            @if done { small { "Done" } }
+                            @if cur && progress { small { "进行中" } }
+                            @if done { small { "完成" } }
                         }
                     }
                 }
             }
             @if !on || c.target.is_some() { p.det { (c.note.unwrap_or(c.phase.detail())) } }
-            @if progress { p.cap.wifi { (kit::icon(Icon::Wifi)) "Wi-Fi stays connected \u{b7} Usually 15\u{2013}45 seconds" } }
+            @if progress { p.cap.wifi { (kit::icon(Icon::Wifi)) "Wi-Fi 保持连接 \u{b7} 通常 15\u{2013}45 秒" } }
             @if attention {
-                @if let Some(href) = check { p.actions { a.btn.btn-quiet.sm href=(href) { "Check again" } } }
+                @if let Some(href) = check { p.actions { a.btn.btn-quiet.sm href=(href) { "再次检查" } } }
             }
             @if let Some((href, label)) = back {
-                p.actions { a.btn.btn-quiet[progress] href=(href) { "Back to " (label) } }
+                p.actions { a.btn.btn-quiet[progress] href=(href) { "返回 " (label) } }
             }
         }
     }
@@ -571,9 +571,9 @@ pub fn download_text(d: &Value) -> String {
     let step = d["step"].as_str().unwrap_or("");
     let name = [&d["provider"], &d["name"]].iter().filter_map(|v| v.as_str()).find(|s| !s.trim().is_empty()).unwrap_or("eSIM profile");
     let text = match st {
-        "confirm" => "Ready to install",
-        "cancelling" => "Cancelling\u{2026}",
-        _ if step.ends_with("_cancel_session") => "Cancelling\u{2026}",
+        "confirm" => "准备安装",
+        "cancelling" => "取消\u{2026}",
+        _ if step.ends_with("_cancel_session") => "取消\u{2026}",
         "done" => return format!("{} added.", fmt::truncate(name, 64)),
         "failed" => "Couldn\u{2019}t add the profile",
         "cancelled" => "Download cancelled",
@@ -616,7 +616,7 @@ fn updating(v: &Views) -> Markup {
             @if running(st) {
                 span.spin {} "Updating\u{2026}"
             } @else if changed {
-                "Changed \u{b7} " a href=(PATH) { "Refresh" }
+                "Changed \u{b7} " a href=(PATH) { "刷新" }
             }
         }
     }
@@ -627,7 +627,7 @@ pub fn message(n: Notice) -> Markup {
     let (ok, text) = match n {
         Notice::Saved(m) => (Some(true), m.to_owned()),
         Notice::Flash(ok, m) => (ok, m),
-        Notice::Failed(e) => (Some(false), format!("Failed: {}", fmt::truncate(&e, 120))),
+        Notice::Failed(e) => (Some(false), format!("失败：{}", fmt::truncate(&e, 120))),
     };
     let lower = text.to_ascii_lowercase();
     // The busy notice only (the app compares the text); any other line
@@ -645,13 +645,13 @@ pub fn message(n: Notice) -> Markup {
         (Icon::Check, "Profile updated")
     };
     let guidance = if lower.contains("agent password required") {
-        Some("Set the router agent password in Agent Settings, then try your action again.")
+        Some("在代理设置中设置路由器代理密码，然后重试您的操作。")
     } else if lower.contains("airplane") || lower.contains("low-power") {
-        Some("Open Router Settings \u{2192} Mobile Network to check the modem mode.")
+        Some("打开路由器设置\u{2192}移动网络检查调制解调器模式。")
     } else if lower.contains("different esim card") {
-        Some("Reloading the profiles on the card now in your router. Review the list before trying again.")
+        Some("现在在路由器中重新加载卡上的配置文件。重试之前请查看该列表。")
     } else if lower.contains("404") || lower.contains("not found") {
-        Some("This action may need a newer router agent. Your saved profiles are unchanged.")
+        Some("此操作可能需要更新的路由器代理。您保存的配置文件未更改。")
     } else {
         None
     };
@@ -663,7 +663,7 @@ pub fn message(n: Notice) -> Markup {
                 p { (text) }
                 @if let Some(g) = guidance { p.cap { (g) } }
                 @if error && !receipts {
-                    p.actions { a.btn.btn-quiet.sm href=(PATH) { "Reload profiles" } }
+                    p.actions { a.btn.btn-quiet.sm href=(PATH) { "重新加载配置文件" } }
                     p.cap { "Reloading only reads the list. It doesn\u{2019}t repeat your action." }
                 }
             }
@@ -688,7 +688,7 @@ fn error_card(text: &str) -> Markup {
         div.eerr {
             b { (kit::icon(Icon::Refresh)) "Couldn\u{2019}t refresh profiles" }
             p.cap { (text) }
-            a.btn.btn-quiet.sm href=(PATH) { "Try again" }
+            a.btn.btn-quiet.sm href=(PATH) { "重试" }
         }
     }
 }
@@ -699,7 +699,7 @@ fn row(app: &AppState, p: &Profile) -> Markup {
     let body = html! {
         span.picon { (kit::icon(Icon::SimCard)) }
         span.ptext {
-            @if p.enabled { small.active { (kit::icon(Icon::Check)) "Active" } }
+            @if p.enabled { small.active { (kit::icon(Icon::Check)) "已启用" } }
             b { (name) }
             small.cap { (p.subtitle()) }
             small.cap.num { (tail(&p.iccid)) }
@@ -707,7 +707,7 @@ fn row(app: &AppState, p: &Profile) -> Markup {
         @if p.can_enable() {
             span.pgo aria-hidden="true" { (kit::icon(Icon::Cycle)) }
         } @else if !p.enabled {
-            span.plock role="img" aria-label="Unavailable" { (kit::icon(Icon::Lock)) }
+            span.plock role="img" aria-label="不可用" { (kit::icon(Icon::Lock)) }
         }
     };
     html! {
@@ -719,7 +719,7 @@ fn row(app: &AppState, p: &Profile) -> Markup {
             }
             @if !k.is_empty() {
                 details.pmenu {
-                    summary aria-label=(format!("Options for {name}")) { (kit::icon(Icon::Ellipsis)) }
+                    summary aria-label=(format!("{name} 的选项")) { (kit::icon(Icon::Ellipsis)) }
                     div {
                         a href=(format!("{RENAME}?p={k}")) { (kit::icon(Icon::Pencil)) "Rename" }
                         @if !p.enabled { a.danger href=(format!("{DELETE}?p={k}")) { (kit::icon(Icon::Trash)) "Delete profile" } }
@@ -733,7 +733,7 @@ fn row(app: &AppState, p: &Profile) -> Markup {
 /// "Add eSIM": quiet under the list, teal in the empty card (the app's
 /// bordered and prominent buttons).
 fn add_button(quiet: bool) -> Markup {
-    html! { a.btn.btn-wide.btn-quiet[quiet].teal[!quiet] href=(ADD) { (kit::icon(Icon::Plus)) "Add eSIM" } }
+    html! { a.btn.btn-wide.btn-quiet[quiet].teal[!quiet] href=(ADD) { (kit::icon(Icon::Plus)) "添加 eSIM" } }
 }
 
 /// The operator receipts card (`ESimReceiptsCard`).
@@ -862,8 +862,8 @@ pub fn page(pd: &PageData) -> Markup {
                 }
                 (add_button(true))
                 ul.hints {
-                    li { (kit::icon(Icon::Cycle)) "Select a profile to switch to it. Use \u{2022}\u{2022}\u{2022} for Rename and Delete." }
-                    li { (kit::icon(Icon::Wifi)) "Switching pauses internet for about a minute. Your router\u{2019}s Wi-Fi stays on." }
+                    li { (kit::icon(Icon::Cycle)) "选择一个配置文件以切换到它。使用 \u{2022}\u{2022}\u{2022} 进行重命名和删除。" }
+                    li { (kit::icon(Icon::Wifi)) "切换会使互联网暂停大约一分钟。您的路由器 \u{2019} 的 Wi-Fi 保持开启状态。" }
                 }
             }
             @if let Some(r) = inv.pending_receipts.filter(|r| *r > 0) { (receipts(pd, r)) }
@@ -922,13 +922,13 @@ fn nothing(pd: &PageData, title: &str, lines: &[&str]) -> Markup {
     action::ask(pd.csrf(), &Ask { title, lines, action: PATH, hidden: &[], label: None, danger: false, cancel: PATH })
 }
 
-pub const REMOTE_SWITCH: &str = "The router does not switch back by itself if the new profile gets no data.";
+pub const REMOTE_SWITCH: &str = "如果新配置文件没有收到数据，路由器不会自行切换回来。";
 
 /// "Switch to <name>?" (the app's dialog), with its warnings and, for a
 /// remote browser, the remote lines.
 pub fn switch_page(pd: &PageData) -> Markup {
     let (inv, k) = match target_of(pd) {
-        Target::Read(e) => return nothing(pd, "Couldn\u{2019}t read eSIM profiles", &[&fmt::truncate(&e, 120)]),
+        Target::Read(e) => return nothing(pd, "Couldn\u{2019}t 读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
         Target::Gone => return nothing(pd, GONE, &[]),
         Target::Found(inv, k) => (inv, k),
     };
@@ -939,7 +939,7 @@ pub fn switch_page(pd: &PageData) -> Markup {
         return nothing(pd, &format!("{name} is already active."), &[]);
     }
     if !p.can_enable() {
-        return nothing(pd, &format!("{name} can\u{2019}t be switched to here."), &["Only operator profiles can be switched to."]);
+        return nothing(pd, &format!("{name} can\u{2019}t be switched to here."), &["只能切换到运营商配置文件。"]);
     }
     if blocked(pd.views) {
         return nothing(pd, BUSY, &[]);
@@ -950,7 +950,7 @@ pub fn switch_page(pd: &PageData) -> Markup {
         lines.push(REMOTE_SWITCH.to_owned());
     }
     let lines: Vec<&str> = lines.iter().map(String::as_str).collect();
-    let (title, label, once) = (format!("Switch to {name}?"), format!("Switch to {name}"), pd.once());
+    let (title, label, once) = (format!("切换到{name}？"), format!("切换至{name}"), pd.once());
     let hidden = [("p", k.as_str()), ("once", once.as_str())];
     action::ask(pd.csrf(), &Ask { title: &title, lines: &lines, action: SWITCH, hidden: &hidden, label: Some(&label), danger: false, cancel: PATH })
 }
@@ -958,14 +958,14 @@ pub fn switch_page(pd: &PageData) -> Markup {
 /// "Delete <name> permanently?" (inactive profiles only).
 pub fn delete_page(pd: &PageData) -> Markup {
     let (inv, k) = match target_of(pd) {
-        Target::Read(e) => return nothing(pd, "Couldn\u{2019}t read eSIM profiles", &[&fmt::truncate(&e, 120)]),
+        Target::Read(e) => return nothing(pd, "Couldn\u{2019}t 读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
         Target::Gone => return nothing(pd, GONE, &[]),
         Target::Found(inv, k) => (inv, k),
     };
     let Some(p) = find(pd.app, &inv, &k) else { return nothing(pd, GONE, &[]) };
     let name = p.shown();
     if p.enabled {
-        return nothing(pd, &format!("{name} is active."), &["Switch to another profile before deleting it."]);
+        return nothing(pd, &format!("{name} is active."), &["在删除之前切换到另一个配置文件。"]);
     }
     if blocked(pd.views) {
         return nothing(pd, BUSY, &[]);
@@ -986,7 +986,7 @@ fn nick_ok(s: &str) -> bool {
 /// "Rename profile" (the app's sheet).
 pub fn rename_page(pd: &PageData) -> Markup {
     let (inv, k) = match target_of(pd) {
-        Target::Read(e) => return nothing(pd, "Couldn\u{2019}t read eSIM profiles", &[&fmt::truncate(&e, 120)]),
+        Target::Read(e) => return nothing(pd, "Couldn\u{2019}t 读取 eSIM 配置文件", &[&fmt::truncate(&e, 120)]),
         Target::Gone => return nothing(pd, GONE, &[]),
         Target::Found(inv, k) => (inv, k),
     };
@@ -1017,7 +1017,7 @@ pub fn rename_page(pd: &PageData) -> Markup {
                         autocomplete="off" spellcheck="false" aria-describedby="nick-help" aria-invalid=[(!valid).then_some("true")];
                 }
             }))
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Save" } } }))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "保存" } } }))
         }
     }
 }
@@ -1028,7 +1028,7 @@ pub fn rename_page(pd: &PageData) -> Markup {
 /// card): its steps and the app's outcome notes. It never switches back.
 pub static SWITCH_OP: OpSpec = OpSpec {
     titles: ["Switching profile", "Mobile data connected", "Connection status unavailable", "Connection needs attention"],
-    steps: &["Switch profile", "Reload SIM", "Connect to network"],
+    steps: &["切换配置文件", "重新加载SIM", "连接到网络"],
     topics: &[Topic::EsimSwitch, Topic::Signal],
     status: op_status,
     back: (PATH, "eSIM Profiles"),
@@ -1308,9 +1308,9 @@ pub async fn post(ctx: Ctx, req: Request, k: Post) -> Response {
         }
         Sent::Done(Ok(())) => return session::see_other(PATH),
         Sent::Done(Err((_, e))) => return note((Some(false), e)),
-        Sent::Expired => return note((Some(false), "This page expired, so nothing was sent. Try again.".to_owned())),
-        Sent::Busy => return note((Some(false), "Failed: the router is busy. Try again in a few seconds.".to_owned())),
-        Sent::Unknown => return note((Some(false), "The router may still be working on it. Check before trying again.".to_owned())),
+        Sent::Expired => return note((Some(false), "该页面已过期，因此未发送任何内容。再试一次。".to_owned())),
+        Sent::Busy => return note((Some(false), "失败：路由器正忙。几秒钟后重试。".to_owned())),
+        Sent::Unknown => return note((Some(false), "路由器可能仍在处理它。重试前请检查。".to_owned())),
     };
     if !*handed.lock().unwrap_or_else(PoisonError::into_inner) {
         return resp;
@@ -1382,9 +1382,9 @@ mod tests {
         let p = profile("GOMO u60", "", "GOMO", true);
         assert_eq!((p.shown(), p.subtitle()), ("GOMO u60", "GOMO"));
         let p = profile("", "", "SMART", true);
-        assert_eq!((p.shown(), p.subtitle()), ("SMART", "Selected on your router"));
+        assert_eq!((p.shown(), p.subtitle()), ("SMART", "在您的路由器上选择"));
         let p = profile("", "", "", false);
-        assert_eq!((p.shown(), p.subtitle(), p.can_enable()), ("Unnamed profile", "Ready to switch", true));
+        assert_eq!((p.shown(), p.subtitle(), p.can_enable()), ("未命名的配置文件", "准备切换", true));
         assert!(!Profile { class: "test".into(), ..p }.can_enable());
         assert_eq!(tail("8900000000000000101F"), "\u{2026}0101");
     }
@@ -1394,7 +1394,7 @@ mod tests {
     fn switch_lines_carry_the_warnings() {
         let mut p = profile("", "Travel", "Example Travel", false);
         p.warnings = vec!["manual_apn".into(), "roaming_off".into(), "new_code".into()];
-        let inv = Inventory { profiles: vec![profile("Home", "", "", true), p.clone()], manual_apn: Some("example.apn".into()), ..Inventory::default() };
+        let inv = Inventory { profiles: vec![profile("首页", "", "", true), p.clone()], manual_apn: Some("example.apn".into()), ..Inventory::default() };
         let l = switch_lines(&inv, &p);
         assert_eq!(l.len(), 3);
         assert_eq!(l[0], "The router disconnects from Home and connects with Travel. Internet is down for about a minute. Wi-Fi stays on.");
@@ -1403,7 +1403,7 @@ mod tests {
         // No manual APN known: that warning is left out; no active profile.
         let inv = Inventory { profiles: vec![p.clone()], ..Inventory::default() };
         let l = switch_lines(&inv, &p);
-        assert!(l[0].starts_with("The router disconnects from the current profile and") && l.len() == 2);
+        assert!(l[0].starts_with("路由器与当前配置文件断开连接，并且") && l.len() == 2);
     }
 
     /// Switch states as the app's phases, notes and the operation's status.
@@ -1417,12 +1417,12 @@ mod tests {
         assert!(matches!(op_status("", at(30), &sw("connected", Value::Null)), OpStatus::Done { .. }));
         assert_eq!(
             op_status("", at(150), &sw("no_data", json!("roaming_off"))),
-            OpStatus::Failed { msg: "This profile roams on a local network and Data Roaming is off. Turn on Data Roaming in Mobile Network." }
+            OpStatus::Failed { msg: "此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。" }
         );
-        assert_eq!(op_status("", at(150), &sw("no_data", json!("data_off"))), OpStatus::Failed { msg: "The profile is active, but Mobile Data is off. Turn it on in Mobile Network." });
+        assert_eq!(op_status("", at(150), &sw("no_data", json!("data_off"))), OpStatus::Failed { msg: "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。" });
         assert_eq!(
             op_status("", at(240), &sw("not_applied", json!("card_busy"))),
-            OpStatus::Failed { msg: "The eSIM stayed busy and didn't switch; the previous profile is still active. Try again in a few minutes." }
+            OpStatus::Failed { msg: "eSIM 保持忙碌状态，不切换；之前的配置文件仍然有效。几分钟后重试。" }
         );
         assert_eq!(op_status("", at(5), &sw("idle", Value::Null)), OpStatus::Pending { step: 0 });
         assert!(matches!(op_status("", at(15), &sw("idle", Value::Null)), OpStatus::TimedOut { .. }));
@@ -1435,7 +1435,7 @@ mod tests {
         let html = op_progress(&v).into_string();
         for want in ["<b>Registering on network</b>", "Switch profile</span><small>Done</small>", "Reload SIM</span><small>Done</small>",
             "Connect to network</span><small>In progress</small>", "The new profile is loaded. Waiting for a mobile data connection.",
-            "Wi-Fi stays connected · Usually 15–45 seconds", "Switch to …0909", "href=\"/ui/router/esim\">Back to eSIM Profiles</a>"] {
+            "Wi-Fi 保持连接 · 通常 15–45 秒", "切换到…0909", "href=\"/ui/router/esim\">Back to eSIM Profiles</a>"] {
             assert!(html.contains(want), "{want} in {html}");
         }
         assert!(html.starts_with("<section class=\"card econn esw busy\" id=\"op-progress\">"), "{html}");
@@ -1448,7 +1448,7 @@ mod tests {
     fn list_card_reads_the_data_connection() {
         let v = views(vec![
             (Topic::Modem, json!({"data": {"connect_status": "ipv4_ipv6_connected"}})),
-            (Topic::Signal, json!({"network_provider": "Example", "network_type": "LTE", "signalbar": "3"})),
+            (Topic::Signal, json!({"network_provider": "示例", "network_type": "LTE", "signalbar": "3"})),
             (Topic::EsimSwitch, json!({"state": "connected", "generation": 4})),
         ]);
         let mut v = v;
@@ -1461,7 +1461,7 @@ mod tests {
         later.arg = v.arg;
         let html = conn(&later).into_string();
         assert!(html.contains("<b>Reloading SIM</b>") && html.contains("class=\"card econn busy\""), "{html}");
-        assert!(updating(&later).into_string().contains("Updating"));
+        assert!(updating(&later).into_string().contains("更新中"));
         later.set(Topic::EsimSwitch, SlotView { version: 2, at: BootInstant::ZERO, value_at: BootInstant::ZERO, value: Some(Arc::new(json!({"state": "no_data", "generation": 5}))), error: None });
         assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("mobile data hasn't connected"));
         assert!(updating(&later).into_string().contains("Changed · <a href=\"/ui/router/esim\">Refresh</a>"));
@@ -1470,22 +1470,22 @@ mod tests {
         assert!(conn(&off).into_string().contains("<b>Mobile data offline</b>"));
         let none = views(vec![(Topic::Modem, json!({"data": {"connect_status": ""}}))]);
         let html = conn(&none).into_string();
-        assert!(html.contains("<b>Connection status unavailable</b>") && html.contains("Check again"), "{html}");
+        assert!(html.contains("<b>Connection status unavailable</b>") && html.contains("再次检查"), "{html}");
     }
 
     /// The app's message card titles and guidance.
     #[test]
     fn message_cards_follow_the_app() {
         let html = message(Notice::Flash(None, BUSY.into())).into_string();
-        assert!(html.contains("<b>eSIM in use</b>") && !html.contains("Reload profiles"), "{html}");
-        let html = message(Notice::Flash(Some(false), "Switch failed: the modem is in airplane / low-power mode".into())).into_string();
-        assert!(html.contains("Can’t complete this right now") && html.contains("Open Router Settings → Mobile Network") && html.contains("Reload profiles"));
+        assert!(html.contains("<b>eSIM in use</b>") && !html.contains("重新加载配置文件"), "{html}");
+        let html = message(Notice::Flash(Some(false), "切换失败：调制解调器处于飞行/低功耗模式".into())).into_string();
+        assert!(html.contains("现在无法完成此操作") && html.contains("打开路由器设置→移动网络") && html.contains("重新加载配置文件"));
         let html = message(Notice::Flash(Some(false), "Some receipts couldn't be sent yet. The router keeps retrying.".into())).into_string();
-        assert!(html.contains("<b>Operator receipts</b>") && !html.contains("Reload profiles"));
-        assert!(message(Notice::Flash(Some(true), "Renamed to X.".into())).into_string().contains("<b>Profile updated</b>"));
+        assert!(html.contains("<b>Operator receipts</b>") && !html.contains("重新加载配置文件"));
+        assert!(message(Notice::Flash(Some(true), "更名为X。".into())).into_string().contains("<b>Profile updated</b>"));
         // Only the busy notice is "eSIM in use" (the app compares the text).
-        let html = message(Notice::Flash(None, "The router may still be working on it. Check before trying again.".into())).into_string();
-        assert!(html.contains("<b>Can’t complete this right now</b>") && html.contains("Reload profiles") && !html.contains("eSIM in use"), "{html}");
+        let html = message(Notice::Flash(None, "路由器可能仍在处理它。重试前请检查。".into())).into_string();
+        assert!(html.contains("<b>Can’t complete this right now</b>") && html.contains("重新加载配置文件") && !html.contains("eSIM in use"), "{html}");
     }
 
     /// The switch's operation page offers "Check again" (a reload of
@@ -1498,7 +1498,7 @@ mod tests {
         assert!(html.contains("<b>Switch needs attention</b>") && html.contains("<a class=\"btn btn-quiet sm\" href=\"\">Check again</a>"), "{html}");
         let mut v = views(vec![(Topic::EsimSwitch, json!({"state": "reloading", "target_iccid": "8900000000000000909"}))]);
         v.op = Some(Op { spec: &SWITCH_OP, started: BootInstant::ZERO, arg: "" });
-        assert!(!op_progress(&v).into_string().contains("Check again"));
+        assert!(!op_progress(&v).into_string().contains("再次检查"));
     }
 
     /// Names come from the page's store (per router), else the last digits.
@@ -1506,11 +1506,11 @@ mod tests {
     fn switch_targets_are_named_from_the_store() {
         let inv = Inventory { profiles: vec![Profile { iccid: "8900000000000000909".into(), ..profile("Travel", "", "", false) }], ..Inventory::default() };
         let mut v = views(vec![]);
-        assert_eq!(target(&v, "8900000000000000909F"), "Switch to …0909");
+        assert_eq!(target(&v, "8900000000000000909F"), "切换到…0909");
         v.esim_names = Some(Arc::new(Names::default()));
         remember(&v, &inv);
         remember(&v, &Inventory::default());
-        assert_eq!(target(&v, "8900000000000000909F"), "Switch to Travel");
+        assert_eq!(target(&v, "8900000000000000909F"), "切换到旅行");
     }
 
     /// Nicknames: one line, at most 64 bytes after trimming.
@@ -1523,10 +1523,10 @@ mod tests {
 
     #[test]
     fn download_texts_follow_the_app() {
-        assert_eq!(download_text(&json!({"state": "confirm"})), "Ready to install");
-        assert_eq!(download_text(&json!({"state": "running", "step": "es9p_authenticate_client"})), "Connecting to the operator…");
-        assert_eq!(download_text(&json!({"state": "done", "provider": "Example", "name": "Plan"})), "Example added.");
+        assert_eq!(download_text(&json!({"state": "confirm"})), "准备安装");
+        assert_eq!(download_text(&json!({"state": "running", "step": "es9p_authenticate_client"})), "连接到运营商...");
+        assert_eq!(download_text(&json!({"state": "done", "provider": "示例", "name": "计划"})), "添加示例。");
         assert_eq!(download_text(&json!({"state": "done"})), "eSIM profile added.");
-        assert_eq!(download_text(&json!({"state": "running", "step": "es10b_load_bound_profile_package"})), "Installing on the eSIM…");
+        assert_eq!(download_text(&json!({"state": "running", "step": "es10b_load_bound_profile_package"})), "在 eSIM 上安装...");
     }
 }

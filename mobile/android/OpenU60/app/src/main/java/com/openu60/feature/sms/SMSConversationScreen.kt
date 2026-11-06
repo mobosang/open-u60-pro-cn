@@ -83,7 +83,7 @@ fun SMSConversationScreen(
                         value = messageText,
                         onValueChange = { messageText = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Message") },
+                        placeholder = { Text("短信") },
                         maxLines = 4,
                     )
                     Spacer(modifier = Modifier.width(8.dp))

@@ -188,8 +188,8 @@ pub fn refresh(pd: &PageData) -> Option<String> {
 fn failure() -> Markup {
     html! {
         section.group #stk {
-            h2 { "SIM Toolkit" }
-            ul.list { li.it { span.muted { "Reload the SIM menu to reconnect." } } }
+            h2 { "SIM工具包" }
+            ul.list { li.it { span.muted { "重新加载SIM菜单以重新连接。" } } }
         }
     }
 }
@@ -216,17 +216,17 @@ fn toolkit(v: &Views) -> Markup {
         Err(e) => {
             return html! {
                 section.group #stk {
-                    h2 { "SIM Toolkit" }
+                    h2 { "SIM工具包" }
                     ul.list {
                         @if !e.is_empty() { li.it.danger { span.tx { (fmt::truncate(e, 120)) } } }
-                        li.it { span.muted { "Reload the SIM menu to reconnect." } }
+                        li.it { span.muted { "重新加载SIM菜单以重新连接。" } }
                     }
                 }
             };
         }
     };
     let own = c.typed() && c.id == v.arg >> 1 && !c.busy;
-    let title = if c.title.is_empty() { "SIM Toolkit" } else { c.title };
+    let title = if c.title.is_empty() { "SIM工具包" } else { c.title };
     let rows = !c.reason.is_empty() || !c.text.is_empty() || !c.items.is_empty() || matches!(c.kind, "input" | "display");
     html! {
         section.group #stk .own[own] {
@@ -240,13 +240,13 @@ fn toolkit(v: &Views) -> Markup {
                     }
                     @if c.kind == "input" && c.yes_no {
                         li.it.yn {
-                            (button(STK_RESPOND, format!("{}.y", c.id), c.busy, "Yes", "lk"))
+                            (button(STK_RESPOND, format!("{}.y", c.id), c.busy, "是的", "lk"))
                             (button(STK_RESPOND, format!("{}.n", c.id), c.busy, "No", "lk"))
                         }
                     } @else if c.typed() && c.id != v.arg >> 1 {
-                        li { a.it.bt href="" { "Enter Response" } }
+                        li { a.it.bt href="" { "输入响应" } }
                     } @else if c.kind == "display" {
-                        li { (button(STK_RESPOND, c.id.to_string(), c.busy, "Continue", "it bt")) }
+                        li { (button(STK_RESPOND, c.id.to_string(), c.busy, "继续", "it bt")) }
                     }
                 }
             }
@@ -266,15 +266,15 @@ fn nav(v: &Views) -> Markup {
             @if back.is_some() || reload {
                 ul.list {
                     @if let Some(c) = back {
-                        li { (button(STK_BACK, c.id.to_string(), c.busy, "Back", "it bt")) }
-                        li { (button(STK_CANCEL, c.id.to_string(), c.busy, "End SIM Session", "it bt danger")) }
+                        li { (button(STK_BACK, c.id.to_string(), c.busy, "返回", "it bt")) }
+                        li { (button(STK_CANCEL, c.id.to_string(), c.busy, "结束 SIM 会话", "it bt danger")) }
                     }
                     // The app's section is disabled while the SIM works.
-                    @if reload && busy { li { span.it.bt.off aria-disabled="true" { "Reload SIM Menu" } } }
-                    @else if reload { li { a.it.bt href=(PATH) { "Reload SIM Menu" } } }
+                    @if reload && busy { li { span.it.bt.off aria-disabled="true" { "重新加载SIM菜单" } } }
+                    @else if reload { li { a.it.bt href=(PATH) { "重新加载SIM菜单" } } }
                 }
             }
-            p.foot { "Carrier-provided services from your SIM card" }
+            p.foot { "运营商通过您的 SIM 卡提供的服务" }
         }
     }
 }
@@ -292,17 +292,17 @@ fn answer_form(pd: &PageData, c: &Stk, token: &str) -> Markup {
             input type="hidden" name="c" value=(c.id);
             (kit::section(None, None, html! {
                 li.it.fld {
-                    label.sr for="stkr" { "SIM response" }
+                    label.sr for="stkr" { "SIM 回应" }
                     @if c.hidden {
-                        input #stkr type=(kind) name="text" placeholder="SIM response" maxlength=(c.max.min(TEXT_MAX as u64))
+                        input #stkr type=(kind) name="text" placeholder="SIM 回应" maxlength=(c.max.min(TEXT_MAX as u64))
                             inputmode=[c.digits.then_some("tel")] autocomplete="one-time-code" "data-1p-ignore" data-lpignore="true" data-bwignore;
                     } @else {
-                        input #stkr type=(kind) name="text" placeholder="SIM response" maxlength=(c.max.min(TEXT_MAX as u64))
+                        input #stkr type=(kind) name="text" placeholder="SIM 回应" maxlength=(c.max.min(TEXT_MAX as u64))
                             inputmode=[c.digits.then_some("tel")] autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false";
                     }
-                    small { "Enter " (c.min) "\u{2013}" (c.max) " characters" }
+                    small { "输入 " (c.min) "\u{2013}" (c.max) " characters" }
                 }
-                li { button.it.cv.snd type="submit" { "Send Response" } }
+                li { button.it.cv.snd type="submit" { "发送响应" } }
             }))
         }
     }
@@ -325,17 +325,17 @@ fn ussd(pd: &PageData, u: Option<&Ussd>, token: &str) -> Markup {
             (once_field(token))
             // The answer shown: kept if this send fails (the app's).
             @if !id.is_empty() && u.is_some_and(|u| u.answer.is_some()) { input type="hidden" name="u" value=(id); }
-            (kit::section(Some("USSD"), Some(html! { p.foot { "Send carrier service codes to check balance, data plans, etc." } }), html! {
+            (kit::section(Some("USSD"), Some(html! { p.foot { "发送运营商服务代码以检查余额、数据计划等。" } }), html! {
                 li.it.uf {
-                    label.sr for="ussd" { "USSD code" }
-                    input #ussd type="text" name="code" value=(code) placeholder="USSD code (e.g. *100#)" inputmode="tel" maxlength=(CODE_MAX)
+                    label.sr for="ussd" { "USSD代码" }
+                    input #ussd type="text" name="code" value=(code) placeholder="USSD 代码（例如 *100#）" inputmode="tel" maxlength=(CODE_MAX)
                         autocomplete="off" autocorrect="off" spellcheck="false" aria-invalid=[err.map(|_| "true")];
-                    button.send type="submit" aria-label="Send" { (kit::icon(Icon::PaperPlane)) }
+                    button.send type="submit" aria-label="发送" { (kit::icon(Icon::PaperPlane)) }
                 }
             }))
         }
         @if let Some((answer, active)) = u.and_then(|u| u.answer.as_ref()) {
-            (kit::section(Some("Response"), None, html! {
+            (kit::section(Some("回应"), None, html! {
                 li.it { span.tx { (answer) } }
                 @if *active {
                     li.it {
@@ -344,9 +344,9 @@ fn ussd(pd: &PageData, u: Option<&Ussd>, token: &str) -> Markup {
                             (once_field(token))
                                             input type="hidden" name="u" value=(id);
                             input type="hidden" name="code" value=(code);
-                            label.sr for="ussdr" { "Reply" }
-                            input #ussdr type="text" name="reply" placeholder="Reply" inputmode="tel" maxlength=(CODE_MAX) autocomplete="off";
-                            button.send type="submit" aria-label="Reply" { (kit::icon(Icon::ArrowUp)) }
+                            label.sr for="ussdr" { "回复" }
+                            input #ussdr type="text" name="reply" placeholder="回复" inputmode="tel" maxlength=(CODE_MAX) autocomplete="off";
+                            button.send type="submit" aria-label="回复" { (kit::icon(Icon::ArrowUp)) }
                         }
                     }
                     li {
@@ -355,7 +355,7 @@ fn ussd(pd: &PageData, u: Option<&Ussd>, token: &str) -> Markup {
                             (once_field(token))
                                             input type="hidden" name="u" value=(id);
                             input type="hidden" name="code" value=(code);
-                            button.it.cv.bt.danger type="submit" { (kit::icon(Icon::Cross)) span { "End Session" } }
+                            button.it.cv.bt.danger type="submit" { (kit::icon(Icon::Cross)) span { "结束会议" } }
                         }
                     }
                 }
@@ -447,7 +447,7 @@ fn sim_code(c: &str) -> bool {
     ["**04*", "**042*", "**05*", "**052*"].iter().any(|p| c.starts_with(p))
 }
 
-const SIM_CODE: &str = "Use Router \u{203a} SIM Card to change the PIN or enter the PUK.";
+const SIM_CODE: &str = "使用路由器\u{203a} SIM 卡更改PIN 或输入PUK。";
 
 /// What a post sends: the body and the text its digest is made of.
 struct Send {
@@ -470,9 +470,9 @@ fn command_field(c: &str) -> Option<(&str, Option<&str>)> {
 fn parse(k: Post, form: &Form) -> Result<Send, Option<&'static str>> {
     match k {
         Post::Send => {
-            let c = code(form.get("code").unwrap_or("")).ok_or(Some("A USSD code has only digits, *, # and +."))?;
+            let c = code(form.get("code").unwrap_or("")).ok_or(Some("USSD 代码仅包含数字、*、# 和 +。"))?;
             if c.is_empty() {
-                return Err(Some("Enter a USSD code"));
+                return Err(Some("输入 USSD 代码"));
             }
             if sim_code(&c) {
                 return Err(Some(SIM_CODE));
@@ -480,7 +480,7 @@ fn parse(k: Post, form: &Form) -> Result<Send, Option<&'static str>> {
             Ok(Send { key: c.clone(), body: json!({"code": c}) })
         }
         Post::Reply => {
-            let r = code(form.get("reply").unwrap_or("")).ok_or(Some("A reply has only digits, *, # and +."))?;
+            let r = code(form.get("reply").unwrap_or("")).ok_or(Some("回复只能包含数字、*、# 和 +。"))?;
             if sim_code(&r) {
                 return Err(Some(SIM_CODE));
             }
@@ -598,13 +598,13 @@ pub async fn post(ctx: Ctx, req: Request, k: Post) -> Response {
             Ok(_) => Token::Sent(claim.digest()),
             Err((status, e)) => Token::Failed(claim.digest(), *status, e.clone()),
         });
-        let failed = |e: &str| format!("Failed: {}", fmt::truncate(e, 120));
+        let failed = |e: &str| format!("失败：{}", fmt::truncate(e, 120));
         match (k, out) {
             (Post::Send | Post::Reply, Ok(data)) => {
                 let active = data["session_active"].as_bool() == Some(true);
                 kept(&ussd, app, owner, &tok, Ussd { code: code_sent, answer: Some((answer_text(&data), active)), line: None })
             }
-            (Post::End, Ok(_)) => kept(&ussd, app, owner, &tok, Ussd { code: code_sent, answer: None, line: Some((true, "USSD session ended".into())) }),
+            (Post::End, Ok(_)) => kept(&ussd, app, owner, &tok, Ussd { code: code_sent, answer: None, line: Some((true, "USSD会议结束".into())) }),
             (Post::Send | Post::Reply | Post::End, Err((_, e))) => {
                 let answer = before.and_then(|b| b.answer);
                 kept(&ussd, app, owner, &tok, Ussd { code: code_sent, answer, line: Some((false, failed(&e))) })
@@ -622,10 +622,10 @@ pub async fn post(ctx: Ctx, req: Request, k: Post) -> Response {
         // The same post again: where the first one led.
         Sent::Done(_) if k.ussd() => session::see_other(&format!("{PATH}?u={token}")),
         Sent::Done(Ok(())) => session::see_other(PATH),
-        Sent::Done(Err((_, e))) => line(&ctx.app, &ctx.flash, owner, &at, Some(false), &format!("Failed: {}", fmt::truncate(&e, 120))),
-        Sent::Expired => line(&ctx.app, &ctx.flash, owner, &format!("{PATH}?"), Some(false), "This page expired, so nothing was sent. Try again."),
-        Sent::Busy => line(&ctx.app, &ctx.flash, owner, &format!("{PATH}?"), Some(false), "Failed: the router is busy. Try again in a few seconds."),
-        Sent::Unknown => line(&ctx.app, &ctx.flash, owner, &at, None, "The router may still be working on it. Check before trying again."),
+        Sent::Done(Err((_, e))) => line(&ctx.app, &ctx.flash, owner, &at, Some(false), &format!("失败：{}", fmt::truncate(&e, 120))),
+        Sent::Expired => line(&ctx.app, &ctx.flash, owner, &format!("{PATH}?"), Some(false), "该页面已过期，因此未发送任何内容。再试一次。"),
+        Sent::Busy => line(&ctx.app, &ctx.flash, owner, &format!("{PATH}?"), Some(false), "失败：路由器正忙。几秒钟后重试。"),
+        Sent::Unknown => line(&ctx.app, &ctx.flash, owner, &at, None, "路由器可能仍在处理它。重试前请检查。"),
     }
 }
 
@@ -645,7 +645,7 @@ mod tests {
     }
 
     fn menu() -> Value {
-        json!({"type": "menu", "title": "Test SIM", "text": "", "items": [{"id": 1, "label": "Balance"}, {"id": 2, "label": "Plans"}],
+        json!({"type": "menu", "title": "测试SIM", "text": "", "items": [{"id": 1, "label": "余额"}, {"id": 2, "label": "计划"}],
                "root_menu": true, "command_id": "1700000000001", "busy": false, "status": "ready", "reason": "",
                "input": {"min": 0, "max": 0, "yes_no": false, "hidden": false, "digits_only": true}})
     }
@@ -660,20 +660,20 @@ mod tests {
             "<button class=\"it bt\" type=\"submit\" form=\"stkf\" formaction=\"/ui/router/sim-services/stk/select\" name=\"c\" value=\"1700000000001.2\">Plans</button>"
         ), "{s}");
         let n = nav(&views(Some(menu()), None, 0)).into_string();
-        assert!(!n.contains("Back") && !n.contains("Reload") && n.contains("Carrier-provided services from your SIM card"), "{n}");
+        assert!(!n.contains("返回") && !n.contains("Reload") && n.contains("运营商通过您的 SIM 卡提供的服务"), "{n}");
         let mut sub = menu();
         sub["root_menu"] = json!(false);
         sub["busy"] = json!(true);
         let n = nav(&views(Some(sub.clone()), None, 0)).into_string();
-        assert!(n.contains("value=\"1700000000001\" disabled>Back</button>") && n.contains("End SIM Session"), "{n}");
+        assert!(n.contains("value=\"1700000000001\" disabled>Back</button>") && n.contains("结束 SIM 会话"), "{n}");
         assert!(toolkit(&views(Some(sub), None, 0)).into_string().contains("disabled>Balance"));
         // No session: the error, the app's line, Reload.
         let s = toolkit(&views(None, Some("RIL connection failed: <no socket>"), 0)).into_string();
-        assert!(s.contains("RIL connection failed: &lt;no socket&gt;") && s.contains("Reload the SIM menu to reconnect."), "{s}");
+        assert!(s.contains("RIL 连接失败：<无套接字>") && s.contains("重新加载SIM菜单以重新连接。"), "{s}");
         assert!(nav(&views(None, Some("x"), 0)).into_string().contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">Reload SIM Menu</a>"));
-        let status = json!({"type": "status", "items": [], "reason": "Waiting for the SIM", "busy": true, "command_id": "7"});
+        let status = json!({"type": "status", "items": [], "reason": "等待SIM", "busy": true, "command_id": "7"});
         let s = toolkit(&views(Some(status.clone()), None, 0)).into_string();
-        assert!(s.contains("<h2>SIM Toolkit</h2>") && s.contains("Waiting for the SIM"), "{s}");
+        assert!(s.contains("<h2>SIM Toolkit</h2>") && s.contains("等待SIM"), "{s}");
         // Busy: Reload is dimmed, as the app disables the section.
         assert!(nav(&views(Some(status), None, 0)).into_string().contains("<span class=\"it bt off\" aria-disabled=\"true\">Reload SIM Menu</span>"));
         // After a failed action (`held`): the app's failure state, not the
@@ -683,7 +683,7 @@ mod tests {
         let s = toolkit(&held).into_string();
         assert_eq!(s, "<section class=\"group\" id=\"stk\"><h2>SIM Toolkit</h2><ul class=\"list\"><li class=\"it\"><span class=\"muted\">Reload the SIM menu to reconnect.</span></li></ul></section>");
         let n = nav(&held).into_string();
-        assert!(n.contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">Reload SIM Menu</a>") && !n.contains("Back") && !n.contains("<button"), "{n}");
+        assert!(n.contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">Reload SIM Menu</a>") && !n.contains("返回") && !n.contains("<button"), "{n}");
         assert!(!live(&held) && live(&views(Some(menu()), None, 0)));
         assert_eq!(arg(&views(Some(menu()), None, 0), Some("held=1")), 1_700_000_000_001 << 1 | 1);
     }
@@ -692,17 +692,17 @@ mod tests {
     /// is the form after the fragment (`own`), another one reloads.
     #[test]
     fn inputs_are_buttons_or_the_pages_form() {
-        let yn = json!({"type": "input", "text": "Buy 1 GB?", "command_id": "9", "root_menu": false,
+        let yn = json!({"type": "input", "text": "购买 1 GB？", "command_id": "9", "root_menu": false,
                         "input": {"min": 1, "max": 1, "yes_no": true}});
         let s = toolkit(&views(Some(yn), None, 9)).into_string();
         assert!(s.contains("value=\"9.y\">Yes</button>") && s.contains("value=\"9.n\">No</button>") && !s.contains("own"), "{s}");
-        let text = json!({"type": "input", "text": "Enter PIN 0000000000000042", "command_id": "9", "input": {"min": 4, "max": 8, "hidden": true}});
+        let text = json!({"type": "input", "text": "输入PIN 0000000000000042", "command_id": "9", "input": {"min": 4, "max": 8, "hidden": true}});
         let s = toolkit(&views(Some(text.clone()), None, 9)).into_string();
         // The SIM's text as it is (the app's).
-        assert!(s.contains("class=\"group own\"") && s.contains("Enter PIN 0000000000000042") && !s.contains("Enter Response"), "{s}");
+        assert!(s.contains("class=\"group own\"") && s.contains("输入PIN 0000000000000042") && !s.contains("输入响应"), "{s}");
         let s = toolkit(&views(Some(text), None, 8)).into_string();
         assert!(!s.contains("own") && s.contains("<a class=\"it bt\" href=\"\">Enter Response</a>"), "{s}");
-        let display = json!({"type": "display", "text": "Done", "command_id": "10"});
+        let display = json!({"type": "display", "text": "完成", "command_id": "10"});
         assert!(toolkit(&views(Some(display), None, 10)).into_string().contains("value=\"10\">Continue</button>"));
     }
 
@@ -712,8 +712,8 @@ mod tests {
         let s = parse(Post::Send, &f("code=*100%23")).unwrap_or_else(|_| panic!());
         assert_eq!(s.body, json!({"code": "*100#"}));
         assert_eq!(parse(Post::Send, &f("code=%20*1%2000%23%20")).ok().map(|s| s.body), Some(json!({"code": "*100#"})));
-        assert_eq!(parse(Post::Send, &f("code=")).err(), Some(Some("Enter a USSD code")));
-        assert_eq!(parse(Post::Send, &f("code=*100%23;reboot")).err(), Some(Some("A USSD code has only digits, *, # and +.")));
+        assert_eq!(parse(Post::Send, &f("code=")).err(), Some(Some("输入 USSD 代码")));
+        assert_eq!(parse(Post::Send, &f("code=*100%23;reboot")).err(), Some(Some("USSD 代码仅包含数字、*、# 和 +。")));
         assert_eq!(parse(Post::Select, &f("c=17.3")).ok().map(|s| s.body), Some(json!({"command_id": "17", "item_id": 3})));
         for bad in ["c=17", "c=17.0", "c=17.256", "c=x.1", "c=17.1x", "c="] {
             assert!(matches!(parse(Post::Select, &f(bad)), Err(None)), "{bad}");
@@ -730,8 +730,8 @@ mod tests {
         }
         assert!(parse(Post::Send, &f("code=*04*1%23")).is_ok() && parse(Post::Send, &f("code=**21*1%23")).is_ok());
         // Answers: `response`, else `raw_response`, as they are (the app's).
-        assert_eq!(answer_text(&json!({"response": "", "raw_response": "Voucher 00000000000000042 ok"})), "Voucher 00000000000000042 ok");
-        assert_eq!(answer_text(&json!({"response": "Balance 5.00"})), "Balance 5.00");
+        assert_eq!(answer_text(&json!({"response": "", "raw_response": "优惠券 00000000000000042 好的"})), "优惠券 00000000000000042 好的");
+        assert_eq!(answer_text(&json!({"response": "余额 5.00"})), "余额 5.00");
         // The session is opened on a plain load only (the app's screen
         // opening and Reload): not on an answer, a result line or after a
         // failed action.

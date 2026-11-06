@@ -192,7 +192,7 @@ pub enum Done {
 
 /// "Failed: <error>", cut to 120 characters.
 pub fn failed(e: &str) -> String {
-    format!("Failed: {}", fmt::truncate(e, 120))
+    format!("失败：{}", fmt::truncate(e, 120))
 }
 
 /// A firmware value as text (strings and numbers).
@@ -536,7 +536,7 @@ fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], remote:
         }
         Kind::TmDelete => telemetry::question(app, vals),
         // Posted from their page: never asked.
-        Kind::TmSwitch | Kind::TmAdd | Kind::TmBlockAll | Kind::Vpn | Kind::Qos => super::confirm::nothing("Nothing to ask", Vec::new()),
+        Kind::TmSwitch | Kind::TmAdd | Kind::TmBlockAll | Kind::Vpn | Kind::Qos => super::confirm::nothing("没什么可问的", Vec::new()),
     }
 }
 
@@ -583,7 +583,7 @@ fn ask_page(app: &AppState, p: &Principal, nonce: &str, kind: Kind, q: &Question
         tab: Some(s.tab),
         nonce,
         lead: kit::back(cancel, s.title),
-        heading: Some(html! { h1 { "Confirm" } }),
+        heading: Some(html! { h1 { "确认" } }),
         ..PageCtx::default()
     };
     render::html(200, render::page(&pc, action::ask(render::csrf_field(&app.auth, p), &a)))
@@ -704,7 +704,7 @@ fn replayed(ctx: &Ctx, owner: SessionId, kind: Kind, vals: &[(&'static str, Stri
     }
 }
 
-const EXPIRED: &str = "This page expired, so nothing was sent. Try again.";
+const EXPIRED: &str = "该页面已过期，因此未发送任何内容。再试一次。";
 
 /// `POST <path>`.
 pub async fn post(ctx: Ctx, req: Request, kind: Kind) -> Response {
@@ -780,10 +780,10 @@ pub async fn post(ctx: Ctx, req: Request, kind: Kind) -> Response {
         Sent::Ran(resp) => resp,
         Sent::Done(_) | Sent::Unknown => match replayed(&ctx, p.id, kind, &vals, &token) {
             Some(to) => session::see_other(&to),
-            None => note(&ctx, p.id, kind, None, "The router may still be working on it. Check before trying again."),
+            None => note(&ctx, p.id, kind, None, "路由器可能仍在处理它。重试前请检查。"),
         },
         Sent::Expired => note(&ctx, p.id, kind, Some(false), EXPIRED),
-        Sent::Busy => note(&ctx, p.id, kind, Some(false), "Failed: the router is busy. Try again in a few seconds."),
+        Sent::Busy => note(&ctx, p.id, kind, Some(false), "失败：路由器正忙。几秒钟后重试。"),
     }
 }
 
@@ -795,7 +795,7 @@ async fn drafting(ctx: Ctx, p: Principal, mut r: Req, kind: Kind, form: Form, to
     let now = ctx.app.auth.now();
     // An old copy of the form (its token used or gone): nothing to draft.
     if !is_op_id(&token) || ctx.once.get(&token, p.id, now) != Some(Token::Fresh) {
-        return note(&ctx, p.id, kind, Some(false), "This form expired, so nothing was sent. Open it again.");
+        return note(&ctx, p.id, kind, Some(false), "此表格已过期，因此未发送任何内容。再次打开它。");
     }
     let kept: Vals = draft_of(&ctx.drafts, &token, p.id, now, kind)
         .map(|d| d.vals.into_iter().filter(|(k, v)| SECRETS.contains(k) && !v.is_empty()).collect())
@@ -809,7 +809,7 @@ async fn drafting(ctx: Ctx, p: Principal, mut r: Req, kind: Kind, form: Form, to
         match gate::read_only(|| check_form(kind, app, &pairs, &kept)) {
             Ok(vals) => {
                 let Ok(rev) = app.auth.random_hex(8) else {
-                    return render::error(503, "Try again", "The router could not keep this form right now. Nothing was changed.", &n);
+                    return render::error(503, "重试", "路由器目前无法保留此表格。一切都没有改变。", &n);
                 };
                 put(&drafts, &token, owner, Draft { kind, rev, ready: true, vals, next: String::new() }, now);
                 session::see_other(&format!("{}?t={token}", kind.path()))
@@ -902,9 +902,9 @@ pub fn text_row(name: &str, label: &str, value: &str, err: Option<&str>, row: &s
 pub fn password_row(name: &str, label: &str, has: bool, kept: bool, err: Option<&str>, row: &str) -> Markup {
     let (invalid, described) = err_attrs(name, err);
     let hint = if kept {
-        "Leave empty to keep the password you entered"
+        "留空以保留您输入的密码"
     } else if has {
-        "Leave empty to keep"
+        "留空保留"
     } else {
         label
     };
@@ -937,7 +937,7 @@ pub fn select_row(name: &str, label: &str, opts: &[(String, String)], cur: &str,
 pub fn options(list: &[&str], router: &str, label: fn(&str) -> String) -> Vec<(String, String)> {
     let mut out: Vec<(String, String)> = Vec::with_capacity(list.len() + 1);
     if !list.contains(&router) {
-        out.push((router.to_owned(), if router.is_empty() { "Default".to_owned() } else { label(router) }));
+        out.push((router.to_owned(), if router.is_empty() { "默认".to_owned() } else { label(router) }));
     }
     out.extend(list.iter().map(|v| ((*v).to_owned(), label(v))));
     out
@@ -976,7 +976,7 @@ mod tests {
         assert_eq!(port_of(Some("[fe80::1]:9090")), ":9090");
         assert_eq!(port_of(Some("fe80::1")), "");
         assert_eq!(port_of(None), "");
-        let v: Vals = vec![("id", "manu2".into()), ("name", "Fake".into())];
+        let v: Vals = vec![("id", "manu2".into()), ("name", "假的".into())];
         assert_eq!(form_url(Kind::ApnSave, &v, "00ff00ff00ff00ff"), "/ui/router/apn/edit?id=manu2&t=00ff00ff00ff00ff");
         assert_eq!(form_url(Kind::Wifi, &[], "00ff00ff00ff00ff"), "/ui/router/wifi?t=00ff00ff00ff00ff");
         // After a failed send: the page's token is the one the passwords went to.
@@ -988,9 +988,9 @@ mod tests {
     /// sent (whether one was sent stays, for the result page).
     #[test]
     fn drafts_keep_passwords_out_of_pages() {
-        let vals: Vals = vec![("ssid_2g", "Fake-Net".into()), ("key_2g", "fake-pass-123".into()), ("key_5g", String::new())];
+        let vals: Vals = vec![("ssid_2g", "假网".into()), ("key_2g", "fake-pass-123".into()), ("key_5g", String::new())];
         let s = shown(&vals);
-        assert_eq!(s, vec![("ssid_2g", "Fake-Net".to_owned()), ("key_2g", KEPT.to_owned()), ("key_5g", String::new())]);
+        assert_eq!(s, vec![("ssid_2g", "假网".to_owned()), ("key_2g", KEPT.to_owned()), ("key_5g", String::new())]);
         let mut d = Draft { kind: Kind::Wifi, rev: "r".into(), ready: true, vals, next: String::new() };
         d.scrub(vec![("moved", "1".into())]);
         assert_eq!(val(&d.vals, "key_2g"), "");

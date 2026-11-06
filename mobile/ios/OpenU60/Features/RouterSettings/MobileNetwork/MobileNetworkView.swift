@@ -15,7 +15,7 @@ struct MobileNetworkView: View {
             }
 
             Section {
-                Toggle("Airplane Mode", isOn: Binding(
+                Toggle("飞行模式", isOn: Binding(
                     get: { viewModel.airplaneModeEnabled },
                     set: { val in
                         viewModel.airplaneModeEnabled = val
@@ -24,7 +24,7 @@ struct MobileNetworkView: View {
                 ))
                 .disabled(viewModel.isLoading)
 
-                Toggle("Mobile Data", isOn: Binding(
+                Toggle("移动数据", isOn: Binding(
                     get: { viewModel.selectedDataEnabled },
                     set: { val in
                         viewModel.selectedDataEnabled = val
@@ -33,31 +33,31 @@ struct MobileNetworkView: View {
                 ))
                 .disabled(viewModel.isLoading || viewModel.airplaneModeEnabled)
             } header: {
-                Text("Connectivity")
+                Text("网络连接")
             } footer: {
                 Text(mobileDataFooter)
             }
 
-            Section("Connection Mode") {
-                Picker("Mode", selection: $viewModel.selectedConnectMode) {
-                    Text("Automatic").tag(1)
-                    Text("Manual").tag(0)
+            Section("连接方式") {
+                Picker("模式", selection: $viewModel.selectedConnectMode) {
+                    Text("自动").tag(1)
+                    Text("手动").tag(0)
                 }
                 .pickerStyle(.segmented)
                 .disabled(viewModel.isLoading || viewModel.airplaneModeEnabled)
             }
 
             Section {
-                Toggle("Data Roaming", isOn: $viewModel.selectedRoaming)
+                Toggle("数据漫游", isOn: $viewModel.selectedRoaming)
                     .disabled(viewModel.isLoading || viewModel.airplaneModeEnabled)
             } footer: {
-                Text("Enabling roaming may incur additional charges from your carrier.")
+                Text("启用漫游可能会向您的运营商收取额外费用。")
             }
 
-            Section("Network Selection") {
-                Picker("Mode", selection: $viewModel.selectedNetSelectMode) {
-                    Text("Automatic").tag("auto_select")
-                    Text("Manual").tag("manual_select")
+            Section("网络选择") {
+                Picker("模式", selection: $viewModel.selectedNetSelectMode) {
+                    Text("自动").tag("auto_select")
+                    Text("手动").tag("manual_select")
                 }
                 .pickerStyle(.segmented)
                 .disabled(viewModel.isLoading || viewModel.airplaneModeEnabled)
@@ -67,7 +67,7 @@ struct MobileNetworkView: View {
                         Task { await viewModel.scanNetworks() }
                     } label: {
                         HStack {
-                            Text("Scan Networks")
+                            Text("扫描网络")
                             Spacer()
                             if viewModel.isScanning {
                                 ProgressView()
@@ -107,13 +107,13 @@ struct MobileNetworkView: View {
                 Button {
                     Task { await viewModel.applySettings() }
                 } label: {
-                    Text("Apply")
+                    Text("应用")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading || !viewModel.hasChanges || viewModel.airplaneModeEnabled)
             }
         }
-        .navigationTitle("Mobile Network")
+        .navigationTitle("移动网络")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {
@@ -122,33 +122,33 @@ struct MobileNetworkView: View {
                     .background(Color(.systemBackground).opacity(0.85), in: RoundedRectangle(cornerRadius: 8))
             }
         }
-        .alert("Reboot Required", isPresented: $viewModel.showRebootAfterAirplaneOff) {
-            Button("Reboot Now") {
+        .alert("需要重新启动", isPresented: $viewModel.showRebootAfterAirplaneOff) {
+            Button("立即重新启动") {
                 Task { await viewModel.reboot() }
             }
-            Button("Cancel", role: .cancel) {
+            Button("取消", role: .cancel) {
                 viewModel.airplaneModeEnabled = true
             }
         } message: {
-            Text("Due to a firmware limitation, the cellular radio cannot be restored without rebooting. The router will restart (about 60 seconds).")
+            Text("由于固件限制，不重新启动就无法恢复蜂窝无线电。路由器将重新启动（大约 60 秒）。")
         }
         .task { await viewModel.refresh() }
     }
 
     private var mobileDataFooter: String {
         if !viewModel.config.isDataEnabled && viewModel.config.isConnected {
-            return "Mobile data setting is off, but the connection is still active."
+            return "移动数据设置已关闭，但连接仍然有效。"
         } else if !viewModel.config.isDataEnabled {
-            return "Mobile data is disabled."
+            return "移动数据已禁用。"
         } else if viewModel.config.isConnected {
             let status = viewModel.config.connectStatus
                 .replacingOccurrences(of: "_", with: " ")
                 .capitalized
-            return "Connected — \(status)"
+            return "已连接 — \(status)"
         } else if !viewModel.config.connectStatus.isEmpty {
-            return "Disconnected"
+            return "未连接"
         } else {
-            return "Disabling mobile data will disconnect the cellular connection."
+            return "禁用移动数据将断开蜂窝连接。"
         }
     }
 }

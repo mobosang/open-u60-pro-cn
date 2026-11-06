@@ -34,11 +34,11 @@ final class SignalDetectViewModel {
             let _ = try await client.postJSON("/api/cell/signal-detect/start")
             status.running = true
             beginSweepGrace()
-            showMessage("Detection started", isError: false)
+            showMessage("检测开始", isError: false)
             startPolling()
         } catch {
             if !error.isCancellation {
-                showMessage("Failed to start: \(error.localizedDescription)", isError: true)
+                showMessage("启动失败：\(error.localizedDescription)", isError: true)
             }
         }
 
@@ -51,11 +51,11 @@ final class SignalDetectViewModel {
         do {
             let _ = try await client.postJSON("/api/cell/signal-detect/stop")
             status.running = false
-            showMessage("Detection stopped", isError: false)
+            showMessage("检测停止", isError: false)
             await fetchResults()
         } catch {
             if !error.isCancellation {
-                showMessage("Failed to stop: \(error.localizedDescription)", isError: true)
+                showMessage("停止失败：\(error.localizedDescription)", isError: true)
             }
         }
     }
@@ -76,7 +76,7 @@ final class SignalDetectViewModel {
             status.progress = progressStatus.progress
             status.running = false
             await fetchResults()
-            showMessage("Detection complete", isError: false)
+            showMessage("检测完成", isError: false)
             return
         }
 
@@ -128,7 +128,7 @@ final class SignalDetectViewModel {
             status.running = false
             stopPolling()
             await fetchResults()
-            showMessage("Detection complete", isError: false)
+            showMessage("检测完成", isError: false)
         }
         return .success
     }

@@ -76,10 +76,10 @@ final class USBConnectionViewModel {
         do {
             let _ = try await client.putJSON("/api/usb/powerbank", body: ["state": 1])
             usbStatus.powerbankActive = true
-            message = "Fast charging enabled"
+            message = "启用快速充电"
             messageIsError = false
         } catch {
-            message = "Failed: \(error.localizedDescription)"
+            message = "失败：\(error.localizedDescription)"
             messageIsError = true
         }
         isLoading = false
@@ -91,10 +91,10 @@ final class USBConnectionViewModel {
         do {
             let _ = try await client.putJSON("/api/usb/powerbank", body: ["state": 0])
             usbStatus.powerbankActive = false
-            message = "Fast charging disabled"
+            message = "禁用快速充电"
             messageIsError = false
         } catch {
-            message = "Failed: \(error.localizedDescription)"
+            message = "失败：\(error.localizedDescription)"
             messageIsError = true
         }
         isLoading = false

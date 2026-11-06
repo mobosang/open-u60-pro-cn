@@ -22,7 +22,7 @@ export function APIOverview() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
         >
           <h2 className="mb-2 font-display text-[1.75rem] font-bold tracking-tight text-wrap-balance">
-            REST API
+            休息API
           </h2>
           <p className="text-sm text-text-dim">
             {totalEndpoints} endpoints across {totalCategories} categories
@@ -105,7 +105,7 @@ export function APIOverview() {
             href="/docs/api-reference"
             className="inline-flex items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-hover"
           >
-            View full API reference
+            查看完整的 API 参考
             <ArrowRight size={14} />
           </Link>
         </motion.div>

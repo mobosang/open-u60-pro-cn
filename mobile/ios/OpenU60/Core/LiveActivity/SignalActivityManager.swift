@@ -7,7 +7,7 @@ import Foundation
 final class SignalActivityManager {
     private(set) var activity: Activity<SignalActivityAttributes>?
     private(set) var isBusy = false
-    private(set) var message = "Show modem signal on your Lock Screen."
+    private(set) var message = "在锁定屏幕上显示调制解调器信号。"
     private(set) var errorMessage: String?
     private(set) var lastAcceptedAt: Date?
     private(set) var displayedSampleAt: Date?
@@ -46,7 +46,7 @@ final class SignalActivityManager {
             let created = try Activity.request(attributes: attributes,
                 content: ActivityContent(state: state, staleDate: sampled.addingTimeInterval(30)), pushType: .token)
             attach(created)
-            message = "Waiting for Apple’s activity token…"
+            message = "等待苹果的活动令牌……"
         } catch { errorMessage = error.localizedDescription }
     }
 
@@ -86,7 +86,7 @@ final class SignalActivityManager {
                     ? "Agent is verifying modem time · retries automatically"
                     : "Agent is waiting for internet · retries automatically"
             } else if status["registered"] as? Bool == true {
-                message = "Modem updates enabled · 1-hour session"
+                message = "启用调制解调器更新 · 1 小时会话"
             }
             let rejected = (status["last_error"] as? String).map {
                 $0.contains("token invalid") || $0.contains("rejected configuration")
@@ -116,7 +116,7 @@ final class SignalActivityManager {
         activity = nil
         if let current { await current.end(nil, dismissalPolicy: .immediate) }
         await removeRegistration()
-        message = "Show modem signal on your Lock Screen."
+        message = "在锁定屏幕上显示调制解调器信号。"
         lastAcceptedAt = nil
     }
 
@@ -172,7 +172,7 @@ final class SignalActivityManager {
                     ])
                     guard !Task.isCancelled else { return }
                     self.cleanupPending = true
-                    self.message = "Modem updates enabled · 1-hour session"
+                    self.message = "启用调制解调器更新 · 1 小时会话"
                     self.errorMessage = nil
                     return
                 } catch {

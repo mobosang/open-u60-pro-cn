@@ -299,7 +299,7 @@ pub fn cli(args: &[String]) -> i32 {
 /// The process's peak resident memory, Linux only.
 fn peak_kib() -> Option<u64> {
     let status = std::fs::read_to_string("/proc/self/status").ok()?;
-    let line = status.lines().find(|l| l.starts_with("VmHWM:"))?;
+    let line = status.lines().find(|l| l.starts_with("VmHWM："))?;
     line.split_whitespace().nth(1)?.parse().ok()
 }
 
@@ -648,7 +648,7 @@ pub mod tests {
 
     #[test]
     fn refuses_what_it_should_not_decode() {
-        assert_eq!(scan(b"GIF89a....."), Err(Fail::NotImage));
+        assert_eq!(scan(b"GIF89a......"), Err(Fail::NotImage));
         assert_eq!(scan(b""), Err(Fail::NotImage));
         assert_eq!(scan(&[0xff, 0xd8, 0xff, 0xe0, 0, 0]), Err(Fail::Unreadable));
         assert_eq!(scan(b"\x89PNG\r\n\x1a\n\0\0"), Err(Fail::Unreadable));

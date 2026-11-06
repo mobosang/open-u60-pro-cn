@@ -81,7 +81,7 @@ fn status_only(status: StatusCode) -> Response {
 }
 
 fn not_found() -> Response {
-    let mut resp = Response::new(Body::from("Not found"));
+    let mut resp = Response::new(Body::from("未找到"));
     *resp.status_mut() = StatusCode::NOT_FOUND;
     resp.headers_mut()
         .insert(CONTENT_TYPE, HeaderValue::from_static("text/plain; charset=utf-8"));

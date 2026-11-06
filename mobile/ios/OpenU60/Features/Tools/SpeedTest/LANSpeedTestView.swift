@@ -19,7 +19,7 @@ struct LANSpeedTestView: View {
                 }
             }
 
-            Section("Controls") {
+            Section("控制") {
                 if viewModel.isRunning {
                     HStack {
                         Text(phaseLabel)
@@ -49,29 +49,29 @@ struct LANSpeedTestView: View {
                                 .font(.system(size: 48, weight: .bold, design: .rounded))
                                 .contentTransition(.numericText())
                                 .animation(.default, value: viewModel.liveSpeedMbps)
-                            Text("Mbps")
+                            Text("兆比特/秒")
                                 .font(.title3)
                                 .foregroundStyle(.secondary)
                             Spacer()
                         }
                         .padding(.vertical, 8)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("Current speed")
+                        .accessibilityLabel("当前速度")
                         .accessibilityValue(String(format: "%.1f megabits per second", viewModel.liveSpeedMbps))
                     }
 
-                    Button("Stop Test", role: .destructive) {
+                    Button("停止测试", role: .destructive) {
                         viewModel.stopTest()
                     }
                 } else {
-                    Button("Start LAN Speed Test") {
+                    Button("开始 LAN 速度测试") {
                         viewModel.startTest()
                     }
                 }
             }
 
             if viewModel.phase == "complete" {
-                Section("Results") {
+                Section("结果") {
                     if let ping = viewModel.pingMs {
                         LabeledContent("Ping", value: String(format: "%.1f ms", ping))
                     }
@@ -85,21 +85,21 @@ struct LANSpeedTestView: View {
             }
 
             Section {
-                Text("Measures WiFi link speed between this device and the router. Does not use internet data.")
+                Text("测量该设备和路由器之间的 WiFi 链路速度。不使用互联网数据。")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
         }
         // No `onDisappear` teardown: a tab switch must not abort a transfer that is already
         // paid for. A real pop releases the model and its `deinit` cancels the run.
-        .navigationTitle("LAN Speed Test")
+        .navigationTitle("局域网速度测试")
     }
 
     private var phaseLabel: String {
         switch viewModel.phase {
-        case "ping": return "Testing Latency..."
-        case "download": return "Downloading..."
-        case "upload": return "Uploading..."
+        case "ping": return "测试延迟..."
+        case "download": return "正在下载..."
+        case "upload": return "正在上传..."
         default: return viewModel.phase.capitalized
         }
     }

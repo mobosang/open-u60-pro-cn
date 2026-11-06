@@ -8,7 +8,7 @@ struct BatteryCardView: View, Equatable {
         CardView {
             VStack(alignment: compact ? .leading : .center, spacing: 10) {
                 HStack {
-                    Label("Battery", systemImage: batteryIcon(battery.capacity))
+                    Label("电池", systemImage: batteryIcon(battery.capacity))
                         .font(.subheadline.weight(.semibold))
                     if compact {
                         Spacer(minLength: 4)
@@ -24,7 +24,7 @@ struct BatteryCardView: View, Equatable {
                     TemperatureValueText(value: battery.temperature)
                         .font(.caption).foregroundStyle(.secondary)
                 } else {
-                    Text("Power details").font(.caption).foregroundStyle(.secondary)
+                    Text("电源详情").font(.caption).foregroundStyle(.secondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: compact ? .leading : .center)
@@ -60,29 +60,29 @@ struct BatteryCardView: View, Equatable {
     private var batteryStatusText: some View {
         switch battery.charging {
         case "stopped":
-            Text("Charge Stopped")
+            Text("已停止充电")
                 .font(.caption)
                 .foregroundStyle(.orange)
         case "charging":
             if battery.capacityPercent == 100 {
-                Text("Full")
+                Text("已充满")
                     .font(.caption)
                     .foregroundStyle(.green)
             } else if battery.currentMA != nil {
-                Text("Charging")
+                Text("充电中")
                     .font(.caption)
                     .foregroundStyle(.green)
             } else if battery.timeToFull > 0 {
-                Text("Charging \u{00B7} \(formatETA(battery.timeToFull))")
+                Text("充电（\u{00B7} \(formatETA(battery.timeToFull)）")
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.green)
             } else {
-                Text("Charging")
+                Text("充电中")
                     .font(.caption)
                     .foregroundStyle(.green)
             }
         case "":
-            Text("Unavailable").font(.caption).foregroundStyle(.secondary)
+            Text("不可用").font(.caption).foregroundStyle(.secondary)
         default:
             if battery.timeToEmpty > 0 {
                 if battery.currentMA != nil {
@@ -95,7 +95,7 @@ struct BatteryCardView: View, Equatable {
                         .foregroundStyle(Color.batteryColor(battery.capacity))
                 }
             } else {
-                Text("Discharging")
+                Text("放电中")
                     .font(.caption)
                     .foregroundStyle(Color.batteryColor(battery.capacity))
             }
@@ -148,15 +148,15 @@ struct BatteryDetailSheet: View {
                     numericRow("Power", icon: "flame", value: watts, decimals: 1, unit: " W")
                 }
                 HStack {
-                    Label("Temperature", systemImage: "thermometer.medium")
+                    Label("温度", systemImage: "thermometer.medium")
                     Spacer()
                     TemperatureValueText(value: battery.temperature).foregroundStyle(.secondary)
                 }
                 row("Time to Full", icon: "battery.100.bolt", value: battery.charging == "charging" && battery.timeToFull > 0 ? formatETA(battery.timeToFull) : "—")
                 row("Time to Empty", icon: "battery.25", value: battery.charging == "discharging" && battery.timeToEmpty > 0 ? formatETA(battery.timeToEmpty) : "—")
             }
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
-            .navigationTitle("Battery Details")
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } } }
+            .navigationTitle("电池详情")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -182,10 +182,10 @@ struct BatteryDetailSheet: View {
 
     private var statusLabel: String {
         switch battery.charging {
-        case "stopped": return "Charge Stopped"
-        case "charging": return battery.capacityPercent == 100 ? "Full" : "Charging"
-        case "": return "Unavailable"
-        default: return "Discharging"
+        case "stopped": return "已停止充电"
+        case "charging": return battery.capacityPercent == 100 ? "已充满" : "充电中"
+        case "": return "不可用"
+        default: return "放电中"
         }
     }
 

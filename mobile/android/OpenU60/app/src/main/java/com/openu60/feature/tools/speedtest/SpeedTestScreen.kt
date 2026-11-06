@@ -33,7 +33,7 @@ fun SpeedTestScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Speed Test") },
+                title = { Text("速度测试") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -109,7 +109,7 @@ fun SpeedTestScreen(
                             )
                         }
                         Text(
-                            "Mbps",
+                            "兆比特/秒",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -190,7 +190,7 @@ private fun ServerPicker(
             onValueChange = {},
             readOnly = true,
             enabled = enabled,
-            label = { Text("Server") },
+            label = { Text("服务器") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor(),
         )
@@ -221,11 +221,11 @@ private fun ResultsSection(state: SpeedTestState) {
     // Ping / Jitter
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Latency", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("延迟", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                ResultValue(label = "Ping", value = state.pingMs?.let { String.format("%.1f ms", it) } ?: "--")
-                ResultValue(label = "Jitter", value = state.jitterMs?.let { String.format("%.1f ms", it) } ?: "--")
+                ResultValue(label = "延迟测试", value = state.pingMs?.let { String.format("%.1f ms", it) } ?: "--")
+                ResultValue(label = "抖动", value = state.jitterMs?.let { String.format("%.1f ms", it) } ?: "--")
             }
         }
     }
@@ -233,15 +233,15 @@ private fun ResultsSection(state: SpeedTestState) {
     // Download
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Download", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("下载", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 ResultValue(
-                    label = "Speed",
+                    label = "速度",
                     value = state.downloadMbps?.let { String.format("%.2f Mbps", it) } ?: "--",
                 )
                 ResultValue(
-                    label = "Data",
+                    label = "数据",
                     value = formatBytes(state.downloadBytes),
                 )
             }
@@ -251,15 +251,15 @@ private fun ResultsSection(state: SpeedTestState) {
     // Upload
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Upload", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text("上传", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 ResultValue(
-                    label = "Speed",
+                    label = "速度",
                     value = state.uploadMbps?.let { String.format("%.2f Mbps", it) } ?: "--",
                 )
                 ResultValue(
-                    label = "Data",
+                    label = "数据",
                     value = formatBytes(state.uploadBytes),
                 )
             }

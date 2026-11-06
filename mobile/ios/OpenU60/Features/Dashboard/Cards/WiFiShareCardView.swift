@@ -65,7 +65,7 @@ struct WiFiShareCardView: View {
                     withAnimation { isExpanded.toggle() }
                 } label: {
                     HStack {
-                        Label("WiFi Credentials", systemImage: "key.radiowaves.forward")
+                        Label("WiFi 凭证", systemImage: "key.radiowaves.forward")
                             .font(.headline)
                         Spacer()
                         Image(systemName: "chevron.up")
@@ -129,7 +129,7 @@ struct WiFiShareCardView: View {
                                     Image(systemName: "doc.on.doc")
                                         .foregroundStyle(.secondary)
                                 }
-                                .accessibilityLabel("Copy password")
+                                .accessibilityLabel("复制密码")
                             }
 
                             if let qrImage {
@@ -140,7 +140,7 @@ struct WiFiShareCardView: View {
                                     .frame(maxWidth: 180, maxHeight: 180)
                             }
 
-                            Text("Scan with any phone camera")
+                            Text("使用任意手机摄像头扫描")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }

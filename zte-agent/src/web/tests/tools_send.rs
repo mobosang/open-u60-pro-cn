@@ -62,7 +62,7 @@ async fn speed_test_page_lists_servers_and_streams() {
     // Coming back from the question keeps its server.
     assert!(get_with(&c, &format!("{ST}?server=8"), peer(110, 3), &cookie).await.text().contains("<option value=\"8\" selected>"));
     // A test that runs (whoever started it): its progress, Stop, a bounded reload.
-    let _fake = fake::set(&c.app, json!({"phase": "upload", "progress": 80, "live_speed_mbps": 12.34, "server": "Example Net (Testville)"}));
+    let _fake = fake::set(&c.app, json!({"phase": "upload", "progress": 80, "live_speed_mbps": 12.34, "server": "示例网络（Testville）"}));
     let html = get_with(&c, ST, peer(110, 4), &cookie).await.text();
     for want in [
         "<li class=\"it fld run\" id=\"st-run\"><span class=\"row\"><span>Uploading...</span><span class=\"muted num\">80%</span>",
@@ -158,7 +158,7 @@ async fn speed_test_start_asks_and_starts_once() {
     for want in [
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/tools/speedtest\">Speed Test</a></div><h1>Confirm</h1>",
         "<h2 class=\"q\">Start the speed test?</h2>", "<li>Server: Example Net - Testville, Nowhere</li>",
-        "It downloads for 15 seconds and uploads 10 MB", "<li>Your plan may count this data.</li>",
+        "下载 15 秒并上传 10 MB", "<li>Your plan may count this data.</li>",
         "<input type=\"hidden\" name=\"server\" value=\"7\"><input type=\"hidden\" name=\"once\" value=\"",
         "\" autocomplete=\"off\"><input type=\"hidden\" name=\"confirm\" value=\"1\">",
         "<button class=\"btn\" type=\"submit\">Start Speed Test</button>", "href=\"/ui/tools/speedtest?server=7\">Cancel",
@@ -184,13 +184,13 @@ async fn speed_test_start_asks_and_starts_once() {
     let r = post(&c, "/ui/tools/speedtest/start", peer(111, 5), &cookie, &format!("csrf={csrf}&server=8&once={once}&confirm=1")).await;
     let to = r.header("location").unwrap().to_owned();
     assert!(to.starts_with("/ui/tools/speedtest?server=8&r="), "{to}");
-    assert!(get_with(&c, &to, peer(111, 5), &cookie).await.text().contains("This page expired, so nothing was sent. Try again."));
+    assert!(get_with(&c, &to, peer(111, 5), &cookie).await.text().contains("该页面已过期，因此未发送任何内容。再试一次。"));
     assert_eq!(calls(&c).len(), 1);
     // Nothing to do: no form, only Cancel.
     for (uri, title) in [
-        ("/ui/tools/speedtest/start", "Select a server first"),
-        ("/ui/tools/speedtest/start?server=", "Select a server first"),
-        ("/ui/tools/speedtest/start?server=9", "This server is no longer in the list."),
+        ("/ui/tools/speedtest/start", "先选择服务器"),
+        ("/ui/tools/speedtest/start?server=", "先选择服务器"),
+        ("/ui/tools/speedtest/start?server=9", "该服务器已不在列表中。"),
     ] {
         let html = get_with(&c, uri, peer(111, 6), &cookie).await.text();
         assert!(html.contains(&format!("<h2 class=\"q\">{title}</h2>")) && !html.contains("<form"), "{uri}: {html}");
@@ -238,7 +238,7 @@ async fn enable_adb_asks_and_sends_once() {
     let (c, cookie, _) = signed_in(113).await;
     let html = get_with(&c, ADB, peer(113, 2), &cookie).await.text();
     for want in [
-        "<h1>Enable ADB</h1>", "<strong>Enable ADB Debug</strong>", "Sets the USB mode to debug, enabling ADB access over USB-C.",
+        "<h1>Enable ADB</h1>", "<strong>Enable ADB Debug</strong>", "设置 USB 模式进行调试，允许通过 USB-C 进行 ADB 访问。",
         "<a class=\"btn btn-wide\" href=\"/ui/tools/adb/enable\"><svg",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -326,10 +326,10 @@ async fn band_lock_grids_questions_and_bodies() {
     // LTE and Unlock over Tailscale: the remote line.
     let tailnet = Peer(SocketAddr::from(([127, 0, 0, 1], 40114)));
     let q = get_with(&c, "/ui/tools/band-lock/lte?lte=3&lte=20", tailnet, &cookie).await;
-    assert!(q.text().contains("these LTE bands: 3, 20.") && q.text().contains("You are connected remotely"), "{}", q.text());
+    assert!(q.text().contains("these LTE bands: 3, 20.") && q.text().contains("您已远程连接"), "{}", q.text());
     post(&c, "/ui/tools/band-lock/lte", tailnet, &cookie, &format!("csrf={csrf}&lte=3&lte=20&once={}&confirm=1", q.input("once"))).await;
     let q = get_with(&c, "/ui/tools/band-lock/reset", tailnet, &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">Unlock all bands?</h2>") && q.text().contains("You are connected remotely"));
+    assert!(q.text().contains("<h2 class=\"q\">Unlock all bands?</h2>") && q.text().contains("您已远程连接"));
     let r = post(&c, "/ui/tools/band-lock/reset", tailnet, &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     let to = r.header("location").unwrap().to_owned();
     assert!(to.starts_with("/ui/tools/band-lock?r="), "{to}");
@@ -368,7 +368,7 @@ async fn at_terminal_sends_once_masks_and_forgets_on_logout() {
         "<h1>AT Terminal</h1>", "<span class=\"dot bad\"></span><span class=\"muted\" aria-label=\"No port detected\">No port detected</span>",
         "<a href=\"/ui/tools/at?cmd=AT%2BCSQ#cmd\"><code>AT+CSQ</code><small>Signal quality</small></a>",
         "<a href=\"/ui/tools/at?cmd=AT%2BCLCC#cmd\"><code>AT+CLCC</code><small>Active calls</small></a>",
-        "<strong>No Commands Sent</strong>", "Enter an AT command below or tap a quick command above.",
+        "<strong>No Commands Sent</strong>", "在下面输入 AT 命令或点击上面的快捷命令。",
         "<form class=\"atf\" method=\"post\" action=\"/ui/tools/at/send\">", "name=\"once\" value=\"",
         "<input id=\"to\" type=\"number\" name=\"timeout\" min=\"1\" max=\"30\" value=\"3\"",
         "<input id=\"cmd\" type=\"text\" name=\"cmd\" value=\"\" placeholder=\"AT command...\"",
@@ -377,7 +377,7 @@ async fn at_terminal_sends_once_masks_and_forgets_on_logout() {
         assert!(html.contains(want), "{want} in {html}");
     }
     assert_eq!(html.matches("<code>").count(), 7);
-    assert!(!html.contains("AT+CGSN") && !html.contains("IMEI") && !html.contains("Clear"));
+    assert!(!html.contains("AT+CGSN") && !html.contains("IMEI") && !html.contains("清除"));
     // Chips fill the field; other text in the URL does not.
     assert!(get_with(&c, &format!("{AT}?cmd=AT%2BCSQ"), peer(115, 2), &cookie).await.text().contains("name=\"cmd\" value=\"AT+CSQ\""));
     for other in ["AT%2BCGSN", "%3Cscript%3E", "ATD%2B10000000042"] {
@@ -428,7 +428,7 @@ async fn at_terminal_sends_once_masks_and_forgets_on_logout() {
     // A used token with another command: nothing sent, the form kept.
     let r = post(&c, "/ui/tools/at/send", peer(115, 7), &cookie, &format!("csrf={csrf}&once={once}&cmd=ATI")).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("This form expired, so the command was not sent. Send it again.") && r.text().contains("value=\"ATI\""));
+    assert!(r.text().contains("此表单已过期，因此未发送命令。再发送一次。") && r.text().contains("value=\"ATI\""));
     // Control characters and overlong commands are refused.
     for bad in ["AT%0D%0AATZ", &format!("AT{}", "A".repeat(300))] {
         post(&c, "/ui/tools/at/send", peer(115, 7), &cookie, &format!("csrf={csrf}&once={once}&cmd={bad}")).await.assert_secure_html(400);
@@ -436,7 +436,7 @@ async fn at_terminal_sends_once_masks_and_forgets_on_logout() {
     assert_eq!(device::calls(&c.app).len(), 2);
     // Another session sees nothing of it; Clear empties it; logout drops it.
     let other = login(&c, 115, 9).await;
-    assert!(get_with(&c, AT, peer(115, 9), &format!("zte_ui_session={other}")).await.text().contains("No Commands Sent"));
+    assert!(get_with(&c, AT, peer(115, 9), &format!("zte_ui_session={other}")).await.text().contains("尚未发送命令"));
     assert_eq!(c.at.list(me, c.app.auth.now()).len(), 3);
     let logout = get_with(&c, "/ui/logout", peer(115, 8), &cookie).await.input("csrf");
     post(&c, "/ui/logout", peer(115, 8), &cookie, &format!("csrf={logout}")).await.assert_see_other("/ui/login");
@@ -472,7 +472,7 @@ async fn at_terminal_checks_what_is_sent() {
     let once = get_with(&c, AT, peer(118, 4), &cookie).await.input("once");
     let r = post(&c, "/ui/tools/at/send", peer(118, 4), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCFUN%3D%5Cx30")).await;
     r.assert_secure_html(200);
-    assert!(r.text().contains("name=\"cmd\" value=\"AT+CFUN=\\x30\"") && r.text().contains("Error: Command must not contain a backslash"));
+    assert!(r.text().contains("name=\"cmd\" value=\"AT+CFUN=\\x30\"") && r.text().contains("错误：命令不得包含反斜杠"));
     assert_eq!(device::calls(&c.app).len(), 1);
     // A PIN is never kept.
     let r = post(&c, "/ui/tools/at/send", peer(118, 4), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCPIN%3D%221234%22")).await;
@@ -481,7 +481,7 @@ async fn at_terminal_checks_what_is_sent() {
     // A used token: the danger question is not shown, nothing sent.
     let r = post(&c, "/ui/tools/at/send", peer(118, 5), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCFUN%3D0")).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("This form expired") && !r.text().contains("Dangerous Command"));
+    assert!(r.text().contains("此表格已过期") && !r.text().contains("危险命令"));
     assert_eq!(device::calls(&c.app).len(), 2);
     // A PIN typed into the command: masked in the question, as in the
     // history; the hidden field keeps the command as typed.
@@ -507,7 +507,7 @@ async fn at_terminal_records_the_agents_error() {
     // Clear: the history goes, nothing is sent.
     let csrf = page.input("csrf");
     post(&c, "/ui/tools/at/clear", peer(116, 5), &cookie, &format!("csrf={csrf}")).await.assert_see_other(AT);
-    assert!(get_with(&c, AT, peer(116, 5), &cookie).await.text().contains("No Commands Sent"));
+    assert!(get_with(&c, AT, peer(116, 5), &cookie).await.text().contains("尚未发送命令"));
 }
 
 /// Logging in again in the same browser replaces the session: its AT
@@ -551,14 +551,14 @@ async fn a_busy_router_gives_the_token_back() {
     c.gate = Arc::new(Gate::new(4, 0, Duration::from_millis(20)));
     let r = post(&c, "/ui/tools/at/send", peer(120, 3), &cookie, &body).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("Failed: the router is busy.") && r.text().contains("value=\"ATI\""));
+    assert!(r.text().contains("失败：路由器正忙。") && r.text().contains("value=\"ATI\""));
     c.gate = Arc::new(Gate::new(0, 4, Duration::from_millis(20)));
     let to = post(&c, "/ui/tools/adb/enable", peer(120, 4), &cookie, &adb).await.header("location").unwrap().to_owned();
     let r = post(&c, "/ui/tools/automations/save", peer(120, 5), &cookie, &save).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("Failed: the router is busy."));
+    assert!(r.text().contains("失败：路由器正忙。"));
     c.gate = free;
-    assert!(get_with(&c, &to, peer(120, 4), &cookie).await.text().contains("Failed: the router is busy."));
+    assert!(get_with(&c, &to, peer(120, 4), &cookie).await.text().contains("失败：路由器正忙。"));
     assert!(device::calls(&c.app).is_empty());
     assert!(crate::scheduler::jobs_list(&c.app).1["data"].as_array().unwrap().is_empty());
     // The same forms again: each sends once.

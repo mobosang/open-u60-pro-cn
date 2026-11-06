@@ -52,7 +52,7 @@ struct WiFiCardView: View {
 
                     if wifiStatus.guestEnabled {
                         HStack {
-                            Label("Guest", systemImage: "person.2")
+                            Label("嘉宾", systemImage: "person.2")
                                 .font(.caption)
                             Spacer()
                             Text(wifiStatus.guestSsid)
@@ -79,7 +79,7 @@ struct WiFiCardView: View {
                 .font(.caption)
             Spacer()
             if disabled {
-                Text("Disabled")
+                Text("已禁用")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -99,7 +99,7 @@ struct WiFiCardView: View {
                         .foregroundStyle(.secondary)
                 }
                 if !channel.isEmpty {
-                    Text("CH \(channel)")
+                    Text("CH\(channel)")
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }

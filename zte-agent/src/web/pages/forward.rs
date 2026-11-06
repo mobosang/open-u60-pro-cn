@@ -82,10 +82,10 @@ impl Mount {
 
 /// The page's notices (the app's words).
 pub const SAVED: [(&str, &str); 4] = [
-    ("settings", "Settings saved"),
-    ("rule-created", "Rule created"),
-    ("rule-updated", "Rule updated"),
-    ("rule-deleted", "Rule deleted"),
+    ("settings", "已保存设置"),
+    ("rule-created", "规则已创建"),
+    ("rule-updated", "规则更新"),
+    ("rule-deleted", "规则已删除"),
 ];
 
 // --- The page ---
@@ -124,7 +124,7 @@ fn rule_row(csrf: &Markup, m: &Mount, r: &Value) -> Markup {
                 input type="hidden" name="enabled" value=(if on { "0" } else { "1" });
                 button.sw type="submit" role="switch" aria-checked=(on) aria-label=(name) {}
             }
-            a.del href=(m.at(&format!("/rules/delete?id={id}"))) { "Delete" span.sr { " rule " (name) } }
+            a.del href=(m.at(&format!("/rules/delete?id={id}"))) { "删除" span.sr { " rule " (name) } }
         }
     }
 }
@@ -134,11 +134,11 @@ fn rule_row(csrf: &Markup, m: &Mount, r: &Value) -> Markup {
 fn tail(m: &Mount, last: u64) -> Markup {
     html! {
         (kit::section(None, None, html! {
-            li { a.it.bt href=(m.at("/rules/new")) { (kit::icon(Icon::Plus)) span { "New Rule" } } }
+            li { a.it.bt href=(m.at("/rules/new")) { (kit::icon(Icon::Plus)) span { "新规则" } } }
         }))
-        (kit::section(None, None, kit::link_row(m.log, Some(Icon::Doc), "Forward Log")))
+        (kit::section(None, None, kit::link_row(m.log, Some(Icon::Doc), "转发日志")))
         @if last > 0 {
-            (kit::section(None, None, html! { li.it { span.muted { "Last Forwarded ID" } span.tm.num { (last) } } }))
+            (kit::section(None, None, html! { li.it { span.muted { "最后转发的 ID" } span.tm.num { (last) } } }))
         }
     }
 }
@@ -149,7 +149,7 @@ pub fn page(pd: &PageData, m: &Mount) -> Markup {
         Some(Ok(c)) => c,
         Some(Err(e)) => {
             return html! {
-                (kit::notice(false, &format!("Failed to load: {}", fmt::truncate(e, 120))))
+                (kit::notice(false, &format!("加载失败：{}", fmt::truncate(e, 120))))
                 (tail(m, 0))
             }
         }
@@ -160,24 +160,24 @@ pub fn page(pd: &PageData, m: &Mount) -> Markup {
     let flag = |k: &str| cfg[k].as_bool().unwrap_or(false);
     let rules = cfg["rules"].as_array().map(Vec::as_slice).unwrap_or_default();
     html! {
-        (kit::section(Some("Settings"), None, html! {
-            (kit::switch_row(&csrf, "Enabled", Some(flag("enabled")),
+        (kit::section(Some("设置"), None, html! {
+            (kit::switch_row(&csrf, "已启用", Some(flag("enabled")),
                 Act::Post { action: &enabled, name: "enabled", value: "1" },
                 Act::Post { action: &enabled, name: "enabled", value: "0" }))
-            (check_switch("fw-mr", "Mark Read After Forward", "mark_read", flag("mark_read_after_forward"), Some("fwset")))
-            (check_switch("fw-da", "Delete After Forward", "delete_after", flag("delete_after_forward"), Some("fwset")))
+            (check_switch("fw-mr", "转发后标记为已读", "mark_read", flag("mark_read_after_forward"), Some("fwset")))
+            (check_switch("fw-da", "转发后删除", "delete_after", flag("delete_after_forward"), Some("fwset")))
             li {
                 form #fwset method="post" action=(m.at("/settings")) {
                     (csrf)
-                    button.it.cv.snd type="submit" { "Save Settings" }
+                    button.it.cv.snd type="submit" { "保存设置" }
                 }
             }
         }))
         @if rules.is_empty() {
-            (kit::empty_state(Icon::EnvelopeBranch, "No Rules",
-                "Add forwarding rules to automatically forward SMS messages to Telegram, Discord, webhooks, and more."))
+            (kit::empty_state(Icon::EnvelopeBranch, "没有规则",
+                "添加转发规则，自动将短信转发到Telegram、Discord、webhooks等。"))
         } @else {
-            (kit::section(Some("Rules"), None, html! { @for r in rules { (rule_row(&csrf, m, r)) } }))
+            (kit::section(Some("规则"), None, html! { @for r in rules { (rule_row(&csrf, m, r)) } }))
         }
         (tail(m, cfg["last_forwarded_id"].as_u64().unwrap_or(0)))
     }
@@ -191,15 +191,15 @@ pub fn page_delete(pd: &PageData, m: &Mount) -> Markup {
     let action = m.at("/rules/delete");
     let id_text = id.unwrap_or(0).to_string();
     let (title, note, label) = match (pd.reads.first(), rule) {
-        (Some(Err(e)), _) => ("Delete rule?".to_owned(), Some(format!("Failed to load: {}", fmt::truncate(e, 120))), None),
+        (Some(Err(e)), _) => ("删除规则？".to_owned(), Some(format!("加载失败：{}", fmt::truncate(e, 120))), None),
         // As Edit Rule's.
-        (_, None) => ("Delete rule?".to_owned(), Some("Rule not found. It may have been deleted.".to_owned()), None),
-        (_, Some(r)) => (format!("Delete \u{201c}{}\u{201d}?", r["name"].as_str().unwrap_or("")), None, Some("Delete")),
+        (_, None) => ("删除规则？".to_owned(), Some("未找到规则。它可能已被删除。".to_owned()), None),
+        (_, Some(r)) => (format!("删除\u{201c}{}\u{201d}？", r["name"].as_str().unwrap_or("")), None, Some("删除")),
     };
     let lines: &[&str] = if label.is_some() {
         &[
-            "New messages are no longer forwarded with this rule.",
-            "Forwards it holds until the connection returns are dropped; its log entries stay.",
+            "新消息不再使用此规则转发。",
+            "转发它保持直到连接返回被丢弃；它的日志条目保留下来。",
         ]
     } else {
         &[]
@@ -231,12 +231,12 @@ pub fn delete_status(pd: &PageData) -> u16 {
 
 /// The log's notice: "Clear" answers on the log (the app shows it on SMS
 /// Forwarding, behind its log screen).
-pub const LOG_SAVED: [(&str, &str); 1] = [("log-cleared", "Log cleared")];
+pub const LOG_SAVED: [(&str, &str); 1] = [("log-cleared", "日志已清除")];
 
-const RETRIED: &str = "Retry succeeded";
-const LOG_CHANGED: &str = "The log changed. Try again.";
-const LOG_EXPIRED: &str = "This page expired, so nothing was retried. Try again.";
-const RETRY_MAYBE: &str = "The retry may still be running. Check the log before retrying again.";
+const RETRIED: &str = "重试成功";
+const LOG_CHANGED: &str = "日志已更改。再试一次。";
+const LOG_EXPIRED: &str = "该页面已过期，因此没有重试。再试一次。";
+const RETRY_MAYBE: &str = "重试可能仍在运行。在重试之前检查日志。";
 
 /// An entry (`SMSForwardLogView`): the sender and the result ("Held, will
 /// retry", or a check or cross), "<rule> → <type>", the preview, the
@@ -252,11 +252,11 @@ fn log_row(csrf: &Markup, token: &str, m: &Mount, e: &Value) -> Markup {
             div.l1 {
                 span.nm { (s("sender")) }
                 @if held {
-                    span.c-orange.hl { (kit::icon(Icon::ClockArrow)) "Held, will retry" }
+                    span.c-orange.hl { (kit::icon(Icon::ClockArrow)) "已举行，将重试" }
                 } @else if ok {
                     span.c-green role="img" aria-label="Forwarded" { (kit::icon(Icon::Check)) }
                 } @else {
-                    span.c-red role="img" aria-label="Failed" { (kit::icon(Icon::Cross)) }
+                    span.c-red role="img" aria-label="失败" { (kit::icon(Icon::Cross)) }
                 }
             }
             span.rs { (s("rule_name")) " \u{2192} " (s("destination_type")) }
@@ -272,7 +272,7 @@ fn log_row(csrf: &Markup, token: &str, m: &Mount, e: &Value) -> Markup {
                         input type="hidden" name="sms" value=(fp.sms_id);
                         input type="hidden" name="rule" value=(fp.rule_id);
                         input type="hidden" name="ts" value=(fp.timestamp);
-                        button.btn.sm type="submit" { "Retry" span.sr { " forward from " (s("sender")) } }
+                        button.btn.sm type="submit" { "重试" span.sr { " forward from " (s("sender")) } }
                     }
                 }
             }
@@ -286,11 +286,11 @@ fn log_row(csrf: &Markup, token: &str, m: &Mount, e: &Value) -> Markup {
 pub fn log(pd: &PageData, m: &Mount) -> Markup {
     let entries = match pd.reads.first() {
         Some(Ok(v)) => v.as_array().map(Vec::as_slice).unwrap_or_default(),
-        Some(Err(e)) => return kit::notice(false, &format!("Failed to load log: {}", fmt::truncate(e, 120))),
+        Some(Err(e)) => return kit::notice(false, &format!("加载日志失败：{}", fmt::truncate(e, 120))),
         None => return html! {},
     };
     if entries.is_empty() {
-        return kit::empty_state(Icon::Doc, "No Log Entries", "Forwarded messages will appear here");
+        return kit::empty_state(Icon::Doc, "无日志条目", "转发的消息将出现在这里");
     }
     let retry = entries.iter().any(|e| e["success"] != true && e["pending"] != true);
     let token = if retry { pd.once() } else { String::new() };
@@ -302,14 +302,14 @@ pub fn log(pd: &PageData, m: &Mount) -> Markup {
 pub fn ask_clear(pd: &PageData, m: &Mount) -> Markup {
     let action = m.at("/log/clear");
     let q = Ask {
-        title: "Clear the forward log?",
+        title: "清除转发日志？",
         lines: &[
-            "Forwarded and failed entries are removed, except failures of a message that is still held.",
-            "Held forwards are kept and still sent once the connection returns.",
+            "转发和失败的条目将被删除，但仍保留的消息的失败除外。",
+            "保留的转发将被保留，并在连接返回后仍然发送。",
         ],
         action: &action,
         hidden: &[],
-        label: Some("Clear"),
+        label: Some("清除"),
         danger: true,
         cancel: m.log,
     };
@@ -379,7 +379,7 @@ async fn retry(ctx: Ctx, req: Request, m: &'static Mount) -> Response {
     match job::try_run(&ctx, Lane::Slow, &nonce, job).await {
         Some(resp) => resp,
         // The claim went with the work: given back, nothing sent.
-        None => done(false, &format!("Retry failed: {BUSY}")),
+        None => done(false, &format!("重试失败：{BUSY}")),
     }
 }
 
@@ -387,7 +387,7 @@ async fn retry(ctx: Ctx, req: Request, m: &'static Mount) -> Response {
 /// The agent retries by index, so the index is the entry's in the log
 /// read just before.
 fn run_retry(app: &AppState, fp: &Fingerprint, mut claim: Claim) -> (bool, String) {
-    let failed = |e: &str| format!("Retry failed: {}", fmt::truncate(&forward::redact(e), 120));
+    let failed = |e: &str| format!("重试失败：{}", fmt::truncate(&forward::redact(e), 120));
     let log = match forward::data(forward::api(app, Method::Get, forward::LOG, &Value::Null)) {
         Ok(log) => log,
         Err((_, e)) => return (false, failed(&e)),
@@ -503,10 +503,10 @@ fn secret_input(id: Option<&str>, name: &str, label: Option<&str>, placeholder: 
 /// as typed), with "Saved: <host>" or "Entered: <host>" when one is kept.
 fn input_row(class: &str, f: &forward::Field, value: &str, kept: Kept, err: Option<&str>) -> Markup {
     let placeholder = match (&kept, f.kind) {
-        (Some(_), _) => "Leave empty to keep",
+        (Some(_), _) => "留空保留",
         (None, Kind::Url) => f.default,
-        _ if f.required => "Required",
-        _ => "Optional",
+        _ if f.required => "必填",
+        _ => "可选",
     };
     let (ty, mode) = match f.kind {
         Kind::Url | Kind::SecretUrl => ("text", Some("url")),
@@ -524,7 +524,7 @@ fn input_row(class: &str, f: &forward::Field, value: &str, kept: Kept, err: Opti
                     placeholder=(placeholder) autocomplete="off" autocapitalize="off" spellcheck="false"
                     aria-invalid=[err.map(|_| "true")] aria-describedby=[err.map(|_| err_id.as_str())];
             }
-            @if let Some((saved, Some(host))) = &kept { small { (if *saved { "Saved: " } else { "Entered: " }) (host) } }
+            @if let Some((saved, Some(host))) = &kept { small { (if *saved { "已保存： " } else { "输入： " }) (host) } }
             (field_err(f.name, err))
         }
     }
@@ -537,7 +537,7 @@ fn chips(name: &str, opts: &[(&str, &str)], cur: &str) -> Markup {
         li.it.fld {
             // Two columns for the four filters, three for the six types.
             fieldset class=(format!("chips c{}", if opts.len().is_multiple_of(3) { 3 } else { 2 })) {
-                legend { "Type" }
+                legend { "类型" }
                 div {
                     @for (value, label) in opts {
                         label {
@@ -558,21 +558,21 @@ fn chips(name: &str, opts: &[(&str, &str)], cur: &str) -> Markup {
 fn header_rows(input: &Input, kept: &dyn Fn(&str) -> bool, errors: &Errors) -> Markup {
     let rows = input.rows.max(input.headers.len() + 1).clamp(2, MAX_HEADERS);
     html! {
-        li.it.fld.dx.d-webhook { span.lb { "Headers" } small { "One header per row: its name and value." } }
+        li.it.fld.dx.d-webhook { span.lb { "请求头" } small { "每行一个标题：其名称和值。" } }
         @for i in 0..rows {
             @let name = input.headers.get(i).map_or("", |h| h.0.as_str());
             @let (ne, ve) = (err_of(errors, &format!("wh_hn{i}")), err_of(errors, &format!("wh_hv{i}")));
             li.it.hr.dx.d-webhook {
-                input type="text" name=(format!("wh_hn{i}")) value=(name) placeholder="Name" aria-label=(format!("Header {} name", i + 1))
+                input type="text" name=(format!("wh_hn{i}")) value=(name) placeholder="名称" aria-label=(format!("标头 {} 名称", i + 1))
                     autocomplete="off" autocapitalize="off" spellcheck="false" aria-invalid=[ne.map(|_| "true")];
                 // After a URL change nothing is kept: "Value".
-                (secret_input(None, &format!("wh_hv{i}"), Some(&format!("Header {} value", i + 1)),
-                    if !name.is_empty() && kept(name) && ve != Some(forward::AGAIN_URL) { "Leave empty to keep" } else { "Value" }, ve))
+                (secret_input(None, &format!("wh_hv{i}"), Some(&format!("标头 {} 值", i + 1)),
+                    if !name.is_empty() && kept(name) && ve != Some(forward::AGAIN_URL) { "留空保留" } else { "价值" }, ve))
                 @if let Some(e) = ne.or(ve) { p.ferr { (e) } }
             }
         }
         @if rows < MAX_HEADERS {
-            li.dx.d-webhook { button.it.bt type="submit" name="add" value="1" { (kit::icon(Icon::Plus)) span { "Add Header" } } }
+            li.dx.d-webhook { button.it.bt type="submit" name="add" value="1" { (kit::icon(Icon::Plus)) span { "添加标题" } } }
         }
     }
 }
@@ -634,14 +634,14 @@ fn form(app: &AppState, w: &Draw, input: &Input, keep: Option<Secrets>, note: No
     let keep = keep.filter(Secrets::any);
     let sources: Vec<&Secrets> = keep.iter().chain(w.stored).collect();
     let shown = input.shown();
-    let title = if input.id.is_some() { "Edit Rule" } else { "New Rule" };
+    let title = if input.id.is_some() { "编辑规则" } else { "新规则" };
     let ferr = |name: &str| err_of(errors, name);
     let text_row = |class: &str, name: &str, label: &str, value: &str| {
         let e = ferr(name);
         html! {
             li class=(format!("it fld {class}")) {
                 label for=(name) { (label) }
-                input id=(name) type="text" name=(name) value=(value) placeholder="Optional" autocomplete="off" autocapitalize="off"
+                input id=(name) type="text" name=(name) value=(value) placeholder="可选" autocomplete="off" autocapitalize="off"
                     spellcheck="false" aria-invalid=[e.map(|_| "true")] aria-describedby=[e.map(|_| format!("{name}-err"))];
                 (field_err(name, e))
             }
@@ -654,34 +654,34 @@ fn form(app: &AppState, w: &Draw, input: &Input, keep: Option<Secrets>, note: No
             Some((false, msg)) => p.msg.err role="alert" { (msg) },
             None => {},
         }
-        @if !errors.is_empty() && note.is_none() { (kit::notice(false, "Check the highlighted fields.")) }
+        @if !errors.is_empty() && note.is_none() { (kit::notice(false, "检查突出显示的字段。")) }
         form.rf #rf method="post" action=(m.at("/rules/save")) {
             (render::csrf_field(&app.auth, w.p))
             (render::once_field(&token))
             @if let Some(k) = &keep { input type="hidden" name="kd" value=(k.dest); }
             @if let Some(id) = input.id { input type="hidden" name="id" value=(id); }
             // Enter in a field saves (the first submit button), never tests.
-            button.sr type="submit" tabindex="-1" aria-hidden="true" { "Save" }
-            (kit::section(Some("Name"), None, html! {
+            button.sr type="submit" tabindex="-1" aria-hidden="true" { "保存" }
+            (kit::section(Some("名称"), None, html! {
                 li.it.fld {
-                    input type="text" name="name" value=(shown.name) placeholder="Rule name" aria-label="Rule name" maxlength="100"
+                    input type="text" name="name" value=(shown.name) placeholder="规则名称" aria-label="规则名称" maxlength="100"
                         autocomplete="off" aria-invalid=[name_err.map(|_| "true")] aria-describedby=[name_err.map(|_| "name-err")];
                     (field_err("name", name_err))
                 }
             }))
-            (kit::section(Some("Filter"), None, html! {
+            (kit::section(Some("筛选"), None, html! {
                 (chips("ft", &FILTERS, input.filter))
-                (text_row("fx f-s", "patterns", "Sender patterns (comma-separated)", &shown.patterns))
-                (text_row("fx f-k", "keywords", "Keywords (comma-separated)", &shown.keywords))
+                (text_row("fx f-s", "patterns", "发件人模式（以逗号分隔）", &shown.patterns))
+                (text_row("fx f-k", "keywords", "关键字（以逗号分隔）", &shown.keywords))
             }))
-            (kit::section(Some("Destination"), None, html! {
+            (kit::section(Some("目的地"), None, html! {
                 (chips("dt", &DESTS.iter().map(|d| (d.key, d.label)).collect::<Vec<_>>(), input.dest.key))
                 @for d in &DESTS { (dest_rows(d, &shown, &sources, errors)) }
             }))
             (kit::section(None, None, html! {
-                li { button.it.bt type="submit" formaction=(m.at("/rules/test")) { (kit::icon(Icon::PaperPlane)) span { "Test Destination" } } }
+                li { button.it.bt type="submit" formaction=(m.at("/rules/test")) { (kit::icon(Icon::PaperPlane)) span { "测试目的地" } } }
             }))
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Save" } } }))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "保存" } } }))
         }
     };
     if let (Some(k), false) = (keep, token.is_empty()) {
@@ -691,7 +691,7 @@ fn form(app: &AppState, w: &Draw, input: &Input, keep: Option<Secrets>, note: No
         title,
         tab: Some(m.tab),
         nonce: w.nonce,
-        lead: html! { a.nl href=(m.base) { "Cancel" } },
+        lead: html! { a.nl href=(m.base) { "取消" } },
         ..PageCtx::default()
     };
     render::html(status, render::page(&pc, body))
@@ -702,9 +702,9 @@ fn form(app: &AppState, w: &Draw, input: &Input, keep: Option<Secrets>, note: No
 fn message(nonce: &str, m: &Mount, title: &str, text: &str, status: u16) -> Response {
     let body = html! {
         (kit::empty_state(Icon::Envelope, title, text))
-        p.ctr { a.btn href=(m.base) { "Back to SMS Forwarding" } }
+        p.ctr { a.btn href=(m.base) { "返回短信转发" } }
     };
-    let pc = PageCtx { title: "SMS Forwarding", tab: Some(m.tab), nonce, lead: kit::back(m.base, "SMS Forwarding"), ..PageCtx::default() };
+    let pc = PageCtx { title: "短信转发", tab: Some(m.tab), nonce, lead: kit::back(m.base, "短信转发"), ..PageCtx::default() };
     render::html(status, render::page(&pc, body))
 }
 
@@ -730,13 +730,13 @@ pub async fn get(ctx: &Ctx, p: Principal, nonce: String, page: Page) -> Response
         gate::read_only(|| {
             let data = match forward::read(app) {
                 Ok(d) => d,
-                Err(e) => return message(&n, m, "Failed to load", &fmt::truncate(&e, 120), 503),
+                Err(e) => return message(&n, m, "加载失败", &fmt::truncate(&e, 120), 503),
             };
             let (rule, s) = stored(&data, Some(id));
             let w = Draw { p: &p, nonce: &n, once: &once, drafts: &drafts, m, stored: s.as_ref() };
             match rule {
                 Some(r) => form(app, &w, &Input::of_rule(&forward::public_rule(r)), None, None, &Vec::new(), 200),
-                None => message(&n, m, "Rule not found", "It may have been deleted.", 404),
+                None => message(&n, m, "Rule not found", "可能已被删除。", 404),
             }
         })
     });
@@ -747,17 +747,17 @@ const BUSY: &str = "the router is busy. Try again in a few seconds.";
 
 fn prefix(test: bool) -> &'static str {
     if test {
-        "Test failed: "
+        "测试失败： "
     } else {
-        "Failed: "
+        "失败： "
     }
 }
 
 fn expired(test: bool) -> &'static str {
     if test {
-        "This form expired, so no test message was sent. Test again."
+        "此表单已过期，因此未发送测试消息。再次测试。"
     } else {
-        "This form expired, so the rule was not saved. Save it again."
+        "此表单已过期，因此未保存规则。再次保存。"
     }
 }
 
@@ -765,17 +765,17 @@ fn expired(test: bool) -> &'static str {
 /// and nothing falls back to the rule's own.
 fn gone(test: bool) -> &'static str {
     if test {
-        "This form expired, so no test message was sent. Enter the secret fields again, then test."
+        "此表单已过期，因此未发送测试消息。再次输入秘密字段，然后进行测试。"
     } else {
-        "This form expired, so the rule was not saved. Enter the secret fields again, then save."
+        "此表单已过期，因此未保存规则。再次输入秘密字段，然后保存。"
     }
 }
 
 fn unknown(test: bool) -> &'static str {
     if test {
-        "The test may still be running. Check the destination before testing again."
+        "测试可能仍在运行。再次测试之前检查目的地。"
     } else {
-        "The rule may not have been saved. Check the rules before saving again."
+        "该规则可能尚未保存。再次保存之前检查规则。"
     }
 }
 
@@ -894,7 +894,7 @@ async fn replayed(r: Req, digest: u64) -> Response {
     let not_sure = Some((false, unknown(test).to_owned()));
     match settle(&once, &r.token, r.p.id, digest, &auth, if test { SETTLE_SLOW } else { SETTLE }).await {
         Settled::Other => show(r, Some((false, expired(test).to_owned())), 400).await,
-        Settled::Sent if test => show(r, Some((true, "Test message sent".to_owned())), 200).await,
+        Settled::Sent if test => show(r, Some((true, "测试消息发送".to_owned())), 200).await,
         Settled::Sent => session::see_other(&r.m.saved(if r.input.id.is_some() { "rule-updated" } else { "rule-created" })),
         Settled::Failed(status, msg) => show(r, Some((false, msg)), status).await,
         Settled::Fresh => match Claim::take(&once, &auth, &r.token, r.p.id, digest) {
@@ -949,7 +949,7 @@ async fn ask_sms(r: Req) -> Response {
             };
             let number = dest["forward_number"].as_str().unwrap_or("");
             let id = input.id.map(|id| id.to_string()).unwrap_or_default();
-            let line = format!("This sends a real SMS to {number}, which your plan may charge.");
+            let line = format!("这会向 {number} 发送一条真实的短信，您的计划可能会收取费用。");
             let hidden = [
                 ("once", token.as_str()),
                 ("id", id.as_str()),
@@ -962,24 +962,24 @@ async fn ask_sms(r: Req) -> Response {
             ];
             let body = html! {
                 div.narrow {
-                    h2.q { "Send a test SMS?" }
+                    h2.q { "发送测试短信？" }
                     ul.consequences { li { (line) } }
                     form.panel method="post" action=(m.at("/rules/test")) {
                         (render::csrf_field(&app.auth, &p))
                         @for (k, v) in hidden { @if !v.is_empty() { input type="hidden" name=(k) value=(v) autocomplete="off"; } }
                         p.actions {
-                            button.btn type="submit" name="confirm" value="1" { "Send Test SMS" }
-                            button.btn.btn-quiet type="submit" name="back" value="1" { "Cancel" }
+                            button.btn type="submit" name="confirm" value="1" { "发送测试短信" }
+                            button.btn.btn-quiet type="submit" name="back" value="1" { "取消" }
                         }
                     }
                 }
             };
             let pc = PageCtx {
-                title: "Confirm",
+                title: "确认",
                 tab: Some(m.tab),
                 nonce: &n,
-                lead: kit::back(m.base, "SMS Forwarding"),
-                heading: Some(html! { h1 { "Confirm" } }),
+                lead: kit::back(m.base, "短信转发"),
+                heading: Some(html! { h1 { "确认" } }),
                 ..PageCtx::default()
             };
             render::html(200, render::page(&pc, body))
@@ -1022,7 +1022,7 @@ async fn run(r: Req, mut claim: Claim) -> Response {
         let (dest, parts) = match (checked, rule) {
             (Err(errors), _) => return form(app, &w, &input, Some(keep), None, &errors, 400),
             (Ok(_), None) if input.id.is_some() && !test => {
-                return form(app, &w, &input, Some(keep), Some((false, "Failed: rule not found".to_owned())), &Vec::new(), 404);
+                return form(app, &w, &input, Some(keep), Some((false, "失败：找不到规则".to_owned())), &Vec::new(), 404);
             }
             (Ok(c), _) => c,
         };
@@ -1041,7 +1041,7 @@ async fn run(r: Req, mut claim: Claim) -> Response {
             Ok(_) => {
                 claim.set(Token::Sent(claim.digest()));
                 if test {
-                    form(app, &w, &input, Some(keep), Some((true, "Test message sent".to_owned())), &Vec::new(), 200)
+                    form(app, &w, &input, Some(keep), Some((true, "测试消息发送".to_owned())), &Vec::new(), 200)
                 } else {
                     session::see_other(&m.saved(if input.id.is_some() { "rule-updated" } else { "rule-created" }))
                 }

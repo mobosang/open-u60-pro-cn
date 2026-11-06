@@ -155,63 +155,63 @@ pub fn cell_lock(pd: &PageData) -> Markup {
     html! {
         @if let Some(cells) = found {
             @if cells.is_empty() {
-                p.msg.ok role="status" { "No neighbors found" }
+                p.msg.ok role="status" { "未发现邻区" }
             } @else {
-                p.msg.ok role="status" { "Found " (cells.len()) " neighbor cell(s)" }
+                p.msg.ok role="status" { "找到 " (cells.len()) " neighbor cell(s)" }
             }
         }
-        @if let Some(e) = failed { p.msg.err role="alert" { "Failed to load cell info: " (fmt::truncate(e, 120)) } }
-        (kit::section(Some("Current Cell"), None, html! {
+        @if let Some(e) = failed { p.msg.err role="alert" { "加载单元信息失败： " (fmt::truncate(e, 120)) } }
+        (kit::section(Some("当前小区"), None, html! {
             (kit::kv_row(None, "NR PCI", &v("nr5g_pci")))
             (kit::kv_row(None, "NR EARFCN", &v("nr5g_action_channel")))
-            (kit::kv_row(None, "NR Band", &v("nr5g_action_band")))
+            (kit::kv_row(None, "NR 频段", &v("nr5g_action_band")))
             (kit::kv_row(None, "LTE PCI", &v("lte_pci")))
             (kit::kv_row(None, "LTE EARFCN", &v("wan_active_channel")))
             li.it {
-                span { "Locked" }
+                span { "锁定" }
                 @match locked {
-                    Some(true) => span.v.c-orange { "Yes" },
+                    Some(true) => span.v.c-orange { "是的" },
                     Some(false) => span.v.c-green { "No" },
                     None => span.v { "\u{2014}" },
                 }
             }
         }))
         form.rf.req method="get" action=(LOCK_NR) {
-            (kit::section(Some("Lock NR Cell"), None, html! {
+            (kit::section(Some("锁定 NR 单元"), None, html! {
                 (field("nr_pci", "PCI", &typed(pd, "nr_pci"), err("nr_pci"), true, false))
                 (field("nr_earfcn", "EARFCN", &typed(pd, "nr_earfcn"), err("nr_earfcn"), true, false))
-                (field("nr_band", "Band (optional)", &typed(pd, "nr_band"), err("nr_band"), false, false))
-                li { button.it.cv.snd type="submit" { "Lock NR" } }
+                (field("nr_band", "频段（可选）", &typed(pd, "nr_band"), err("nr_band"), false, false))
+                li { button.it.cv.snd type="submit" { "锁NR" } }
             }))
         }
         form.rf.req method="get" action=(LOCK_LTE) {
-            (kit::section(Some("Lock LTE Cell"), None, html! {
+            (kit::section(Some("锁定 LTE 单元"), None, html! {
                 (field("lte_pci", "PCI", &typed(pd, "lte_pci"), err("lte_pci"), true, false))
                 (field("lte_earfcn", "EARFCN", &typed(pd, "lte_earfcn"), err("lte_earfcn"), true, false))
-                li { button.it.cv.snd type="submit" { "Lock LTE" } }
+                li { button.it.cv.snd type="submit" { "锁LTE" } }
             }))
         }
-        (kit::section(Some("Neighbor Scan"), None, html! {
+        (kit::section(Some("邻居扫描"), None, html! {
             li {
                 form.sf method="post" action=(NEIGHBORS) {
                     (pd.csrf())
                     (once_field(&pd.once()))
                     input type="hidden" name="confirm" value="1";
-                    button.it.cv.bt type="submit" { "Scan Neighbors" }
+                    button.it.cv.bt type="submit" { "扫描邻居" }
                 }
             }
             @for c in found.into_iter().flatten() {
                 @let f = |k: &str| c[k].as_str().unwrap_or("").to_owned();
                 li.it.nb {
                     span.cvb {
-                        span.l1 { b { (f("type")) } span.muted { "Band " (f("band")) } }
+                        span.l1 { b { (f("type")) } span.muted { "频段  " (f("band")) } }
                         small { "PCI: " (f("pci")) "\u{a0}\u{a0}EARFCN: " (f("earfcn")) "\u{a0}\u{a0}RSRP: " (f("rsrp")) }
                     }
                 }
             }
         }))
         @if locked != Some(false) {
-            (kit::section(None, None, html! { li { a.it.bt.danger href=(UNLOCK) { "Unlock Cell" } } }))
+            (kit::section(None, None, html! { li { a.it.bt.danger href=(UNLOCK) { "解锁单元格" } } }))
         }
     }
 }
@@ -222,14 +222,14 @@ fn int_field(pairs: &[(String, String)], name: &'static str, range: std::ops::Ra
     fs.values.push((name, raw.chars().take(12).collect()));
     if raw.is_empty() {
         if required {
-            fs.errors.push((name, "PCI and EARFCN are required".into()));
+            fs.errors.push((name, "需要 PCI 和 EARFCN".into()));
         }
         return String::new();
     }
     match raw.parse::<u32>().ok().filter(|n| raw.bytes().all(|b| b.is_ascii_digit()) && range.contains(n)) {
         Some(n) => n.to_string(),
         None => {
-            fs.errors.push((name, format!("Enter a whole number from {} to {}.", range.start(), range.end())));
+            fs.errors.push((name, format!("输入从 {} 到 {} 的整数。", range.start(), range.end())));
             String::new()
         }
     }
@@ -258,50 +258,50 @@ pub fn parse(kind: Kind, pairs: &[(String, String)]) -> Result<Vec<(&'static str
 
 pub fn question(kind: Kind, i: &Input, remote: bool) -> Option<Question> {
     let band = if i.val("nr_band").is_empty() { String::new() } else { format!(", band n{}", i.val("nr_band")) };
-    let rereg = "It may re-register, which drops the connection for a moment.";
+    let rereg = "它可能会重新注册，从而暂时断开连接。";
     Some(match kind {
         Kind::CellNr => asking(
-            "Lock this NR cell?",
+            "锁定这个NR单元格？",
             vec![
-                format!("The modem will use only the 5G NR cell with PCI {} on NR-ARFCN {}{band}.", i.val("nr_pci"), i.val("nr_earfcn")),
-                "If that cell can't be used here, the router can lose 5G, or all service, until you unlock the cell.".into(),
+                format!("调制解调器将仅使用 PCI 为 {}、NR-ARFCN 为 {}{band} 的 5G NR 小区。", i.val("nr_pci"), i.val("nr_earfcn")),
+                "如果该小区无法在此处使用，则路由器可能会失去 5G 或所有服务，直到您解锁该小区。".into(),
             ],
-            "Lock NR",
+            "锁NR",
             remote,
             true,
         ),
         Kind::CellLte => asking(
-            "Lock this LTE cell?",
+            "锁定这个LTE单元格？",
             vec![
-                format!("The modem will use only the LTE cell with PCI {} on EARFCN {}.", i.val("lte_pci"), i.val("lte_earfcn")),
-                "If that cell can't be used here, the router can lose its connection until you unlock the cell.".into(),
+                format!("调制解调器将仅使用 PCI 为 {}、EARFCN 为 {} 的 LTE 小区。", i.val("lte_pci"), i.val("lte_earfcn")),
+                "如果该单元无法在此处使用，则路由器可能会失去连接，直到您解锁该单元。".into(),
             ],
-            "Lock LTE",
+            "锁LTE",
             remote,
             true,
         ),
         Kind::CellReset => asking(
-            "Unlock the cell?",
+            "解锁牢房？",
             vec![
-                format!("The modem may use any cell again. {rereg}"),
-                "The firmware resets band and cell settings together, so band locks may be undone too.".into(),
+                format!("调制解调器可以再次使用任何小区。 {rereg}"),
+                "固件会一起重置频段和小区设置，因此频段锁定也可能会被撤销。".into(),
             ],
-            "Unlock Cell",
+            "解锁单元格",
             remote,
             true,
         ),
         Kind::StcOn => asking(
-            "Turn on Smart Tower Connect?",
-            vec!["The modem keeps to the cells on its whitelist. If those cells can't be used, the router can lose service until you turn it off.".into()],
-            "Enable STC",
+            "开启 Smart Tower Connect？",
+            vec!["调制解调器保留其白名单上的单元。如果这些单元无法使用，路由器可能会失去服务，直到您将其关闭。".into()],
+            "启用STC",
             remote,
             true,
         ),
-        Kind::StcOff => asking("Turn off Smart Tower Connect?", vec![format!("The modem may use any cell again. {rereg}")], "Disable STC", remote, true),
+        Kind::StcOff => asking("关闭 Smart Tower Connect？", vec![format!("调制解调器可以再次使用任何小区。 {rereg}")], "禁用 STC", remote, true),
         Kind::StcReset => asking(
-            "Reset the STC whitelist?",
-            vec!["The collected cells are removed and Smart Tower Connect turns off.".into(), "The modem may re-register, which drops the connection for a moment.".into()],
-            "Reset Whitelist",
+            "重置STC白名单？",
+            vec!["收集到的电池将被移除，Smart Tower Connect 将关闭。".into(), "调制解调器可能会重新注册，从而暂时断开连接。".into()],
+            "重置白名单",
             remote,
             true,
         ),
@@ -327,10 +327,10 @@ pub fn send(app: &AppState, kind: Kind, i: &Input, claim: &mut Claim) -> Result<
     };
     claim.disarm();
     let prefix = match kind {
-        Kind::Neighbors => "Scan failed: ",
-        Kind::Detect => "Failed to start: ",
-        Kind::DetectStop => "Failed to stop: ",
-        _ => "Failed: ",
+        Kind::Neighbors => "扫描失败： ",
+        Kind::Detect => "启动失败： ",
+        Kind::DetectStop => "停止失败： ",
+        _ => "失败： ",
     };
     super::call(app, method, path, &body).map_err(|(status, e)| (status, format!("{prefix}{}", fmt::truncate(&e, 120))))?;
     if kind == Kind::Neighbors {
@@ -358,14 +358,14 @@ pub fn back(kind: Kind, i: &Input) -> String {
 pub fn next(kind: Kind, i: &Input, r: Result<(), &str>, now: BootInstant) -> Next {
     let sep = |to: String| if to.contains('?') { format!("{to}&") } else { format!("{to}?") };
     let ok = match kind {
-        Kind::CellNr => "NR cell locked",
-        Kind::CellLte => "LTE cell locked",
-        Kind::CellReset => "Cell lock reset",
-        Kind::StcOn => "STC enabled",
-        Kind::StcOff => "STC disabled",
-        Kind::StcReset => "STC whitelist reset",
-        Kind::Detect => "Detection started",
-        _ => "Detection stopped",
+        Kind::CellNr => "NR 单元格锁定",
+        Kind::CellLte => "LTE 单元格锁定",
+        Kind::CellReset => "单元锁重置",
+        Kind::StcOn => "STC 启用",
+        Kind::StcOff => "STC 禁用",
+        Kind::StcReset => "STC白名单重置",
+        Kind::Detect => "检测开始",
+        _ => "检测停止",
     };
     match (kind, r) {
         (_, Err(msg)) => Next::Line(back(kind, i), Some(false), msg.to_owned()),
@@ -385,10 +385,10 @@ pub fn next(kind: Kind, i: &Input, r: Result<(), &str>, now: BootInstant) -> Nex
 
 /// The parameters' fields: (field, label, the firmware's name, the app's).
 pub const STC_FIELDS: [(&str, &str, &str, &str); 4] = [
-    ("lte_timer", "LTE Collect Timer", "stc_lte_collect_timer", "lte_collect_timer"),
-    ("nrsa_timer", "NRSA Collect Timer", "stc_nrsa_collect_timer", "nrsa_collect_timer"),
-    ("lte_max", "LTE Whitelist Max", "stc_lte_white_list_num_max", "lte_whitelist_max"),
-    ("nrsa_max", "NRSA Whitelist Max", "stc_nrsa_white_list_num_max", "nrsa_whitelist_max"),
+    ("lte_timer", "LTE 采集定时器", "stc_lte_collect_timer", "lte_collect_timer"),
+    ("nrsa_timer", "NRSA 收集定时器", "stc_nrsa_collect_timer", "nrsa_collect_timer"),
+    ("lte_max", "LTE 白名单最大值", "stc_lte_white_list_num_max", "lte_whitelist_max"),
+    ("nrsa_max", "NRSA 白名单上限", "stc_nrsa_white_list_num_max", "nrsa_whitelist_max"),
 ];
 
 /// `PUT /api/cell/stc/params`: the four whole numbers, as strings under the
@@ -430,32 +430,32 @@ pub fn stc(pd: &PageData) -> Markup {
     };
     html! {
         @if let Some(Err(e)) = pd.reads.first() {
-            p.msg.err role="alert" { "Failed to load STC: " (fmt::truncate(e, 120)) }
+            p.msg.err role="alert" { "加载STC失败： " (fmt::truncate(e, 120)) }
         }
-        (kit::section(Some("Status"), None, html! {
+        (kit::section(Some("状态"), None, html! {
             li.it {
                 span { "STC" }
                 @match enabled {
-                    Some(true) => span.v.c-green { "Enabled" },
-                    Some(false) => span.v { "Disabled" },
-                    None => span.v { "Unavailable" },
+                    Some(true) => span.v.c-green { "已启用" },
+                    Some(false) => span.v { "已禁用" },
+                    None => span.v { "不可用" },
                 }
             }
         }))
         form.rf.req method="post" action=(STC_PARAMS) {
             (pd.csrf())
-            (kit::section(Some("Parameters"), None, html! {
+            (kit::section(Some("参数"), None, html! {
                 @for (name, label, fw, app) in STC_FIELDS {
                     @let value = pd.form.and_then(|f| f.value(name)).map_or_else(|| saved(fw, app), str::to_owned);
                     (field(name, label, &value, pd.form.and_then(|f| f.error(name)), true, true))
                 }
-                li { button.it.cv.snd type="submit" { "Apply Parameters" } }
+                li { button.it.cv.snd type="submit" { "应用参数" } }
             }))
         }
-        (kit::section(Some("Controls"), None, html! {
-            (ctl("Enable STC", STC_ON, enabled != Some(true), false))
-            (ctl("Disable STC", STC_OFF, enabled != Some(false), false))
-            (ctl("Reset Whitelist", STC_RESET, true, true))
+        (kit::section(Some("控制"), None, html! {
+            (ctl("启用STC", STC_ON, enabled != Some(true), false))
+            (ctl("禁用 STC", STC_OFF, enabled != Some(false), false))
+            (ctl("重置白名单", STC_RESET, true, true))
         }))
     }
 }
@@ -552,7 +552,7 @@ fn message(v: &Views) -> Markup {
     let done = since_start(v).is_some() && !stopped(v) && !running(v) && reading(v).0 >= 100;
     html! {
         div #sd-msg {
-            @if done { p.msg.ok role="status" { "Detection complete" } }
+            @if done { p.msg.ok role="status" { "检测完成" } }
         }
     }
 }
@@ -567,8 +567,8 @@ fn controls(v: &Views) -> Markup {
     let pct = Some(reading(v).0).filter(|p| *p < 100).unwrap_or(0);
     html! {
         li #sd-run .it .fld .run {
-            span.row { span { "Progress" } span.muted.num { (pct) "%" } }
-            progress max="100" value=(pct) aria-label="Detection progress" {}
+            span.row { span { "进展" } span.muted.num { (pct) "%" } }
+            progress max="100" value=(pct) aria-label="检测进展" {}
         }
     }
 }
@@ -582,12 +582,12 @@ fn results(v: &Views) -> Markup {
     };
     html! {
         div #sd-res {
-            (kit::section(Some("Results"), None, html! {
+            (kit::section(Some("结果"), None, html! {
                 @for r in list {
                     @let f = |k: &str| text(&r[k]);
                     li.it.nb {
                         span.cvb {
-                            span.l1 { b { (f("type")) } span.muted { "Band " (f("band")) } }
+                            span.l1 { b { (f("type")) } span.muted { "频段  " (f("band")) } }
                             span.sq {
                                 span { (kit::icon(Icon::Antenna)) span.sr { "RSRP " } (f("rsrp")) }
                                 span { (kit::icon(Icon::Waveform)) span.sr { "SINR " } (f("sinr")) }
@@ -611,7 +611,7 @@ pub fn signal_detect(pd: &PageData) -> Markup {
         (message(v))
         @if let Some(n) = &pd.notice { (n) }
         section.group {
-            h2 { "Controls" }
+            h2 { "控制" }
             ul.list {
                 (controls(v))
                 li.go {
@@ -619,7 +619,7 @@ pub fn signal_detect(pd: &PageData) -> Markup {
                         (pd.csrf())
                         (once_field(&token))
                         input type="hidden" name="confirm" value="1";
-                        button.it.cv.snd type="submit" { "Start Signal Detection" }
+                        button.it.cv.snd type="submit" { "启动信号检测" }
                     }
                 }
                 li.halt {
@@ -627,7 +627,7 @@ pub fn signal_detect(pd: &PageData) -> Markup {
                         (pd.csrf())
                         (once_field(&token))
                         input type="hidden" name="confirm" value="1";
-                        button.it.cv.snd.danger type="submit" { "Stop Detection" }
+                        button.it.cv.snd.danger type="submit" { "停止检测" }
                     }
                 }
             }
@@ -673,7 +673,7 @@ mod tests {
         assert!(running(&views(sweep(json!("40"), json!(0)), start + 60_000, ours)));
         assert!(!running(&views(sweep(json!("40"), json!(0)), start + 601_000, ours)));
         let v = views(sweep(json!(100), json!(0)), start + 8_000, ours);
-        assert!(message(&v).into_string().contains("Detection complete"));
+        assert!(message(&v).into_string().contains("检测完成"));
         let r = results(&v).into_string();
         for want in ["<b>LTE</b><span class=\"muted\">Band 3</span>", "-90", "12", "PCI: 178\u{a0}\u{a0}EARFCN: 1300"] {
             assert!(r.contains(want), "{want} in {r}");
@@ -682,7 +682,7 @@ mod tests {
         let fresh = views(sweep(json!(100), json!(0)), start, 0);
         assert_eq!((message(&fresh).into_string(), results(&fresh).into_string()), ("<div id=\"sd-msg\"></div>".into(), "<div id=\"sd-res\"></div>".into()));
         let stopped = views(sweep(json!(40), json!(0)), start, 1);
-        assert!(results(&stopped).into_string().contains("Results") && !message(&stopped).into_string().contains("complete"));
+        assert!(results(&stopped).into_string().contains("结果") && !message(&stopped).into_string().contains("complete"));
         // Running: the bar (the old 100 % reads 0 %).
         let c = controls(&views(sweep(json!(100), json!(0)), start + 1_000, ours)).into_string();
         assert!(c.contains("class=\"it fld run\"") && c.contains("<progress max=\"100\" value=\"0\""), "{c}");
@@ -706,14 +706,14 @@ mod tests {
         assert!(running(&views(sweep(json!(40), json!(1)), start, attached)));
         // Its 100 % is believed at once (no grace: the device's own counter).
         let end = views(sweep(json!(100), json!(0)), start + 2_000, attached);
-        assert!(!running(&end) && message(&end).into_string().contains("Detection complete") && results(&end).into_string().contains("Results"));
+        assert!(!running(&end) && message(&end).into_string().contains("检测完成") && results(&end).into_string().contains("结果"));
         // Nothing running: no watch point.
         assert_eq!(sd_arg(&views(sweep(json!(100), json!(0)), start, 0), None), 0);
         assert_eq!(sd_arg(&views(sweep(json!(40), json!(0)), start, 0), None), 0);
         // Stop at `start`: the device's "running" is not believed for 6 s.
         let stop = start << 1 | 1;
         let just = views(sweep(json!(40), json!(1)), start + 2_000, stop);
-        assert!(!running(&just) && results(&just).into_string().contains("Results") && !message(&just).into_string().contains("complete"));
+        assert!(!running(&just) && results(&just).into_string().contains("结果") && !message(&just).into_string().contains("complete"));
         assert!(running(&views(sweep(json!(40), json!(1)), start + 6_000, stop)));
     }
 
@@ -723,15 +723,15 @@ mod tests {
         assert_eq!(p(Kind::CellNr, "nr_pci=774&nr_earfcn=513000&nr_band=").unwrap(), [("nr_pci", "774".to_owned()), ("nr_earfcn", "513000".to_owned())]);
         assert_eq!(p(Kind::CellLte, "lte_pci=0&lte_earfcn=262143").unwrap().len(), 2);
         let Err(Bad::Fields(fs)) = p(Kind::CellNr, "nr_pci=1008&nr_earfcn=&nr_band=x") else { panic!() };
-        assert_eq!(fs.error("nr_pci"), Some("Enter a whole number from 0 to 1007."));
-        assert_eq!(fs.error("nr_earfcn"), Some("PCI and EARFCN are required"));
-        assert_eq!(fs.error("nr_band"), Some("Enter a whole number from 1 to 1024."));
+        assert_eq!(fs.error("nr_pci"), Some("输入 0 到 1007 之间的整数。"));
+        assert_eq!(fs.error("nr_earfcn"), Some("需要 PCI 和 EARFCN"));
+        assert_eq!(fs.error("nr_band"), Some("输入 1 到 1024 之间的整数。"));
         assert_eq!(fs.value("nr_pci"), Some("1008"));
         assert!(matches!(p(Kind::CellLte, "lte_pci=504&lte_earfcn=1"), Err(Bad::Fields(_))));
         let i = Input::of(&[("nr_pci", "774"), ("nr_earfcn", "513000"), ("nr_band", "41")]);
         assert_eq!(back(Kind::CellNr, &i), "/ui/router/cell-lock?nr_pci=774&nr_earfcn=513000&nr_band=41");
         let q = question(Kind::CellNr, &i, true).unwrap();
-        assert_eq!(q.lines[0], "The modem will use only the 5G NR cell with PCI 774 on NR-ARFCN 513000, band n41.");
+        assert_eq!(q.lines[0], "调制解调器将仅使用 NR-ARFCN 513000、频段 n41 上具有 PCI 774 的 5G NR 单元。");
         assert_eq!(q.lines.last().unwrap(), super::super::confirm::REMOTE);
         assert!(question(Kind::Neighbors, &i, true).is_none() && question(Kind::Detect, &i, true).is_none());
     }

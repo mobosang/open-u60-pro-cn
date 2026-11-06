@@ -18,9 +18,9 @@ struct SIMView: View {
                 Section {
                     Label {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("SIM PIN Required")
+                            Text("SIM PIN 必填")
                                 .font(.headline)
-                            Text("Enter your PIN to unlock the SIM card")
+                            Text("输入你的PIN来解锁SIM卡")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -35,7 +35,7 @@ struct SIMView: View {
                         viewModel.sheetError = nil
                         viewModel.showEnterPinSheet = true
                     } label: {
-                        Text("Enter PIN")
+                        Text("输入PIN")
                             .frame(maxWidth: .infinity)
                     }
                 }
@@ -45,9 +45,9 @@ struct SIMView: View {
                 Section {
                     Label {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("SIM PUK Required")
+                            Text("SIM PUK 必填")
                                 .font(.headline)
-                            Text("Too many wrong PIN attempts. Enter PUK to unlock.")
+                            Text("PIN 尝试错误太多。输入PUK进行解锁。")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -62,13 +62,13 @@ struct SIMView: View {
                         viewModel.sheetError = nil
                         viewModel.showEnterPukSheet = true
                     } label: {
-                        Text("Enter PUK")
+                        Text("输入PUK")
                             .frame(maxWidth: .infinity)
                     }
                 }
             }
 
-            Section("SIM Card") {
+            Section("SIM 卡") {
                 statusRow
                 infoRow("ICCID", viewModel.simInfo.iccid)
                 infoRow("IMSI", viewModel.simInfo.imsi)
@@ -81,11 +81,11 @@ struct SIMView: View {
                 infoRow("SIM Slot", viewModel.simInfo.currentSlot)
             }
 
-            Section("PIN Management") {
+            Section("PIN 管理") {
                 pinStatusRow
 
                 HStack {
-                    Text("PIN Attempts")
+                    Text("PIN 尝试")
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text("\(viewModel.simInfo.pinAttempts)")
@@ -94,7 +94,7 @@ struct SIMView: View {
                 }
 
                 HStack {
-                    Text("PUK Attempts")
+                    Text("PUK 尝试")
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text("\(viewModel.simInfo.pukAttempts)")
@@ -110,7 +110,7 @@ struct SIMView: View {
                             viewModel.sheetError = nil
                             viewModel.showEnterPinSheet = true
                         } label: {
-                            Label("Disable PIN Lock", systemImage: "lock.open")
+                            Label("禁用 PIN 锁定", systemImage: "lock.open")
                         }
                     } else {
                         Button {
@@ -119,7 +119,7 @@ struct SIMView: View {
                             viewModel.sheetError = nil
                             viewModel.showEnterPinSheet = true
                         } label: {
-                            Label("Enable PIN Lock", systemImage: "lock")
+                            Label("启用 PIN 锁定", systemImage: "lock")
                         }
                     }
 
@@ -129,14 +129,14 @@ struct SIMView: View {
                         viewModel.sheetError = nil
                         viewModel.showChangePinSheet = true
                     } label: {
-                        Label("Change PIN", systemImage: "pencil")
+                        Label("更改PIN", systemImage: "pencil")
                     }
                 }
             }
 
-            Section("SIM Lock") {
+            Section("SIM锁") {
                 HStack {
-                    Text("Unlock Attempts")
+                    Text("解锁尝试")
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text("\(viewModel.lockInfo.availableTrials)")
@@ -149,12 +149,12 @@ struct SIMView: View {
                         viewModel.sheetError = nil
                         viewModel.showUnlockSheet = true
                     } label: {
-                        Label("Enter Unlock Code", systemImage: "lock.open")
+                        Label("输入解锁码", systemImage: "lock.open")
                     }
                 }
             }
         }
-        .navigationTitle("SIM Card")
+        .navigationTitle("SIM 卡")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {
@@ -214,7 +214,7 @@ struct SIMView: View {
         let label = simStatusLabel(effective)
         let color = simStatusColor(effective)
         return HStack {
-            Text("Status")
+            Text("状态")
                 .foregroundStyle(.secondary)
             Spacer()
             Text(label)
@@ -226,7 +226,7 @@ struct SIMView: View {
     private var pinStatusRow: some View {
         let enabled = viewModel.isPinEnabled
         return HStack {
-            Text("PIN Lock")
+            Text("PIN 锁")
                 .foregroundStyle(.secondary)
             Spacer()
             Text(enabled ? "Enabled" : "Disabled")
@@ -240,12 +240,12 @@ struct SIMView: View {
     private func simStatusLabel(_ raw: String) -> String {
         switch raw.lowercased() {
         case "", "unknown": return "--"
-        case "sim ready": return "Ready"
-        case "sim undetected": return "No SIM"
-        case "wait pin": return "PIN Required"
-        case "wait puk": return "PUK Required"
-        case "sim destroy": return "SIM Destroyed"
-        case "error", "sim_error": return "Error"
+        case "sim ready": return "准备好了"
+        case "sim undetected": return "无SIM"
+        case "wait pin": return "PIN 必填"
+        case "wait puk": return "PUK 必填"
+        case "sim destroy": return "SIM 被摧毁"
+        case "error", "sim_error": return "错误"
         default: return raw
         }
     }
@@ -283,13 +283,13 @@ struct ChangePinSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Current PIN") {
-                    SecureField("Old PIN", text: $viewModel.oldPinInput)
+                Section("当前PIN") {
+                    SecureField("老PIN", text: $viewModel.oldPinInput)
                         .keyboardType(.numberPad)
                 }
 
-                Section("New PIN") {
-                    SecureField("New PIN", text: $viewModel.newPinInput)
+                Section("新PIN") {
+                    SecureField("新PIN", text: $viewModel.newPinInput)
                         .keyboardType(.numberPad)
                 }
 
@@ -297,7 +297,7 @@ struct ChangePinSheet: View {
                     Button {
                         Task { await viewModel.changePin() }
                     } label: {
-                        Text("Change PIN")
+                        Text("更改PIN")
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(viewModel.oldPinInput.count < 4 || viewModel.newPinInput.count < 4 || viewModel.isLoading)
@@ -305,11 +305,11 @@ struct ChangePinSheet: View {
                     SheetErrorFooter(message: viewModel.sheetError)
                 }
             }
-            .navigationTitle("Change PIN")
+            .navigationTitle("更改PIN")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }
@@ -322,17 +322,17 @@ struct EnterPinSheet: View {
 
     private var title: String {
         switch viewModel.pinSheetAction {
-        case .verify: return "Enter PIN"
-        case .enableLock: return "Enable PIN Lock"
-        case .disableLock: return "Disable PIN Lock"
+        case .verify: return "输入PIN"
+        case .enableLock: return "启用 PIN 锁定"
+        case .disableLock: return "禁用 PIN 锁定"
         }
     }
 
     private var buttonLabel: String {
         switch viewModel.pinSheetAction {
-        case .verify: return "Unlock"
-        case .enableLock: return "Enable"
-        case .disableLock: return "Disable"
+        case .verify: return "解锁"
+        case .enableLock: return "启用"
+        case .disableLock: return "禁用"
         }
     }
 
@@ -365,7 +365,7 @@ struct EnterPinSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }
@@ -380,7 +380,7 @@ struct EnterPukSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    SecureField("PUK Code", text: $viewModel.pukInput)
+                    SecureField("PUK代码", text: $viewModel.pukInput)
                         .keyboardType(.numberPad)
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
@@ -389,8 +389,8 @@ struct EnterPukSheet: View {
                     }
                 }
 
-                Section("New PIN") {
-                    SecureField("New PIN", text: $viewModel.newPinInput)
+                Section("新PIN") {
+                    SecureField("新PIN", text: $viewModel.newPinInput)
                         .keyboardType(.numberPad)
                 }
 
@@ -398,17 +398,17 @@ struct EnterPukSheet: View {
                     Button {
                         Task { await viewModel.verifyPuk() }
                     } label: {
-                        Text("Unlock")
+                        Text("解锁")
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(viewModel.pukInput.count < 8 || viewModel.newPinInput.count < 4 || viewModel.isLoading)
                 }
             }
-            .navigationTitle("Enter PUK")
+            .navigationTitle("输入PUK")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }
@@ -423,7 +423,7 @@ struct UnlockSIMSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Unlock Code (NCK)", text: $viewModel.nckInput)
+                    TextField("解锁代码（NCK）", text: $viewModel.nckInput)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                 } footer: {
@@ -437,17 +437,17 @@ struct UnlockSIMSheet: View {
                     Button {
                         Task { await viewModel.unlockSIM() }
                     } label: {
-                        Text("Unlock")
+                        Text("解锁")
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(viewModel.nckInput.isEmpty || viewModel.isLoading)
                 }
             }
-            .navigationTitle("SIM Unlock")
+            .navigationTitle("SIM解锁")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
             }
         }
