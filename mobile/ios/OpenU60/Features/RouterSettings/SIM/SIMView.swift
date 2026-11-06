@@ -284,7 +284,7 @@ struct ChangePinSheet: View {
         NavigationStack {
             Form {
                 Section("当前PIN") {
-                    SecureField("老PIN", text: $viewModel.oldPinInput)
+                    SecureField("原 PIN", text: $viewModel.oldPinInput)
                         .keyboardType(.numberPad)
                 }
 

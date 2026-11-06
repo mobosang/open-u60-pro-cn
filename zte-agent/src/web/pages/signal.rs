@@ -171,7 +171,7 @@ fn radio(id: &str, v: &Views, nr: bool) -> Markup {
         section.card id=(id) {
             div.ph {
                 h2 { (kit::icon(if nr { Icon::Antenna } else { Icon::Bars })) " " (if nr { "5G NR" } else { "LTE" }) }
-                @if !nr && m.show.nr { span.badge { "美国国家安全局锚" } }
+                @if !nr && m.show.nr { span.badge { "NSA 锚点" } }
                 @if ca { span.badge.bl[nr] { (r.cc_count()) " CC" } }
                 @match r.sig[0] {
                     Some(x) => b class=(fmt::quality_class(x)) { (fmt::quality(x)) },
@@ -502,7 +502,7 @@ pub(crate) mod tests {
         let s = body(&fixture()).into_string();
         for want in [
             "Example &lt;b&gt;Mobile&lt;/b&gt;", "5G NSA", "5G NR", "n41 (2500 MHz, TDD)", "50 / 100 MHz max", ">774<", ">4242<",
-            "513000", "美国国家安全局锚", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "活跃（2 CC)", "EARFCN", "SCC0",
+            "513000", "NSA 锚点", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "活跃（2 CC)", "EARFCN", "SCC0",
             "B3 (1800 MHz)\u{2003}PCI 12\u{2003}BW 20", "数据会话", "QCI", "10000 / 10000 Mbps", "Not a speed test.",
             "信号历史", "10.20.30.40", "极佳", "良好",
         ] {
@@ -631,7 +631,7 @@ pub(crate) mod tests {
         let v = views(vec![(Topic::Signal, json!({"network_type": "LTE", "lte_rsrp": "-90", "bearer": {"ambr_dl_mbps": 50}}))]);
         let lte = sig_lte(&v).into_string();
         assert!(lte.contains("<b class=\"muted\">--</b>") && lte.contains("<dt>PCI</dt><dd>--</dd>") && lte.contains("<dt>频段</dt><dd>--</dd>"), "{lte}");
-        assert!(lte.contains("<h2><svg") && lte.contains("</svg> LTE</h2>") && !lte.contains("美国国家安全局锚"), "{lte}");
+        assert!(lte.contains("<h2><svg") && lte.contains("</svg> LTE</h2>") && !lte.contains("NSA 锚点"), "{lte}");
         assert!(sig_bearer(&v).into_string().contains("50 / -- Mbps"));
         assert!(sig_wan(&v).into_string().contains("<dt>IPv4</dt><dd>—</dd>"));
         // The page ends with the way to Network Mode.

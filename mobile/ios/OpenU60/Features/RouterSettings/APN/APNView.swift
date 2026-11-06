@@ -28,7 +28,7 @@ struct APNView: View {
             }
 
             Section("APN模式") {
-                Toggle("说明书APN", isOn: Binding(
+                Toggle("手动 APN", isOn: Binding(
                     get: { viewModel.config.isManual },
                     set: { manual in Task { await viewModel.setMode(manual: manual) } }
                 ))
@@ -231,7 +231,7 @@ struct APNAutoDetailSheet: View {
                     LabeledContent("状态", value: profile.active ? "已启用" : "未启用")
                 }
             }
-            .navigationTitle("汽车APN")
+            .navigationTitle("自动 APN")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

@@ -543,8 +543,8 @@ fn next(kind: Kind, input: &Input, r: Result<(), &str>, app: &AppState) -> Next 
         let line = match kind {
             Kind::Speed => "速度测试开始".to_owned(),
             Kind::Adb => "ADB 调试模式已启用。连接 USB-C 电缆以访问设备。".to_owned(),
-            Kind::Nr => format!("NR 频段锁定：{}", band_list(&input.bands, ",")),
-            Kind::Lte => format!("LTE 频段锁定：{}", band_list(&input.bands, ",")),
+            Kind::Nr => format!("NR 频段已锁定：{}", band_list(&input.bands, ",")),
+            Kind::Lte => format!("LTE 频段已锁定：{}", band_list(&input.bands, ",")),
             _ => "所有频段已解锁".to_owned(),
         };
         return Next::Line(to, Some(true), line);

@@ -107,7 +107,7 @@ pub fn body(v: &Views, wifi: Option<bool>, csrf: &Markup) -> Markup {
             (usb::card(v, csrf))
             (fragment("card-conn", v))
             (fragment("card-traffic", v))
-            (kit::card(None, None, Icon::Antenna, "现场信号", live_signal))
+            (kit::card(None, None, Icon::Antenna, "实时信号", live_signal))
             div.pair {
                 (fragment("card-battery", v))
                 (fragment("card-health", v))
@@ -447,7 +447,7 @@ pub(crate) mod tests {
             "<a class=\"card\" id=\"card-conn\" href=\"/ui/signal\">", "连接与信号",
             "<span class=\"rat\">5G NSA</span>", "NR RSRP <b class=\"num\">-77 dBm</b>", "漫游", "电台详情",
             "416.0 b/s", "552.0 b/s", "下载", "上传", "1.90 MB", "119 KB", "实时蜂窝流量·所有设备",
-            "现场信号", "锁屏实时信号位于 iOS 应用程序中。",
+            "实时信号", "锁屏实时信号位于 iOS 应用程序中。",
             ">69%<", "<span class=\"c-green\">充电中</span><span class=\"muted\"> · </span><span class=\"c-green\">25.2W</span>",
             "电源详情", "<p class=\"big\">40.8%</p>", "37.2 °C", "26.0 °C", "<b class=\"big\">2</b>",
             "<span class=\"lbl\">设备</span>", "网络、共享和连接设备", "Wi-Fi on",
@@ -463,7 +463,7 @@ pub(crate) mod tests {
             assert!(!s.contains(gone), "{gone} in {s}");
         }
         // Battery and CPU & heat side by side, after Live signal.
-        let order = ["card-conn", "card-traffic", "现场信号", "class=\"pair\"", "card-battery", "card-health", "wifi-state"];
+        let order = ["card-conn", "card-traffic", "实时信号", "class=\"pair\"", "card-battery", "card-health", "wifi-state"];
         let at: Vec<usize> = order.iter().map(|w| s.find(w).unwrap()).collect();
         assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");
     }

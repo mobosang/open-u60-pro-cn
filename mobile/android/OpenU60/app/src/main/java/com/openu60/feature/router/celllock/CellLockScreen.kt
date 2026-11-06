@@ -71,7 +71,7 @@ fun CellLockScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("锁定单元格", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("已锁定小区", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(8.dp))
                             if (state.status.nrPCI.isNotBlank()) {
                                 InfoRow("NR PCI", state.status.nrPCI)
@@ -89,7 +89,7 @@ fun CellLockScreen(
                 // Lock controls
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("锁定单元格", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("已锁定小区", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text("NR (5G)", style = MaterialTheme.typography.labelLarge)
@@ -162,7 +162,7 @@ fun CellLockScreen(
                             onClick = { viewModel.scanNeighbors() },
                             enabled = !state.isLoading,
                             modifier = Modifier.fillMaxWidth(),
-                        ) { Text("扫描邻居") }
+                        ) { Text("扫描邻区") }
 
                         if (state.neighbors.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(8.dp))

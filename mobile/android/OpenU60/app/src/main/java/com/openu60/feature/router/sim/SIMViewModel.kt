@@ -90,7 +90,7 @@ class SIMViewModel @Inject constructor(
                 agentClient.postJSON("/api/sim/pin/toggle", mapOf("enable" to enabled, "pin" to pin))
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    message = if (enabled) "PIN 锁定使能" else "PIN 锁定禁用",
+                    message = if (enabled) "PIN 锁定已启用" else "PIN 锁定已禁用",
                     messageIsError = false,
                 )
                 refresh()

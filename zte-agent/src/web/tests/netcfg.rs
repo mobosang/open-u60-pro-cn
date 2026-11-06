@@ -348,7 +348,7 @@ async fn guest_wifi_form_and_apply() {
     for want in [
         "<title>重新连接WiFi · U60 Pro</title>", "<p class=\"msg ok\" role=\"status\">已应用访客 WiFi 设置</p>",
         "Join “Fake-Net”，若未自动重连，请手动连接。", "Join “Fake-Net-5G”，若未自动重连，请手动连接。",
-        "Guests join “Fake-Guest-2”，使用新密码.", "href=\"/ui/router/guest-wifi\">返回嘉宾WiFi</a>",
+        "Guests join “Fake-Guest-2”，使用新密码.", "href=\"/ui/router/guest-wifi\">返回访客WiFi</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -402,7 +402,7 @@ async fn apn_list_sheets_and_changes() {
     let html = r.text();
     for want in [
         "<h1>APN 设置</h1>", "<h2>当前APN</h2>", "<b>Fake Home</b>", "<h2>APN模式</h2>",
-        "<a class=\"sw\" href=\"/ui/router/apn/mode?manual=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"说明书APN\">",
+        "<a class=\"sw\" href=\"/ui/router/apn/mode?manual=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"手动 APN\">",
         "<h2>手动配置文件</h2>", "<a class=\"it bt\" href=\"/ui/router/apn/new\">", "<span>添加APN</span>", "href=\"/ui/router/apn/edit?id=manu1\"",
         "<small class=\"c-green\">已启用</small>", "IPv4v6 / PAP", "IPv4 / None", "href=\"/ui/router/apn/activate?id=manu2\"",
         "href=\"/ui/router/apn/delete?id=manu2\"",
@@ -430,7 +430,7 @@ async fn apn_list_sheets_and_changes() {
     assert!(html.contains("APN 未找到") && html.contains("href=\"/ui/router/apn\">返回APN设置</a>"), "{html}");
     assert!(!html.contains("<form class=\"rf apf\"") && !html.contains("action=\"/ui/router/apn/save\""), "{html}");
     let auto = get_with(&c, "/ui/router/apn/auto?id=auto1", peer(203, 2), &cookie).await.text();
-    assert!(auto.contains("<h1>汽车APN</h1>") && auto.contains("auto.fake.example") && auto.contains("<span class=\"v\">未启用</span>"), "{auto}");
+    assert!(auto.contains("<h1>自动 APN</h1>") && auto.contains("auto.fake.example") && auto.contains("<span class=\"v\">未启用</span>"), "{auto}");
     // Activate: asked (remote line), sent once.
     let q = get_with(&c, "/ui/router/apn/activate?id=manu2", tailnet(40203), &cookie).await;
     let html = q.text();

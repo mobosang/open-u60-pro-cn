@@ -54,7 +54,7 @@ final class CellLockViewModel {
             if !nrBand.isEmpty { params["band"] = nrBand }
 
             let _ = try await client.postJSON("/api/cell/lock/nr", body: params)
-            showMessage("NR 单元格锁定", isError: false)
+            showMessage("NR 小区锁定", isError: false)
             status.locked = true
         } catch {
             showMessage("失败：\(error.localizedDescription)", isError: true)
@@ -73,7 +73,7 @@ final class CellLockViewModel {
 
         do {
             let _ = try await client.postJSON("/api/cell/lock/lte", body: ["pci": ltePCI, "earfcn": lteEARFCN])
-            showMessage("LTE 单元格锁定", isError: false)
+            showMessage("LTE 小区锁定", isError: false)
             status.locked = true
         } catch {
             showMessage("失败：\(error.localizedDescription)", isError: true)
@@ -119,7 +119,7 @@ final class CellLockViewModel {
 
         do {
             let _ = try await client.postJSON("/api/cell/lock/reset")
-            showMessage("单元锁重置", isError: false)
+            showMessage("小区锁定已重置", isError: false)
             status.locked = false
         } catch {
             showMessage("失败：\(error.localizedDescription)", isError: true)

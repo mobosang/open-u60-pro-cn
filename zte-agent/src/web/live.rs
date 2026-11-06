@@ -326,7 +326,7 @@ fn open(
     key: u64,
 ) -> Response {
     if session_header(req) != Some("true") {
-        return text(StatusCode::BAD_REQUEST, "预期 Datastar 请求");
+        return text(StatusCode::BAD_REQUEST, "Datastar request expected");
     }
     let Some(p) = session::find_session(&ctx.app.auth, req.headers()) else {
         return one(signed_out(pill, next));

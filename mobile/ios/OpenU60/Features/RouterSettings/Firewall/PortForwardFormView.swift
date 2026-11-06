@@ -53,7 +53,7 @@ struct PortForwardFormView: View {
                     .disabled(wanPort.isEmpty || lanIP.isEmpty || lanPort.isEmpty || viewModel.isLoading)
                 }
             }
-            .navigationTitle("新港口转发")
+            .navigationTitle("新建端口转发")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

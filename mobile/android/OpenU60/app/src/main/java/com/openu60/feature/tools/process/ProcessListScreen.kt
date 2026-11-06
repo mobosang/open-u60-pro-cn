@@ -55,7 +55,7 @@ fun ProcessListScreen(
                                 contentColor = MaterialTheme.colorScheme.error,
                             ),
                         ) {
-                            Text("消灭一切膨胀")
+                            Text("结束所有冗余进程")
                         }
                     }
                 },

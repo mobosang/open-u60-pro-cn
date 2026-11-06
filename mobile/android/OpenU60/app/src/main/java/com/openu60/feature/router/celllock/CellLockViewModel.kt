@@ -78,7 +78,7 @@ class CellLockViewModel @Inject constructor(
                 agentClient.postJSON("/api/modem/cell-lock", params)
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    message = "应用单元锁",
+                    message = "小区锁定已应用",
                     messageIsError = false,
                 )
                 refresh()
@@ -98,7 +98,7 @@ class CellLockViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     status = CellLockStatus.empty,
                     isLoading = false,
-                    message = "单元锁已移除",
+                    message = "小区锁定已解除",
                     messageIsError = false,
                     nrPCI = "", nrEARFCN = "", nrBand = "",
                     ltePCI = "", lteEARFCN = "",

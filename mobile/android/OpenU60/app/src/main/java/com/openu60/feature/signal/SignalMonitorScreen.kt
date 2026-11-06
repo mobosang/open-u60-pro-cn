@@ -109,7 +109,7 @@ fun SignalMonitorScreen(
                 if (lte.hasSignal) {
                     SignalPanel(
                         title = "LTE",
-                        badge = if (showNR) "美国国家安全局锚" else null,
+                        badge = if (showNR) "NSA 锚点" else null,
                         badgeColor = if (showNR) Color(0xFFFF9800) else Color(0xFF2196F3),
                         secondBadge = if (lteCaActive) "${1 + lte.sccCarriers.size} CC" else null,
                         rows = listOf(

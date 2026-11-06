@@ -177,7 +177,7 @@ pub fn cell_lock(pd: &PageData) -> Markup {
             }
         }))
         form.rf.req method="get" action=(LOCK_NR) {
-            (kit::section(Some("锁定 NR 单元"), None, html! {
+            (kit::section(Some("锁定 NR 小区"), None, html! {
                 (field("nr_pci", "PCI", &typed(pd, "nr_pci"), err("nr_pci"), true, false))
                 (field("nr_earfcn", "EARFCN", &typed(pd, "nr_earfcn"), err("nr_earfcn"), true, false))
                 (field("nr_band", "频段（可选）", &typed(pd, "nr_band"), err("nr_band"), false, false))
@@ -185,19 +185,19 @@ pub fn cell_lock(pd: &PageData) -> Markup {
             }))
         }
         form.rf.req method="get" action=(LOCK_LTE) {
-            (kit::section(Some("锁定 LTE 单元"), None, html! {
+            (kit::section(Some("锁定 LTE 小区"), None, html! {
                 (field("lte_pci", "PCI", &typed(pd, "lte_pci"), err("lte_pci"), true, false))
                 (field("lte_earfcn", "EARFCN", &typed(pd, "lte_earfcn"), err("lte_earfcn"), true, false))
                 li { button.it.cv.snd type="submit" { "锁LTE" } }
             }))
         }
-        (kit::section(Some("邻居扫描"), None, html! {
+        (kit::section(Some("邻区扫描"), None, html! {
             li {
                 form.sf method="post" action=(NEIGHBORS) {
                     (pd.csrf())
                     (once_field(&pd.once()))
                     input type="hidden" name="confirm" value="1";
-                    button.it.cv.bt type="submit" { "扫描邻居" }
+                    button.it.cv.bt type="submit" { "扫描邻区" }
                 }
             }
             @for c in found.into_iter().flatten() {
@@ -211,7 +211,7 @@ pub fn cell_lock(pd: &PageData) -> Markup {
             }
         }))
         @if locked != Some(false) {
-            (kit::section(None, None, html! { li { a.it.bt.danger href=(UNLOCK) { "解锁单元格" } } }))
+            (kit::section(None, None, html! { li { a.it.bt.danger href=(UNLOCK) { "解除小区锁定" } } }))
         }
     }
 }
@@ -286,7 +286,7 @@ pub fn question(kind: Kind, i: &Input, remote: bool) -> Option<Question> {
                 format!("调制解调器可以再次使用任何小区。 {rereg}"),
                 "固件会一起重置频段和小区设置，因此频段锁定也可能会被撤销。".into(),
             ],
-            "解锁单元格",
+            "解除小区锁定",
             remote,
             true,
         ),
@@ -360,7 +360,7 @@ pub fn next(kind: Kind, i: &Input, r: Result<(), &str>, now: BootInstant) -> Nex
     let ok = match kind {
         Kind::CellNr => "NR 单元格锁定",
         Kind::CellLte => "LTE 单元格锁定",
-        Kind::CellReset => "单元锁重置",
+        Kind::CellReset => "小区锁定已重置",
         Kind::StcOn => "STC 启用",
         Kind::StcOff => "STC 禁用",
         Kind::StcReset => "STC白名单重置",

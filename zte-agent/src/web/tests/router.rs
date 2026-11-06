@@ -390,12 +390,12 @@ async fn cell_lock_asks_locks_once_and_scans() {
         "<span>NR EARFCN</span><span class=\"v\">513000</span>", "<span>NR 频段</span><span class=\"v\">n41</span>",
         "<span>LTE PCI</span><span class=\"v\">178</span>", "<span>LTE EARFCN</span><span class=\"v\">301</span>",
         "<span>锁定</span><span class=\"v\">—</span>",
-        "<form class=\"rf req\" method=\"get\" action=\"/ui/router/cell-lock/nr\">", "<h2>锁定 NR 单元</h2>",
+        "<form class=\"rf req\" method=\"get\" action=\"/ui/router/cell-lock/nr\">", "<h2>锁定 NR 小区</h2>",
         "<input id=\"nr_pci\" type=\"text\" name=\"nr_pci\" value=\"\" placeholder=\"PCI\" inputmode=\"numeric\"",
-        "placeholder=\"频段（可选）\"", "<button class=\"it cv snd\" type=\"submit\">锁NR</button>", "<h2>锁定 LTE 单元</h2>",
+        "placeholder=\"频段（可选）\"", "<button class=\"it cv snd\" type=\"submit\">锁NR</button>", "<h2>锁定 LTE 小区</h2>",
         "<form class=\"sf\" method=\"post\" action=\"/ui/router/cell-lock/scan\"><input type=\"hidden\" name=\"csrf\"",
-        "<button class=\"it cv bt\" type=\"submit\">扫描邻居</button>",
-        "<a class=\"it bt danger\" href=\"/ui/router/cell-lock/reset\">解锁单元格</a>",
+        "<button class=\"it cv bt\" type=\"submit\">扫描邻区</button>",
+        "<a class=\"it bt danger\" href=\"/ui/router/cell-lock/reset\">解除小区锁定</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -404,7 +404,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     assert!(get_with(&c, CELL, peer(144, 2), &cookie).await.text().contains("<span class=\"v c-orange\">是的</span>"));
     let _sig = fake::set(&c.app, json!({"cell_lock_status": 0}));
     let html = get_with(&c, CELL, peer(144, 2), &cookie).await.text();
-    assert!(html.contains("<span class=\"v c-green\">No</span>") && !html.contains("解锁单元格"), "{html}");
+    assert!(html.contains("<span class=\"v c-green\">No</span>") && !html.contains("解除小区锁定"), "{html}");
     // Typed values out of range: the form again as typed, a message per field.
     let r = get_with(&c, &format!("{CELL}/nr?nr_pci=2000&nr_earfcn=&nr_band=%3Cb%3E"), peer(144, 3), &cookie).await;
     r.assert_secure_html(400);
@@ -440,7 +440,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     // As the app: locked, with Unlock, even while the reading says not.
     let _sig = fake::set(&c.app, json!({"cell_lock_status": 0}));
     let html = get_with(&c, &back, peer(144, 4), &cookie).await.text();
-    assert!(html.contains("<span>锁定</span><span class=\"v c-orange\">是的</span>") && html.contains("解锁单元格"), "{html}");
+    assert!(html.contains("<span>锁定</span><span class=\"v c-orange\">是的</span>") && html.contains("解除小区锁定"), "{html}");
     // LTE and Unlock over Tailscale: the remote line.
     let q = get_with(&c, &format!("{CELL}/lte?lte_pci=178&lte_earfcn=301"), tailnet(40144), &cookie).await;
     assert!(q.text().contains("调制解调器将仅使用 PCI 为 178、EARFCN 为 301 的 LTE 小区。") && q.text().contains("You are connected remotely"));
@@ -450,7 +450,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     let r = post(&c, &format!("{CELL}/reset"), tailnet(40144), &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     let _sig = fake::set(&c.app, json!({"cell_lock_status": 1}));
     let html = get_with(&c, &to(&r), tailnet(40144), &cookie).await.text();
-    assert!(html.contains(">单元锁重置</p>") && html.contains("<span class=\"v c-green\">No</span>") && !html.contains("解锁单元格"), "{html}");
+    assert!(html.contains(">小区锁定已重置</p>") && html.contains("<span class=\"v c-green\">No</span>") && !html.contains("解除小区锁定"), "{html}");
     let all = calls(&c);
     assert_eq!(all[1], ("/api/cell/lock/lte".to_owned(), json!({"lock_lte_pci": "178", "lock_lte_earfcn": "301"})));
     assert_eq!(all[2], ("/api/cell/lock/reset".to_owned(), json!({})));

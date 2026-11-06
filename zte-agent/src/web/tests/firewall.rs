@@ -191,7 +191,7 @@ async fn dmz_and_new_port_forward() {
     let f = get_with(&c, NEW, peer(211, 3), &cookie).await;
     f.assert_secure_html(200);
     has(&f.text(), &[
-        "<h1>新港口转发</h1>", "<a class=\"nl\" href=\"/ui/router/firewall\">取消</a>", "<h2>规则</h2>", "placeholder=\"名称\"",
+        "<h1>新建端口转发</h1>", "<a class=\"nl\" href=\"/ui/router/firewall\">取消</a>", "<h2>规则</h2>", "placeholder=\"名称\"",
         "<option value=\"tcp+udp\">TCP + UDP</option>", "<h2>WAN</h2>", "placeholder=\"广域网端口\"", "<h2>LAN</h2>", "placeholder=\"LAN IP\"",
         "placeholder=\"局域网接口\"", ">添加规则</button>",
     ]);

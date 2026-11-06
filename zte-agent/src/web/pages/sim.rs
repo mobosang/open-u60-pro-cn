@@ -237,7 +237,7 @@ fn card(v: &Views) -> Markup {
     let (label, tone) = status(&state(sim));
     let (mcc, mnc) = (text(sim, "mdm_mcc"), text(sim, "mdm_mnc"));
     let network = if mcc.is_empty() && mnc.is_empty() { DASH.to_owned() } else { format!("{mcc}/{mnc}") };
-    let operator = text(sim, "运营商");
+    let operator = text(sim, "Operator");
     html! {
         section.group #sim-card {
             h2 { "SIM 卡" }
@@ -351,8 +351,8 @@ impl Sheet {
     fn done(self) -> &'static str {
         match self {
             Sheet::Pin => "PIN 已验证",
-            Sheet::LockOn => "PIN 锁定使能",
-            Sheet::LockOff => "PIN 锁定禁用",
+            Sheet::LockOn => "PIN 锁定已启用",
+            Sheet::LockOff => "PIN 锁定已禁用",
             Sheet::Change => "PIN 更改成功",
             Sheet::Puk => "PUK 已验证，新 PIN 套装",
             Sheet::Nck => "SIM解锁成功",
@@ -523,7 +523,7 @@ fn sheet(pd: &PageData, k: Sheet) -> Markup {
             input type="hidden" name="left" value=(left.map(|n| n.to_string()).unwrap_or_default());
             @match k {
                 Sheet::Change => {
-                    (kit::section(Some("当前PIN"), None, secret("old", "老PIN", 8, err("old"))))
+                    (kit::section(Some("当前PIN"), None, secret("old", "原 PIN", 8, err("old"))))
                     (kit::section(Some("新PIN"), Some(footer), new_pin))
                 }
                 Sheet::Puk => {

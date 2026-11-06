@@ -123,9 +123,9 @@ export const apiCategories: APICategory[] = [
     capabilities:
       "NR/LTE band locking, cell locking, neighbor scan, STC, signal quality detection",
     endpoints: [
-      { method: "POST", path: "/api/cell/lock/nr", description: "锁定NR单元格" },
-      { method: "POST", path: "/api/cell/lock/lte", description: "锁定LTE单元格" },
-      { method: "POST", path: "/api/cell/lock/reset", description: "重置单元格锁" },
+      { method: "POST", path: "/api/cell/lock/nr", description: "锁定NR小区" },
+      { method: "POST", path: "/api/cell/lock/lte", description: "锁定LTE小区" },
+      { method: "POST", path: "/api/cell/lock/reset", description: "重置小区锁" },
       { method: "POST", path: "/api/cell/neighbors/scan", description: "扫描邻近小区" },
       { method: "GET", path: "/api/cell/neighbors/nr", description: "NR 邻居小区" },
       { method: "GET", path: "/api/cell/neighbors/lte", description: "LTE 邻居小区" },
@@ -189,7 +189,7 @@ export const apiCategories: APICategory[] = [
       { method: "GET", path: "/api/wifi/status", description: "WiFi状态及信息" },
       { method: "PUT", path: "/api/wifi/settings", description: "更新WiFi设置" },
       { method: "GET", path: "/api/wifi/guest", description: "访客 WiFi状态" },
-      { method: "PUT", path: "/api/wifi/guest", description: "更新嘉宾WiFi" },
+      { method: "PUT", path: "/api/wifi/guest", description: "更新访客WiFi" },
     ],
   },
   {

@@ -110,7 +110,7 @@ pub fn kill_all_link(v: &Views) -> Markup {
     let kept = |d: &Value| d["processes"].as_array().map_or(0, |l| l.iter().filter(|p| KEEP.contains(&p["name"].as_str().unwrap_or(""))).count());
     let any = v.value(Topic::Processes).is_some_and(|d| bloat_count(d) as usize > kept(d));
     html! {
-        span #pr-all { @if any { a.nl.c-red href=(KILL_ALL) { "消灭一切膨胀" } } }
+        span #pr-all { @if any { a.nl.c-red href=(KILL_ALL) { "结束所有冗余进程" } } }
     }
 }
 
@@ -337,7 +337,7 @@ pub fn kill_all_page(pd: &PageData) -> Markup {
         ));
     }
     let lines: Vec<&str> = lines.iter().map(String::as_str).collect();
-    let label = (n > 0).then_some("消灭一切膨胀");
+    let label = (n > 0).then_some("结束所有冗余进程");
     let q = Ask { title: "结束所有膨胀守护进程？", lines: &lines, label, ..ask(KILL_ALL) };
     action::ask(pd.csrf(), &q)
 }

@@ -171,7 +171,7 @@ pub fn wifi_card(read: Result<&Value, &str>) -> Markup {
                             (band(d, "2.4G", "2g"))
                             (band(d, "5G", "5g"))
                             @if guest_on(d) {
-                                div { dt { (kit::icon(Icon::People)) " Guest" } dd { b { (s(d, "guest_ssid")) } } }
+                                div { dt { (kit::icon(Icon::People)) " 访客" } dd { b { (s(d, "guest_ssid")) } } }
                             }
                         }
                     }
@@ -383,7 +383,7 @@ pub fn share(pd: &PageData) -> Markup {
             @if d["guest_on"].as_bool() == Some(true) {
                 nav.seg aria-label="网络" {
                     a href=(SHARE) aria-current=[(!guest).then_some("page")] { "主要" }
-                    a href="/ui/wifi/share?net=guest" aria-current=[guest.then_some("page")] { "嘉宾" }
+                    a href="/ui/wifi/share?net=guest" aria-current=[guest.then_some("page")] { "访客" }
                 }
             }
             p { b { (ssid) } }
@@ -459,7 +459,7 @@ mod tests {
             "2.4G</dt><dd><b>&lt;b&gt;Home&lt;/b&gt;</b> <small class=\"muted\">WPA2</small> <small class=\"muted\">CH 6</small></dd>",
             // 5G: hidden, no actual channel: the configured one.
             "5G</dt><dd><small class=\"c-orange\">(Hidden)</small> <b>Home-5G</b> <small class=\"muted\">WPA2/3</small> <small class=\"muted\">CH 36</small></dd>",
-            "嘉宾</dt><dd><b>Guests</b></dd>",
+            "访客</dt><dd><b>Guests</b></dd>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -472,7 +472,7 @@ mod tests {
             d[k] = v;
         }
         let s = wifi_card(Ok(&card_fields(&d))).into_string();
-        assert!(s.contains("<span class=\"cap\">1 个客户端</span>") && !s.contains("WiFi 7") && !s.contains("嘉宾"), "{s}");
+        assert!(s.contains("<span class=\"cap\">1 个客户端</span>") && !s.contains("WiFi 7") && !s.contains("访客"), "{s}");
         assert!(s.contains("5G</dt><dd class=\"muted\">已禁用</dd>"), "{s}");
         // Off: "Off" in red, no client count, no bands (as the app).
         d["wifi_onoff"] = json!("0");
@@ -572,7 +572,7 @@ mod tests {
         assert!(!hidden.contains("p@ss") && !hidden.contains("1234567"), "{hidden}");
         assert!(hidden.contains("<span class=\"mono\" role=\"img\" aria-label=\"密码隐藏\">••••••••••••</span> <a href=\"/ui/wifi/share?show=1\">显示密码</a>"), "{hidden}");
         for want in [
-            "<nav class=\"seg\" aria-label=\"网络\"><a href=\"/ui/wifi/share\" aria-current=\"page\">主要</a><a href=\"/ui/wifi/share?net=guest\">嘉宾</a></nav>",
+            "<nav class=\"seg\" aria-label=\"网络\"><a href=\"/ui/wifi/share\" aria-current=\"page\">主要</a><a href=\"/ui/wifi/share?net=guest\">访客</a></nav>",
             "<p><b>Home;Net</b></p>", "<svg class=\"qr\"", "使用任意手机摄像头扫描",
         ] {
             assert!(hidden.contains(want), "{want} in {hidden}");
@@ -590,7 +590,7 @@ mod tests {
         let guest = json!({"ssid": "Guests", "key": "abc", "encryption": "sae", "guest": true, "guest_on": true});
         let s = share_html(guest, None);
         assert!(s.contains(">•••</span> <a href=\"/ui/wifi/share?net=guest&amp;show=1\">显示密码</a>"), "{s}");
-        assert!(s.contains("<a href=\"/ui/wifi/share?net=guest\" aria-current=\"page\">嘉宾</a>"), "{s}");
+        assert!(s.contains("<a href=\"/ui/wifi/share?net=guest\" aria-current=\"page\">访客</a>"), "{s}");
         // No guest network: no Main/Guest; an open one: no password row.
         let open = json!({"ssid": "Cafe", "key": "", "encryption": "none", "guest": false, "guest_on": false});
         let s = share_html(open, Some("show=1"));

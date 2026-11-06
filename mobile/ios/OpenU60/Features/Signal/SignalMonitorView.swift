@@ -307,7 +307,7 @@ private struct CellularPanel: View, Equatable {
             Label(data.title, systemImage: data.systemImage)
                 .font(.headline)
             if data.showsNSAAnchor {
-                badge("美国国家安全局锚")
+                badge("NSA 锚点")
             }
             if data.caActive {
                 badge("\(data.numCC) CC")

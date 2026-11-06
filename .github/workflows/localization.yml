@@ -16,7 +16,7 @@ jobs:
           cache-on-failure: true
       - uses: actions/checkout@v4
         with:
-          ref: 5596b8d
+          ref: 5596b8dfe6dd91144666986ce1b6143118a176b7
           path: baseline
       - name: Check unchanged upstream QR timeout test
         continue-on-error: true
@@ -39,3 +39,4 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci
       - run: npm run build
+

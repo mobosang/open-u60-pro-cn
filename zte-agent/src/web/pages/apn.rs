@@ -184,7 +184,7 @@ pub fn page(pd: &PageData) -> Markup {
         @if let Some(n) = current {
             (kit::section(Some("当前APN"), None, html! { li.it { span { b { (n) } } span.c-green { (kit::icon(Icon::Check)) } } }))
         }
-        (kit::section(Some("APN模式"), None, kit::switch_row(&html! {}, "说明书APN", Some(manual), Act::Link(&on), Act::Link(&off))))
+        (kit::section(Some("APN模式"), None, kit::switch_row(&html! {}, "手动 APN", Some(manual), Act::Link(&on), Act::Link(&off))))
         @if manual {
             (kit::section(Some("手动配置文件"), None, html! { li { a.it.bt href=(NEW) { (kit::icon(Icon::Plus)) span { "添加APN" } } } }))
             @if !profiles.is_empty() { (kit::section(None, None, html! { @for p in &profiles { (row(p, true)) } })) }

@@ -229,7 +229,7 @@ async fn pin_lock_change_and_puk_ask_and_send_the_apps_bodies() {
     assert!(to(&r).starts_with("/ui/router/sim?r="));
     assert_eq!(calls(&c)[0], ("/api/sim/pin/mode".to_owned(), json!({"pin_num_m": "1234", "pin_mode": 1, "pin_encode_flag": "0"})));
     let html = get_with(&c, &to(&r), peer(152, 3), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg ok\" role=\"status\">PIN 锁定使能</p>"));
+    assert!(html.contains("<p class=\"msg ok\" role=\"status\">PIN 锁定已启用</p>"));
     // Change PIN: the new PIN twice.
     let r = get_with(&c, CHANGE, peer(152, 4), &cookie).await;
     assert!(r.text().contains("<h2>当前PIN</h2>") && r.text().contains("placeholder=\"确认新PIN\""), "{}", r.text());

@@ -309,7 +309,7 @@ pub static APN_EDIT: Screen = Screen {
 pub static APN_AUTO: Screen = Screen {
     path: apn::AUTO,
     id: "apnauto",
-    title: "汽车APN",
+    title: "自动 APN",
     bar: Bar::Done(apn::PATH),
     reads: &[Read::Fn(apn::read)],
     blocks: &[Block::Custom(apn::auto_page)],
@@ -365,7 +365,7 @@ pub static FIREWALL: Screen = Screen {
 pub static PF_NEW: Screen = Screen {
     path: firewall::NEW,
     id: "portforwardnew",
-    title: "新港口转发",
+    title: "新建端口转发",
     bar: Bar::Cancel(firewall::PATH),
     blocks: &[Block::Custom(firewall::rule_form)],
     ..PUSHED

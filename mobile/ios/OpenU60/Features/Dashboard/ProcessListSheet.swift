@@ -79,7 +79,7 @@ struct ProcessListSheet: View {
                 }
                 if bloatCount > 0 {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("消灭一切膨胀", role: .destructive) {
+                        Button("结束所有冗余进程", role: .destructive) {
                             showKillAllConfirm = true
                         }
                         .foregroundStyle(.red)
@@ -87,7 +87,7 @@ struct ProcessListSheet: View {
                 }
             }
             .confirmationDialog("结束所有膨胀守护进程？", isPresented: $showKillAllConfirm, titleVisibility: .visible) {
-                Button("消灭一切膨胀", role: .destructive) {
+                Button("结束所有冗余进程", role: .destructive) {
                     Task { await killAll() }
                 }
             } message: {

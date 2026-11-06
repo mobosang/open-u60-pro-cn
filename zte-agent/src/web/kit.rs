@@ -252,7 +252,7 @@ pub fn icon(i: Icon) -> Markup {
 pub fn signal_bars(bars: i64) -> Markup {
     let n = bars.clamp(0, 5);
     let lit = (n * 4 + 4) / 5;
-    let label = format!("信号 {n} 为 5");
+    let label = format!("信号强度 {n}/5");
     html! {
         svg.i.bars viewBox="0 0 24 24" role="img" aria-label=(label) {
             @for (i, (x, y, h)) in [("3", "15", "5"), ("8", "11.5", "8.5"), ("13", "8", "12"), ("18", "4.5", "15.5")].into_iter().enumerate() {

@@ -20,7 +20,7 @@ struct WiFiSettingsView: View {
 
             if viewModel.editWifiOnOff {
                 Section {
-                    Toggle("收音机", isOn: Binding(
+                    Toggle("无线电", isOn: Binding(
                         get: { !viewModel.editRadio2gDisabled },
                         set: { viewModel.editRadio2gDisabled = !$0 }
                     ))
@@ -67,7 +67,7 @@ struct WiFiSettingsView: View {
                 }
 
                 Section {
-                    Toggle("收音机", isOn: Binding(
+                    Toggle("无线电", isOn: Binding(
                         get: { !viewModel.editRadio5gDisabled },
                         set: { viewModel.editRadio5gDisabled = !$0 }
                     ))

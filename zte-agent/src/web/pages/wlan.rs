@@ -811,13 +811,13 @@ pub fn guest_applied(vals: &[(&'static str, String)]) -> (String, Markup) {
                 @if names.is_empty() { li { "如果该设备没有自行重新连接，请重新加入路由器’s WiFi。" } }
                 @if guests && !val(vals, "gssid").is_empty() {
                     li {
-                        "嘉宾加入“" (val(vals, "gssid")) "\u{201d}"
+                        "访客加入“" (val(vals, "gssid")) "\u{201d}"
                         @if val(vals, "set_g") == "1" { "，使用新密码" }
                         "."
                     }
                 }
             }
-            p.actions { a.btn href=(GUEST) { "返回嘉宾WiFi" } }
+            p.actions { a.btn href=(GUEST) { "返回访客WiFi" } }
         }
     };
     (title, body)

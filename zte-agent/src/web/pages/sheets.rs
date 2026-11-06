@@ -80,8 +80,8 @@ pub fn battery_rows(v: &Views) -> Markup {
                         None => span.v { (DASH) },
                     }
                 }
-                (kit::kv_row(Some(Icon::BatteryBolt), "满时间", &eta("battery_time_to_full", fmt::Charge::Charging)))
-                (kit::kv_row(Some(Icon::Battery(25)), "清空时间", &eta("battery_time_to_empty", fmt::Charge::Discharging)))
+                (kit::kv_row(Some(Icon::BatteryBolt), "充满所需时间", &eta("battery_time_to_full", fmt::Charge::Charging)))
+                (kit::kv_row(Some(Icon::Battery(25)), "预计剩余时间", &eta("battery_time_to_empty", fmt::Charge::Discharging)))
             }
             (age_line(v, POWER))
         }
@@ -337,7 +337,7 @@ mod tests {
         let s = battery_rows(&v).into_string();
         let rows: Vec<(&str, &str)> = vec![
             ("容量", "69%"), ("状态", "充电中"), ("电压", "4.435 V"), ("当前", "5680 mA"), ("电源", "25.2 W"),
-            ("温度", "26.0 °C"), ("满时间", "37m"), ("清空时间", "\u{2014}"),
+            ("温度", "26.0 °C"), ("充满所需时间", "37m"), ("预计剩余时间", "\u{2014}"),
         ];
         let mut at = 0;
         for (label, value) in rows {
@@ -354,7 +354,7 @@ mod tests {
             (Topic::BatteryInfo, json!({"battery_time_to_full": 37, "battery_time_to_empty": 1240})),
         ]);
         let s = battery_rows(&v).into_string();
-        for want in [">放电中<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "满时间</span><span class=\"v\">—"] {
+        for want in [">放电中<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "充满所需时间</span><span class=\"v\">—"] {
             assert!(s.contains(want), "{want} in {s}");
         }
         // Unknown voltage and current: no Voltage, Current or Power rows.

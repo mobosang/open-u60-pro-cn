@@ -1454,7 +1454,7 @@ mod tests {
         v.arg = arg(&v, None);
         let html = conn(&v).into_string();
         assert!(html.contains("<b>移动数据已连接</b><small class=\"cap\">Example · 4G</small>"), "{html}");
-        assert!(html.contains("aria-label=\"信号 3 为 5\"") && !html.contains("esteps"), "{html}");
+        assert!(html.contains("aria-label=\"信号强度 3/5\"") && !html.contains("esteps"), "{html}");
         // A switch since the page was loaded: followed.
         let mut later = views(vec![(Topic::EsimSwitch, json!({"state": "reloading", "generation": 5}))]);
         later.arg = v.arg;

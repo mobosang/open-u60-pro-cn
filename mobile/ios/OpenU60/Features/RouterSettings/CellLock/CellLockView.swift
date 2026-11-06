@@ -26,7 +26,7 @@ struct CellLockView: View {
                 }
             }
 
-            Section("锁定 NR 单元") {
+            Section("锁定 NR 小区") {
                 TextField("PCI", text: $viewModel.nrPCI)
                     .keyboardType(.numberPad)
                 TextField("EARFCN", text: $viewModel.nrEARFCN)
@@ -39,7 +39,7 @@ struct CellLockView: View {
                 .disabled(viewModel.isLoading || viewModel.nrPCI.isEmpty || viewModel.nrEARFCN.isEmpty)
             }
 
-            Section("锁定 LTE 单元") {
+            Section("锁定 LTE 小区") {
                 TextField("PCI", text: $viewModel.ltePCI)
                     .keyboardType(.numberPad)
                 TextField("EARFCN", text: $viewModel.lteEARFCN)
@@ -50,12 +50,12 @@ struct CellLockView: View {
                 .disabled(viewModel.isLoading || viewModel.ltePCI.isEmpty || viewModel.lteEARFCN.isEmpty)
             }
 
-            Section("邻居扫描") {
+            Section("邻区扫描") {
                 Button {
                     Task { await viewModel.scanNeighbors() }
                 } label: {
                     HStack {
-                        Text("扫描邻居")
+                        Text("扫描邻区")
                         if viewModel.isScanning {
                             Spacer()
                             ProgressView()
@@ -83,7 +83,7 @@ struct CellLockView: View {
 
             if viewModel.status.locked {
                 Section {
-                    Button("解锁单元格", role: .destructive) {
+                    Button("解除小区锁定", role: .destructive) {
                         Task { await viewModel.unlock() }
                     }
                     .disabled(viewModel.isLoading)

@@ -5,7 +5,7 @@ struct SignalActivityControl: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label("现场信号", systemImage: "antenna.radiowaves.left.and.right")
+                Label("实时信号", systemImage: "antenna.radiowaves.left.and.right")
                     .font(.headline)
                 Spacer()
                 if manager.isBusy { ProgressView() }
