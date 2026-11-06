@@ -113,7 +113,7 @@ async fn wifi_form_question_and_reconnect_page() {
     let html = r.text();
     let same_token = format!("name=\"once\" value=\"{once}\"");
     for want in [
-        "Use at most 32 bytes", "通道 165 最多支持 165。", "name=\"ssid_2g\" value=\"Fake-Net-New\"",
+        "Use at most 32 bytes", "通道 165 最多支持 20 MHz。", "name=\"ssid_2g\" value=\"Fake-Net-New\"",
         "placeholder=\"留空以保留您输入的密码\"", same_token.as_str(),
     ] {
         assert!(html.contains(want), "{want} in {html}");

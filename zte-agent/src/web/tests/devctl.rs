@@ -69,7 +69,7 @@ async fn device_controls_follow_the_app() {
         "<label for=\"limit\">停止充电阈值</label>", "<option value=\"85\" selected>85%</option>",
         "<label for=\"hysteresis\">恢复充电差值</label>", "<option value=\"11\" selected>11%</option>",
         "<button class=\"it cv snd\" type=\"submit\">保存</button>",
-        "充电在 85% 处停止，并在 85% 处恢复。", "默认值：5% — 对于大多数用户来说是一个很好的平衡。",
+        "充电在 85% 处停止，并在 74% 处恢复。", "默认值：5% — 对于大多数用户来说是一个很好的平衡。",
         "<input type=\"hidden\" name=\"on\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"省电模式\">",
         "限制数据通信速度以减少功耗并延长电池寿命。",
         "<input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"快速启动\">",

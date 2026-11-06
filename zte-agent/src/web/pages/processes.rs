@@ -530,14 +530,14 @@ mod tests {
             assert_eq!(kill_body(&Valid::of(&[("pid", &me.to_string()), ("name", "zte_topsw_diag")]), &[]), None);
         }
         let freed = json!({"killed": [{"pid": 5}, {"pid": 8}], "skipped": [], "freed_rss_kb": 2048});
-        assert_eq!(killed_all(&v, &freed), (Some(true), "结束2守护进程，释放2".into()));
+        assert_eq!(killed_all(&v, &freed), (Some(true), "结束2守护进程，释放2.0 MB".into()));
         // Nothing to kill by the time of the post: nothing sent, a neutral line.
         let none = "No bloat daemons that are safe to kill are running. Nothing was killed.";
         assert_eq!(killed_all(&v, &Value::Null), (None, none.into()));
         // The app's line only for a PID the agent reports killed.
         let one = Valid::of(&[("pid", "812"), ("name", "zte_topsw_diag")]);
         let d = json!({"killed": [{"pid": 812, "name": "zte_topsw_diag"}], "skipped": [], "freed_rss_kb": 900});
-        assert_eq!(killed_one(&one, &d), (Some(true), "结束PID 812，释放812".into()));
+        assert_eq!(killed_one(&one, &d), (Some(true), "结束PID 812，释放900 KB".into()));
         let gone = json!({"killed": [], "skipped": [{"pid": 812, "name": "zte_topsw_diag"}], "freed_rss_kb": 0});
         assert_eq!(killed_one(&one, &gone), (Some(false), "PID 812 was not killed.".into()));
         assert_eq!(killed_one(&one, &json!({"killed": [{"pid": 9}]})), (Some(false), "PID 812 was not killed.".into()));

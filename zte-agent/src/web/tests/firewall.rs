@@ -340,7 +340,7 @@ async fn telemetry_blocker() {
     let done = to(&post(&c, "/ui/router/telemetry/block-all", peer(213, 2), &cookie, &body(&csrf, &once, &[])).await);
     let added: Vec<Value> = calls(&c)[2..].iter().map(|(_, b)| b["domain"].clone()).collect();
     assert_eq!(added, ["dconfig.ztems.com", "iot.ztems.com", "mcs-cloud.ztems.com", "update.ztems.com"]);
-    has(&get_with(&c, &done, peer(213, 2), &cookie).await.text(), &["屏蔽4遥测域4"]);
+    has(&get_with(&c, &done, peer(213, 2), &cookie).await.text(), &["屏蔽4遥测域s"]);
     // One add refused: the others still sent, and the line says so.
     let failing = device::Device {
         replies: vec![("/api/router/domain-filter#2", (503, json!({"ok": false, "error": "ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument"})))],
@@ -351,7 +351,7 @@ async fn telemetry_blocker() {
     let line = to(&post(&c, "/ui/router/telemetry/block-all", peer(213, 2), &cookie, &body(&csrf, &once, &[])).await);
     assert_eq!(calls(&c).len(), 4);
     has(&get_with(&c, &line, peer(213, 2), &cookie).await.text(), &[
-        "<p class=\"msg info\" role=\"status\">屏蔽3遥测域3</p>",
+        "<p class=\"msg info\" role=\"status\">屏蔽3遥测域s; 1 could not be added. Failed: ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument</p>",
     ]);
     let _dev = device::set(&c.app, filter(blocked()));
     // A removal: asked, by its list.

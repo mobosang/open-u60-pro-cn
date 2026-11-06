@@ -1248,7 +1248,7 @@ async fn router_posts_check_session_csrf_confirm_and_values() {
     let html = get_with(&c, DEV, peer(18, 6), &cookie).await.text();
     assert!(!html.contains("Charge limit saved.") && html.contains("<option value=\"85\" selected>85%</option>"));
     assert!(html.contains("<option value=\"7\" selected>7%</option>") && html.contains("name=\"enabled\" value=\"1\" checked"));
-    assert!(html.contains("充电在 85% 处停止，并在 85% 处恢复。"));
+    assert!(html.contains("充电在 85% 处停止，并在 78% 处恢复。"));
     // A confirmed change whose state cannot be read (no device here): the
     // page with the error; no operation is started, and the question's
     // single-use token is given back (nothing was sent).

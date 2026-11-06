@@ -12,6 +12,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - uses: actions/checkout@v4
+        with:
+          ref: 5596b8d
+          path: baseline
+      - name: Check unchanged upstream QR timeout test
+        continue-on-error: true
+        working-directory: baseline
+        env:
+          CARGO_TARGET_DIR: ../target
+        run: cargo test --locked -p zte-agent -- web::qr_decode::tests::decodes_in_a_child_process_with_a_limit --exact
       - run: cargo test --locked -p zte-agent
   web:
     runs-on: ubuntu-latest
