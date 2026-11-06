@@ -39,7 +39,7 @@ async fn speed_test_page_lists_servers_and_streams() {
     let (c, cookie, _) = signed_in(110).await;
     let r = get_with(&c, ST, peer(110, 2), &cookie).await;
     r.assert_secure_html(200);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">加载服务器失败: no server list in tests</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">加载服务器失败： no server list in tests</p>"), "{}", r.text());
     servers(&c);
     let r = get_with(&c, ST, peer(110, 2), &cookie).await;
     r.assert_secure_html(200);
@@ -279,14 +279,14 @@ async fn band_lock_grids_questions_and_bodies() {
     let r = get_with(&c, BL, peer(114, 2), &cookie).await;
     r.assert_secure_html(200);
     let html = r.text();
-    let nr = &html[html.find("<h2>5G NR Bands</h2>").unwrap()..html.find("<h2>LTE Bands</h2>").unwrap()];
+    let nr = &html[html.find("<h2>5G NR 频段</h2>").unwrap()..html.find("<h2>LTE 频段</h2>").unwrap()];
     assert_eq!(nr.matches("type=\"checkbox\" name=\"nr\"").count(), 19);
     assert_eq!(html.matches("type=\"checkbox\" name=\"lte\"").count(), 28);
     for want in [
         "<a class=\"it bt danger\" href=\"/ui/tools/band-lock/reset\"><svg",
         "<form class=\"bl\" method=\"get\" action=\"/ui/tools/band-lock/nr\">",
         "<label title=\"频段 78 — 3500 MHz · TDD · Max BW 100 MHz · DL 3300–3800 MHz · UL 3300–3800 MHz\"><input class=\"sr\" type=\"checkbox\" name=\"nr\" value=\"78\"><span>B78<small>3500 MHz</small></span></label>",
-        "<span>B66<small>AWS-3</small></span>", "</svg> Apply NR Lock</button>", "</svg> Apply LTE Lock</button>",
+        "<span>B66<small>AWS-3</small></span>", "</svg> 应用 NR 频段锁定</button>", "</svg> 应用 LTE 频段锁定</button>",
         "<summary>频段详情</summary>", "<li><b>Band 29 \u{2014} 700 MHz</b><small>SDL \u{b7} Max BW 10 MHz \u{b7} DL 717\u{2013}728 MHz</small></li>",
     ] {
         assert!(html.contains(want), "{want} in {html}");

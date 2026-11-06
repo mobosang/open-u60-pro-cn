@@ -502,7 +502,7 @@ pub(crate) mod tests {
         let s = body(&fixture()).into_string();
         for want in [
             "Example &lt;b&gt;Mobile&lt;/b&gt;", "5G NSA", "5G NR", "n41 (2500 MHz, TDD)", "50 / 100 MHz max", ">774<", ">4242<",
-            "513000", "美国国家安全局锚", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "Active (2 CC)", "EARFCN", "SCC0",
+            "513000", "美国国家安全局锚", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "活跃（2 CC)", "EARFCN", "SCC0",
             "B3 (1800 MHz)\u{2003}PCI 12\u{2003}BW 20", "数据会话", "QCI", "10000 / 10000 Mbps", "Not a speed test.",
             "信号历史", "10.20.30.40", "极佳", "良好",
         ] {
@@ -612,7 +612,7 @@ pub(crate) mod tests {
         assert!(!s.contains("漫游") && !s.contains("极佳") && !s.contains("无运营商"), "{s}");
         let s = op(json!({"network_type": "SA", "nr5g_rsrp": "-80", "signalbar": "3", "simcard_roam": "1", "network_provider": " "}));
         assert!(s.contains("<b>无运营商</b><span class=\"muted\">5G SA</span>") && s.contains("5G<small>SA</small>"), "{s}");
-        assert!(s.contains("<span class=\"sb\" role=\"img\"") && s.contains(" Roaming</span>"), "{s}");
+        assert!(s.contains("<span class=\"sb\" role=\"img\"") && s.contains(" 漫游</span>"), "{s}");
         // Limited or no service: the warning pill; the type in words above it.
         for t in ["LIMITED_SERVICE_SA", "NO_SERVICE"] {
             let s = op(json!({"network_type": t}));

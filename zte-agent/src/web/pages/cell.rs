@@ -157,7 +157,7 @@ pub fn cell_lock(pd: &PageData) -> Markup {
             @if cells.is_empty() {
                 p.msg.ok role="status" { "未发现邻区" }
             } @else {
-                p.msg.ok role="status" { "找到 " (cells.len()) " neighbor cell(s)" }
+                p.msg.ok role="status" { "找到 " (cells.len()) " 个邻区" }
             }
         }
         @if let Some(e) = failed { p.msg.err role="alert" { "加载单元信息失败： " (fmt::truncate(e, 120)) } }

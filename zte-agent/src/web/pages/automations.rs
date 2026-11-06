@@ -236,7 +236,7 @@ fn row(csrf: &Markup, job: &Value) -> Markup {
                     }
                 }
             }
-            a.del href=(format!("{DELETE}?id={id}")) { "删除" span.sr { " automation " (name) } }
+            a.del href=(format!("{DELETE}?id={id}")) { "删除" span.sr { " 个自动化任务 " (name) } }
         }
     }
 }
@@ -940,9 +940,9 @@ mod tests {
     fn schedule_summaries_follow_the_app() {
         let s = |schedule: Value, restore: Value| schedule_summary(&job(json!({"schedule": schedule, "restore": restore})));
         let rec = |days: Value| json!({"type": "recurring", "time": "23:00", "days": days});
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "Every day at 23:00");
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "Mon\u{2013}Fri at 23:00 \u{2192} 06:30");
-        assert_eq!(s(rec(json!([5, 6])), Value::Null), "Weekends at 23:00");
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天 at 23:00");
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一–周五 at 23:00 → 06:30");
+        assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 at 23:00");
         assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "Sun, Mon at 23:00");
         assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "Tue at ??:??");
         assert_eq!(s(json!({"type": "once"}), Value::Null), "单次");

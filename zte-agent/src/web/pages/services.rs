@@ -300,7 +300,7 @@ fn answer_form(pd: &PageData, c: &Stk, token: &str) -> Markup {
                         input #stkr type=(kind) name="text" placeholder="SIM 回应" maxlength=(c.max.min(TEXT_MAX as u64))
                             inputmode=[c.digits.then_some("tel")] autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false";
                     }
-                    small { "输入 " (c.min) "\u{2013}" (c.max) " characters" }
+                    small { "输入 " (c.min) "\u{2013}" (c.max) " 个字符" }
                 }
                 li { button.it.cv.snd type="submit" { "发送响应" } }
             }))
@@ -699,7 +699,7 @@ mod tests {
         let text = json!({"type": "input", "text": "Enter PIN 0000000000000042", "command_id": "9", "input": {"min": 4, "max": 8, "hidden": true}});
         let s = toolkit(&views(Some(text.clone()), None, 9)).into_string();
         // The SIM's text as it is (the app's).
-        assert!(s.contains("class=\"group own\"") && s.contains("Enter PIN 0000000000000042") && !s.contains("输入响应"), "{s}");
+        assert!(s.contains("class=\"group own\"") && s.contains("输入PIN 0000000000000042") && !s.contains("输入响应"), "{s}");
         let s = toolkit(&views(Some(text), None, 8)).into_string();
         assert!(!s.contains("own") && s.contains("<a class=\"it bt\" href=\"\">输入响应</a>"), "{s}");
         let display = json!({"type": "display", "text": "Done", "command_id": "10"});

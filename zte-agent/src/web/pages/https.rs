@@ -115,7 +115,7 @@ pub fn section(pd: &PageData) -> Markup {
         @if pd.secure {
             p.foot { "你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。" }
         } @else if let Some(url) = hint(&s, pd.secure, pd.remote) {
-            p.foot { "此页面使用明文 HTTP。请先按“在你的设备上安装”说明信任路由器证书颁发机构，然后打开  " a href=(url) rel="noreferrer" { (url) } " to install the web UI as an app." }
+            p.foot { "此页面使用明文 HTTP。请先按“在你的设备上安装”说明信任路由器证书颁发机构，然后打开  " a href=(url) rel="noreferrer" { (url) } " 以将管理网页安装为应用。" }
         }
         (error)
     };
@@ -159,7 +159,7 @@ pub fn install(pd: &PageData) -> Markup {
                  This page came over plain http, so someone on your network could change it together with the download: for a check they \
                  cannot fake, compare with this page opened over HTTPS on a device that already trusts the authority, or with "
                 span.mono { "sha256sum " (DIR_CA) }
-                " over SSH (the same digits)."
+                "（通过 SSH，使用相同的十六进制数字）。"
             }
         }
         p.foot { "设备显示位置：iPhone 和 iPad：设置 › 配置文件已下载 › 更多详细信息 › 证书，然后点击安装； Mac：Keychain 访问›证书； Android：安装后，设置 › 受信任凭据 › 用户 › 证书（如果不同，请将其删除）。" }
@@ -168,7 +168,7 @@ pub fn install(pd: &PageData) -> Markup {
     html! {
         (kit::section(Some("证书颁发机构"), Some(fp_foot), html! {
             (kit::kv_row(None, "名称", ca))
-            (kit::kv_row(None, "可以证明", &s.covers.join(" and ")))
+            (kit::kv_row(None, "可以证明", &s.covers.join(" 和 ")))
             // Line breaks only between the byte pairs; screen readers get
             // the whole value once.
             li.it { span.cvb { span { "SHA-256 指纹" } span.sr { (s.sha256) } small.mono.fp translate="no" aria-hidden="true" { @for (i, pair) in s.sha256.split(':').enumerate() { @if i > 0 { ":" wbr; } (pair) } } } }
@@ -183,7 +183,7 @@ pub fn install(pd: &PageData) -> Markup {
             html! { b { "设置" } " \u{203a} " b { "概述" } " \u{203a} " b { "关于" } " \u{203a} " b { "证书信任设置" } ": turn on full trust for " b { (ca) } "." },
         ])))
         (kit::section(Some("安卓"), Some(html! { p.foot { "菜单名称因制造商而异：搜索 “CA 证书 ” 的设置。" } }), steps(&[
-            html! { "点击 " b { "证书（.crt）" } " to download it." },
+            html! { "点击 " b { "证书（.crt）" } " 以下载。" },
             html! { b { "设置" } " \u{203a} " b { "安全与隐私" } " \u{203a} " b { "更高的安全性和隐私性" } " \u{203a} " b { "加密和凭证" } " \u{203a} " b { "安装证书" } " \u{203a} " b { "CA证书" } " \u{203a} " b { "无论如何安装" } ", confirm with your screen lock, then pick the downloaded file." },
         ])))
         (kit::section(Some("麦克"), None, steps(&[

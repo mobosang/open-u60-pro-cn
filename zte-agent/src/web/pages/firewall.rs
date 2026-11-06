@@ -665,7 +665,7 @@ mod tests {
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
         assert!(host_error(net, "nope").unwrap().starts_with("Enter an IPv4"));
         for unread in ["10.0.0.9", "192.168.0.1", "8.8.8.8"] {
-            assert_eq!(host_error(None, unread).as_deref(), Some("Couldn’t 读取路由器’s 网络。再试一次。"), "{unread}");
+            assert_eq!(host_error(None, unread).as_deref(), Some("Couldn’t 读取路由器’s 网络。再试一次。"), "{条未读}");
         }
         assert!(host_error(net, "192.168.0.50 ").unwrap().starts_with("Enter an IPv4"));
         assert_eq!(port("8080"), Some(8080));

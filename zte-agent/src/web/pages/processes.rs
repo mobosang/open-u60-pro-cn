@@ -133,7 +133,7 @@ fn summary(v: &Views) -> Markup {
                             li.it {
                                 span.c-orange { (kit::icon(Icon::Warn)) " Bloat Daemons" }
                                 span.v {
-                                    small.fg { (bloat_count(d)) " processes" }
+                                    small.fg { (bloat_count(d)) " 个进程" }
                                     small {
                                         (format!("{:.1}% CPU, ", d["bloat_cpu_pct"].as_f64().unwrap_or(0.0)))
                                         (kb(d["bloat_rss_kb"].as_u64().unwrap_or(0))) " RSS"
@@ -475,7 +475,7 @@ mod tests {
         assert_eq!(s.matches("class=\"kl\"").count(), 2);
         assert!(!s.contains("<form") && !s.contains("<input"));
         let sum = summary(&v).into_string();
-        assert!(sum.contains("Bloat Daemons") && sum.contains("<small class=\"fg\">3 processes</small><small>4.2% CPU, 22.6 MB RSS</small>"), "{sum}");
+        assert!(sum.contains("Bloat Daemons") && sum.contains("<small class=\"fg\">3 个进程</small><small>4.2% CPU, 22.6 MB RSS</small>"), "{sum}");
         assert!(kill_all_link(&v).into_string().contains("<a class=\"nl c-red\" href=\"/ui/health/processes/kill-all\">结束All Bloat</a>"));
         // Only bloat Kill All leaves (all of it in the list): no Kill All
         // Bloat; one more bloat daemon outside the top 50: it is back.

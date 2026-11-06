@@ -219,7 +219,7 @@ mod tests {
         // Back to 0 after a reading: it still rolls up (iOS `numericText()`),
         // and the badge's own label is what screen readers read.
         let s = roll_up_labelled(&v, "age", "0s ago").into_string();
-        assert_eq!(s, "<span class=\"rl\" aria-hidden=\"true\"><i id=\"age00\" data-u=\"9\">0</i>s ago</span>");
+        assert_eq!(s, "<span class=\"rl\" aria-hidden=\"true\"><i id=\"age00\" data-u=\"9\">0</i>秒前</span>");
     }
 
     #[test]

@@ -585,8 +585,8 @@ mod tests {
         };
         let s = page("ONLINE");
         let order = [
-            "<h2>Connectivity</h2>", "Mobile Data", "<h2>Connection Mode</h2>", "Data Roaming", "Enabling roaming",
-            "<h2>Network Selection</h2>", "Scan Networks", ">Apply</button>",
+            "<h2>网络连接</h2>", "移动数据", "<h2>连接方式</h2>", "数据漫游", "Enabling roaming",
+            "<h2>网络选择</h2>", "扫描网络", ">应用</button>",
         ];
         let at: Vec<usize> = order.iter().map(|w| s.find(w).unwrap_or_else(|| panic!("{w} in {s}"))).collect();
         assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");

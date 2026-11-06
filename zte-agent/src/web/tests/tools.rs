@@ -32,13 +32,13 @@ async fn tools_list_follows_the_app() {
     let (c, cookie, _) = signed_in(100).await;
     let html = get_with(&c, "/ui/tools", peer(100, 2), &cookie).await.text();
     let sections = [
-        ("Automation", vec!["Automations", "SMS Forwarding"]),
+        ("自动化任务", vec!["自动化", "短信转发"]),
         (
-            "Network Tools",
-            vec!["Speed Test", "LAN Speed Test", "Enable ADB", "USB Mode", "Band Lock", "AT Terminal", "Device Info", "Connected Devices"],
+            "网络工具",
+            vec!["速度测试", "局域网速度测试", "启用亚行", "USB 模式", "频段锁定", "AT 终端", "设备信息", "已连接设备"],
         ),
-        ("Config", vec!["Config Decrypt/Encrypt"]),
-        ("Shell Access Required", vec!["TTL Settings", "Enable SSH", "Device Explorer"]),
+        ("配置", vec!["配置解密/加密"]),
+        ("需要 Shell 访问", vec!["TTL设置", "启用SSH", "设备资源管理器"]),
     ];
     let mut at = 0;
     for (section, rows) in sections {
@@ -181,7 +181,7 @@ async fn connected_devices_and_their_search() {
     assert!(!html.contains("/ui/live/") && !html.contains("/ui/a/datastar-"));
     assert_eq!(c.app.hub.demand(Topic::Clients), 0);
     let html = post(&c, DEVICES, peer(103, 3), &cookie, &format!("csrf={csrf}&q=aa%3Abb")).await.text();
-    assert!(html.contains("No Results for \u{201c}aa:bb\u{201d}"), "{html}");
+    assert!(html.contains("No 结果 for “aa:bb”"), "{html}");
     // Refused without the token or a session; the text never in a URL.
     post(&c, DEVICES, peer(103, 4), &cookie, "q=tv").await.assert_secure_html(403);
     let r = post(&c, DEVICES, peer(103, 4), "", &format!("csrf={csrf}&q=tv")).await;
@@ -226,11 +226,11 @@ async fn automations_empty_and_new_form() {
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("Custom:") && !html.contains("/ui/a/datastar-") && !html.contains("connected remotely"));
+    assert!(!html.contains("自定义:") && !html.contains("/ui/a/datastar-") && !html.contains("connected remotely"));
     // A remote browser is told what cuts its connection when it runs.
     let tailnet = Peer(std::net::SocketAddr::from(([127, 0, 0, 1], 40104)));
     let html = get_with(&c, "/ui/tools/automations/new", tailnet, &cookie).await.text();
-    assert!(html.contains("<p class=\"foot\">You are connected remotely: Airplane Mode ON and Mobile Data OFF cut this connection when they run."), "{html}");
+    assert!(html.contains("<p class=\"foot\">You are connected remotely: 飞行模式开启 and 移动数据关闭 cut this connection when they run."), "{html}");
 }
 
 /// Create (once, with the app's body), edit (the switch kept), the switch,
@@ -258,7 +258,7 @@ async fn automations_create_edit_toggle_delete() {
     for want in [
         "<p class=\"msg ok\" role=\"status\">创建自动化</p>", "<h2>自动化</h2>",
         &format!("<li class=\"cr fr\" id=\"j{id}\"><a class=\"it cv\" href=\"/ui/tools/automations/{id}\">"),
-        "<span class=\"nm\">Night &lt;b&gt;</span><span class=\"rs\">Weekends at 22:30 → 07:05</span><span class=\"rs rd\">移动数据关闭</span>",
+        "<span class=\"nm\">Night &lt;b&gt;</span><span class=\"rs\">周末 at 22:30 → 07:05</span><span class=\"rs rd\">移动数据关闭</span>",
         "<span class=\"sd\"><form class=\"sf\" method=\"post\" action=\"/ui/tools/automations/toggle\">",
         &format!("<input type=\"hidden\" name=\"id\" value=\"{id}\"><input type=\"hidden\" name=\"c\" value=\"{cr}\">"),
         "<input type=\"hidden\" name=\"enabled\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"Night &lt;b&gt;\">",
@@ -400,7 +400,7 @@ async fn custom_automations_are_kept() {
         "restore": {"time": "23:00", "body": {"cid": 1, "enable": 0}},
     }));
     let html = get_with(&c, AUTO, peer(107, 2), &cookie).await.text();
-    assert!(html.contains("<span class=\"rs\">Every day at 06:00 \u{2192} 23:00</span><span class=\"rs rd\">PUT /api/modem/data</span>"), "{html}");
+    assert!(html.contains("<span class=\"rs\">每天 at 06:00 → 23:00</span><span class=\"rs rd\">PUT /api/modem/data</span>"), "{html}");
     let page = get_with(&c, &format!("{AUTO}/{id}"), peer(107, 3), &cookie).await;
     let html = page.text();
     assert!(html.contains("<li class=\"it\"><span class=\"muted\">操作</span><span class=\"dn\">定制：PUT /api/modem/data</span></li>"), "{html}");

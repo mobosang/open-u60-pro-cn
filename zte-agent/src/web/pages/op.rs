@@ -102,7 +102,7 @@ pub fn progress(v: &Views) -> Markup {
                 }
             }
             @match st {
-                OpStatus::Pending { .. } => p.cap { (secs) " s so far" },
+                OpStatus::Pending { .. } => p.cap { (secs) " 秒（当前）" },
                 OpStatus::Done { msg } => p.msg.info role="status" { (msg) },
                 OpStatus::TimedOut { msg } if op.spec.timeout_ok => p.msg.info role="status" { (msg) },
                 OpStatus::TimedOut { msg } | OpStatus::Failed { msg } => p.msg.err role="alert" { (msg) },

@@ -112,7 +112,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
         "<h1>输入PIN</h1>", "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/sim\">取消</a></div>",
         "<form class=\"rf req\" method=\"post\" action=\"/ui/router/sim/pin\">",
         "<input id=\"pin\" type=\"password\" name=\"pin\" placeholder=\"PIN\" inputmode=\"numeric\" maxlength=\"8\" required autocomplete=\"one-time-code\"",
-        "<p class=\"foot\">1 attempt remaining</p>", "这是最后一次尝试：错误的 PIN 会锁定 SIM，直到输入其 PUK。",
+        "<p class=\"foot\">1 次剩余尝试</p>", "这是最后一次尝试：错误的 PIN 会锁定 SIM，直到输入其 PUK。",
         "<input type=\"hidden\" name=\"left\" value=\"1\">",
         "<button class=\"it cv snd\" type=\"submit\">解锁</button>",
     ] {
@@ -220,7 +220,7 @@ async fn pin_lock_change_and_puk_ask_and_send_the_apps_bodies() {
         assert!(html.contains(want), "{want} in {html}");
     }
     // The app shows the attempts only where a PIN unlocks (Enter PIN, PUK, NCK).
-    assert!(!html.contains("attempts remaining"), "{html}");
+    assert!(!html.contains("次剩余尝试"), "{html}");
     assert!(!get_with(&c, LOCK_ON, peer(152, 2), &cookie).await.text().contains(super::super::pages::confirm::REMOTE));
     // The lock is off: Disable has nothing to do.
     assert!(get_with(&c, LOCK_OFF, peer(152, 2), &cookie).await.text().contains("PIN 锁已关闭。"));
@@ -246,7 +246,7 @@ async fn pin_lock_change_and_puk_ask_and_send_the_apps_bodies() {
     let r = get_with(&c, PUK, peer(152, 5), &cookie).await;
     let html = r.text();
     for want in [
-        "placeholder=\"PUK代码\"", "<p class=\"foot\">1 attempt remaining</p>",
+        "placeholder=\"PUK代码\"", "<p class=\"foot\">1 次剩余尝试</p>",
         "这是最后一次尝试：错误的 PUK 会永久阻止 SIM。", "<h2>新PIN</h2>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -279,7 +279,7 @@ async fn sim_unlock_sends_the_code_once() {
     let html = r.text();
     for want in [
         "<h1>SIM解锁</h1>", "<input id=\"nck\" type=\"text\" name=\"nck\" placeholder=\"解锁代码（NCK）\"",
-        "<p class=\"foot\">1 attempt remaining</p>", "This is the last attempt",
+        "<p class=\"foot\">1 次剩余尝试</p>", "This is the last attempt",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -292,7 +292,7 @@ async fn sim_unlock_sends_the_code_once() {
     let _dev = device::set(&c.app, device::Device { gets: vec![trials(2)], ..Default::default() });
     let r = post(&c, NCK, peer(153, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&nck=0000000000000042")).await;
     r.assert_secure_html(409);
-    assert!(r.text().contains("The attempts left have changed") && r.text().contains("<p class=\"foot\">2 attempts remaining</p>") && !r.text().contains("0000000000000042"), "{}", r.text());
+    assert!(r.text().contains("The attempts left have changed") && r.text().contains("<p class=\"foot\">2 次剩余尝试</p>") && !r.text().contains("0000000000000042"), "{}", r.text());
     assert!(calls(&c).is_empty());
     let _dev = device::set(&c.app, device::Device { gets: vec![trials(1)], ..Default::default() });
     let r = post(&c, NCK, peer(153, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&nck=0000000000000042")).await;
@@ -493,7 +493,7 @@ async fn sim_toolkit_selects_once_and_follows_the_worker() {
     for want in [
         "<section class=\"group own\" id=\"stk\">", "<form class=\"rf stkin\" method=\"post\" action=\"/ui/router/sim-services/stk/respond\">",
         "<input type=\"hidden\" name=\"c\" value=\"1700000000004\">", "<input id=\"stkr\" type=\"password\" name=\"text\" placeholder=\"SIM 回应\" maxlength=\"8\" inputmode=\"tel\" autocomplete=\"one-time-code\"",
-        "<small>Enter 4–8 characters</small>", "<button class=\"it cv snd\" type=\"submit\">发送响应</button>",
+        "<small>输入 4–8 个字符</small>", "<button class=\"it cv snd\" type=\"submit\">发送响应</button>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }

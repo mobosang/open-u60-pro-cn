@@ -127,12 +127,12 @@ pub static DATA_OFF: OpSpec = modem_op(
 );
 pub static AIRPLANE_ON: OpSpec = modem_op(
     ["开启飞行模式", "飞行模式开启"],
-    &["关闭收音机…"],
+    &["关闭无线电…"],
     |_, e, v| op_status(OpKind::Airplane { on: true }, e, v.value(Topic::Modem)),
 );
 pub static AIRPLANE_OFF: OpSpec = modem_op(
     ["关闭飞行模式", "飞行模式已关闭"],
-    &["收音机打开，正在注册…", "正在连接…"],
+    &["无线电打开，正在注册…", "正在连接…"],
     |_, e, v| op_status(OpKind::Airplane { on: false }, e, v.value(Topic::Modem)),
 );
 
@@ -223,7 +223,7 @@ pub static NETSCAN: OpSpec = OpSpec {
 /// 15 times, 2 s apart).
 pub static REGISTER: OpSpec = OpSpec {
     titles: ["注册网络", "注册网络", "注册超时", "Registration failed"],
-    steps: &["Registering\u{2026}"],
+    steps: &["正在注册…"],
     topics: &[Topic::Netscan],
     status: |_, e, v| register_status(e, v.value(Topic::Netscan)),
     back: MOBILE_NETWORK,
@@ -342,20 +342,20 @@ pub fn op_status(kind: OpKind, elapsed: Duration, modem: Option<&Value>) -> OpSt
             OpStatus::TimedOut { msg: "移动数据仍处于连接状态。稍后再检查一次。" }
         }
         OpKind::Airplane { on: true } if !mode.is_empty() && mode != "ONLINE" => {
-            OpStatus::Done { msg: "飞行模式已开启。收音机已关闭。" }
+            OpStatus::Done { msg: "飞行模式已开启。无线电已关闭。" }
         }
-        OpKind::Airplane { on: true } if late => OpStatus::TimedOut { msg: "收音机还没有关闭。" },
+        OpKind::Airplane { on: true } if late => OpStatus::TimedOut { msg: "无线电还没有关闭。" },
         OpKind::Airplane { on: false } if mode == "ONLINE" && connected => {
-            OpStatus::Done { msg: "收音机已打开并且移动数据已连接。" }
+            OpStatus::Done { msg: "无线电已打开并且移动数据已连接。" }
         }
         // Mobile data is off: there is no connection to wait for.
         OpKind::Airplane { on: false } if mode == "ONLINE" && enable == Some(0) => {
-            OpStatus::Done { msg: "收音机已打开。移动数据已关闭。" }
+            OpStatus::Done { msg: "无线电已打开。移动数据已关闭。" }
         }
         OpKind::Airplane { on: false } if late && mode == "ONLINE" => {
-            OpStatus::TimedOut { msg: "收音机已打开，但尚未建立数据连接。" }
+            OpStatus::TimedOut { msg: "无线电已打开，但尚未建立数据连接。" }
         }
-        OpKind::Airplane { on: false } if late => OpStatus::TimedOut { msg: "收音机尚未打开。" },
+        OpKind::Airplane { on: false } if late => OpStatus::TimedOut { msg: "无线电尚未打开。" },
         OpKind::Airplane { on: false } => OpStatus::Pending { step: usize::from(mode == "ONLINE") },
         _ => OpStatus::Pending { step: 0 },
     }
@@ -419,17 +419,17 @@ mod tests {
         assert_eq!(op_status(off, at(9), Some(&modem("ONLINE", 1, "disconnected"))), OpStatus::Pending { step: 1 });
         assert_eq!(
             op_status(off, at(12), Some(&modem("ONLINE", 1, "ipv4_connected"))),
-            OpStatus::Done { msg: "收音机已打开并且移动数据已连接。" }
+            OpStatus::Done { msg: "无线电已打开并且移动数据已连接。" }
         );
         assert_eq!(
             op_status(off, at(12), Some(&modem("ONLINE", 0, "disconnected"))),
-            OpStatus::Done { msg: "收音机已打开。移动数据已关闭。" }
+            OpStatus::Done { msg: "无线电已打开。移动数据已关闭。" }
         );
         assert_eq!(
             op_status(off, at(60), Some(&modem("ONLINE", 1, "disconnected"))),
-            OpStatus::TimedOut { msg: "收音机已打开，但尚未建立数据连接。" }
+            OpStatus::TimedOut { msg: "无线电已打开，但尚未建立数据连接。" }
         );
-        assert_eq!(op_status(off, at(60), Some(&modem("LPM", 1, ""))), OpStatus::TimedOut { msg: "收音机尚未打开。" });
+        assert_eq!(op_status(off, at(60), Some(&modem("LPM", 1, ""))), OpStatus::TimedOut { msg: "无线电尚未打开。" });
         assert_eq!(op_status(on, at(20), None), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         assert!(!OpStatus::Pending { step: 0 }.finished() && OpStatus::Done { msg: "" }.finished());
     }
@@ -443,7 +443,7 @@ mod tests {
         let lpm_off = op(&AIRPLANE_OFF);
         assert_eq!((lpm_off.title(pending), lpm_off.title(done)), ("关闭飞行模式", "飞行模式已关闭"));
         assert_eq!(op(&DATA_OFF).title(late), "变更未确认");
-        assert_eq!(op(&AIRPLANE_ON).spec.steps, ["关闭收音机…"]);
+        assert_eq!(op(&AIRPLANE_ON).spec.steps, ["关闭无线电…"]);
         // Every modem operation leads back to Mobile Network, under Router.
         for spec in [&DATA_ON, &DATA_OFF, &AIRPLANE_ON, &AIRPLANE_OFF] {
             assert_eq!((spec.back, spec.tab, spec.topics), (("/ui/router/mobile-network", "移动网络"), Tab::Router, MODEM));

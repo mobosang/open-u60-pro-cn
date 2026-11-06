@@ -110,7 +110,7 @@ async fn mobile_network_page_follows_the_app() {
     ]));
     let html = get_with(&c, MN, peer(140, 4), &cookie).await.text();
     assert!(html.contains("aria-checked=\"true\" aria-label=\"移动数据\"") || html.contains("aria-label=\"移动数据\" checked"), "{html}");
-    let (err, conn) = (html.find("<p class=\"msg err\" role=\"alert\">Failed to load airplane mode status</p>"), html.find("<h2>Connectivity</h2>"));
+    let (err, conn) = (html.find("<p class=\"msg err\" role=\"alert\">加载飞行模式状态失败</p>"), html.find("<h2>网络连接</h2>"));
     assert!(err.is_some() && err < conn, "{html}");
     let _dev = device::set(&c.app, reads(vec![("/api/modem/data", Err("ubus <down>".into())), ("/api/modem/status", Err("no".into()))]));
     let html = get_with(&c, MN, peer(140, 4), &cookie).await.text();
@@ -138,7 +138,7 @@ async fn apply_sends_what_changed_once() {
     assert_eq!(calls(&c), [("/api/modem/data".to_owned(), json!({"cid": 1, "connect_mode": 0, "roam_enable": 0, "enable": 1}))]);
     let op = get_with(&c, &format!("/ui/op/{token}"), peer(141, 3), &cookie).await;
     op.assert_secure_html(200);
-    assert!(op.text().contains("<h1 id=\"op-title\">应用设置</h1>") && op.text().contains("Back to Mobile Network"), "{}", op.text());
+    assert!(op.text().contains("<h1 id=\"op-title\">应用设置</h1>") && op.text().contains("返回 移动网络"), "{}", op.text());
     // Roaming on: asked first (a post without `confirm=1` goes there).
     let token = once().await;
     let body = format!("csrf={csrf}&once={token}&{}", fields("1", "1", "auto_select"));
@@ -178,7 +178,7 @@ async fn apply_sends_what_changed_once() {
     });
     let r = post(&c, APPLY, tailnet(40141), &cookie, &format!("csrf={csrf}&once={}&confirm=1&{both}", q.input("once"))).await;
     let html = get_with(&c, &to(&r), tailnet(40141), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">Connection settings applied; Automatic selection failed: Invalid argument</p>"), "{html}");
+    assert!(html.contains("role=\"alert\">应用连接设置；自动选择失败： Invalid argument</p>"), "{html}");
     assert_eq!(calls(&c).len(), 2);
     // The state cannot be read: nothing sent, the token given back.
     let token = once().await;
@@ -221,7 +221,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     clock.advance(Duration::from_secs(2));
     let html = get_with(&c, &op, peer(142, 3), &cookie).await.text();
     assert!(html.contains("<h1 id=\"op-title\">扫描完成</h1>") && html.contains("在网络选择下选择一个网络。"), "{html}");
-    assert!(html.contains("href=\"/ui/router/mobile-network?scan=1\">Back to Mobile Network"), "{html}");
+    assert!(html.contains("href=\"/ui/router/mobile-network?scan=1\">返回 移动网络"), "{html}");
     // The networks (the firmware's string), Manual chosen.
     let results = json!({"m_netselect_contents": "2,Test Net,00101,7;1,Other <b>Net</b>,00102,12;3,Barred,00103,7"});
     let _dev = device::set(&c.app, reads(vec![
@@ -285,7 +285,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     let token = get_with(&c, MN, peer(142, 7), &cookie).await.input("once");
     let r = post(&c, SCAN, peer(142, 7), &cookie, &format!("csrf={csrf}&once={token}&confirm=1")).await;
     let html = get_with(&c, &to(&r), peer(142, 7), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">Scan failed: busy</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">扫描失败： busy</p>"), "{html}");
 }
 
 /// Airplane mode off is tried twice (the host has no AT port), then
@@ -368,7 +368,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
         }
     }
     let r = limited.expect("rate limited");
-    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. Try again in "), "{}", r.text());
+    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. 重试 in "), "{}", r.text());
     let token = get_with(&c, REBOOT, peer(143, 5), &cookie).await.input("once");
     assert_eq!(post(&c, REBOOT, peer(143, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await.status, 429);
     assert_eq!(calls(&c).len(), 1);
@@ -472,7 +472,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     assert_eq!(calls(&c), [("/api/cell/neighbors/scan".to_owned(), json!({}))]);
     let html = get_with(&c, &format!("{CELL}?nbr=1"), peer(144, 6), &cookie).await.text();
     for want in [
-        "<p class=\"msg ok\" role=\"status\">Found 2 neighbor cell(s)</p>",
+        "<p class=\"msg ok\" role=\"status\">找到 2 个邻区</p>",
         "<b>NR</b><span class=\"muted\">Band 41</span></span><small>PCI: 775\u{a0}\u{a0}EARFCN: 513000\u{a0}\u{a0}RSRP: -95</small>",
         "<b>LTE</b><span class=\"muted\">Band 1</span></span><small>PCI: 179\u{a0}\u{a0}EARFCN: 301\u{a0}\u{a0}RSRP: -101</small>",
     ] {
@@ -513,7 +513,7 @@ async fn stc_shows_its_state_checks_numbers_and_asks() {
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("Failed to load STC"));
+    assert!(!html.contains("加载失败 STC"));
     let csrf = get_with(&c, STC, peer(145, 3), &cookie).await.input("csrf");
     let r = post(&c, &format!("{STC}/params"), peer(145, 4), &cookie, &format!("csrf={csrf}&lte_timer=x&nrsa_timer=40&lte_max=100000&nrsa_max=6")).await;
     r.assert_secure_html(400);
@@ -715,7 +715,7 @@ async fn network_operations_stream_their_topic_until_done() {
         c.app.hub.offer(topic, ReadOut { value: Some(pending), error: None }, std::time::Instant::now());
         let resp = open_live(&c, &format!("/ui/live/op/{id}/{KEY}"), peer(149, n), &cookie).await;
         let mut b = resp.into_body().into_data_stream();
-        assert!(frame(&mut b).await.unwrap().contains("s so far"), "{title}");
+        assert!(frame(&mut b).await.unwrap().contains("秒（当前）"), "{title}");
         assert_eq!(c.app.hub.demand(topic), 1, "{title}");
         assert!(Topic::ALL.iter().filter(|t| **t != topic).all(|t| c.app.hub.demand(*t) == 0), "{title}");
         clock.advance(Duration::from_secs(3));

@@ -507,7 +507,7 @@ fn sheet(pd: &PageData, k: Sheet) -> Markup {
     let err = |name: &str| pd.form.and_then(|f| f.error(name));
     let count = left.filter(|_| matches!(k, Sheet::Pin | Sheet::Puk | Sheet::Nck));
     let footer = html! {
-        @if let Some(n) = count { p.foot { (n) @if n == 1 { " attempt remaining" } @else { " attempts remaining" } } }
+        @if let Some(n) = count { p.foot { (n) @if n == 1 { " 次剩余尝试" } @else { " 次剩余尝试" } } }
         @for l in lines(k, left, pd.remote) { p.foot { (l) } }
         @if let Some(n) = &pd.notice { (n) }
     };

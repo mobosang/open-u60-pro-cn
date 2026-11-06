@@ -29,7 +29,7 @@ pub static SETTINGS: Screen = Screen {
             &[
                 ("应用程序", "OpenU60"),
                 ("设备", "ZTE U60 Pro (MU5250)"),
-                ("API", concat!("zte-agent web UI ", env!("CARGO_PKG_VERSION"))),
+                ("API", concat!("zte-agent 管理网页 ", env!("CARGO_PKG_VERSION"))),
             ],
         ),
         Block::Custom(legal),

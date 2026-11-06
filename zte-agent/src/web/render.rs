@@ -120,9 +120,9 @@ pub fn age_line(v: &Views, topics: &[Topic]) -> Markup {
         })
         .max();
     match stale {
-        Some(secs) if secs < 10 => html! { p.age { "更新 " (secs) " s ago" } },
-        Some(secs) if secs < 120 => html! { p.age { "更新 " (secs / 5 * 5) " s ago" } },
-        Some(secs) => html! { p.age { "更新 " (secs / 60) " min ago" } },
+        Some(secs) if secs < 10 => html! { p.age { "更新 " (secs) " 秒前" } },
+        Some(secs) if secs < 120 => html! { p.age { "更新 " (secs / 5 * 5) " 秒前" } },
+        Some(secs) => html! { p.age { "更新 " (secs / 60) " 分钟前" } },
         None => html! {},
     }
 }
@@ -295,7 +295,7 @@ pub fn live_snapshot(refresh: &str) -> Markup {
 pub fn status_pill(refresh: &str) -> Markup {
     html! {
         p #live-status .snap .ps {
-            a href=(refresh) { "快照" span.sr { " from page load. Refresh" } }
+            a href=(refresh) { "快照" span.sr { "，来自页面加载时。请刷新" } }
         }
     }
 }
@@ -304,7 +304,7 @@ pub fn status_pill(refresh: &str) -> Markup {
 /// move): how old the snapshot is, after 1 and 5 minutes, by CSS alone;
 /// hidden once live.
 pub fn snapshot_age() -> Markup {
-    html! { span.agebadge.sa.ages { span.age1 { "over 1 min old" } span.age5 { "over 5 min old" } } }
+    html! { span.agebadge.sa.ages { span.age1 { "超过 1 分钟未更新" } span.age5 { "超过 5 分钟未更新" } } }
 }
 
 /// A full page with a heading, a message and a way back.
@@ -387,7 +387,7 @@ pub fn no_password(nonce: &str) -> Response {
             p {
                 "Web界面需要代理密码。添加 "
                 code { "ZTE_AGENT_PASSWORD=<password>" }
-                " to the agent's start script on the router, then restart the agent."
+                " 到路由器上的 Agent 启动脚本，然后重启 Agent。"
             }
             // A standalone window has no reload button.
             p.actions { a.btn href="/ui/" { "重试" } }
@@ -453,7 +453,7 @@ mod tests {
     fn snapshot_status_line() {
         assert_eq!(
             live_snapshot("/ui/").into_string(),
-            "<p class=\"snap\" id=\"live-status\">页面加载快照<span class=\"ages\"><span class=\"age1\"> · over 1 min old</span><span class=\"age5\"> · over 5 min old</span></span> · <a href=\"/ui/\">刷新</a></p>"
+            "<p class=\"snap\" id=\"live-status\">页面加载快照<span class=\"ages\"><span class=\"age1\"> · 超过 1 分钟未更新</span><span class=\"age5\"> · 超过 5 分钟未更新</span></span> · <a href=\"/ui/\">刷新</a></p>"
         );
     }
 }

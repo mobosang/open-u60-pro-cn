@@ -200,10 +200,10 @@ pub fn banners(v: &Views) -> Markup {
             @for b in banner_list(v) {
                 @match b {
                     Banner::Puk => (kit::banner("b-red", Icon::LockWarn, "需要 SIM PUK", html! {
-                        "PIN 尝试错误太多。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " to enter your PUK."
+                        "PIN 尝试错误太多。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " 以输入 PUK。"
                     })),
                     Banner::Pin => (kit::banner("b-orange", Icon::Lock, "需要 SIM PIN", html! {
-                        "您的 SIM 卡已被锁定。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " to enter your PIN."
+                        "您的 SIM 卡已被锁定。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " 以输入 PIN。"
                     })),
                     Banner::Airplane => (kit::banner("b-blue", Icon::Airplane, "飞行模式", html! {
                         "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"
@@ -211,7 +211,7 @@ pub fn banners(v: &Views) -> Markup {
                     Banner::DataOff => (kit::banner("b-orange", Icon::AntennaSlash, "移动数据关闭", html! {
                         "蜂窝无线电已打开，但数据已禁用。前往 "
                         a href="/ui/router/mobile-network" { "Router > Mobile Network" }
-                        " to enable it."
+                        " 以开启。"
                     })),
                 }
             }
@@ -363,7 +363,7 @@ pub fn card_devices(v: &Views) -> Markup {
     html! {
         span #card-devices {
             @match count { Some(n) => b.big { (roll(v, "dev", &n.to_string())) }, None => b.big { (DASH) } }
-            " " span.lbl { "devices" }
+            " " span.lbl { "设备" }
         }
     }
 }
@@ -450,7 +450,7 @@ pub(crate) mod tests {
             "现场信号", "锁屏实时信号位于 iOS 应用程序中。",
             ">69%<", "<span class=\"c-green\">充电中</span><span class=\"muted\"> · </span><span class=\"c-green\">25.2W</span>",
             "电源详情", "<p class=\"big\">40.8%</p>", "37.2 °C", "26.0 °C", "<b class=\"big\">2</b>",
-            "<span class=\"lbl\">devices</span>", "网络、共享和连接设备", "Wi-Fi on",
+            "<span class=\"lbl\">设备</span>", "网络、共享和连接设备", "Wi-Fi on",
         ] {
             assert!(s.contains(want), "missing {want:?} in {s}");
         }
@@ -463,7 +463,7 @@ pub(crate) mod tests {
             assert!(!s.contains(gone), "{gone} in {s}");
         }
         // Battery and CPU & heat side by side, after Live signal.
-        let order = ["card-conn", "card-traffic", "Live signal", "class=\"pair\"", "card-battery", "card-health", "wifi-state"];
+        let order = ["card-conn", "card-traffic", "现场信号", "class=\"pair\"", "card-battery", "card-health", "wifi-state"];
         let at: Vec<usize> = order.iter().map(|w| s.find(w).unwrap()).collect();
         assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");
     }
@@ -533,7 +533,7 @@ pub(crate) mod tests {
         // Other cards keep the error line under them.
         let bad = SlotView { version: 1, at: NOW, value_at: NOW, value: None, error: Some(Arc::from("no battery <y>")) };
         let s = card_battery(&Views::new(NOW, vec![(Topic::Battery, bad)])).into_string();
-        assert!(s.contains("Couldn't update: no battery &lt;y&gt;") && s.contains("不可用"), "{s}");
+        assert!(s.contains("无法更新： no battery &lt;y&gt;") && s.contains("不可用"), "{s}");
         let s = page_of(&views(vec![]));
         for want in ["无运营商", "LTE RSRP —", "实时流量不可用", "不可用", "<b class=\"big\">—</b>"] {
             assert!(s.contains(want), "{want}");
@@ -568,10 +568,10 @@ pub(crate) mod tests {
         let line = |t, secs| render::age_line(&views_at(t, secs), &[t]).into_string();
         // Battery every 5 s, health every 2 s: the seconds below 10, then 5 s steps.
         assert_eq!(line(Topic::Battery, 14), "");
-        assert_eq!(line(Topic::Battery, 17), "<p class=\"age\">Updated 15 s ago</p>");
-        assert_eq!(line(Topic::Battery, 600), "<p class=\"age\">Updated 10 min ago</p>");
+        assert_eq!(line(Topic::Battery, 17), "<p class=\"age\">更新 15 秒前</p>");
+        assert_eq!(line(Topic::Battery, 600), "<p class=\"age\">更新 10 分钟前</p>");
         assert_eq!(line(Topic::Health, 5), "");
-        assert_eq!(line(Topic::Health, 7), "<p class=\"age\">Updated 7 s ago</p>");
+        assert_eq!(line(Topic::Health, 7), "<p class=\"age\">更新 7 秒前</p>");
         // WAN has no cadence (event-driven): never "old".
         assert_eq!(line(Topic::Wan, 3600), "");
     }
@@ -668,8 +668,8 @@ pub(crate) mod tests {
         ]);
         let s = banners(&all).into_string();
         for (class, title, text) in [
-            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PUK."),
-            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PIN."),
+            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> 以输入 PUK。"),
+            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> 以输入 PIN。"),
             ("b-blue", "飞行模式", "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"),
         ] {
             assert!(s.contains(&format!("<div class=\"banner {class}\"><svg")), "{class}");
@@ -680,7 +680,7 @@ pub(crate) mod tests {
         }
         let off = views(vec![(Topic::Modem, json!({"status": {"operate_mode": "ONLINE"}, "data": {"enable": 0}}))]);
         assert!(banners(&off).into_string().contains(
-            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">Router &gt; Mobile Network</a> to enable it.</span>"
+            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">路由器 &gt; 移动网络</a> 以开启。</span>"
         ));
     }
 

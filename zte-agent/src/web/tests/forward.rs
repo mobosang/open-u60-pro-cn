@@ -89,7 +89,7 @@ async fn the_page_in_both_tabs() {
         let html = r.text();
         assert_no_secrets(&html);
         for want in [
-            "<title>SMS Forwarding · U60 Pro</title>",
+            "<title>短信转发 · U60 Pro</title>",
             &format!("<div class=\"lead\"><a class=\"nl back\" href=\"{tab}\">{back}</a></div><h1>短信转发</h1>"),
             &format!("<a href=\"{tab}\" aria-current=\"page\">"),
             "<h2>设置</h2>",
@@ -214,7 +214,7 @@ async fn rule_forms_never_show_secrets() {
     rules(&c).await;
     let html = rule_form(&c, &cookie, &format!("{TOOLS_FWD}/rules/new")).await.text();
     for want in [
-        "<title>New Rule · U60 Pro</title>",
+        "<title>新规则 · U60 Pro</title>",
         &format!("<div class=\"lead\"><a class=\"nl\" href=\"{TOOLS_FWD}\">取消</a></div><h1>新规则</h1>"),
         "<a href=\"/ui/tools\" aria-current=\"page\">",
         &format!("<form class=\"rf\" id=\"rf\" method=\"post\" action=\"{TOOLS_FWD}/rules/save\">"),
@@ -246,14 +246,14 @@ async fn rule_forms_never_show_secrets() {
     let html = r.text();
     assert_no_secrets(&html);
     for want in [
-        "<title>Edit Rule · U60 Pro</title>",
+        "<title>编辑规则 · U60 Pro</title>",
         "<input type=\"hidden\" name=\"id\" value=\"2\">",
         "name=\"name\" value=\"Hook\"",
         "id=\"ft-sender\" name=\"ft\" value=\"sender\" checked>",
         "name=\"patterns\" value=\"BANK, +1555*\"",
         "id=\"dt-webhook\" name=\"dt\" value=\"webhook\" checked>",
         "<input id=\"wh_url\" type=\"text\" name=\"wh_url\" inputmode=\"url\" placeholder=\"留空保留\" autocomplete=\"off\"",
-        "<small>Saved: example.com</small>",
+        "<small>已保存： example.com</small>",
         "name=\"wh_hn0\" value=\"Authorization\"",
         "name=\"wh_hv0\" aria-label=\"标头 1 值\" placeholder=\"留空保留\" autocomplete=\"new-password\"",
     ] {
@@ -401,10 +401,10 @@ async fn test_destination() {
     let b = body(&f, &[("id", "1"), ("name", "Bot"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
     let r = post(&c, &test, peer(85, 4), &cookie, &b).await;
     r.assert_secure_html(502);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Test failed: telegram: http status: 401</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">测试失败： telegram: http status: 401</p>"), "{}", r.text());
     assert_ne!(r.input("once"), f.input("once"));
     let replay = post(&c, &test, peer(85, 4), &cookie, &b).await;
-    assert!(replay.status == 502 && replay.text().contains("Test failed: telegram: http status: 401"));
+    assert!(replay.status == 502 && replay.text().contains("测试失败： telegram: http status: 401"));
     assert_eq!(fake::tests(&c.app).len(), 1);
     // SMS: asked first (it costs an SMS); Cancel shows the form again; confirmed, sent once.
     let _fake = fake::set(&c.app, (200, json!({"ok": true, "data": {"status": "sent"}})));
@@ -448,7 +448,7 @@ async fn test_destination() {
     let b = body(&f, &[("id", "1"), ("name", "Bot"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
     let r = post(&busy, &test, peer(85, 6), &cookie, &b).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("Test failed: the router is busy. Try again in a few seconds."), "{}", r.text());
+    assert!(r.text().contains("测试失败： the router is busy. 重试 in a few seconds."), "{}", r.text());
     assert_eq!(fake::tests(&c.app).len(), 1);
     let r = post(&c, &test, peer(85, 6), &cookie, &b).await;
     assert!(r.status == 200 && r.text().contains("测试消息发送"));
@@ -498,7 +498,7 @@ async fn forward_log_in_both_tabs() {
         assert_no_secrets(&html);
         assert!(!html.contains("FAKE-CONTENT") && !html.contains("26,10,22") && !html.contains("+15555550199"), "{html}");
         for want in [
-            "<title>Forward Log · U60 Pro</title>",
+            "<title>转发日志 · U60 Pro</title>",
             &format!(
                 "<div class=\"lead\"><a class=\"nl back\" href=\"{base}\">短信转发</a></div><h1>转发日志</h1><div class=\"trail\"><a class=\"nl\" href=\"{base}/log/clear\">清除</a></div>"
             ),
@@ -512,7 +512,7 @@ async fn forward_log_in_both_tabs() {
             "<span class=\"rs\">Fake &lt;b&gt;bot&lt;/b&gt; → webhook</span><span class=\"pv\">Your code is 000000</span>",
             &format!("<div class=\"l2\"><span class=\"tm\">{}</span></div>", stamp(1_792_000_100)),
             &format!("<span class=\"tm\">{}</span><form class=\"sf\" method=\"post\" action=\"{base}/log/retry\">", stamp(1_792_000_200)),
-            "<input type=\"hidden\" name=\"i\" value=\"1\"><input type=\"hidden\" name=\"sms\" value=\"11\"><input type=\"hidden\" name=\"rule\" value=\"2\"><input type=\"hidden\" name=\"ts\" value=\"1792000200\"><button class=\"btn sm\" type=\"submit\">重试<span class=\"sr\"> forward from EXAMPLE-BANK</span></button>",
+            "<input type=\"hidden\" name=\"i\" value=\"1\"><input type=\"hidden\" name=\"sms\" value=\"11\"><input type=\"hidden\" name=\"rule\" value=\"2\"><input type=\"hidden\" name=\"ts\" value=\"1792000200\"><button class=\"btn sm\" type=\"submit\">重试<span class=\"sr\"> ，转发自 EXAMPLE-BANK</span></button>",
         ] {
             assert!(html.contains(want), "{want} in {html}");
         }
@@ -781,7 +781,7 @@ async fn forms_never_echo_or_bring_back_secrets() {
     let r = post(&c, &test, peer(91, 6), &cookie, &body(&f, &[("name", "D"), ("ft", "all"), ("dt", "discord"), ("dc_url", "https://discord.com/api/webhooks/1/FAKE-DISCORD")])).await;
     assert_eq!(r.status, 200);
     assert_no_secrets(&r.text());
-    assert!(r.text().contains("<small>Entered: discord.com</small>") && r.text().contains("placeholder=\"留空保留\""), "{}", r.text());
+    assert!(r.text().contains("<small>输入： discord.com</small>") && r.text().contains("placeholder=\"留空保留\""), "{}", r.text());
     let b = body(&r, &[("name", "D"), ("ft", "all"), ("dt", "discord"), ("kd", "discord")]);
     post(&c, &save, peer(91, 6), &cookie, &b).await.assert_see_other(&format!("{SMS_FWD}?saved=rule-created"));
     assert_eq!(config(&c).await["rules"][6]["destination"]["webhook_url"], "https://discord.com/api/webhooks/1/FAKE-DISCORD");
@@ -823,8 +823,8 @@ async fn config_reads_last_id_and_failures() {
     assert!(q.contains("加载失败：Failed &lt;to&gt; read") && !q.contains("name=\"confirm\""), "{q}");
     let edit = get_with(&c, &format!("{SMS_FWD}/rules/1"), peer(92, 3), &cookie).await;
     edit.assert_secure_html(503);
-    assert!(edit.text().contains("<strong>加载失败</strong><p>Failed &lt;to&gt; read</p>"), "{}", edit.text());
-    for (action, want) in [("save", "失败：Failed &lt;to&gt; read"), ("test", "Test failed: Failed &lt;to&gt; read")] {
+    assert!(edit.text().contains("<strong>加载失败</strong><p>失败 &lt;to&gt; read</p>"), "{}", edit.text());
+    for (action, want) in [("save", "失败：Failed &lt;to&gt; read"), ("test", "测试失败： 失败 &lt;to&gt; read")] {
         let b = body(&f, &[("name", "X"), ("ft", "all"), ("dt", "telegram"), ("tg_token", "999:NEW-FAKE"), ("tg_chat", "1")]);
         let r = post(&c, &format!("{SMS_FWD}/rules/{action}"), peer(92, 4), &cookie, &b).await;
         r.assert_secure_html(503);

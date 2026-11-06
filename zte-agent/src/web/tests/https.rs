@@ -58,7 +58,7 @@ async fn turn_on_from_settings_once() {
     let cookie = format!("zte_ui_session={}", login(&c, 230, 1).await);
     let p = peer(230, 2);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    for want in ["<h2>HTTPS &amp; Install as App</h2>", "<span>HTTPS</span><span class=\"v\">关闭</span>", "href=\"/ui/settings/https/on\"", "开启HTTPS", "on port 9443"] {
+    for want in ["<h2>HTTPS &amp; 安装 as App</h2>", "<span>HTTPS</span><span class=\"v\">关闭</span>", "href=\"/ui/settings/https/on\"", "开启HTTPS", "on port 9443"] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // The question: what happens, the router's clock (not checked), the token.
@@ -146,7 +146,7 @@ async fn a_kept_ca_is_turned_on_again() {
     let cookie = format!("zte_ui_session={}", login(&c, 235, 1).await);
     let p = peer(235, 2);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    for want in ["is still on the router: Turn On HTTPS issues a new certificate from it", "issues a new one from the same certificate authority", "href=\"/ui/settings/https/reset\""] {
+    for want in ["is still on the router: 开启HTTPS issues a new certificate from it", "issues a new one from the same certificate authority", "href=\"/ui/settings/https/reset\""] {
         assert!(html.contains(want), "{want} in {html}");
     }
     let html = get_with(&c, ON, p, &cookie).await.text();

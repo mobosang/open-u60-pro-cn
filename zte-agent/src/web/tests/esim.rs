@@ -63,7 +63,7 @@ fn device_with(replies: Vec<(&'static str, (u16, Value))>, extra: Vec<(&'static 
 /// The key of profile `i` in the list's links.
 fn key_of(html: &str, i: usize) -> String {
     let name = ["GOMO u60", "DITO u60", "Klook_app", "Test profile"][i];
-    let at = html.find(&format!("Options for {name}")).unwrap_or_else(|| panic!("{name} in {html}"));
+    let at = html.find(&format!("{name} 的选项")).unwrap_or_else(|| panic!("{name} in {html}"));
     html[at..].split("/ui/router/esim/rename?p=").nth(1).unwrap()[..16].to_owned()
 }
 
@@ -221,7 +221,7 @@ async fn switch_asks_then_follows_the_switch_once() {
         "<h1>确认</h1>", "<h2 class=\"q\">切换到Klook_app？</h2>",
         "路由器将断开 GOMO u60 并通过 Klook_app 连接。互联网将中断约一分钟，Wi-Fi 保持开启。",
         "路由器当前使用手动 APN“internet.example”。如果 Klook_app 需要其他 APN，请在切换后前往移动网络修改，否则可能无法使用数据。",
-        "Klook_app looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on.",
+        "Klook_app looks like a travel (roaming) profile and 数据漫游 is off, so it will have no data until you turn 数据漫游 on.",
         "<button class=\"btn\" type=\"submit\">切换至Klook_app</button>", "href=\"/ui/router/esim\">取消</a>",
     ] {
         assert!(q.contains(want), "{want} in {q}");
@@ -261,7 +261,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     for want in [
         "<h1 id=\"op-title\">正在注册网络</h1>", "切换至Klook_app", "重新加载SIM</span><small>完成</small>",
         "连接到网络</span><small>进行中</small>", "Wi-Fi 保持连接 · 通常 15–45 秒",
-        "href=\"/ui/router/esim\">Back to eSIM Profiles</a>", "@get('/ui/live/op/",
+        "href=\"/ui/router/esim\">返回 eSIM 配置文件</a>", "@get('/ui/live/op/",
     ] {
         assert!(op.contains(want), "{want} in {op}");
     }
@@ -314,7 +314,7 @@ async fn switch_refusals_read_as_the_app() {
     let body = format!("csrf={}&p={dito}&once={}&confirm=1", page_csrf(&q), once(&q));
     let html = get_with(&c, &to(&post(&c, SWITCH, peer(163, 4), &cookie, &body).await), peer(163, 4), &cookie).await.text();
     for want in [
-        "<b>Can’t 现在就完成这个</b><p>Switch failed: the modem is in airplane / low-power mode",
+        "<b>Can’t 现在就完成这个</b><p>切换失败： the modem is in airplane / low-power mode",
         "打开路由器设置→移动网络检查调制解调器模式。", "href=\"/ui/router/esim\">重新加载配置文件</a>",
         "重新加载只会读取列表，不会重复执行操作。",
     ] {

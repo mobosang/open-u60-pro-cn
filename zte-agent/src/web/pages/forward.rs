@@ -124,7 +124,7 @@ fn rule_row(csrf: &Markup, m: &Mount, r: &Value) -> Markup {
                 input type="hidden" name="enabled" value=(if on { "0" } else { "1" });
                 button.sw type="submit" role="switch" aria-checked=(on) aria-label=(name) {}
             }
-            a.del href=(m.at(&format!("/rules/delete?id={id}"))) { "删除" span.sr { " rule " (name) } }
+            a.del href=(m.at(&format!("/rules/delete?id={id}"))) { "删除" span.sr { " 条规则 " (name) } }
         }
     }
 }
@@ -272,7 +272,7 @@ fn log_row(csrf: &Markup, token: &str, m: &Mount, e: &Value) -> Markup {
                         input type="hidden" name="sms" value=(fp.sms_id);
                         input type="hidden" name="rule" value=(fp.rule_id);
                         input type="hidden" name="ts" value=(fp.timestamp);
-                        button.btn.sm type="submit" { "重试" span.sr { " forward from " (s("sender")) } }
+                        button.btn.sm type="submit" { "重试" span.sr { "，转发自 " (s("sender")) } }
                     }
                 }
             }

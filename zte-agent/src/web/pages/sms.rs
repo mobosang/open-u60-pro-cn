@@ -151,7 +151,7 @@ fn new_notice(v: &Views) -> Markup {
         div #sms-new {
             @if n > 0 {
                 p.msg.info role="status" {
-                    @if n == 1 { "新消息" } @else { (n) " new messages" }
+                    @if n == 1 { "新消息" } @else { (n) " 条新短信" }
                     " \u{b7} " a href="" { "刷新" }
                 }
             }
@@ -205,7 +205,7 @@ fn row(app: &AppState, csrf: &Markup, c: &Conv, store: Store, now: i64, off: i64
             span.l1 { span.nm { (c.number) } span.tm { (latest.date.map(|t| sms::relative(t, now, off)).unwrap_or_default()) } }
             span.l2 {
                 span.pv { (latest.content) }
-                @if c.unread > 0 { span.ub { (c.unread) span.sr { " unread" } } }
+                @if c.unread > 0 { span.ub { (c.unread) span.sr { " 条未读" } } }
             }
         }
     };
@@ -222,7 +222,7 @@ fn row(app: &AppState, csrf: &Markup, c: &Conv, store: Store, now: i64, off: i64
                 Some(k) => a.it.cv href=(format!("{}#end", thread_url(k, store, ""))) { (body) },
                 None => div.it.cv.ur[c.unread > 0] { (body) },
             }
-            @if let Some(k) = &key { a.del href=(delete_url(k, store)) { "删除" span.sr { " conversation with " (c.number) } } }
+            @if let Some(k) = &key { a.del href=(delete_url(k, store)) { "删除" span.sr { "，与以下号码的会话：" (c.number) } } }
         }
     }
 }

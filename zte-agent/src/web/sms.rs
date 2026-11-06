@@ -861,7 +861,7 @@ mod tests {
         assert!(check_text(&"a".repeat(765)).is_ok());
         assert_eq!(check_text(&"a".repeat(766)).unwrap_err(), "最多输入 765 个字符。");
         assert!(check_text(&"Ж".repeat(335)).is_ok());
-        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("at most 335 characters"));
+        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("at most 335 个字符"));
         // An emoji is two UTF-16 units.
         assert!(check_text(&"\u{1F600}".repeat(168)).is_err() && check_text(&"\u{1F600}".repeat(167)).is_ok());
         for blank in ["", "  ", "\n\t"] {

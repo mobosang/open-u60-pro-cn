@@ -297,7 +297,7 @@ fn band(pd: &PageData, st: &Value, b: &Band) -> Markup {
     html! {
         div.band {
             (kit::section(Some(b.label), Some(footers), html! {
-                (switch(b.radio, "收音机", on, "it", "sr ro"))
+                (switch(b.radio, "无线电", on, "it", "sr ro"))
                 (text_row(b.ssid, "SSID", &typed(b.ssid, text(&st[b.ssid])), err(b.ssid), "it fld bd", 32, None))
                 (password_row(b.key, "密码", st[b.has_key].as_bool() == Some(true), f.and_then(|f| f.value(b.key)) == Some(KEPT), err(b.key), "it fld bd"))
                 (select_row(b.channel, "信道", &options(b.channels, &ch0, ch_label), &typed(b.channel, ch0.clone()), err(b.channel), "it bd"))
@@ -483,7 +483,7 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)]) -> Question {
         }
         let new_key = b.contains_key(band.key);
         if !b.contains_key(band.disabled) && (b.contains_key(band.ssid) || new_key || b.contains_key(band.encryption)) {
-            let with = if new_key { " with the new password" } else { "" };
+            let with = if new_key { "，使用新密码" } else { "" };
             lines.push(format!("在{}上，设备必须再次加入“{ssid}”{with}。", band.label));
         }
         if b.contains_key(band.hidden) && val(vals, band.hidden) == "1" {
@@ -540,8 +540,8 @@ pub fn applied(vals: &[(&'static str, String)]) -> (String, Markup) {
                     @for b in &live {
                         li {
                             "加入“" (val(vals, b.ssid)) "\u{201d} (" (b.label) ")"
-                            @if val(vals, if b.five { "set_5g" } else { "set_2g" }) == "1" { " with the new password" }
-                            " if it does not reconnect by itself."
+                            @if val(vals, if b.five { "set_5g" } else { "set_2g" }) == "1" { "，使用新密码" }
+                            "，若未自动重连，请手动连接。"
                         }
                     }
                     @if vals.is_empty() { li { "如果该设备没有自行重新连接，请重新加入路由器’s WiFi。" } }
@@ -749,7 +749,7 @@ pub fn guest_question(app: &AppState, vals: &[(&'static str, String)]) -> Questi
             }
             let new_key = b.contains_key("guest_key");
             if now && (b.contains_key("guest_ssid") || new_key || b.contains_key("guest_encryption")) {
-                let with = if new_key { " with the new password" } else { "" };
+                let with = if new_key { "，使用新密码" } else { "" };
                 lines.push(format!("客人必须再次加入“{ssid}”{with}。"));
             }
             "应用访客WiFi设置？"
@@ -812,7 +812,7 @@ pub fn guest_applied(vals: &[(&'static str, String)]) -> (String, Markup) {
                 @if guests && !val(vals, "gssid").is_empty() {
                     li {
                         "嘉宾加入“" (val(vals, "gssid")) "\u{201d}"
-                        @if val(vals, "set_g") == "1" { " with the new password" }
+                        @if val(vals, "set_g") == "1" { "，使用新密码" }
                         "."
                     }
                 }

@@ -130,8 +130,8 @@ async fn wifi_form_question_and_reconnect_page() {
     let cancel = format!("href=\"{WIFI}?t={once}\">Cancel</a>");
     for want in [
         "<h1>确认</h1>", "<h2 class=\"q\">应用WiFi设置？</h2>",
-        "On 2.4 GHz, devices must join \u{201c}Fake-Net-New\u{201d} again with the new password.",
-        "\u{201c}Fake-Net-New\u{201d} is hidden: devices must type its name to join.", "WiFi restarts to apply the changes",
+        "On 2.4 GHz, 设备 must join “Fake-Net-New” again ，使用新密码.",
+        "“Fake-Net-New” is hidden: 设备 must type its name to join.", "WiFi restarts to apply the changes",
         "<button class=\"btn btn-danger\" type=\"submit\">应用</button>", cancel.as_str(),
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -154,9 +154,9 @@ async fn wifi_form_question_and_reconnect_page() {
     page.assert_secure_html(200);
     let html = page.text();
     for want in [
-        "<title>Reconnect to WiFi \u{b7} U60 Pro</title>", "WiFi 设置已应用 — WiFi 将短暂重启",
-        "Join \u{201c}Fake-Net-New\u{201d} (2.4 GHz) with the new password if it does not reconnect by itself.",
-        "Join \u{201c}Fake-Net-5G\u{201d} (5 GHz) if it does not reconnect by itself.", "href=\"/ui/router/wifi\">返回WiFi设置</a>",
+        "<title>重新连接WiFi · U60 Pro</title>", "WiFi 设置已应用 — WiFi 将短暂重启",
+        "Join “Fake-Net-New” (2.4 GHz)，使用新密码 ，若未自动重连，请手动连接。",
+        "Join “Fake-Net-5G” (5 GHz)，若未自动重连，请手动连接。", "href=\"/ui/router/wifi\">返回WiFi设置</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -257,7 +257,7 @@ async fn a_failed_apply_keeps_the_typed_password_for_the_retry() {
     let r = post(&c, WIFI_APPLY, peer(208, 2), &cookie, &body(&csrf, &next, &wifi_fields(&[("ssid_2g", "FakeNet-Fail")]))).await;
     assert_eq!(to(&r), format!("{WIFI_APPLY}?t={next}"));
     let q = get_with(&c, &to(&r), peer(208, 2), &cookie).await;
-    assert!(q.text().contains("devices must join \u{201c}FakeNet-Fail\u{201d} again with the new password."), "{}", q.text());
+    assert!(q.text().contains("设备 must join “FakeNet-Fail” again ，使用新密码."), "{}", q.text());
     assert!(!q.text().contains("new-fake-pass"));
     let r = post(&c, WIFI_APPLY, peer(208, 2), &cookie, &format!("csrf={csrf}&once={next}&d={}&confirm=1", q.input("d"))).await;
     assert_eq!(to(&r), format!("/ui/router/wifi/applied?t={next}"));
@@ -346,9 +346,9 @@ async fn guest_wifi_form_and_apply() {
     page.assert_secure_html(200);
     let html = page.text();
     for want in [
-        "<title>Reconnect to WiFi \u{b7} U60 Pro</title>", "<p class=\"msg ok\" role=\"status\">已应用访客 WiFi 设置</p>",
-        "Join \u{201c}Fake-Net\u{201d} if it does not reconnect by itself.", "Join \u{201c}Fake-Net-5G\u{201d} if it does not reconnect by itself.",
-        "Guests join \u{201c}Fake-Guest-2\u{201d} with the new password.", "href=\"/ui/router/guest-wifi\">返回嘉宾WiFi</a>",
+        "<title>重新连接WiFi · U60 Pro</title>", "<p class=\"msg ok\" role=\"status\">已应用访客 WiFi 设置</p>",
+        "Join “Fake-Net”，若未自动重连，请手动连接。", "Join “Fake-Net-5G”，若未自动重连，请手动连接。",
+        "Guests join “Fake-Guest-2”，使用新密码.", "href=\"/ui/router/guest-wifi\">返回嘉宾WiFi</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -371,8 +371,8 @@ async fn guest_wifi_form_and_apply() {
     let once = get_with(&c, GUEST, peer(202, 2), &cookie).await.input("once");
     let r = post(&c, GUEST_APPLY, peer(202, 2), &cookie, &body(&csrf, &once, &[("g5", "1"), ("gssid", "Fake&Guest"), ("gkey", "short"), ("genc", "sae"), ("gtime", "0")])).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("The router can&#39;t store these characters") || r.text().contains("The router can't store these characters"), "{}", r.text());
-    assert!(r.text().contains("Use 8 to 63 characters"));
+    assert!(r.text().contains("The router can&#39;t store these 个字符") || r.text().contains("The router can't store these 个字符"), "{}", r.text());
+    assert!(r.text().contains("Use 8 to 63 个字符"));
 }
 
 /// The router's APN lists (made-up profiles; a password that must never
@@ -620,7 +620,7 @@ async fn dns_modes_presets_cache_and_clear() {
     r.assert_secure_html(200);
     let html = r.text();
     assert!(html.contains("<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/dns\">完成</a></div><h1>DNS 缓存（60）</h1>") && !html.contains("60 entries"), "{html}");
-    assert!(html.contains("<title>DNS Cache \u{b7} U60 Pro</title>"), "{html}");
+    assert!(html.contains("<title>DNS 缓存 · U60 Pro</title>"), "{html}");
     assert!(html.find("site59.fake.example").unwrap() < html.find("site58.fake.example").unwrap());
     assert!(!html.contains("site9.fake.example<") && html.contains("href=\"/ui/router/dns/cache?n=100\">加载更多</a>"), "{html}");
     assert!(html.contains("<span class=\"badge pu\">AAAA</span>") && html.contains("<small>9m 50s</small>"));

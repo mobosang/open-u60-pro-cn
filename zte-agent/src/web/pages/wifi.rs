@@ -159,7 +159,7 @@ pub fn wifi_card(read: Result<&Value, &str>) -> Markup {
             div.wh {
                 h2 { "WiFi" }
                 @if on && d.is_some_and(|d| yes(d, "wifi6_switch")) { span.badge.bl { "WiFi 7" } }
-                @if on && clients > 0 { span.cap { (clients) " client" @if clients != 1 { "s" } } }
+                @if on && clients > 0 { span.cap { (clients) " 个客户端" @if clients != 1 { "s" } } }
                 @if d.is_some() {
                     @if on { span.c-green { "开启" } } @else { span.c-red { "关闭" } }
                 }
@@ -472,20 +472,20 @@ mod tests {
             d[k] = v;
         }
         let s = wifi_card(Ok(&card_fields(&d))).into_string();
-        assert!(s.contains("<span class=\"cap\">1 client</span>") && !s.contains("WiFi 7") && !s.contains("嘉宾"), "{s}");
+        assert!(s.contains("<span class=\"cap\">1 个客户端</span>") && !s.contains("WiFi 7") && !s.contains("嘉宾"), "{s}");
         assert!(s.contains("5G</dt><dd class=\"muted\">已禁用</dd>"), "{s}");
         // Off: "Off" in red, no client count, no bands (as the app).
         d["wifi_onoff"] = json!("0");
         let s = wifi_card(Ok(&card_fields(&d))).into_string();
-        assert!(s.contains("<span class=\"c-red\">关闭</span>") && !s.contains("client") && !s.contains("2.4G"), "{s}");
+        assert!(s.contains("<span class=\"c-red\">关闭</span>") && !s.contains("个客户端") && !s.contains("2.4G"), "{s}");
         assert!(s.starts_with("<section class=\"card wf\">") && !s.contains("href"), "{s}");
         // No clients: no count.
         let mut d = status();
         d["clients_total"] = json!(0);
-        assert!(!wifi_card(Ok(&d)).into_string().contains("client"));
+        assert!(!wifi_card(Ok(&d)).into_string().contains("个客户端"));
         // Unreadable: why, not "Off".
         let s = wifi_card(Err("uci: <x>")).into_string();
-        assert!(s.contains("Couldn't update: uci: &lt;x&gt;") && !s.contains("关闭"), "{s}");
+        assert!(s.contains("无法更新： uci: &lt;x&gt;") && !s.contains("关闭"), "{s}");
     }
 
     #[test]
