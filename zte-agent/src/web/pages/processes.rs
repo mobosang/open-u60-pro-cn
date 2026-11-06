@@ -549,7 +549,7 @@ mod tests {
         assert!(warnings("zte_topsw_diag", true).is_empty());
         let w = warnings(SMS, true);
         assert_eq!(w.len(), 1);
-        assert!(w[0].starts_with("zte_topsw_wms handles 短信") && w[0].contains("短信 tab, sending and forwarding"));
+        assert!(w[0].starts_with("zte_topsw_wms handles SMS") && w[0].contains("SMS tab, sending and forwarding"));
         assert_eq!(warnings("zte_dm", false), ["zte_dm is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."]);
         assert!(warnings("zte_dm", true)[1].starts_with("You are connected remotely: "));
     }
@@ -582,7 +582,7 @@ mod tests {
         assert_eq!(s.matches("<li>").count(), 1);
         // The SMS daemon and a daemon.conf one: warned, still possible.
         let s = confirm(kill_page, Ok(json!({"pid": 400, "name": SMS})), false);
-        assert!(s.contains("<li>zte_topsw_wms handles 短信:") && s.contains(">结束进程</button>"), "{s}");
+        assert!(s.contains("<li>zte_topsw_wms handles SMS:") && s.contains(">结束进程</button>"), "{s}");
         let s = confirm(kill_page, Ok(json!({"pid": 401, "name": "zte_topsw_mc"})), true);
         assert!(s.contains("boot-critical firmware daemon (daemon.conf)") && s.contains("connected remotely"), "{s}");
         // Not bloat, or gone: no form.
@@ -595,7 +595,7 @@ mod tests {
         let s = confirm(kill_all_page, Ok(read), false);
         for want in [
             "<h2 class=\"q\">结束all bloat daemons？</h2>", "<li>这将使 SIGKILL 3 使守护进程膨胀。他们将在重新启动后返回。</li>",
-            "<li>zte_topsw_diag, zte_dua</li>", "<li>Left running: zte_topsw_wms, zte_dm. The 短信 daemon",
+            "<li>zte_topsw_diag, zte_dua</li>", "<li>Left running: zte_topsw_wms, zte_dm. The SMS daemon",
             "action=\"/ui/health/processes/kill-all\"", ">结束All Bloat</button>",
         ] {
             assert!(s.contains(want), "{want} in {s}");

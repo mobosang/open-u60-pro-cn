@@ -493,7 +493,7 @@ async fn sim_toolkit_selects_once_and_follows_the_worker() {
     for want in [
         "<section class=\"group own\" id=\"stk\">", "<form class=\"rf stkin\" method=\"post\" action=\"/ui/router/sim-services/stk/respond\">",
         "<input type=\"hidden\" name=\"c\" value=\"1700000000004\">", "<input id=\"stkr\" type=\"password\" name=\"text\" placeholder=\"SIM 回应\" maxlength=\"8\" inputmode=\"tel\" autocomplete=\"one-time-code\"",
-        "<small>输入 4–8 characters</small>", "<button class=\"it cv snd\" type=\"submit\">发送响应</button>",
+        "<small>Enter 4–8 characters</small>", "<button class=\"it cv snd\" type=\"submit\">发送响应</button>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }

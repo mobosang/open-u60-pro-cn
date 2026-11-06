@@ -154,7 +154,7 @@ async fn wifi_form_question_and_reconnect_page() {
     page.assert_secure_html(200);
     let html = page.text();
     for want in [
-        "<title>重新连接WiFi · U60 Pro</title>", "WiFi 设置已应用 — WiFi 将短暂重启",
+        "<title>Reconnect to WiFi \u{b7} U60 Pro</title>", "WiFi 设置已应用 — WiFi 将短暂重启",
         "Join \u{201c}Fake-Net-New\u{201d} (2.4 GHz) with the new password if it does not reconnect by itself.",
         "Join \u{201c}Fake-Net-5G\u{201d} (5 GHz) if it does not reconnect by itself.", "href=\"/ui/router/wifi\">返回WiFi设置</a>",
     ] {
@@ -337,7 +337,7 @@ async fn guest_wifi_form_and_apply() {
     let line = to(&r);
     assert_eq!(
         calls(&c),
-        vec![("/api/wifi/guest".to_owned(), json!({"guest_ssid": "Fake-嘉宾-2", "guest_key": "guest-fake-pass", "guest_active_time": "120"}))]
+        vec![("/api/wifi/guest".to_owned(), json!({"guest_ssid": "Fake-Guest-2", "guest_key": "guest-fake-pass", "guest_active_time": "120"}))]
     );
     // Every Wi-Fi network restarts: the reconnect page (from the draft, no
     // device read, never the password); a replay lands on it again.
@@ -346,9 +346,9 @@ async fn guest_wifi_form_and_apply() {
     page.assert_secure_html(200);
     let html = page.text();
     for want in [
-        "<title>重新连接WiFi · U60 Pro</title>", "<p class=\"msg ok\" role=\"status\">已应用访客 WiFi 设置</p>",
+        "<title>Reconnect to WiFi \u{b7} U60 Pro</title>", "<p class=\"msg ok\" role=\"status\">已应用访客 WiFi 设置</p>",
         "Join \u{201c}Fake-Net\u{201d} if it does not reconnect by itself.", "Join \u{201c}Fake-Net-5G\u{201d} if it does not reconnect by itself.",
-        "Guests join “Fake-嘉宾-2” with the new password.", "href=\"/ui/router/guest-wifi\">返回嘉宾WiFi</a>",
+        "Guests join \u{201c}Fake-Guest-2\u{201d} with the new password.", "href=\"/ui/router/guest-wifi\">返回嘉宾WiFi</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -363,7 +363,7 @@ async fn guest_wifi_form_and_apply() {
     let html = get_with(&c, &to(&r), peer(202, 2), &cookie).await.text();
     for want in [
         "<h2 class=\"q\">应用访客WiFi设置？</h2>", "5 GHz 访客网络打开。",
-        "“Fake-嘉宾” is an open network: anyone nearby can join it, without a password, and reach this router.",
+        "\u{201c}Fake-Guest\u{201d} is an open network: anyone nearby can join it, without a password, and reach this router.",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -401,10 +401,10 @@ async fn apn_list_sheets_and_changes() {
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
-        "<h1>APN 设置</h1>", "<h2>当前APN</h2>", "<b>Fake 首页</b>", "<h2>APN模式</h2>",
+        "<h1>APN 设置</h1>", "<h2>当前APN</h2>", "<b>Fake Home</b>", "<h2>APN模式</h2>",
         "<a class=\"sw\" href=\"/ui/router/apn/mode?manual=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"说明书APN\">",
         "<h2>手动配置文件</h2>", "<a class=\"it bt\" href=\"/ui/router/apn/new\">", "<span>添加APN</span>", "href=\"/ui/router/apn/edit?id=manu1\"",
-        "<small class=\"c-green\">已启用</small>", "IPv4v6 / PAP", "IPv4 / 无", "href=\"/ui/router/apn/activate?id=manu2\"",
+        "<small class=\"c-green\">已启用</small>", "IPv4v6 / PAP", "IPv4 / None", "href=\"/ui/router/apn/activate?id=manu2\"",
         "href=\"/ui/router/apn/delete?id=manu2\"",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -468,7 +468,7 @@ async fn apn_list_sheets_and_changes() {
     assert!(get_with(&c, &to(&r), peer(203, 2), &cookie).await.text().contains("APN更新"));
     assert_eq!(
         calls(&c).last().unwrap(),
-        &("/api/router/apn/profiles".to_owned(), json!({"profileId": "manu1", "profilename": "Fake 首页", "wanapn": "home2.fake.example", "pdpType": 3,
+        &("/api/router/apn/profiles".to_owned(), json!({"profileId": "manu1", "profilename": "Fake Home", "wanapn": "home2.fake.example", "pdpType": 3,
             "pppAuthMode": 1, "username": "fakeuser", "password": "FAKE-APN-PW"}))
     );
     // New APN: the app's checks.
@@ -524,7 +524,7 @@ async fn lan_checks_asks_and_links_the_new_address() {
             "ignore": 0, "zte_start": "192.168.8.100", "zte_end": "192.168.8.149", "leasetime": "12h"}))]
     );
     let html = get_with(&c, &done, peer(204, 2), &cookie).await.text();
-    assert!(html.contains("局域网设置已更新") && html.contains("<a class=\"btn\" href=\"http://192.168.8.1:9090/ui/\" rel=\"noreferrer\">打开 192.168.8.1</a>"), "{html}");
+    assert!(html.contains("局域网设置已更新") && html.contains("<a class=\"btn\" href=\"http://192.168.8.1:9090/ui/\" rel=\"noreferrer\">Open 192.168.8.1</a>"), "{html}");
 }
 
 /// DNS: the app's mode and sections from the DoH status; presets fill the
@@ -620,7 +620,7 @@ async fn dns_modes_presets_cache_and_clear() {
     r.assert_secure_html(200);
     let html = r.text();
     assert!(html.contains("<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/dns\">完成</a></div><h1>DNS 缓存（60）</h1>") && !html.contains("60 entries"), "{html}");
-    assert!(html.contains("<title>DNS 缓存 · U60 Pro</title>"), "{html}");
+    assert!(html.contains("<title>DNS Cache \u{b7} U60 Pro</title>"), "{html}");
     assert!(html.find("site59.fake.example").unwrap() < html.find("site58.fake.example").unwrap());
     assert!(!html.contains("site9.fake.example<") && html.contains("href=\"/ui/router/dns/cache?n=100\">加载更多</a>"), "{html}");
     assert!(html.contains("<span class=\"badge pu\">AAAA</span>") && html.contains("<small>9m 50s</small>"));

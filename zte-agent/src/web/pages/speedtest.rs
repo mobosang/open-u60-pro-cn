@@ -313,7 +313,7 @@ mod tests {
         assert_eq!(controls(&done).into_string(), "<li class=\"it\" id=\"st-run\"></li>");
         assert!(message(&done).into_string().contains("<p class=\"msg ok\" role=\"status\">速度测试完成</p>"));
         let r = results(&done).into_string();
-        for want in ["<span>延迟测试</span><span class=\"v\">21.5 ms</span>", "<span>下载</span><span class=\"v\">123.46 兆比特/秒</span>",
+        for want in ["<span>延迟测试</span><span class=\"v\">21.5 ms</span>", "<span>下载</span><span class=\"v\">123.46 Mbps</span>",
             "<span>已下载</span><span class=\"v\">228.9 MB</span>", "<span>已上传</span><span class=\"v\">9.5 MB</span>",
             "<span class=\"v\">Example &lt;b&gt;Net&lt;/b&gt; (Town)</span>"] {
             assert!(r.contains(want), "{want} in {r}");

@@ -55,7 +55,7 @@ struct GuestWiFiSettingsView: View {
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
                         if viewModel.editActiveTime > 0 {
-                            Text("访客WiFi将在\(activeTimeLabel(viewModel.editActiveTime)之后自动关闭）")
+                            Text("访客 WiFi 将在 \(activeTimeLabel(viewModel.editActiveTime)) 后自动关闭")
                         }
                         if let remaining = viewModel.remainingTimeText {
                             Text(remaining)

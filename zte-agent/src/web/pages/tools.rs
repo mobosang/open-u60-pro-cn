@@ -233,7 +233,7 @@ mod tests {
         assert!(list(&v, "0.10").into_string().contains(">tv<"));
         // The hidden octets never match.
         let s = list(&v, "aa:bb").into_string();
-        assert!(s.contains("No 结果 for “aa:bb”") && !s.contains("Devices</h2>"), "{s}");
+        assert!(s.contains("No Results for \u{201c}aa:bb\u{201d}") && !s.contains("Devices</h2>"), "{s}");
         // A failed read: the error row first.
         let slot = SlotView { version: 1, at: NOW, value_at: NOW, value: None, error: Some("ubus timed out".into()) };
         let s = list(&Views::new(NOW, vec![(Topic::Clients, slot)]), "").into_string();

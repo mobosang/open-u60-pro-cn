@@ -635,21 +635,21 @@ mod tests {
         assert!(matches!(next(Kind::Apply, &i("1", "0", "manual_select"), Ok(())), Next::Line(to, Some(true), l) if l == "应用的设置" && to == "/ui/router/mobile-network?sel=manual"));
         assert!(matches!(next(Kind::Apply, &i("0", "1", "manual_select"), Ok(())), Next::Op(_, "0:1")));
         // Roaming on asks; off only remotely; anything else does not.
-        assert_eq!(question(Kind::Apply, &i("1", "1", "manual_select"), false, None).unwrap().title, "开启data roaming?");
+        assert_eq!(question(Kind::Apply, &i("1", "1", "manual_select"), false, None).unwrap().title, "开启数据漫游？");
         assert!(question(Kind::Apply, &i("0", "0", "manual_select"), false, None).is_none());
         let off = Input::of(&[("cm", "1"), ("roam", "0"), ("sel", "auto_select"), ("cm0", "1"), ("roam0", "1"), ("sel0", "auto_select")]);
         assert!(question(Kind::Apply, &off, false, None).is_none());
-        assert_eq!(question(Kind::Apply, &off, true, None).unwrap().title, "关闭data roaming?");
+        assert_eq!(question(Kind::Apply, &off, true, None).unwrap().title, "关闭数据漫游？");
         // Remotely, also Automatic selection and Manual connection mode
         // (each can cut the connection), with the remote line.
         let q = question(Kind::Apply, &i("1", "0", "auto_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.last().map(String::as_str)), ("切换到automatic network selection？", Some(REMOTE)));
+        assert_eq!((q.title.as_str(), q.lines.last().map(String::as_str)), ("切换到自动网络选择？", Some(REMOTE)));
         assert!(question(Kind::Apply, &i("1", "0", "auto_select"), false, None).is_none());
         let q = question(Kind::Apply, &i("0", "0", "manual_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.len()), ("切换到manual connection mode？", 2));
+        assert_eq!((q.title.as_str(), q.lines.len()), ("切换到手动连接模式？", 2));
         // Several at once: one question naming each.
         let q = question(Kind::Apply, &i("0", "1", "auto_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.len()), ("开启data roaming?", 5));
+        assert_eq!((q.title.as_str(), q.lines.len()), ("开启数据漫游？", 5));
         // A scan asks only remotely.
         assert!(question(Kind::Scan, &i("1", "0", "auto_select"), false, None).is_none());
         assert_eq!(question(Kind::Scan, &i("1", "0", "auto_select"), true, None).unwrap().label, Some("扫描网络"));

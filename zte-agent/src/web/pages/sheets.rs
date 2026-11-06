@@ -402,7 +402,7 @@ mod tests {
         for want in [
             "CPU·最热传感器</dt><dd><b>41.5 °C</b>", "电池</dt><dd><b>26.0 °C</b>", "USB</dt><dd><b>33.0 °C</b>",
             "板传感器 2</dt><dd class=\"muted\">不可用</dd>", "电源芯片·PMX75</dt><dd><b>38.2 °C</b>",
-            "更新 3s ago · refreshes every 2s",
+            "Updated 3s ago · refreshes every 2s",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -410,9 +410,9 @@ mod tests {
         assert!(!s.contains("CPU sensor") && !s.contains("Crystal"), "{s}");
         let s = hl_temps(&at(10, 3)).into_string();
         assert!(s.contains("CPU·最热传感器</dt><dd><b>—</b>") && s.contains("板传感器 2</dt><dd><b>—</b>"), "{s}");
-        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("最后一个样本 10s ago · waiting for device"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("Last sample 10s ago · waiting for device"), "{s}");
         let s = hl_temps(&at(3, 12)).into_string();
-        assert!(s.contains("电池</dt><dd><b>—</b>") && s.contains("更新 3s ago"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>—</b>") && s.contains("Updated 3s ago"), "{s}");
         // A failed read is not fresh, whatever its time.
         let mut v = at(1, 1);
         v.set(Topic::Battery, SlotView { error: Some(Arc::from("no battery")), ..slot(json!({"temperature": 260}), 1) });
@@ -423,7 +423,7 @@ mod tests {
         assert!(s.contains("温度读数不可用 · 自动重试") && s.contains("<dd><b>—</b>"), "{s}");
         // Nothing read yet.
         let s = hl_temps(&views(vec![])).into_string();
-        assert!(s.contains("温度 readings unavailable") && s.contains("CPU·最热传感器</dt><dd><b>—</b>"), "{s}");
+        assert!(s.contains("Temperature readings unavailable") && s.contains("CPU·最热传感器</dt><dd><b>—</b>"), "{s}");
     }
 
     #[test]
@@ -439,7 +439,7 @@ mod tests {
         assert!(page.contains("<details><summary>所有传感器</summary><dl class=\"kv tk\" id=\"hl-all\">"), "{page}");
         for want in [
             "<section class=\"card ctr\" id=\"hl-cpu\">", "<p class=\"big\">12.3%</p>", "<p class=\"cap num\">41.5 °C</p>",
-            "<a class=\"nl\" href=\"/ui/health/cpu\">CPU, memory &amp; processes</a>", "温度",
+            "<a class=\"nl\" href=\"/ui/health/cpu\">CPU、内存和进程</a>", "温度",
             "CPU shows the hottest CPU zone. Board numbers follow the device’s sensor names.",
         ] {
             assert!(page.contains(want), "{want} in {page}");

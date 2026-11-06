@@ -456,9 +456,9 @@ mod tests {
         for want in [
             "<h2>WiFi</h2><span class=\"badge bl\">WiFi 7</span><span class=\"cap\">3 clients</span><span class=\"c-green\">开启</span>",
             // 2.4G: the actual channel; the name escaped.
-            "2.4G</dt><dd><b>&lt;b&gt;首页&lt;/b&gt;</b> <small class=\"muted\">WPA2</small> <small class=\"muted\">CH 6</small></dd>",
+            "2.4G</dt><dd><b>&lt;b&gt;Home&lt;/b&gt;</b> <small class=\"muted\">WPA2</small> <small class=\"muted\">CH 6</small></dd>",
             // 5G: hidden, no actual channel: the configured one.
-            "5G</dt><dd><small class=\"c-orange\">(Hidden)</small> <b>首页-5G</b> <small class=\"muted\">WPA2/3</small> <small class=\"muted\">CH 36</small></dd>",
+            "5G</dt><dd><small class=\"c-orange\">(Hidden)</small> <b>Home-5G</b> <small class=\"muted\">WPA2/3</small> <small class=\"muted\">CH 36</small></dd>",
             "嘉宾</dt><dd><b>Guests</b></dd>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
@@ -573,7 +573,7 @@ mod tests {
         assert!(hidden.contains("<span class=\"mono\" role=\"img\" aria-label=\"密码隐藏\">••••••••••••</span> <a href=\"/ui/wifi/share?show=1\">显示密码</a>"), "{hidden}");
         for want in [
             "<nav class=\"seg\" aria-label=\"网络\"><a href=\"/ui/wifi/share\" aria-current=\"page\">主要</a><a href=\"/ui/wifi/share?net=guest\">嘉宾</a></nav>",
-            "<p><b>首页;Net</b></p>", "<svg class=\"qr\"", "使用任意手机摄像头扫描",
+            "<p><b>Home;Net</b></p>", "<svg class=\"qr\"", "使用任意手机摄像头扫描",
         ] {
             assert!(hidden.contains(want), "{want} in {hidden}");
         }

@@ -286,8 +286,8 @@ async fn band_lock_grids_questions_and_bodies() {
         "<a class=\"it bt danger\" href=\"/ui/tools/band-lock/reset\"><svg",
         "<form class=\"bl\" method=\"get\" action=\"/ui/tools/band-lock/nr\">",
         "<label title=\"频段 78 — 3500 MHz · TDD · Max BW 100 MHz · DL 3300–3800 MHz · UL 3300–3800 MHz\"><input class=\"sr\" type=\"checkbox\" name=\"nr\" value=\"78\"><span>B78<small>3500 MHz</small></span></label>",
-        "<span>B66<small>AWS-3</small></span>", "</svg> 应用 NR 频段锁定</button>", "</svg> 应用 LTE 频段锁定</button>",
-        "<summary>频段详情</summary>", "<li><b>频段  29 — 700 MHz</b><small>SDL · Max BW 10 MHz · DL 717–728 MHz</small></li>",
+        "<span>B66<small>AWS-3</small></span>", "</svg> Apply NR Lock</button>", "</svg> Apply LTE Lock</button>",
+        "<summary>频段详情</summary>", "<li><b>Band 29 \u{2014} 700 MHz</b><small>SDL \u{b7} Max BW 10 MHz \u{b7} DL 717\u{2013}728 MHz</small></li>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -472,7 +472,7 @@ async fn at_terminal_checks_what_is_sent() {
     let once = get_with(&c, AT, peer(118, 4), &cookie).await.input("once");
     let r = post(&c, "/ui/tools/at/send", peer(118, 4), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCFUN%3D%5Cx30")).await;
     r.assert_secure_html(200);
-    assert!(r.text().contains("name=\"cmd\" value=\"AT+CFUN=\\x30\"") && r.text().contains("错误：Command must not contain a backslash"));
+    assert!(r.text().contains("name=\"cmd\" value=\"AT+CFUN=\\x30\"") && r.text().contains("错误：命令不得包含反斜杠"));
     assert_eq!(device::calls(&c.app).len(), 1);
     // A PIN is never kept.
     let r = post(&c, "/ui/tools/at/send", peer(118, 4), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCPIN%3D%221234%22")).await;

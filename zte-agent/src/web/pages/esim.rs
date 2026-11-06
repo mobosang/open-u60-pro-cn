@@ -1398,7 +1398,7 @@ mod tests {
         assert_eq!(l.len(), 3);
         assert_eq!(l[0], "路由器将断开 Home 并通过 Travel 连接。互联网将中断约一分钟，Wi-Fi 保持开启。");
         assert!(l[1].starts_with("The router is set to the manual APN \u{201c}example.apn\u{201d}. If Travel needs"));
-        assert!(l[2].starts_with("Travel looks like a travel (roaming) profile and 数据漫游 is off"));
+        assert!(l[2].starts_with("Travel looks like a travel (roaming) profile and Data Roaming is off"));
         // No manual APN known: that warning is left out; no active profile.
         let inv = Inventory { profiles: vec![p.clone()], ..Inventory::default() };
         let l = switch_lines(&inv, &p);
@@ -1416,7 +1416,7 @@ mod tests {
         assert!(matches!(op_status("", at(30), &sw("connected", Value::Null)), OpStatus::Done { .. }));
         assert_eq!(
             op_status("", at(150), &sw("no_data", json!("roaming_off"))),
-            OpStatus::Failed { msg: "This profile roams on a local network and 数据漫游 is off. 开启Data Roaming in Mobile Network." }
+            OpStatus::Failed { msg: "此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。" }
         );
         assert_eq!(op_status("", at(150), &sw("no_data", json!("data_off"))), OpStatus::Failed { msg: "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。" });
         assert_eq!(
@@ -1434,7 +1434,7 @@ mod tests {
         let html = op_progress(&v).into_string();
         for want in ["<b>正在注册网络</b>", "切换配置文件</span><small>完成</small>", "重新加载SIM</span><small>完成</small>",
             "连接到网络</span><small>进行中</small>", "新的配置文件已加载。等待移动数据连接。",
-            "Wi-Fi 保持连接 · 通常 15–45 秒", "切换至…0909", "href=\"/ui/router/esim\">返回 to eSIM 配置文件</a>"] {
+            "Wi-Fi 保持连接 · 通常 15–45 秒", "切换至…0909", "href=\"/ui/router/esim\">Back to eSIM Profiles</a>"] {
             assert!(html.contains(want), "{want} in {html}");
         }
         assert!(html.starts_with("<section class=\"card econn esw busy\" id=\"op-progress\">"), "{html}");
@@ -1478,7 +1478,7 @@ mod tests {
         let html = message(Notice::Flash(None, BUSY.into())).into_string();
         assert!(html.contains("<b>eSIM in use</b>") && !html.contains("重新加载配置文件"), "{html}");
         let html = message(Notice::Flash(Some(false), "Switch failed: the modem is in airplane / low-power mode".into())).into_string();
-        assert!(html.contains("Can’t 现在就完成这个") && html.contains("打开 路由器 设置 → 移动网络") && html.contains("重新加载配置文件"));
+        assert!(html.contains("Can’t 现在就完成这个") && html.contains("Open Router Settings → Mobile Network") && html.contains("重新加载配置文件"));
         let html = message(Notice::Flash(Some(false), "Some receipts couldn't be sent yet. The router keeps retrying.".into())).into_string();
         assert!(html.contains("<b>运营商收据</b>") && !html.contains("重新加载配置文件"));
         assert!(message(Notice::Flash(Some(true), "Renamed to X.".into())).into_string().contains("<b>配置文件已更新</b>"));

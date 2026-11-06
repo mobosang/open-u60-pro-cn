@@ -138,7 +138,7 @@ async fn apply_sends_what_changed_once() {
     assert_eq!(calls(&c), [("/api/modem/data".to_owned(), json!({"cid": 1, "connect_mode": 0, "roam_enable": 0, "enable": 1}))]);
     let op = get_with(&c, &format!("/ui/op/{token}"), peer(141, 3), &cookie).await;
     op.assert_secure_html(200);
-    assert!(op.text().contains("<h1 id=\"op-title\">应用设置</h1>") && op.text().contains("返回 移动网络"), "{}", op.text());
+    assert!(op.text().contains("<h1 id=\"op-title\">应用设置</h1>") && op.text().contains("Back to Mobile Network"), "{}", op.text());
     // Roaming on: asked first (a post without `confirm=1` goes there).
     let token = once().await;
     let body = format!("csrf={csrf}&once={token}&{}", fields("1", "1", "auto_select"));
@@ -178,7 +178,7 @@ async fn apply_sends_what_changed_once() {
     });
     let r = post(&c, APPLY, tailnet(40141), &cookie, &format!("csrf={csrf}&once={}&confirm=1&{both}", q.input("once"))).await;
     let html = get_with(&c, &to(&r), tailnet(40141), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">Connection settings applied; 自动 selection failed: Invalid argument</p>"), "{html}");
+    assert!(html.contains("role=\"alert\">Connection settings applied; Automatic selection failed: Invalid argument</p>"), "{html}");
     assert_eq!(calls(&c).len(), 2);
     // The state cannot be read: nothing sent, the token given back.
     let token = once().await;
@@ -221,7 +221,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     clock.advance(Duration::from_secs(2));
     let html = get_with(&c, &op, peer(142, 3), &cookie).await.text();
     assert!(html.contains("<h1 id=\"op-title\">扫描完成</h1>") && html.contains("在网络选择下选择一个网络。"), "{html}");
-    assert!(html.contains("href=\"/ui/router/mobile-network?scan=1\">返回 移动网络"), "{html}");
+    assert!(html.contains("href=\"/ui/router/mobile-network?scan=1\">Back to Mobile Network"), "{html}");
     // The networks (the firmware's string), Manual chosen.
     let results = json!({"m_netselect_contents": "2,Test Net,00101,7;1,Other <b>Net</b>,00102,12;3,Barred,00103,7"});
     let _dev = device::set(&c.app, reads(vec![
@@ -285,7 +285,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     let token = get_with(&c, MN, peer(142, 7), &cookie).await.input("once");
     let r = post(&c, SCAN, peer(142, 7), &cookie, &format!("csrf={csrf}&once={token}&confirm=1")).await;
     let html = get_with(&c, &to(&r), peer(142, 7), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">扫描失败: busy</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">Scan failed: busy</p>"), "{html}");
 }
 
 /// Airplane mode off is tried twice (the host has no AT port), then
@@ -368,7 +368,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
         }
     }
     let r = limited.expect("rate limited");
-    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. 重试 in "), "{}", r.text());
+    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. Try again in "), "{}", r.text());
     let token = get_with(&c, REBOOT, peer(143, 5), &cookie).await.input("once");
     assert_eq!(post(&c, REBOOT, peer(143, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await.status, 429);
     assert_eq!(calls(&c).len(), 1);
@@ -472,9 +472,9 @@ async fn cell_lock_asks_locks_once_and_scans() {
     assert_eq!(calls(&c), [("/api/cell/neighbors/scan".to_owned(), json!({}))]);
     let html = get_with(&c, &format!("{CELL}?nbr=1"), peer(144, 6), &cookie).await.text();
     for want in [
-        "<p class=\"msg ok\" role=\"status\">找到 2 neighbor cell(s)</p>",
-        "<b>NR</b><span class=\"muted\">频段  41</span></span><small>PCI: 775  EARFCN: 513000  RSRP: -95</small>",
-        "<b>LTE</b><span class=\"muted\">频段  1</span></span><small>PCI: 179  EARFCN: 301  RSRP: -101</small>",
+        "<p class=\"msg ok\" role=\"status\">Found 2 neighbor cell(s)</p>",
+        "<b>NR</b><span class=\"muted\">Band 41</span></span><small>PCI: 775\u{a0}\u{a0}EARFCN: 513000\u{a0}\u{a0}RSRP: -95</small>",
+        "<b>LTE</b><span class=\"muted\">Band 1</span></span><small>PCI: 179\u{a0}\u{a0}EARFCN: 301\u{a0}\u{a0}RSRP: -101</small>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -513,7 +513,7 @@ async fn stc_shows_its_state_checks_numbers_and_asks() {
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("加载失败 STC"));
+    assert!(!html.contains("Failed to load STC"));
     let csrf = get_with(&c, STC, peer(145, 3), &cookie).await.input("csrf");
     let r = post(&c, &format!("{STC}/params"), peer(145, 4), &cookie, &format!("csrf={csrf}&lte_timer=x&nrsa_timer=40&lte_max=100000&nrsa_max=6")).await;
     r.assert_secure_html(400);
@@ -532,8 +532,8 @@ async fn stc_shows_its_state_checks_numbers_and_asks() {
     // The controls ask first; each sends once.
     let _dev = device::set(&c.app, device::Device::default());
     for (path, title, label, line, api) in [
-        ("enable", "开启Smart Tower Connect?", "启用STC", "STC 启用", "/api/cell/stc/enable"),
-        ("disable", "关闭Smart Tower Connect?", "禁用 STC", "STC 禁用", "/api/cell/stc/disable"),
+        ("enable", "开启 Smart Tower Connect？", "启用STC", "STC 启用", "/api/cell/stc/enable"),
+        ("disable", "关闭 Smart Tower Connect？", "禁用 STC", "STC 禁用", "/api/cell/stc/disable"),
         ("reset", "重置STC白名单？", "重置白名单", "STC白名单重置", "/api/cell/stc/reset"),
     ] {
         post(&c, &format!("{STC}/{path}"), peer(145, 5), &cookie, &format!("csrf={csrf}")).await.assert_see_other(&format!("{STC}/{path}"));
@@ -602,7 +602,7 @@ async fn signal_detection_starts_watches_and_stops() {
     let html = get_with(&c, &format!("{SD}?since={since:x}"), peer(146, 3), &cookie).await.text();
     for want in [
         "<div id=\"sd-msg\"><p class=\"msg ok\" role=\"status\">检测完成</p></div>", "<h2>结果</h2>",
-        "<b>NR</b><span class=\"muted\">频段  78</span>", "PCI: 12\u{a0}\u{a0}EARFCN: 636666",
+        "<b>NR</b><span class=\"muted\">Band 78</span>", "PCI: 12\u{a0}\u{a0}EARFCN: 636666",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }

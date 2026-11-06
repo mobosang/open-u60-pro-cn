@@ -414,7 +414,7 @@ async fn the_download_card_follows_the_app() {
     let _f = fake::set(&c.app, json!({"state": "confirm", "step": "preview", "provider": "Example Travel", "name": "Fake Plan"}));
     let html = get_with(&c, ADD, peer(174, 4), &cookie).await.text();
     for want in [
-        "<b>准备安装</b>", "<h2>安装 Example Travel?</h2><p class=\"cap\">Fake Plan</p>",
+        "<b>准备安装</b>", "<h2>Install Example Travel?</h2><p class=\"cap\">Fake Plan</p>",
         "该配置文件将安装在您路由器的 eSIM 上并保持非活动状态，直到您切换到它。 2分钟内确认。",
         "<button class=\"btn btn-wide teal\" type=\"submit\" form=\"eaddf\" formaction=\"/ui/router/esim/add/install\">安装配置文件</button>",
         "formaction=\"/ui/router/esim/add/cancel\">取消下载</button>", "@get('/ui/live/esimadd/",
@@ -432,7 +432,7 @@ async fn the_download_card_follows_the_app() {
     let _f = fake::set(&c.app, json!({"state": "done", "provider": "Example Travel", "name": "Fake Plan", "iccid": "8900000000000000505F"}));
     let html = get_with(&c, DL, peer(174, 5), &cookie).await.text();
     for want in [
-        "<b>Example Travel added.</b>", "新增to your router. Your current profile is still active.",
+        "<b>Example Travel added.</b>", "添加到您的路由器。您当前的配置文件仍然有效。",
         "<a class=\"btn teal\" href=\"/ui/router/esim/switch?new=1\">切换至it now</a><a class=\"btn btn-quiet\" href=\"/ui/router/esim\">后来</a>",
         ">完成</a></div>",
     ] {
@@ -444,7 +444,7 @@ async fn the_download_card_follows_the_app() {
     let q = get_with(&c, "/ui/router/esim/switch?new=1", peer(174, 6), &cookie).await;
     q.assert_secure_html(200);
     let q = q.text();
-    assert!(q.contains("<h2 class=\"q\">切换到Fake Plan？</h2>") && q.contains("The router disconnects from 首页 and connects with Fake Plan."), "{q}");
+    assert!(q.contains("<h2 class=\"q\">切换到Fake Plan？</h2>") && q.contains("The router disconnects from Home and connects with Fake Plan."), "{q}");
     let key = q.split("name=\"p\" value=\"").nth(1).unwrap()[..16].to_owned();
     assert!(key.bytes().all(|b| b.is_ascii_hexdigit()) && !q.contains("0505"), "{q}");
     // Nothing downloaded: nothing to switch to.

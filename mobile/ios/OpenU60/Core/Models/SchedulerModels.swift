@@ -61,7 +61,7 @@ struct SchedulerJob: Identifiable {
         switch scheduleType {
         case "recurring":
             let time = scheduleTime ?? "??:??"
-            let dayNames = ["Mon","周二","周三","周四","周五","周六","周日"]
+            let dayNames = ["周一","周二","周三","周四","周五","周六","周日"]
             let dayStr: String
             if scheduleDays.count == 7 {
                 dayStr = "每天"
@@ -79,7 +79,7 @@ struct SchedulerJob: Identifiable {
         case "once":
             if let at = scheduleAt {
                 let date = Date(timeIntervalSince1970: TimeInterval(at))
-                return "一次：\(Self.onceDateFormatter.string(from: date)）"
+                return "单次：\(Self.onceDateFormatter.string(from: date))"
             }
             return "单次"
         default:

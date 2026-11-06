@@ -74,7 +74,7 @@ async fn messages_follow_the_app() {
     let r = get_with(&c, "/ui/sms", peer(60, 2), &cookie).await;
     r.assert_secure_html(200);
     let html = r.text();
-    assert!(html.contains("<title>短信 · U60 Pro</title>"));
+    assert!(html.contains("<title>Messages · U60 Pro</title>"));
     let (k0, k1, k2, shop) = (key(&c, "+15555550100"), key(&c, "+15555550101"), key(&c, "+15555550102"), key(&c, "EXAMPLE-SHOP"));
     for want in [
         "<p class=\"snap\" id=\"live-status\">页面加载快照",
@@ -95,7 +95,7 @@ async fn messages_follow_the_app() {
         "<span class=\"pv\">Fake code 000000</span></span></span></a>",
         "<span class=\"pv\">Sale &lt;b&gt;now&lt;/b&gt;</span>",
         // A screen reader's link list names each row's "Delete".
-        &format!("<a class=\"del\" href=\"/ui/sms/t/{k1}/delete\">Delete<span class=\"sr\"> conversation with +15555550101</span></a>"),
+        &format!("<a class=\"del\" href=\"/ui/sms/t/{k1}/delete\">删除<span class=\"sr\"> conversation with +15555550101</span></a>"),
         "通话仅在OpenU60应用程序中进行。",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -159,7 +159,7 @@ async fn messages_follow_the_app() {
     // No hits: the app's header with 0, then its empty state.
     let none = search(&c, &cookie, &csrf, "", "%3Cnothing%3E").await.text();
     assert!(none.contains("<h2>0 Conversations</h2>") && !none.contains("暂无短信"), "{none}");
-    assert!(none.contains("<strong>No 结果 for “&lt;nothing&gt;”</strong><p>检查拼写或尝试新的搜索。</p>"), "{none}");
+    assert!(none.contains("<strong>No Results for “&lt;nothing&gt;”</strong><p>检查拼写或尝试新的搜索。</p>"), "{none}");
     // Refused: no CSRF token, another origin; signed out, the login leads to Messages.
     post(&c, "/ui/sms", peer(60, 5), &cookie, "q=hello").await.assert_secure_html(403);
     let b = format!("csrf={csrf}&q=hello");
@@ -215,7 +215,7 @@ async fn messages_stream_a_new_message_notice() {
             break;
         }
     }
-    assert!(seen.contains("<div id=\"sms-new\"><p class=\"msg info\" role=\"status\">新消息 · <a href=\"\">刷新</a></p></div>"), "{seen}");
+    assert!(seen.contains("<div id=\"sms-new\"><p class=\"msg info\" role=\"status\">New message · <a href=\"\">刷新</a></p></div>"), "{seen}");
     sms_event();
     let mut seen = String::new();
     for _ in 0..4 {
@@ -257,9 +257,9 @@ async fn opening_marks_read_and_a_conversation_page_never_does() {
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
-        "<title>对话 · U60 Pro</title>",
+        "<title>Conversation · U60 Pro</title>",
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/sms\">短信</a></div><h1>+15555550100</h1>",
-        &format!("<a href=\"/ui/sms/t/{k0}#end\">Refresh</a>"),
+        &format!("<a href=\"/ui/sms/t/{k0}#end\">刷新</a>"),
         "<li class=\"b in\"><p>Earlier hello</p>",
         "<li class=\"b out\"><p>Mine</p>",
         "<li class=\"b out failed\"><p>Lost</p><small><span class=\"nd\" role=\"img\" aria-label=\"未交付\">",
@@ -334,10 +334,10 @@ async fn a_long_conversation_pages_back() {
     assert_eq!(html.matches("<li class=\"b in\">").count(), 100);
     assert!(!html.contains("<p>Fake 5</p>") && html.contains("<p>Fake 6</p>") && html.contains("<p>Fake 105</p>"));
     let earlier = format!("/ui/sms/t/{k0}?before=6");
-    assert!(html.contains(&format!("<p class=\"pg\"><a href=\"{earlier}\">Earlier messages</a></p>")) && !html.contains("最新消息"));
+    assert!(html.contains(&format!("<p class=\"pg\"><a href=\"{earlier}\">早期消息</a></p>")) && !html.contains("最新消息"));
     let html = get_with(&c, &earlier, peer(63, 2), &cookie).await.text();
     assert_eq!(html.matches("<li class=\"b in\">").count(), 5);
-    assert!(html.contains(&format!("<a href=\"/ui/sms/t/{k0}#end\">Newest messages</a>")) && !html.contains("早期消息"));
+    assert!(html.contains(&format!("<a href=\"/ui/sms/t/{k0}#end\">最新消息</a>")) && !html.contains("早期消息"));
 }
 
 /// The reply bar: one send per single-use token. A valid text claims the
@@ -392,7 +392,7 @@ async fn a_reply_is_sent_once() {
         r.assert_secure_html(400);
         let html = r.text();
         assert!(html.contains("<p class=\"sfail\" role=\"alert\"><svg") && html.contains(&format!("<span>{msg}</span>")), "{html}");
-        assert!(r.input("once") != tok && html.contains("<title>对话 · U60 Pro</title>"));
+        assert!(r.input("once") != tok && html.contains("<title>Conversation · U60 Pro</title>"));
         assert!(!html.contains("@get("), "the answer to a post has no stream");
         assert_eq!(c.once.get(&tok, sid, c.app.auth.now()), Some(Token::Fresh));
     }
@@ -418,11 +418,11 @@ async fn a_reply_is_sent_once() {
     let r = post(&c, SEND, peer(64, 5), &cookie, &body(&tok, "Retry me")).await;
     r.assert_secure_html(502);
     let html = r.text();
-    assert!(html.contains("<span>发送失败：device rejected (result=4)</span>") && html.contains(">重试 me</textarea>"), "{html}");
+    assert!(html.contains("<span>发送失败：device rejected (result=4)</span>") && html.contains(">Retry me</textarea>"), "{html}");
     assert_eq!(calls(&c).len(), 2);
     let again = post(&c, SEND, peer(64, 5), &cookie, &body(&tok, "Retry me")).await;
     again.assert_secure_html(502);
-    assert!(again.text().contains("<span>发送失败：device rejected (result=4)</span>") && again.text().contains(">重试 me</textarea>"));
+    assert!(again.text().contains("<span>发送失败：device rejected (result=4)</span>") && again.text().contains(">Retry me</textarea>"));
     assert_eq!(calls(&c).len(), 2);
     // The API route's error.
     fake::with(&c.app, |d| d.reply = (503, json!({"ok": false, "error": "ubus <down>"})));
@@ -562,11 +562,11 @@ async fn a_new_message_is_sent_once() {
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
-        "<title>新建短信 · U60 Pro</title>",
+        "<title>New Message · U60 Pro</title>",
         "<div class=\"lead\"><a class=\"nl\" href=\"/ui/sms\">取消</a></div><h1>新建短信</h1>",
         "<form class=\"cmp\" method=\"post\" action=\"/ui/sms/send\"><input type=\"hidden\" name=\"csrf\"",
         "<input type=\"tel\" name=\"number\" value=\"\" placeholder=\"电话号码\" aria-label=\"电话号码\" autocomplete=\"off\" maxlength=\"32\" required autofocus>",
-        "<textarea name=\"text\" rows=\"3\" placeholder=\"短信\" aria-label=\"短信\" maxlength=\"765\" required></textarea></li></ul><p class=\"foot\">0/765 (0 短信)</p>",
+        "<textarea name=\"text\" rows=\"3\" placeholder=\"短信\" aria-label=\"短信\" maxlength=\"765\" required></textarea></li></ul><p class=\"foot\">0/765 (0 SMS)</p>",
         "<button class=\"it cv snd\" type=\"submit\">发送</button>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -620,7 +620,7 @@ async fn a_new_message_is_sent_once() {
         assert!(html.contains(&format!("<p class=\"foot\">{count}</p>")), "{count} in {html}");
         assert!(html.contains(&format!("required>{}</textarea>", text.replace("\r\n", "\n"))));
         assert_eq!(r.input("number"), crate::web::sms::clean_number(number));
-        assert!(r.input("once") != tok && html.contains("<title>新建短信 · U60 Pro</title>") && !html.contains("@get("));
+        assert!(r.input("once") != tok && html.contains("<title>New Message · U60 Pro</title>") && !html.contains("@get("));
         assert_eq!(c.once.get(&tok, sid, c.app.auth.now()), Some(Token::Fresh));
         assert_no_numbers_in_urls(&html);
     }
@@ -637,7 +637,7 @@ async fn a_new_message_is_sent_once() {
     for _ in 0..2 {
         let r = post(&c, SEND, peer(65, 5), &cookie, &body(&tok, "+15555550100", "Retry me")).await;
         r.assert_secure_html(502);
-        assert!(r.text().contains("<span>发送失败：device rejected (result=4)</span>") && r.text().contains(">重试 me</textarea>"));
+        assert!(r.text().contains("<span>发送失败：device rejected (result=4)</span>") && r.text().contains(">Retry me</textarea>"));
         assert_eq!(r.input("number"), "+15555550100");
     }
     assert_eq!(calls(&c).len(), 3);
@@ -783,7 +783,7 @@ async fn deleting_a_conversation_is_confirmed() {
     assert!(at.starts_with("/ui/sms?r=") && at.len() == 26, "{at}");
     let html = get_with(&c, &at, peer(66, 6), &cookie).await.text();
     assert!(html.contains("<p class=\"msg err\" role=\"alert\">删除失败：sqlite delete failed: &lt;busy&gt;</p>"), "{html}");
-    assert!(html.contains("<title>短信 · U60 Pro</title>") && html.contains("@get('/ui/live/sms/"));
+    assert!(html.contains("<title>Messages · U60 Pro</title>") && html.contains("@get('/ui/live/sms/"));
     assert_eq!(calls(&c).len(), 3);
     // The list unreadable: nothing sent; the question says why.
     let _dev = fake::set(&c.app, fake::Device { internal: Err("ubus down".into()), sim: Err("ubus down".into()), ..device() });

@@ -310,7 +310,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
         }
     }
     let r = limited.expect("rate limited");
-    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. 重试 in "), "{}", r.text());
+    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. Try again in "), "{}", r.text());
     let (pre, login_csrf) = login_form(&c, peer(223, 6)).await;
     let login = format!("login_csrf={}&next=%2Fui%2F&password={}", enc(&login_csrf), enc(PW));
     assert_eq!(post(&c, "/ui/login", peer(223, 6), &format!("zte_ui_pre={pre}"), &login).await.status, 429);
@@ -455,7 +455,7 @@ async fn login_page_has_the_app_header() {
         "<h1>ZTE U60 Pro</h1><p>Router Companion</p></div>",
         "<label for=\"password\">Agent password</label>", "<button class=\"btn btn-wide\" type=\"submit\">Log in</button>",
     ]);
-    assert!(html.contains("<title>登录 · U60 Pro</title>"));
+    assert!(html.contains("<title>Log in · U60 Pro</title>"));
     // No brand over the app's header (the app's login has no title); other
     // signed-out pages keep it.
     assert!(html.contains("<header class=\"bar\"></header>") && !html.contains("class=\"brand\""), "{html}");

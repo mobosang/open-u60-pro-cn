@@ -73,7 +73,7 @@ struct BatteryCardView: View, Equatable {
                     .font(.caption)
                     .foregroundStyle(.green)
             } else if battery.timeToFull > 0 {
-                Text("充电（\u{00B7} \(formatETA(battery.timeToFull)）")
+                Text("充电中 · \(formatETA(battery.timeToFull))")
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.green)
             } else {
@@ -141,19 +141,19 @@ struct BatteryDetailSheet: View {
                     numericRow("电压", icon: "bolt.circle", value: Double(mv) / 1000, decimals: 3, unit: " V")
                 }
                 if let ma = battery.currentMA {
-                    numericRow("当前", icon: "arrow.left.arrow.right", value: Double(ma), decimals: 0, unit: " mA")
+                    numericRow("电流", icon: "arrow.left.arrow.right", value: Double(ma), decimals: 0, unit: " mA")
                 }
                 if let mv = battery.voltageMV, let ma = battery.currentMA {
                     let watts = Double(mv) * Double(abs(ma)) / 1_000_000.0
-                    numericRow("电源", icon: "flame", value: watts, decimals: 1, unit: " W")
+                    numericRow("功率", icon: "flame", value: watts, decimals: 1, unit: " W")
                 }
                 HStack {
                     Label("温度", systemImage: "thermometer.medium")
                     Spacer()
                     TemperatureValueText(value: battery.temperature).foregroundStyle(.secondary)
                 }
-                row("满时间", icon: "battery.100.bolt", value: battery.charging == "charging" && battery.timeToFull > 0 ? formatETA(battery.timeToFull) : "—")
-                row("清空时间", icon: "battery.25", value: battery.charging == "discharging" && battery.timeToEmpty > 0 ? formatETA(battery.timeToEmpty) : "—")
+                row("充满所需时间", icon: "battery.100.bolt", value: battery.charging == "charging" && battery.timeToFull > 0 ? formatETA(battery.timeToFull) : "—")
+                row("预计剩余时间", icon: "battery.25", value: battery.charging == "discharging" && battery.timeToEmpty > 0 ? formatETA(battery.timeToEmpty) : "—")
             }
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } } }
             .navigationTitle("电池详情")

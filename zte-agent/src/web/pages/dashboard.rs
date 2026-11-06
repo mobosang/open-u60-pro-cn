@@ -444,13 +444,13 @@ pub(crate) mod tests {
     fn renders_the_ios_card_values() {
         let s = page_of(&fixture());
         for want in [
-            "<a class=\"card\" id=\"card-conn\" href=\"/ui/signal\">", "Connection &amp; signal",
+            "<a class=\"card\" id=\"card-conn\" href=\"/ui/signal\">", "连接与信号",
             "<span class=\"rat\">5G NSA</span>", "NR RSRP <b class=\"num\">-77 dBm</b>", "漫游", "电台详情",
             "416.0 b/s", "552.0 b/s", "下载", "上传", "1.90 MB", "119 KB", "实时蜂窝流量·所有设备",
             "现场信号", "锁屏实时信号位于 iOS 应用程序中。",
             ">69%<", "<span class=\"c-green\">充电中</span><span class=\"muted\"> · </span><span class=\"c-green\">25.2W</span>",
             "电源详情", "<p class=\"big\">40.8%</p>", "37.2 °C", "26.0 °C", "<b class=\"big\">2</b>",
-            "<span class=\"lbl\">devices</span>", "Networks, sharing &amp; connected devices", "Wi-Fi on",
+            "<span class=\"lbl\">devices</span>", "网络、共享和连接设备", "Wi-Fi on",
         ] {
             assert!(s.contains(want), "missing {want:?} in {s}");
         }
@@ -554,7 +554,7 @@ pub(crate) mod tests {
             let s = SlotView { version: 1, at: at(secs), value_at: at(secs), value: Some(Arc::new(json!({"real_rx_speed": 1}))), error: None };
             card_traffic(&Views::new(NOW, vec![(Topic::Traffic, s)])).into_string()
         };
-        assert!(traffic(4).contains("直播 cellular traffic"));
+        assert!(traffic(4).contains("Live cellular traffic"));
         assert!(traffic(5).contains("· 之前的最后一个流量样本 · 5 正在等待设备"));
         assert!(!traffic(600).contains("class=\"age\""), "the caption replaces the age line");
         // The cards say nothing about age (the app has only the nav bar's
@@ -568,10 +568,10 @@ pub(crate) mod tests {
         let line = |t, secs| render::age_line(&views_at(t, secs), &[t]).into_string();
         // Battery every 5 s, health every 2 s: the seconds below 10, then 5 s steps.
         assert_eq!(line(Topic::Battery, 14), "");
-        assert_eq!(line(Topic::Battery, 17), "<p class=\"age\">更新 15 s ago</p>");
-        assert_eq!(line(Topic::Battery, 600), "<p class=\"age\">更新 10 min ago</p>");
+        assert_eq!(line(Topic::Battery, 17), "<p class=\"age\">Updated 15 s ago</p>");
+        assert_eq!(line(Topic::Battery, 600), "<p class=\"age\">Updated 10 min ago</p>");
         assert_eq!(line(Topic::Health, 5), "");
-        assert_eq!(line(Topic::Health, 7), "<p class=\"age\">更新 7 s ago</p>");
+        assert_eq!(line(Topic::Health, 7), "<p class=\"age\">Updated 7 s ago</p>");
         // WAN has no cadence (event-driven): never "old".
         assert_eq!(line(Topic::Wan, 3600), "");
     }
@@ -668,19 +668,19 @@ pub(crate) mod tests {
         ]);
         let s = banners(&all).into_string();
         for (class, title, text) in [
-            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> to enter your PUK."),
-            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> to enter your PIN."),
+            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PUK."),
+            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PIN."),
             ("b-blue", "飞行模式", "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"),
         ] {
             assert!(s.contains(&format!("<div class=\"banner {class}\"><svg")), "{class}");
             // PUK: the lock with "!" (the app's `exclamationmark.lock.fill`).
-            let icon = if title == "SIM PUK Required" { Icon::LockWarn } else if title.starts_with("SIM") { Icon::Lock } else { Icon::Airplane };
+            let icon = if class == "b-red" { Icon::LockWarn } else if class == "b-orange" { Icon::Lock } else { Icon::Airplane };
             assert!(s.contains(&format!("{}<div><strong>{title}", kit::icon(icon).into_string())), "{title}");
             assert!(s.contains(&format!("<strong>{title}</strong><span>{text}</span>")), "{title} in {s}");
         }
         let off = views(vec![(Topic::Modem, json!({"status": {"operate_mode": "ONLINE"}, "data": {"enable": 0}}))]);
         assert!(banners(&off).into_string().contains(
-            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">路由器 &gt; 移动网络</a> to enable it.</span>"
+            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">Router &gt; Mobile Network</a> to enable it.</span>"
         ));
     }
 

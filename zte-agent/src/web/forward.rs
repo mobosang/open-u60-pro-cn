@@ -1148,7 +1148,7 @@ mod tests {
             vec![err("nt_url", "将用户名和密码保留在 URL 之外。"), err("nt_topic", "仅使用字母、数字、- 和 _。")]
         );
         assert_eq!(errors(&[("dt", "sms"), ("sms_number", "+1555<0123>")], &[])[0].0, "sms_number");
-        assert_eq!(errors(&[("dt", "telegram"), ("tg_token", "a\u{7}b"), ("tg_chat", "1")], &[])[0].1, "删除line breaks and control characters.");
+        assert_eq!(errors(&[("dt", "telegram"), ("tg_token", "a\u{7}b"), ("tg_chat", "1")], &[])[0].1, "删除换行符和控制字符。");
         // Header rows: a value without a name, a bad name, a name without a value.
         let e = errors(
             &[("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hv0", "v"), ("wh_hn1", "Bad Name"), ("wh_hv1", "v"), ("wh_hn2", "X-New")],
@@ -1324,7 +1324,7 @@ mod tests {
                 ("发件人：BANK, +1555*", "Webhook (example.com:8443)"),
                 ("关键词：code", "ntfy (fake)"),
                 ("发件人：A + 关键字：b, c", "Discord"),
-                ("全部短信", "短信 (+15555550123)"),
+                ("全部短信", "SMS (+15555550123)"),
                 ("全部短信", "Slack"),
             ]
             .map(|(a, b)| (a.to_owned(), b.to_owned()))

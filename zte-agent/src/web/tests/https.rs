@@ -58,7 +58,7 @@ async fn turn_on_from_settings_once() {
     let cookie = format!("zte_ui_session={}", login(&c, 230, 1).await);
     let p = peer(230, 2);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    for want in ["<h2>HTTPS &amp; 安装 as 应用程序</h2>", "<span>HTTPS</span><span class=\"v\">关闭</span>", "href=\"/ui/settings/https/on\"", "开启HTTPS", "on port 9443"] {
+    for want in ["<h2>HTTPS &amp; Install as App</h2>", "<span>HTTPS</span><span class=\"v\">关闭</span>", "href=\"/ui/settings/https/on\"", "开启HTTPS", "on port 9443"] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // The question: what happens, the router's clock (not checked), the token.
@@ -66,7 +66,7 @@ async fn turn_on_from_settings_once() {
     q.assert_secure_html(200);
     let html = q.text();
     for want in [
-        "开启HTTPS?",
+        "开启 HTTPS？",
         "its LAN address and u60.home.arpa",
         "never for other websites",
         "It could not be checked over the internet",
@@ -146,7 +146,7 @@ async fn a_kept_ca_is_turned_on_again() {
     let cookie = format!("zte_ui_session={}", login(&c, 235, 1).await);
     let p = peer(235, 2);
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
-    for want in ["is still on the router: 开启HTTPS issues a new certificate from it", "issues a new one from the same certificate authority", "href=\"/ui/settings/https/reset\""] {
+    for want in ["is still on the router: Turn On HTTPS issues a new certificate from it", "issues a new one from the same certificate authority", "href=\"/ui/settings/https/reset\""] {
         assert!(html.contains(want), "{want} in {html}");
     }
     let html = get_with(&c, ON, p, &cookie).await.text();
@@ -171,7 +171,7 @@ async fn questions_follow_the_clock_and_the_state() {
     // Checked over the internet: said so.
     *w.verified.lock().unwrap() = Some(crate::tls::tests::NOW);
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("checked over the internet: 十月 26, 2026, 07:33 UTC."), "{html}");
+    assert!(html.contains("checked over the internet: Oct 26, 2026, 07:33 UTC."), "{html}");
     // Off: Renew and Reset have nothing to do.
     for uri in [RENEW, RESET] {
         let html = get_with(&c, uri, p, &cookie).await.text();
@@ -234,7 +234,7 @@ async fn install_page_shows_the_ca_and_the_steps() {
         "<h2>安卓</h2>",
         "安装证书",
         "<h2>麦克</h2>",
-        "Always 信任",
+        "Always Trust",
         "<h2>窗户</h2>",
         "受信任的根证书颁发机构",
         "href=\"https://u60.home.arpa:9443/console/\"",

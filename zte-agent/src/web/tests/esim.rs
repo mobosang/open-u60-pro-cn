@@ -104,7 +104,7 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
         "<h2 class=\"esub\">切换至another profile</h2>", "<b>Klook_app</b><small class=\"cap\">Travel - PHL</small>",
         "aria-label=\"不可用\"", "添加 eSIM</a>", "切换会使互联网暂停大约一分钟。您的路由器的 Wi-Fi 保持开启状态。",
         "<b>运营商收据</b><small class=\"cap\">2 waiting · Retried automatically</small>", "为什么这些人在等待？",
-        "action=\"/ui/router/esim/receipts\"", "立即发送</button>", "<b>eSIM 卡</b><small class=\"cap\">Card details &amp; identifiers</small>",
+        "action=\"/ui/router/esim/receipts\"", "立即发送</button>", "<b>eSIM 卡</b><small class=\"cap\">卡片详情与标识符</small>",
         "<span>固件</span><span class=\"v\">4.2.0</span>", "<span>可用内存</span><span class=\"v\">913 KB</span>",
         "•••• •••• •••• …0000", "href=\"/ui/router/esim?eid=1#chip\" aria-label=\"揭示EID\"", "@get('/ui/live/esim/",
     ] {
@@ -121,7 +121,7 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
     }
     // Delete profile with the app's trash icon.
     let del = html.split(&format!("href=\"{DELETE}?p={}\"", k[1])).nth(1).unwrap();
-    assert!(del.split("</a>").next().unwrap().contains("M4.5 6.5h15") && del.contains("删除 profile"), "{del}");
+    assert!(del.split("</a>").next().unwrap().contains("M4.5 6.5h15") && del.contains("删除配置文件"), "{del}");
     // The stream: the same fragments, never the EID or an ICCID (this
     // browser's 1 s refresh preference does not change the screen's own).
     let resp = open_live(&c, &live_url(&html, "esim"), peer(160, 3), &format!("{cookie}; zte_ui_refresh=1000")).await;
@@ -221,7 +221,7 @@ async fn switch_asks_then_follows_the_switch_once() {
         "<h1>确认</h1>", "<h2 class=\"q\">切换到Klook_app？</h2>",
         "路由器将断开 GOMO u60 并通过 Klook_app 连接。互联网将中断约一分钟，Wi-Fi 保持开启。",
         "路由器当前使用手动 APN“internet.example”。如果 Klook_app 需要其他 APN，请在切换后前往移动网络修改，否则可能无法使用数据。",
-        "Klook_app looks like a travel (roaming) profile and 数据漫游 is off, so it will have no data until you turn 数据漫游 on.",
+        "Klook_app looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on.",
         "<button class=\"btn\" type=\"submit\">切换至Klook_app</button>", "href=\"/ui/router/esim\">取消</a>",
     ] {
         assert!(q.contains(want), "{want} in {q}");
@@ -261,7 +261,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     for want in [
         "<h1 id=\"op-title\">正在注册网络</h1>", "切换至Klook_app", "重新加载SIM</span><small>完成</small>",
         "连接到网络</span><small>进行中</small>", "Wi-Fi 保持连接 · 通常 15–45 秒",
-        "href=\"/ui/router/esim\">返回 to eSIM 配置文件</a>", "@get('/ui/live/op/",
+        "href=\"/ui/router/esim\">Back to eSIM Profiles</a>", "@get('/ui/live/op/",
     ] {
         assert!(op.contains(want), "{want} in {op}");
     }
@@ -287,7 +287,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     let _sw = fake::set(&c.app, json!({"state": "no_data", "reason": "roaming_off", "target_iccid": ICCIDS[2], "generation": 8}));
     let done = get_with(&c, &format!("/ui/op/{token}"), peer(162, 6), &cookie).await.text();
     assert!(done.contains("<h1 id=\"op-title\">连接需要处理</h1>") && !done.contains("/ui/live/op/"), "{done}");
-    assert!(done.contains("This profile roams on a local network and 数据漫游 is off. 开启Data Roaming in Mobile Network."));
+    assert!(done.contains("此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。"));
 }
 
 /// The agent's refusals: busy reads as the app's busy card, others as

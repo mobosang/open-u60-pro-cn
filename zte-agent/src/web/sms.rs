@@ -735,11 +735,11 @@ mod tests {
         assert_eq!(clock(t, -16 * H), "11:41 PM");
         assert_eq!(clock(NEW_YEAR, 0), "12:00 AM");
         assert_eq!(clock(NEW_YEAR + 12 * H + 5 * 60, 0), "12:05 PM");
-        assert_eq!(day(t, 0), "一月 1, 2024");
+        assert_eq!(day(t, 0), "Jan 1, 2024");
         assert_eq!(stamp(t + 7, 0), "1/1/24, 3:41:07 PM");
         assert_eq!(stamp(t, 9 * H), "1/2/24, 12:41:00 AM");
         assert_eq!(stamp(NEW_YEAR + 300 * DAY + 9 * H + 5, -H), "10/27/24, 8:00:05 AM");
-        assert_eq!(day(t, 9 * H), "一月 2, 2024");
+        assert_eq!(day(t, 9 * H), "Jan 2, 2024");
         assert_eq!(sms_time(t, 8 * H), "24;01;01;23;41;00;+8");
         assert_eq!(sms_time(t, -5 * H - 1800), "24;01;01;10;11;00;-5");
         assert_eq!(sms_time(t, 0), "24;01;01;15;41;00;+0");
@@ -770,7 +770,7 @@ mod tests {
             assert_eq!(relative(now + delta, now, 0), want, "{delta}");
         }
         // An unset router clock: the date.
-        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "一月 1, 2024");
+        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "Jan 1, 2024");
     }
 
     fn item(id: u64, number: &str, text: &str, date: &str, tag: impl Into<Value>) -> Value {
@@ -869,12 +869,12 @@ mod tests {
         }
         // The app's counter: 0 SMS while empty, then by 153 / 67.
         for (text, want) in [
-            ("", "0/765 (0 短信)"),
-            ("Hi", "2/765 (1 短信)"),
-            (&*"a".repeat(153), "153/765 (1 短信)"),
-            (&*"a".repeat(154), "154/765 (2 短信)"),
-            (&*"Ж".repeat(68), "68/335 (2 短信)"),
-            (&*"Ж".repeat(336), "336/335 (6 短信)"),
+            ("", "0/765 (0 SMS)"),
+            ("Hi", "2/765 (1 SMS)"),
+            (&*"a".repeat(153), "153/765 (1 SMS)"),
+            (&*"a".repeat(154), "154/765 (2 SMS)"),
+            (&*"Ж".repeat(68), "68/335 (2 SMS)"),
+            (&*"Ж".repeat(336), "336/335 (6 SMS)"),
         ] {
             assert_eq!(counter(text), want, "{text}");
         }

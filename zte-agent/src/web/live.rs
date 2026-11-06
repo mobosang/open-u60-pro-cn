@@ -454,7 +454,7 @@ mod tests {
         want.push("live-status".into());
         assert_eq!(ids(&open), want);
         assert!(open.last().unwrap().starts_with(
-            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>已连接</b></span><span class=\"lost\"><a href=\"/ui/\">离线<span class=\"sr\">. 刷新</span></a></span></p>"
+            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>已连接</b></span><span class=\"lost\"><a href=\"/ui/\">离线<span class=\"sr\">. Refresh</span></a></span></p>"
         ));
         // Byte-equal to the same fragment of a full page (the age badge is
         // the nav bar's).
@@ -497,7 +497,7 @@ mod tests {
         // app's cards have none), so it is not sent.
         assert_eq!(ids(&parts), ["card-traffic", "card-health", "age", "live-status"], "{parts:?}");
         assert!(parts[0].contains("· 之前的最后一个流量样本 · 16 正在等待设备"));
-        assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("更新 20 s ago")));
+        assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("Updated 20 s ago")));
         assert!(parts.last().unwrap().contains("class=\"live on ps hb-b\""));
     }
 
@@ -593,7 +593,7 @@ mod tests {
         let mut em = PageEmitter::new(hub(), signal_page(false), BootClock.now());
         assert_eq!(
             elements(&em.bye(ByeReason::LoggedOut)).join(""),
-            "<p class=\"live\" id=\"live-status\">已退出。 <a href=\"/ui/login?next=%2Fui%2Fsignal\">登录</a></p>"
+            "<p class=\"live\" id=\"live-status\">Signed out. <a href=\"/ui/login?next=%2Fui%2Fsignal\">登录</a></p>"
         );
         // The dashboard: the pill says "Offline", the reason goes under the bar.
         let mut em = PageEmitter::new(hub(), dash_page(), BootClock.now());
@@ -601,7 +601,7 @@ mod tests {
         for r in [ByeReason::TokenExpired, ByeReason::LoggedOut] {
             assert_eq!(
                 note(&mut em, r),
-                "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>离线</b></span></p><p id=\"live-note\">已退出。 <a href=\"/ui/login?next=%2Fui%2F\">登录</a></p>"
+                "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>离线</b></span></p><p id=\"live-note\">Signed out. <a href=\"/ui/login?next=%2Fui%2F\">登录</a></p>"
             );
         }
         assert!(note(&mut em, ByeReason::Lifetime).contains("实时更新在 30 分钟后暂停。 <a href=\"/ui/\">恢复</a>"));
