@@ -110,13 +110,13 @@ async fn turn_on_from_settings_once() {
     assert!(!html.contains(RENEW));
     // Over HTTPS: no hint; over Tailscale (loopback): no hint either.
     let html = get_secure(&c, SETTINGS, p, &cookie).await.text();
-    assert!(html.contains("你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。") && !html.contains("This page is plain http"));
+    assert!(html.contains("你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。") && !html.contains("此页面使用明文 HTTP"));
     let html = get_with(&c, SETTINGS, Peer(SocketAddr::from(([127, 0, 0, 1], 40100))), &cookie).await.text();
-    assert!(!html.contains("This page is plain http") && !html.contains("你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。"));
+    assert!(!html.contains("此页面使用明文 HTTP") && !html.contains("你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。"));
     // On but not listening (a bind that failed): the question offers to
     // listen again, and its post tells the listener.
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("再听一遍？") && html.contains(">重试</button>"), "{html}");
+    assert!(html.contains("重新开始监听？") && html.contains(">重试</button>"), "{html}");
     let mut on = c.app.tls.subscribe();
     on.borrow_and_update();
     let (r, _) = confirm(&c, ON, p, &cookie).await;
@@ -190,7 +190,7 @@ async fn questions_follow_the_clock_and_the_state() {
     // Reset: the question says what devices must do; over HTTPS that the
     // page stops working.
     let html = get_secure(&c, RESET, p, &cookie).await.text();
-    for want in ["重置HTTPS？", "删除that certificate authority from every device", "must trust the new one", "This page is open over HTTPS", "btn btn-danger"] {
+    for want in ["重置HTTPS？", "从信任它的每个设备中删除该证书颁发机构", "每台设备都必须信任新的证书颁发机构", "此页面通过 HTTPS 打开", "btn btn-danger"] {
         assert!(html.contains(want), "{want} in {html}");
     }
     let (r, _) = confirm(&c, RESET, p, &cookie).await;

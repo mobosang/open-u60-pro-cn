@@ -735,7 +735,7 @@ async fn deleting_a_conversation_is_confirmed() {
         "<title>删除对话？ · U60 Pro</title>",
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/sms\">短信</a></div><h1>确认</h1>",
         "<h2 class=\"q\">删除对话？</h2>",
-        "<li>这将从 3 中删除所有 +15555550100 消息。</li>",
+        "<li>这将删除以下联系人的全部 3 条消息：+15555550100。</li>",
         "<form class=\"panel\" method=\"post\" action=\"/ui/sms/delete\">",
         &format!("<input type=\"hidden\" name=\"t\" value=\"{k0}\"><input type=\"hidden\" name=\"fp\" value=\"3-12\"><input type=\"hidden\" name=\"confirm\" value=\"1\">"),
         "<button class=\"btn btn-danger\" type=\"submit\">删除</button><a class=\"btn btn-quiet\" href=\"/ui/sms\">取消</a>",
@@ -757,7 +757,7 @@ async fn deleting_a_conversation_is_confirmed() {
         r.assert_secure_html(409);
         let html = r.text();
         assert!(html.contains("<p class=\"msg err\" role=\"alert\">谈话内容发生了变化。查看并重试。</p>"), "{html}");
-        assert!(html.contains("这将从 4 中删除所有 +15555550100 消息。") && r.input("fp") == "4-13");
+        assert!(html.contains("这将删除以下联系人的全部 4 条消息：+15555550100。") && r.input("fp") == "4-13");
     }
     assert!(calls(&c).is_empty());
     // Confirmed: every id of the conversation, oldest first; then Messages.
@@ -768,7 +768,7 @@ async fn deleting_a_conversation_is_confirmed() {
     // The SIM's: the store kept, on the question and on the way back.
     let r = get_with(&c, &format!("/ui/sms/t/{k2}/delete?store=sim"), peer(66, 5), &cookie).await;
     let html = r.text();
-    assert!(html.contains("这将从 1 中删除所有 +15555550102 消息。") && html.contains("<a class=\"nl back\" href=\"/ui/sms?store=sim\">"));
+    assert!(html.contains("这将删除以下联系人的全部 1 条消息：+15555550102。") && html.contains("<a class=\"nl back\" href=\"/ui/sms?store=sim\">"));
     assert!(html.contains("name=\"fp\" value=\"1-3\"><input type=\"hidden\" name=\"store\" value=\"sim\">"), "{html}");
     let to = post(&c, DEL, peer(66, 5), &cookie, &format!("csrf={csrf}&t={k2}&store=sim&fp=1-3&confirm=1")).await;
     to.assert_see_other("/ui/sms?store=sim&saved=deleted");

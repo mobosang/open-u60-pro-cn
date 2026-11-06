@@ -457,7 +457,7 @@ fn compose(app: &AppState, p: &Principal, nonce: &str, once: &Once, number: &str
 fn ask_delete(app: &AppState, p: &Principal, nonce: &str, key: &str, store: Store, c: &Conv, changed: bool) -> Response {
     let list = url(LIST, store, "");
     let fp = c.fingerprint();
-    let line = format!("这将从 {} 中删除所有 {} 消息。", c.msgs.len(), c.number);
+    let line = format!("这将删除以下联系人的全部 {} 条消息：{}。", c.msgs.len(), c.number);
     let mut hidden = vec![("t", key), ("fp", fp.as_str())];
     if store != Store::All {
         hidden.push(("store", store.value()));

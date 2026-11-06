@@ -188,7 +188,7 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
             let on = val(vals, "on") == "1";
             claim.disarm();
             put(json!({"enable": i64::from(on)}))?;
-            Ok(Done::Line(Some(true), format!("域过滤器{}", if on { "enabled" } else { "disabled" })))
+            Ok(Done::Line(Some(true), format!("域过滤器{}", if on { "已启用" } else { "已禁用" })))
         }
         Kind::TmAdd => {
             let domain = val(vals, "domain");

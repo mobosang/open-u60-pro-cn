@@ -231,9 +231,9 @@ impl Post {
 /// The clock line of Turn On and Renew.
 fn clock_line(c: Utc) -> String {
     match c {
-        Utc::Verified(t) => format!("证书的日期来自路由器 ’ 的时钟，通过互联网检查：{}。", utc_stamp(t)),
+        Utc::Verified(t) => format!("证书的日期来自路由器的时钟，通过互联网检查：{}。", utc_stamp(t)),
         _ => format!(
-            "证书的日期是从路由器 ’ 的时钟开始的：{}。无法通过互联网进行检查；如果此日期错误，请取消并稍后重试。",
+            "证书的日期是从路由器的时钟开始的：{}。无法通过互联网进行检查；如果此日期错误，请取消并稍后重试。",
             utc_stamp(c.secs())
         ),
     }
@@ -252,10 +252,10 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
     match k {
         Post::On if s.on && s.listening.is_some() => ("HTTPS 已开启".into(), Vec::new(), None),
         Post::On if s.on => (
-            "再听一遍？".into(),
+            "重新开始监听？".into(),
             vec![
                 format!("HTTPS 已开启，但路由器未监听 {port} 端口{}", s.error.as_deref().map_or(".".into(), |e| format!(": {e}"))),
-                "一旦持有端口的任何东西停止，请重试。其他什么都没有改变。".into(),
+                "请停止占用此端口的程序后重试。其余设置不会改变。".into(),
             ],
             Some("重试"),
         ),
@@ -284,7 +284,7 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
                     "路由器为其 LAN 地址和 {} 创建自己的证书颁发机构和证书，并通过端口 {port} 上的 HTTPS 提供此 Web UI。",
                     tls.name()
                 ),
-                format!("然后，每部手机或计算机都会信任该权限一次（在您的设备上安装显示如何操作）。它只能为该路由器’的LAN地址和{}（及其下的名称）提供担保，而不能为其他网站或设备提供担保。如果您稍后更改 LAN 地址，则只有 {} 继续工作，直到您重置 HTTPS。", tls.name(), tls.name()),
+                format!("然后，每部手机或计算机只需信任此证书颁发机构一次（请参见“在您的设备上安装”）。它只能为路由器的 LAN 地址和{}（及其下的名称）提供担保，而不能为其他网站或设备提供担保。如果您稍后更改 LAN 地址，则只有 {} 继续工作，直到您重置 HTTPS。", tls.name(), tls.name()),
                 clock_line(s.clock),
                 plain_http(),
             ],
@@ -302,14 +302,14 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
             "重置HTTPS？".into(),
             vec![
                 format!("这将删除路由器{}上留下的证书文件。", s.kept.as_deref().map_or(String::new(), |c| format!(" ({c})"))),
-                "从每台信任该证书颁发机构的设备上删除该证书颁发机构。如果您再次打开 HTTPS，则每台设备都必须信任新设备。".into(),
+                "从每台信任该证书颁发机构的设备上删除该证书颁发机构。如果您再次打开 HTTPS，则每台设备都必须信任新的证书颁发机构。".into(),
             ],
             Some("复位HTTPS"),
         ),
         Post::Reset => {
             let mut lines = vec![
-                format!("这将删除路由器 ’ 的证书颁发机构 ({}) 和证书，并停止端口 {port} 上的 HTTPS，也适用于通过其打开的页面。", s.ca_name),
-                "从信任它的每个设备中删除该证书颁发机构：它不能再使用。如果您再次打开 HTTPS，则每台设备都必须信任新设备。".into(),
+                format!("这将删除路由器的证书颁发机构 ({}) 和证书，并停止端口 {port} 上的 HTTPS，也适用于通过其打开的页面。", s.ca_name),
+                "从信任它的每个设备中删除该证书颁发机构：旧证书已无法继续使用。如果您再次打开 HTTPS，则每台设备都必须信任新的证书颁发机构。".into(),
             ];
             if secure {
                 lines.push(format!("此页面通过 HTTPS 打开并停止工作：继续使用 http 地址（端口 {}）。", crate::httpd::http_port()));
