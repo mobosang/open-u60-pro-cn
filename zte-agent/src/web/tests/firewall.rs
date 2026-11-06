@@ -114,7 +114,7 @@ async fn firewall_page_switches_and_level() {
         "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。",
         "<input type=\"hidden\" name=\"on\" value=\"0\">", ">禁用防火墙</button>", "href=\"/ui/router/firewall\">取消</a>",
     ]);
-    assert!(!q.text().contains("connected remotely") && !q.text().contains("路由器本身及此管理网页可能变得可从移动网络访问，届时仅由 Agent 密码保护。"), "{}", q.text());
+    assert!(!q.text().contains("你正在远程连接") && !q.text().contains("路由器本身及此管理网页可能变得可从移动网络访问，届时仅由 Agent 密码保护。"), "{}", q.text());
     let once = q.input("once");
     let fields = body(&csrf, &once, &[("on", "0")]);
     // Origin and CSRF first; a value no page sends; no confirm: the question.
@@ -128,7 +128,7 @@ async fn firewall_page_switches_and_level() {
     let done = to(&post(&c, "/ui/router/firewall/switch", peer(210, 2), &cookie, &confirmed).await);
     assert_eq!(done, format!("{FW}?r={once}"));
     assert_eq!(calls(&c), vec![("/api/router/firewall/switch".to_owned(), json!({"firewall_switch": "0", "enable": 0}))]);
-    has(&get_with(&c, &done, peer(210, 2), &cookie).await.text(), &["<p class=\"msg ok\" role=\"status\">防火墙disabled</p>"]);
+    has(&get_with(&c, &done, peer(210, 2), &cookie).await.text(), &["<p class=\"msg ok\" role=\"status\">防火墙已禁用</p>"]);
     // A replay sends nothing and lands on the same line.
     assert_eq!(to(&post(&c, "/ui/router/firewall/switch", peer(210, 2), &cookie, &confirmed).await), done);
     assert_eq!(calls(&c).len(), 1);
@@ -138,17 +138,17 @@ async fn firewall_page_switches_and_level() {
     let q = get_with(&c, "/ui/router/firewall/level?level=high", tailnet(41002), &cookie).await.text();
     has(&q, &["<h2 class=\"q\">将防火墙级别设置为高？</h2>", "高等级防火墙会阻止更多连接", "你正在远程连接", ">设置级别</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=low", tailnet(41003), &cookie).await.text();
-    has(&q, &["将防火墙级别设置为Low？", "lets more connections from the internet through at Low", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。"]);
-    assert!(!q.contains("connected remotely") && !q.contains("防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。"), "{q}");
+    has(&q, &["将防火墙级别设置为低？", "低等级防火墙允许更多来自互联网的连接", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。"]);
+    assert!(!q.contains("你正在远程连接") && !q.contains("防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。"), "{q}");
     let q = get_with(&c, "/ui/router/firewall/level?level=medium", peer(210, 2), &cookie).await.text();
-    assert!(q.contains("防火墙级别已经是Medium") && !q.contains("name=\"confirm\""), "{q}");
+    assert!(q.contains("防火墙级别已经是中等") && !q.contains("name=\"confirm\""), "{q}");
     assert_eq!(get_with(&c, "/ui/router/firewall/level?level=max", peer(210, 2), &cookie).await.status, 400);
     // The level, NAT, UPnP and port forwarding: the app's and the firmware's names.
     for (path, field, value, sent, line) in [
-        ("/ui/router/firewall/level", "level", "high", json!({"firewall_level": "high", "level": "high"}), "防火墙级别设置为high"),
-        ("/ui/router/firewall/nat", "on", "0", json!({"nat_switch": "0", "enable": 0}), "NAT disabled"),
-        ("/ui/router/firewall/upnp", "on", "1", json!({"upnp_switch": "1", "enable_upnp": 1}), "UPnP enabled"),
-        ("/ui/router/firewall/port-forward/switch", "on", "0", json!({"port_forward_switch": "0", "portforward_enable": 0}), "端口转发disabled"),
+        ("/ui/router/firewall/level", "level", "high", json!({"firewall_level": "high", "level": "high"}), "防火墙级别设置为高"),
+        ("/ui/router/firewall/nat", "on", "0", json!({"nat_switch": "0", "enable": 0}), "NAT 已禁用"),
+        ("/ui/router/firewall/upnp", "on", "1", json!({"upnp_switch": "1", "enable_upnp": 1}), "UPnP 已启用"),
+        ("/ui/router/firewall/port-forward/switch", "on", "0", json!({"port_forward_switch": "0", "portforward_enable": 0}), "端口转发已禁用"),
     ] {
         let q = get_with(&c, &format!("{path}?{field}={value}"), peer(210, 2), &cookie).await;
         let once = q.input("once");
@@ -160,7 +160,7 @@ async fn firewall_page_switches_and_level() {
     // A failed read shows only the error.
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/router/firewall", Err("ubus call failed: Method not found".into()))], ..Default::default() });
     let html = get_with(&c, FW, peer(210, 2), &cookie).await.text();
-    assert!(html.contains("加载防火墙失败：ubus call failed: 方法 not found") && !html.contains("<form class=\"rf dmz\""), "{html}");
+    assert!(html.contains("加载防火墙失败：ubus call failed: Method not found") && !html.contains("<form class=\"rf dmz\""), "{html}");
 }
 
 /// DMZ and New Port Forward: checked against the router's network and

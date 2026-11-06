@@ -155,8 +155,8 @@ async fn wifi_form_question_and_reconnect_page() {
     let html = page.text();
     for want in [
         "<title>重新连接WiFi · U60 Pro</title>", "WiFi 设置已应用 — WiFi 将短暂重启",
-        "Join “Fake-Net-New” (2.4 GHz)，使用新密码 ，若未自动重连，请手动连接。",
-        "Join “Fake-Net-5G” (5 GHz)，若未自动重连，请手动连接。", "href=\"/ui/router/wifi\">返回WiFi设置</a>",
+        "加入“Fake-Net-New” (2.4 GHz)，使用新密码，若未自动重连，请手动连接。",
+        "加入“Fake-Net-5G” (5 GHz)，若未自动重连，请手动连接。", "href=\"/ui/router/wifi\">返回WiFi设置</a>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -363,7 +363,7 @@ async fn guest_wifi_form_and_apply() {
     let html = get_with(&c, &to(&r), peer(202, 2), &cookie).await.text();
     for want in [
         "<h2 class=\"q\">应用访客WiFi设置？</h2>", "5 GHz 访客网络打开。",
-        "“Fake-Guest”是开放网络：附近任何人都可以无需密码加入并访问此路由器。",
+        "“Fake-Guest”是开放网络，附近任何人无需密码即可加入并访问此路由器。",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -586,7 +586,7 @@ async fn dns_modes_presets_cache_and_clear() {
     let q = ask(vec![("mode", "doh"), ("dns1", "9.9.9.9"), ("dns2", ""), ("url", "https://1.1.1.1/dns-query")]).await;
     assert!(q.contains("<h2 class=\"q\">没有什么可申请的</h2>") && !q.contains("name=\"confirm\""), "{q}");
     let q = ask(vec![("mode", "doh"), ("dns1", "1.1.1.1"), ("dns2", ""), ("url", "https://1.1.1.1/dns-query")]).await;
-    assert!(q.contains("<h2 class=\"q\">更换DNS服务器？</h2>") && q.contains("路由器的 DNS 服务器将改为 1.1.1.1。") && !q.contains("encrypted"), "{q}");
+    assert!(q.contains("<h2 class=\"q\">更换DNS服务器？</h2>") && q.contains("路由器的 DNS 服务器将改为 1.1.1.1。") && !q.contains("加密"), "{q}");
     // A remote browser: the router's own lookups use the new servers too.
     let once = get_with(&c, DNS, tailnet(40205), &cookie).await.input("once");
     let r = post(&c, "/ui/router/dns/apply", tailnet(40205), &cookie, &body(&csrf, &once, &[("mode", "custom"), ("dns1", "8.8.8.8"), ("dns2", ""), ("url", "")])).await;

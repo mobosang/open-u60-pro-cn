@@ -259,7 +259,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     op.assert_secure_html(200);
     let op = op.text();
     for want in [
-        "<h1 id=\"op-title\">正在注册…</h1>", "切换至Klook_app", "重新加载SIM</span><small>完成</small>",
+        "<h1 id=\"op-title\">正在注册网络</h1>", "切换至Klook_app", "重新加载SIM</span><small>完成</small>",
         "连接到网络</span><small>进行中</small>", "Wi-Fi 保持连接 · 通常 15–45 秒",
         "href=\"/ui/router/esim\">返回 eSIM 配置文件</a>", "@get('/ui/live/op/",
     ] {

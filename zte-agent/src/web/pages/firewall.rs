@@ -472,7 +472,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             let lines = if up {
                 vec![format!("{label}等级防火墙会阻止更多连接。"), LOCK.into()]
             } else {
-                vec![format!("防火墙允许更多来自互联网的连接通过 {label}。"), exposed().into()]
+                vec![format!("{label}等级防火墙允许更多来自互联网的连接。"), exposed().into()]
             };
             ask_lines(format!("将防火墙级别设置为{label}？"), lines, "设置级别", up)
         }
@@ -560,7 +560,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
 
 pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: &mut Claim) -> Result<Done, (u16, String)> {
     let call = |method, path: &str, body: Value| super::call(app, method, path, &body).map_err(|(status, e)| (status, failed(&e)));
-    let set = |on: bool| (if on { "1" } else { "0" }, i64::from(on), if on { "enabled" } else { "disabled" });
+    let set = |on: bool| (if on { "1" } else { "0" }, i64::from(on), if on { "已启用" } else { "已禁用" });
     let (s, n, state) = set(val(vals, "on") == "1");
     let line = |text: String| Ok(Done::Line(Some(true), text));
     match kind {
@@ -573,7 +573,7 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
             let level = val(vals, "level");
             claim.disarm();
             call(Method::Put, "/api/router/firewall/level", json!({"firewall_level": level, "level": level}))?;
-            line(format!("防火墙级别设置为{level}"))
+            line(format!("防火墙级别设置为{}", level_label(level)))
         }
         Kind::FwNat => {
             claim.disarm();
