@@ -66,20 +66,20 @@ async fn device_controls_follow_the_app() {
     let order = [
         "<form class=\"rf chl\" method=\"post\" action=\"/ui/router/device/charge-limit\">",
         "<input class=\"sr\" id=\"enabled\" type=\"checkbox\" role=\"switch\" name=\"enabled\" value=\"1\" checked>",
-        "<label for=\"limit\">Stop at</label>", "<option value=\"85\" selected>85%</option>",
-        "<label for=\"hysteresis\">Resume gap</label>", "<option value=\"11\" selected>11%</option>",
-        "<button class=\"it cv snd\" type=\"submit\">Save</button>",
+        "<label for=\"limit\">停止充电阈值</label>", "<option value=\"85\" selected>85%</option>",
+        "<label for=\"hysteresis\">恢复充电差值</label>", "<option value=\"11\" selected>11%</option>",
+        "<button class=\"it cv snd\" type=\"submit\">保存</button>",
         "充电在 85% 时停止，在 74% 时恢复。", "默认值：5% \u{2014} 对于大多数用户来说是一个很好的平衡。",
-        "<input type=\"hidden\" name=\"on\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"Power-save Mode\">",
+        "<input type=\"hidden\" name=\"on\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"省电模式\">",
         "限制数据通信速度以减少功耗并延长电池寿命。",
-        "<input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"Fast Boot\">",
+        "<input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"快速启动\">",
         "启用后，断电后会暂停至 RAM，以实现近乎即时的启动。",
-        "<input type=\"hidden\" name=\"timeout\" value=\"10\"><input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"Auto Sleep\">",
-        "<label for=\"tmo\">Idle Timeout</label><form class=\"sf\" method=\"post\" action=\"/ui/router/device/auto-sleep\">",
-        "<option value=\"10\" selected>10 min</option>", "<option value=\"60\">1 hour</option>", "<option value=\"120\">2 hours</option>",
+        "<input type=\"hidden\" name=\"timeout\" value=\"10\"><input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"自动睡眠\">",
+        "<label for=\"tmo\">空闲超时</label><form class=\"sf\" method=\"post\" action=\"/ui/router/device/auto-sleep\">",
+        "<option value=\"10\" selected>10 分钟</option>", "<option value=\"60\">1小时</option>", "<option value=\"120\">2小时</option>",
         "当没有 WiFi 客户端连接并且空闲超时到期时，自动进入低功耗睡眠。按电源按钮唤醒。",
-        "<a class=\"it bt\" href=\"/ui/router/device/reboot\">Reboot Router</a>", "路由器将重新启动。这大约需要 60 秒。",
-        "<a class=\"it bt danger\" href=\"/ui/router/device/factory-reset\">Factory Reset</a>",
+        "<a class=\"it bt\" href=\"/ui/router/device/reboot\">重启路由器</a>", "路由器将重新启动。这大约需要 60 秒。",
+        "<a class=\"it bt danger\" href=\"/ui/router/device/factory-reset\">恢复出厂设置</a>",
         "这将清除所有设置并恢复出厂默认设置。此操作无法撤消。",
     ];
     let at: Vec<usize> = order.iter().map(|w| html.find(w).unwrap_or_else(|| panic!("{w} in {html}"))).collect();
@@ -103,7 +103,7 @@ async fn device_controls_follow_the_app() {
         "Stops charging when battery reaches the set level. Extends battery lifespan.",
         // A limit off the app's 5 % steps is kept, shown first.
         "<select id=\"limit\" name=\"limit\"><option value=\"83\" selected>83%</option><option value=\"50\">50%</option>",
-        "aria-checked=\"true\" aria-label=\"Power-save Mode\"", "aria-checked=\"false\" aria-label=\"Fast Boot\"",
+        "aria-checked=\"true\" aria-label=\"省电模式\"", "aria-checked=\"false\" aria-label=\"快速启动\"",
         // The app's default timeout goes with the switch.
         "<input type=\"hidden\" name=\"timeout\" value=\"5\"><input type=\"hidden\" name=\"on\" value=\"1\"><button class=\"sw\"",
     ]);
@@ -115,8 +115,8 @@ async fn device_controls_follow_the_app() {
     });
     let html = get_with(&c, DEV, peer(220, 4), &cookie).await.text();
     has(&html, &[
-        "<p class=\"msg err\" role=\"alert\">Failed to load power-save settings: ubus call zwrt_mc.device.manager get_device_info failed: fake</p>",
-        "<span>Power-save Mode</span><span class=\"v\">Unavailable</span>", "aria-label=\"Turn on Power-save Mode\">On</button>",
+        "<p class=\"msg err\" role=\"alert\">加载省电设置失败: ubus call zwrt_mc.device.manager get_device_info failed: fake</p>",
+        "<span>省电模式</span><span class=\"v\">不可用</span>", "aria-label=\"Turn on 省电模式\">开启</button>",
     ]);
     // The charge limit unread: no form (its Save would write the defaults).
     let _dev = device::set(&c.app, device::Device {
@@ -125,8 +125,8 @@ async fn device_controls_follow_the_app() {
     });
     let html = get_with(&c, DEV, peer(220, 5), &cookie).await.text();
     has(&html, &[
-        "<p class=\"msg err\" role=\"alert\">Failed to load charge control status: charge control read failed: fake</p>",
-        "<li class=\"it\"><span>Charge Limit</span><span class=\"v\">Unavailable</span></li>",
+        "<p class=\"msg err\" role=\"alert\">充电控制状态加载失败: charge control read failed: fake</p>",
+        "<li class=\"it\"><span>充电上限</span><span class=\"v\">不可用</span></li>",
         "当电池电量达到设定水平时停止充电。延长电池寿命。",
     ]);
     assert!(!html.contains("action=\"/ui/router/device/charge-limit\"") && !html.contains("name=\"limit\""), "{html}");
@@ -174,7 +174,7 @@ async fn device_switches_send_once_with_the_app_bodies() {
     post(&c, PS, peer(221, 4), &cookie, "on=1").await.assert_secure_html(403);
     let r = post(&c, PS, peer(221, 4), &cookie, &format!("csrf={csrf}&on=1")).await;
     let html = get_with(&c, &to(&r), peer(221, 4), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">This page expired, so nothing was sent. Try again.</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">该页面已过期，因此未发送任何内容。再试一次。</p>"), "{html}");
     assert_eq!(calls(&c).len(), 5);
     // The router refuses: the app's line, the switch as the router reads it.
     let mut dev = router(json!({"enabled": false, "timeout": "5"}));
@@ -183,8 +183,8 @@ async fn device_switches_send_once_with_the_app_bodies() {
     let r = sent(FB, "on=0").await;
     let html = get_with(&c, &to(&r), peer(221, 5), &cookie).await.text();
     has(&html, &[
-        "<p class=\"msg err\" role=\"alert\">Failed: ubus call zwrt_mc.device.manager set_device_info failed: fake</p>",
-        "aria-checked=\"true\" aria-label=\"Fast Boot\"",
+        "<p class=\"msg err\" role=\"alert\">失败：ubus 调用 zwrt_mc.device.manager set_device_info failed: fake</p>",
+        "aria-checked=\"true\" aria-label=\"快速启动\"",
     ]);
 }
 
@@ -197,16 +197,16 @@ async fn auto_sleep_on_is_asked_over_tailscale() {
     let _dev = device::set(&c.app, router(json!({"enabled": false, "timeout": "30"})));
     let html = get_with(&c, DEV, tailnet(42222), &cookie).await.text();
     let ask = "/ui/router/device/auto-sleep?on=1&amp;timeout=30";
-    has(&html, &[&format!("<a class=\"sw\" href=\"{ask}\" role=\"switch\" aria-checked=\"false\" aria-label=\"Auto Sleep\">")]);
+    has(&html, &[&format!("<a class=\"sw\" href=\"{ask}\" role=\"switch\" aria-checked=\"false\" aria-label=\"自动睡眠\">")]);
     let q = get_with(&c, &ask.replace("&amp;", "&"), tailnet(42222), &cookie).await;
     q.assert_secure_html(200);
     let qh = q.text();
     has(&qh, &[
-        "<h1>Confirm</h1>", "<h2 class=\"q\">Turn on Auto Sleep?</h2>",
+        "<h1>确认</h1>", "<h2 class=\"q\">开启自动睡眠？</h2>",
         "<li>When no Wi-Fi device has been connected for 30 min, the router goes to sleep. Press its power button to wake it.</li>",
-        "<li>You are connected remotely: while the router sleeps, this page can\u{2019}t be reached until its power button is pressed.</li>",
+        "<li>您已远程连接：当路由器处于睡眠状态时，只有按下其电源按钮才能访问此页面\u{2019}。</li>",
         "<input type=\"hidden\" name=\"on\" value=\"1\"><input type=\"hidden\" name=\"timeout\" value=\"30\">",
-        "<button class=\"btn btn-danger\" type=\"submit\">Turn On Auto Sleep</button>", "href=\"/ui/router/device\">Cancel</a>",
+        "<button class=\"btn btn-danger\" type=\"submit\">打开自动睡眠</button>", "href=\"/ui/router/device\">取消</a>",
     ]);
     let csrf = q.input("csrf");
     // A remote post without the answer goes to the question; nothing sent.
@@ -241,20 +241,20 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     r.assert_secure_html(200);
     let html = r.text();
     has(&html, &[
-        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/device\">Cancel</a></div><h1>Reboot Router</h1>",
+        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/device\">取消</a></div><h1>重启路由器</h1>",
         "<form class=\"rf req\" method=\"post\" action=\"/ui/router/device/reboot\">",
-        "<p class=\"cap\">Enter your router password to confirm reboot.</p>",
+        "<p class=\"cap\">输入您的路由器密码以确认重启。</p>",
         "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"Router Password\" autocomplete=\"current-password\" required>",
-        "<p class=\"foot\">The router will restart. This takes about 60 seconds.</p>",
-        "<button class=\"it cv snd danger\" type=\"submit\">Reboot</button>",
+        "<p class=\"foot\">路由器将重新启动。这大约需要 60 秒。</p>",
+        "<button class=\"it cv snd danger\" type=\"submit\">重启</button>",
     ]);
     assert!(!html.contains("connected remotely"));
     let token = r.input("once");
     assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("您已远程连接：如果连接断开"));
     let reset = get_with(&c, RESET, peer(223, 2), &cookie).await.text();
     has(&reset, &[
-        "<h1>Factory Reset</h1>", "<p class=\"cap\">This will erase ALL settings. Enter your router password to confirm.</p>",
-        "<button class=\"it cv snd danger\" type=\"submit\">Factory Reset</button>",
+        "<h1>恢复出厂设置</h1>", "<p class=\"cap\">这将删除所有设置。输入您的路由器密码进行确认。</p>",
+        "<button class=\"it cv snd danger\" type=\"submit\">恢复出厂设置</button>",
         "这将清除所有设置并恢复出厂默认设置。此操作无法撤消。",
         // Never filled by the browser or a password manager: a deliberate step.
         "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"Router Password\" autocomplete=\"off\" required data-1p-ignore=\"true\" data-lpignore=\"true\" data-bwignore=\"true\">",
@@ -265,7 +265,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     // Wrong: nothing sent, the password not echoed.
     let r = post(&c, REBOOT, peer(223, 3), &cookie, &format!("csrf={csrf}&once={token}&password=fake-wrong-1")).await;
     r.assert_secure_html(401);
-    has(&r.text(), &["<p class=\"ferr\" id=\"rpw-err\">Incorrect password</p>", "aria-invalid=\"true\""]);
+    has(&r.text(), &["<p class=\"ferr\" id=\"rpw-err\">密码错误</p>", "aria-invalid=\"true\""]);
     assert!(!r.text().contains("fake-wrong-1"));
     // The session and CSRF first.
     post(&c, REBOOT, peer(223, 3), &cookie, &format!("once={token}&password={}", enc(PW))).await.assert_secure_html(403);
@@ -280,9 +280,9 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     for r in [a, b] {
         r.assert_secure_html(200);
         has(&r.text(), &[
-            "<h1>Rebooting\u{2026}</h1>", "<p class=\"msg ok\" role=\"status\">Router is rebooting...</p>",
-            "The router comes back in about a minute. A restart logs every browser out, so you will log in again.",
-            "<a class=\"btn\" href=\"/ui/\">Reload</a>",
+            "<h1>正在重启\u{2026}</h1>", "<p class=\"msg ok\" role=\"status\">路由器正在重启...</p>",
+            "路由器将在约一分钟后恢复。重启会使所有浏览器退出登录，需要重新登录。",
+            "<a class=\"btn\" href=\"/ui/\">重新加载</a>",
         ]);
         assert!(!r.text().contains("<form") && !r.text().contains(PW));
     }
@@ -291,14 +291,14 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     let token = get_with(&c, RESET, peer(223, 5), &cookie).await.input("once");
     let r = post(&c, RESET, peer(223, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await;
     r.assert_secure_html(200);
-    has(&r.text(), &["<h1>Resetting\u{2026}</h1>", "<p class=\"msg ok\" role=\"status\">Factory reset initiated...</p>", "join its default Wi-Fi network"]);
+    has(&r.text(), &["<h1>正在重置\u{2026}</h1>", "<p class=\"msg ok\" role=\"status\">恢复出厂设置已启动...</p>", "join its default Wi-Fi network"]);
     assert_eq!(calls(&c)[1], ("/api/device/factory-reset".to_owned(), json!({})));
     let fail = (503, json!({"ok": false, "error": "ubus call zwrt_bsp.power factory_reset failed: fake"}));
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/device/factory-reset", fail)], ..Default::default() });
     let token = get_with(&c, RESET, peer(223, 5), &cookie).await.input("once");
     let r = post(&c, RESET, peer(223, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await;
     r.assert_secure_html(503);
-    has(&r.text(), &["<p class=\"msg err\" role=\"alert\">Failed: ubus call zwrt_bsp.power factory_reset failed: fake</p>", "placeholder=\"Router Password\""]);
+    has(&r.text(), &["<p class=\"msg err\" role=\"alert\">失败：ubus 调用 zwrt_bsp.power factory_reset failed: fake</p>", "placeholder=\"Router Password\""]);
     assert!(!r.text().contains(PW));
     // Wrong passwords at a sheet count like logins: then even a login waits.
     let mut limited = None;
@@ -331,14 +331,14 @@ async fn settings_preferences_are_cookies() {
     let html = get_with(&c, SETTINGS, peer(224, 2), &cookie).await.text();
     let order = [
         "<h2>Session</h2>", "<h2>Polling</h2>", "<form class=\"sf\" method=\"post\" action=\"/ui/settings/refresh\">",
-        "<label for=\"ms\">Refresh interval</label><select id=\"ms\" name=\"ms\"><option value=\"1000\">1.0s</option>",
-        "<option value=\"2000\" selected>2.0s</option>", "<option value=\"10000\">10.0s</option></select><button class=\"btn sm\" type=\"submit\">Save</button>",
+        "<label for=\"ms\">刷新间隔</label><select id=\"ms\" name=\"ms\"><option value=\"1000\">1.0s</option>",
+        "<option value=\"2000\" selected>2.0s</option>", "<option value=\"10000\">10.0s</option></select><button class=\"btn sm\" type=\"submit\">保存</button>",
         "实时上传和下载使用单独的 1 秒刷新，与调制解调器 \u{2019} 的更新速率相匹配。",
-        "<h2>Appearance</h2>", "<div class=\"seg th\" role=\"group\" aria-label=\"Theme\">",
-        "<button type=\"submit\" name=\"theme\" value=\"system\" aria-pressed=\"true\">System</button>",
-        "<button type=\"submit\" name=\"theme\" value=\"light\" aria-pressed=\"false\">Light</button>",
-        "<button type=\"submit\" name=\"theme\" value=\"dark\" aria-pressed=\"false\">Dark</button>",
-        "<h2>About</h2>", "<h2>Legal</h2>",
+        "<h2>外观</h2>", "<div class=\"seg th\" role=\"group\" aria-label=\"主题\">",
+        "<button type=\"submit\" name=\"theme\" value=\"system\" aria-pressed=\"true\">系统</button>",
+        "<button type=\"submit\" name=\"theme\" value=\"light\" aria-pressed=\"false\">浅色</button>",
+        "<button type=\"submit\" name=\"theme\" value=\"dark\" aria-pressed=\"false\">深色</button>",
+        "<h2>关于</h2>", "<h2>法律声明</h2>",
     ];
     let at: Vec<usize> = order.iter().map(|w| html.find(w).unwrap_or_else(|| panic!("{w} in {html}"))).collect();
     assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");
@@ -452,10 +452,10 @@ async fn login_page_has_the_app_header() {
     let html = get(&c, "/ui/login", peer(226, 1)).await.text();
     has(&html, &[
         "<div class=\"lh\"><svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\">",
-        "<h1>ZTE U60 Pro</h1><p>Router Companion</p></div>",
-        "<label for=\"password\">Agent password</label>", "<button class=\"btn btn-wide\" type=\"submit\">Log in</button>",
+        "<h1>ZTE U60 Pro</h1><p>路由器配套工具</p></div>",
+        "<label for=\"password\">Agent 密码</label>", "<button class=\"btn btn-wide\" type=\"submit\">登录</button>",
     ]);
-    assert!(html.contains("<title>Log in · U60 Pro</title>"));
+    assert!(html.contains("<title>登录 · U60 Pro</title>"));
     // No brand over the app's header (the app's login has no title); other
     // signed-out pages keep it.
     assert!(html.contains("<header class=\"bar\"></header>") && !html.contains("class=\"brand\""), "{html}");

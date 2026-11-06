@@ -109,7 +109,7 @@ class TelemetryBlockerViewModel @Inject constructor(
                     }
                 }
                 _state.value = _state.value.copy(
-                    message = if (added > 0) "Blocked $added telemetry domains" else "All telemetry domains already blocked",
+                    message = if (added > 0) "Blocked $added telemetry domains" else "所有遥测域已被阻止",
                     messageIsError = false,
                 )
                 refresh()

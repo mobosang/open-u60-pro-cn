@@ -100,7 +100,7 @@ pub fn page(pd: &PageData) -> Markup {
                 li.it {
                     span.dom { (domain) }
                     @if blocked(&list, domain) {
-                        span.c-green { (kit::icon(Icon::Check)) span.sr { "Blocked" } }
+                        span.c-green { (kit::icon(Icon::Check)) span.sr { "被封锁" } }
                     } @else {
                         span.v { (kit::icon(Icon::Circle)) span.sr { "未被封锁" } }
                     }

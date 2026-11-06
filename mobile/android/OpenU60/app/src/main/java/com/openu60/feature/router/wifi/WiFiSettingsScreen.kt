@@ -31,7 +31,7 @@ fun WiFiSettingsScreen(
                 title = { Text("WiFi 设置") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -192,13 +192,13 @@ private fun BandCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DropdownSelector("Channel", channel, channelOptions, onChannelChange, Modifier.weight(1f))
-                DropdownSelector("Bandwidth", bandwidth, bandwidthOptions, onBandwidthChange, Modifier.weight(1f))
+                DropdownSelector("信道", channel, channelOptions, onChannelChange, Modifier.weight(1f))
+                DropdownSelector("带宽", bandwidth, bandwidthOptions, onBandwidthChange, Modifier.weight(1f))
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DropdownSelector("Encryption", encryption, WiFiConfig.encryptionOptions, onEncryptionChange, Modifier.weight(1f))
-                DropdownSelector("TX Power", txpower, WiFiConfig.txpowerOptions, onTxpowerChange, Modifier.weight(1f))
+                DropdownSelector("加密", encryption, WiFiConfig.encryptionOptions, onEncryptionChange, Modifier.weight(1f))
+                DropdownSelector("发射功率", txpower, WiFiConfig.txpowerOptions, onTxpowerChange, Modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.height(8.dp))

@@ -404,7 +404,7 @@ mod tests {
     fn live_page_carries_the_nonce_in_three_places() {
         let ctx = PageCtx { title: "T", nonce: "00ff", live: Some("/ui/live/x"), ..PageCtx::default() };
         let s = page(&ctx, html! { p { "x" } }).into_string();
-        assert!(s.starts_with("<!DOCTYPE html><html lang=\"zh-CN\" data-nonce=\"00ff\">"), "{s}");
+        assert!(s.starts_with("<!DOCTYPE html><html lang=\"en\" data-nonce=\"00ff\">"), "{s}");
         assert!(s.contains(&format!(r#"<script type="module" src="{DATASTAR_JS}" nonce="00ff"></script>"#)));
         // Opened only once the page is visible (Datastar itself does not
         // check at the start); the URL is the only value in the expression.
@@ -418,7 +418,7 @@ mod tests {
         let tabs = PageCtx { title: "T", nonce: "00ff", tab: Some(Tab::Router), ..PageCtx::default() };
         let s = page(&tabs, html! {}).into_string();
         assert!(s.contains("<header class=\"bar\"><div class=\"lead\"></div><h1>T</h1><div class=\"trail\"></div></header>"), "{s}");
-        assert!(s.contains("</main><nav class=\"tabs\" aria-label=\"Tabs\">"));
+        assert!(s.contains("</main><nav class=\"tabs\" aria-label=\"标签\">"));
         assert!(s.contains("<a href=\"/ui/router\" aria-current=\"page\">"));
         assert_eq!(s.matches("aria-current").count(), 1);
         // Without live updates: only the System theme's script, which carries
@@ -428,7 +428,7 @@ mod tests {
         assert_eq!(s.matches("<script").count(), 1, "{s}");
         assert!(s.contains(&format!(r#"<script src="{THEME_JS}" nonce="00ff" defer></script>"#)), "{s}");
         assert!(!s.contains("datastar") && !s.contains("data-init") && !s.contains("data-nonce") && s.matches("00ff").count() == 1, "{s}");
-        assert!(s.starts_with("<!DOCTYPE html><html lang=\"zh-CN\">"));
+        assert!(s.starts_with("<!DOCTYPE html><html lang=\"en\">"));
     }
 
     #[test]
@@ -453,9 +453,9 @@ mod tests {
     fn snapshot_status_line() {
         assert_eq!(
             live_snapshot("/ui/").into_string(),
-            "<p class=\"snap\" id=\"live-status\">Snapshot from page load<span class=\"ages\">\
+            "<p class=\"snap\" id=\"live-status\">页面加载快照<span class=\"ages\">\
              <span class=\"age1\"> · over 1 min old</span><span class=\"age5\"> · over 5 min old</span></span> · \
-             <a href=\"/ui/\">Refresh</a></p>"
+             <a href=\"/ui/\">刷新</a></p>"
         );
     }
 }

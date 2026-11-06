@@ -168,7 +168,7 @@ final class SpeedTestViewModel {
         case "complete":
             showMessage("速度测试完成", isError: false)
         case "error":
-            showMessage(progress.error ?? "Speed test failed", isError: true)
+            showMessage(progress.error ?? "速度测试失败", isError: true)
         case "cancelled":
             showMessage("速度测试取消", isError: false)
         default:

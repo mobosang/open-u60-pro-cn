@@ -62,10 +62,10 @@ struct EnableADBView: View {
         resultMessage = nil
         do {
             let _ = try await client.putJSON("/api/usb/mode", body: ["mode": "debug"])
-            resultMessage = "ADB debug mode enabled. Connect USB-C cable to access the device."
+            resultMessage = "ADB 调试模式已启用。连接 USB-C 电缆以访问设备。"
             isError = false
         } catch {
-            resultMessage = "Failed: \(error.localizedDescription)"
+            resultMessage = "失败：\(error.localizedDescription)"
             isError = true
         }
         isLoading = false

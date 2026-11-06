@@ -35,7 +35,7 @@ fun SIMScreen(
                 title = { Text("SIM 管理") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -74,8 +74,8 @@ fun SIMScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("SIM信息", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
-                        InfoRow("Status", state.simInfo.simStatus)
-                        InfoRow("Operator", state.simInfo.operatorName)
+                        InfoRow("状态", state.simInfo.simStatus)
+                        InfoRow("运营商", state.simInfo.operatorName)
                         InfoRow("ICCID", state.simInfo.iccid)
                         InfoRow("IMSI", state.simInfo.imsi)
                         InfoRow("MSISDN", state.simInfo.msisdn)
@@ -91,8 +91,8 @@ fun SIMScreen(
                         Text("PIN 管理", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(4.dp))
                         InfoRow("PIN Status", state.simInfo.pinStatus)
-                        InfoRow("PIN Attempts", "${state.simInfo.pinAttempts}")
-                        InfoRow("PUK Attempts", "${state.simInfo.pukAttempts}")
+                        InfoRow("PIN 尝试", "${state.simInfo.pinAttempts}")
+                        InfoRow("PUK 尝试", "${state.simInfo.pukAttempts}")
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -151,8 +151,8 @@ fun SIMScreen(
     if (showChangePinDialog) {
         TwoPinInputDialog(
             title = "更改PIN",
-            label1 = "Current PIN",
-            label2 = "New PIN",
+            label1 = "当前PIN",
+            label2 = "新PIN",
             onDismiss = { showChangePinDialog = false },
             onConfirm = { oldPin, newPin ->
                 showChangePinDialog = false
@@ -165,8 +165,8 @@ fun SIMScreen(
     if (showPukDialog) {
         TwoPinInputDialog(
             title = "输入PUK",
-            label1 = "PUK Code",
-            label2 = "New PIN",
+            label1 = "PUK代码",
+            label2 = "新PIN",
             onDismiss = { showPukDialog = false },
             onConfirm = { puk, newPin ->
                 showPukDialog = false

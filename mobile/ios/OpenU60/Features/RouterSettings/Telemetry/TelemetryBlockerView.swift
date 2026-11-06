@@ -15,12 +15,12 @@ struct TelemetryBlockerView: View {
             }
 
             Section("域过滤器") {
-                LabeledContent("Status") {
-                    Text(viewModel.filterConfig.enabled ? "Enabled" : "Disabled")
+                LabeledContent("状态") {
+                    Text(viewModel.filterConfig.enabled ? "Enabled" : "已禁用")
                         .foregroundStyle(viewModel.filterConfig.enabled ? .green : .secondary)
                 }
 
-                Button(viewModel.filterConfig.enabled ? "Disable Filter" : "Enable Filter") {
+                Button(viewModel.filterConfig.enabled ? "Disable Filter" : "启用过滤器") {
                     Task { await viewModel.toggleFilter(enabled: !viewModel.filterConfig.enabled) }
                 }
                 .disabled(viewModel.isLoading)
@@ -68,7 +68,7 @@ struct TelemetryBlockerView: View {
                             VStack(alignment: .leading) {
                                 Text(rule.domain)
                                     .font(.body)
-                                Text(rule.enabled ? "Active" : "Inactive")
+                                Text(rule.enabled ? "Active" : "未启用")
                                     .font(.caption)
                                     .foregroundStyle(rule.enabled ? .green : .secondary)
                             }

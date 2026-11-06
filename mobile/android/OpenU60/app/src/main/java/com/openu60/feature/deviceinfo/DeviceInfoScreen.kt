@@ -28,7 +28,7 @@ fun DeviceInfoScreen(
                 title = { Text("设备信息") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -67,17 +67,17 @@ fun DeviceInfoScreen(
                 }
 
                 InfoSection("SIM") {
-                    InfoRow("Status", state.identity.simStatus)
+                    InfoRow("状态", state.identity.simStatus)
                     InfoRow("ICCID", state.identity.simICCID)
                     InfoRow("IMSI", state.identity.simIMSI)
                     InfoRow("MSISDN", state.identity.msisdn)
-                    InfoRow("Operator", state.identity.spn)
+                    InfoRow("运营商", state.identity.spn)
                     InfoRow("MCC/MNC", "${state.identity.mcc}/${state.identity.mnc}")
                 }
 
                 InfoSection("网络") {
                     InfoRow("WAN IPv4", state.identity.wanIPv4)
-                    InfoRow("WAN IPv6", state.identity.wanIPv6.firstOrNull() ?: "")
+                    InfoRow("广域网 IPv6", state.identity.wanIPv6.firstOrNull() ?: "")
                     InfoRow("LAN IP", state.identity.lanIP)
                 }
             }

@@ -68,7 +68,7 @@ struct PasswordConfirmView: View {
         }
 
         guard password == storedPassword else {
-            error = "Incorrect password"
+            error = "密码错误"
             password = ""
             return
         }

@@ -15,14 +15,14 @@ struct USBModeView: View {
             }
 
             Section("USB状态") {
-                LabeledContent("Cable") {
-                    Text(viewModel.usbStatus.cableAttached ? "Connected" : "Disconnected")
+                LabeledContent("电缆") {
+                    Text(viewModel.usbStatus.cableAttached ? "Connected" : "未连接")
                         .foregroundStyle(viewModel.usbStatus.cableAttached ? .green : .secondary)
                 }
                 LabeledContent("USB-C CC") {
                     Text(viewModel.usbStatus.typecCC)
                 }
-                LabeledContent("Mode") {
+                LabeledContent("模式") {
                     Text(viewModel.usbStatus.mode.isEmpty ? "—" : viewModel.usbStatus.mode)
                 }
             }

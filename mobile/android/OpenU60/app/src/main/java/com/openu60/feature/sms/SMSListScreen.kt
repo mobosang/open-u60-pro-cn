@@ -56,7 +56,7 @@ fun SMSListScreen(
         floatingActionButton = {
             if (authState == AuthState.LOGGED_IN) {
                 FloatingActionButton(onClick = onNavigateToCompose) {
-                    Icon(Icons.Default.Edit, contentDescription = "New message")
+                    Icon(Icons.Default.Edit, contentDescription = "新消息")
                 }
             }
         },

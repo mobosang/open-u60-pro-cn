@@ -51,13 +51,13 @@ fun ConfigToolScreen(
                 title = { Text("配置工具") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     if (state.fileName != null) {
                         IconButton(onClick = { viewModel.clear() }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(Icons.Default.Clear, contentDescription = "清除")
                         }
                     }
                 },
@@ -130,11 +130,11 @@ fun ConfigToolScreen(
                             fontWeight = FontWeight.Bold,
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        InfoRow("Name", state.fileName!!)
+                        InfoRow("名称", state.fileName!!)
                         InfoRow("Size", "${state.fileSize} bytes")
                         state.header?.let { header ->
                             InfoRow("Magic", header.magic)
-                            InfoRow("Type", header.payloadTypeName)
+                            InfoRow("类型", header.payloadTypeName)
                             InfoRow("Signature", header.signature.ifBlank { "(none)" })
                             InfoRow("Payload offset", "${header.payloadOffset}")
                         }

@@ -17,10 +17,10 @@ struct CellLockView: View {
             Section("当前小区") {
                 LabeledContent("NR PCI", value: viewModel.status.nrPCI.isEmpty ? "—" : viewModel.status.nrPCI)
                 LabeledContent("NR EARFCN", value: viewModel.status.nrEARFCN.isEmpty ? "—" : viewModel.status.nrEARFCN)
-                LabeledContent("NR Band", value: viewModel.status.nrBand.isEmpty ? "—" : viewModel.status.nrBand)
+                LabeledContent("NR 频段", value: viewModel.status.nrBand.isEmpty ? "—" : viewModel.status.nrBand)
                 LabeledContent("LTE PCI", value: viewModel.status.ltePCI.isEmpty ? "—" : viewModel.status.ltePCI)
                 LabeledContent("LTE EARFCN", value: viewModel.status.lteEARFCN.isEmpty ? "—" : viewModel.status.lteEARFCN)
-                LabeledContent("Locked") {
+                LabeledContent("锁定") {
                     Text(viewModel.status.locked ? "Yes" : "No")
                         .foregroundStyle(viewModel.status.locked ? .orange : .green)
                 }

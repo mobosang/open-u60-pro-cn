@@ -14,19 +14,19 @@ struct FirewallSettingsView: View {
                 }
             }
 
-            Section("Firewall") {
-                LabeledContent("Status") {
-                    Text(viewModel.config.enabled ? "Enabled" : "Disabled")
+            Section("防火墙") {
+                LabeledContent("状态") {
+                    Text(viewModel.config.enabled ? "Enabled" : "已禁用")
                         .foregroundStyle(viewModel.config.enabled ? .green : .secondary)
                 }
 
-                Button(viewModel.config.enabled ? "Disable Firewall" : "Enable Firewall") {
+                Button(viewModel.config.enabled ? "Disable Firewall" : "启用防火墙") {
                     Task { await viewModel.toggleFirewall(enabled: !viewModel.config.enabled) }
                 }
                 .disabled(viewModel.isLoading)
 
                 if viewModel.config.enabled {
-                    Picker("Level", selection: Binding(
+                    Picker("等级", selection: Binding(
                         get: { viewModel.config.level },
                         set: { level in Task { await viewModel.setLevel(level) } }
                     )) {
@@ -37,7 +37,7 @@ struct FirewallSettingsView: View {
                     .disabled(viewModel.isLoading)
                 }
 
-                LabeledContent("WAN Ping", value: viewModel.config.wanPingFilter ? "Blocked" : "Allowed")
+                LabeledContent("万平", value: viewModel.config.wanPingFilter ? "Blocked" : "允许")
             }
 
             Section("网络地址转换/UPnP") {
@@ -47,7 +47,7 @@ struct FirewallSettingsView: View {
                 ))
                 .disabled(viewModel.isLoading)
 
-                Toggle("UPnP", isOn: Binding(
+                Toggle("通用即插即用", isOn: Binding(
                     get: { viewModel.upnpEnabled },
                     set: { enabled in Task { await viewModel.toggleUPnP(enabled: enabled) } }
                 ))
@@ -55,16 +55,16 @@ struct FirewallSettingsView: View {
             }
 
             Section("DMZ") {
-                Toggle("Enable DMZ", isOn: $viewModel.editDmzEnabled)
+                Toggle("启用DMZ", isOn: $viewModel.editDmzEnabled)
                 if viewModel.editDmzEnabled {
-                    TextField("DMZ Host IP", text: $viewModel.editDmzIP)
+                    TextField("DMZ主机IP", text: $viewModel.editDmzIP)
                         .keyboardType(.decimalPad)
                         .autocorrectionDisabled()
                 }
                 Button {
                     Task { await viewModel.applyDMZ() }
                 } label: {
-                    Text("Apply DMZ")
+                    Text("申请DMZ")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(viewModel.isLoading)
@@ -81,7 +81,7 @@ struct FirewallSettingsView: View {
                     Button {
                         viewModel.showAddPortForward = true
                     } label: {
-                        Label("Add Rule", systemImage: "plus")
+                        Label("添加规则", systemImage: "plus")
                     }
 
                     ForEach(viewModel.portForwardRules) { rule in
@@ -90,7 +90,7 @@ struct FirewallSettingsView: View {
                                 Text(rule.name.isEmpty ? "Rule" : rule.name)
                                     .font(.headline)
                                 Spacer()
-                                Text(rule.enabled ? "Active" : "Inactive")
+                                Text(rule.enabled ? "Active" : "未启用")
                                     .font(.caption)
                                     .foregroundStyle(rule.enabled ? .green : .secondary)
                             }
@@ -119,7 +119,7 @@ struct FirewallSettingsView: View {
                                 Text(rule.protocol_.uppercased())
                                     .font(.headline)
                                 Spacer()
-                                Text(rule.enabled ? "Active" : "Inactive")
+                                Text(rule.enabled ? "Active" : "未启用")
                                     .font(.caption)
                                     .foregroundStyle(rule.enabled ? .green : .secondary)
                             }
@@ -138,7 +138,7 @@ struct FirewallSettingsView: View {
                 }
             }
         }
-        .navigationTitle("Firewall")
+        .navigationTitle("防火墙")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.isLoading {

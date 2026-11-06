@@ -457,11 +457,11 @@ mod tests {
     fn rows_follow_the_app() {
         let v = views(Some(fixture()), None);
         let s = list(&v).into_string();
-        assert!(s.starts_with("<section class=\"group\" id=\"pr-list\"><h2>Top Processes</h2><ul class=\"list pr\">"), "{s}");
+        assert!(s.starts_with("<section class=\"group\" id=\"pr-list\"><h2>顶级进程</h2><ul class=\"list pr\">"), "{s}");
         for want in [
             "<span class=\"c-orange\">zte_topsw_diag</span><small>PID 812 · running</small>",
             "<span class=\"c-red\">12.0%</span><small>2.0 MB</small>",
-            "<a class=\"kl\" href=\"/ui/health/processes/kill?pid=812\" aria-label=\"Kill zte_topsw_diag\">Kill</a>",
+            "<a class=\"kl\" href=\"/ui/health/processes/kill?pid=812\" aria-label=\"杀戮 zte_topsw_diag\">杀戮</a>",
             "<span>&lt;b&gt;odd&lt;/b&gt;</span><small>PID 90 · sleeping</small>",
             "<span class=\"c-orange\">2.5%</span><small>1000 KB</small>",
             "<small>1023 KB</small>",
@@ -476,7 +476,7 @@ mod tests {
         assert!(!s.contains("<form") && !s.contains("<input"));
         let sum = summary(&v).into_string();
         assert!(sum.contains("冗余后台服务") && sum.contains("<small class=\"fg\">3 processes</small><small>4.2% CPU, 22.6 MB RSS</small>"), "{sum}");
-        assert!(kill_all_link(&v).into_string().contains("<a class=\"nl c-red\" href=\"/ui/health/processes/kill-all\">Kill All Bloat</a>"));
+        assert!(kill_all_link(&v).into_string().contains("<a class=\"nl c-red\" href=\"/ui/health/processes/kill-all\">消灭一切膨胀</a>"));
         // Only bloat Kill All leaves (all of it in the list): no Kill All
         // Bloat; one more bloat daemon outside the top 50: it is back.
         let rows = json!([{"pid": 6, "name": SMS}, {"pid": 7, "name": "zte_topsw_mc"}, {"pid": 8, "name": "init"}]);
@@ -484,7 +484,7 @@ mod tests {
         assert_eq!(kill_all_link(&kept).into_string(), "<span id=\"pr-all\"></span>");
         assert!(summary(&kept).into_string().contains("冗余后台服务"));
         let more = views(Some(json!({"bloat_count": 3, "processes": rows})), None);
-        assert!(kill_all_link(&more).into_string().contains(">Kill All Bloat</a>"));
+        assert!(kill_all_link(&more).into_string().contains(">消灭一切膨胀</a>"));
         // No bloat: no summary, no Kill All Bloat.
         let none = views(Some(json!({"bloat_count": 0, "processes": []})), None);
         assert_eq!(summary(&none).into_string(), "<div id=\"pr-sum\"></div>");
@@ -570,19 +570,19 @@ mod tests {
     fn kill_confirmations_name_the_daemons() {
         let s = confirm(kill_page, Ok(json!({"pid": 812, "name": "zte_topsw_diag"})), false);
         for want in [
-            "<h2 class=\"q\">Kill zte_topsw_diag?</h2>", "<li>SIGKILL PID 812. It will return on reboot.</li>",
+            "<h2 class=\"q\">杀戮 zte_topsw_diag?</h2>", "<li>SIGKILL PID 812. It will return on reboot.</li>",
             "<form class=\"panel\" method=\"post\" action=\"/ui/health/processes/kill\">",
             "<input type=\"hidden\" name=\"pid\" value=\"812\"><input type=\"hidden\" name=\"name\" value=\"zte_topsw_diag\">\
              <input type=\"hidden\" name=\"confirm\" value=\"1\">",
-            "<button class=\"btn btn-danger\" type=\"submit\">Kill</button>",
-            "<a class=\"btn btn-quiet\" href=\"/ui/health/processes\">Cancel</a>",
+            "<button class=\"btn btn-danger\" type=\"submit\">杀戮</button>",
+            "<a class=\"btn btn-quiet\" href=\"/ui/health/processes\">取消</a>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
         assert_eq!(s.matches("<li>").count(), 1);
         // The SMS daemon and a daemon.conf one: warned, still possible.
         let s = confirm(kill_page, Ok(json!({"pid": 400, "name": SMS})), false);
-        assert!(s.contains("<li>zte_topsw_wms handles SMS:") && s.contains(">Kill</button>"), "{s}");
+        assert!(s.contains("<li>zte_topsw_wms handles SMS:") && s.contains(">杀戮</button>"), "{s}");
         let s = confirm(kill_page, Ok(json!({"pid": 401, "name": "zte_topsw_mc"})), true);
         assert!(s.contains("boot-critical firmware daemon (daemon.conf)") && s.contains("connected remotely"), "{s}");
         // Not bloat, or gone: no form.
@@ -594,9 +594,9 @@ mod tests {
         let read = split(&[(5, "zte_topsw_diag".into()), (6, SMS.into()), (8, "zte_topsw_diag".into()), (9, "zte_dua".into()), (11, "zte_dm".into())]);
         let s = confirm(kill_all_page, Ok(read), false);
         for want in [
-            "<h2 class=\"q\">Kill all bloat daemons?</h2>", "<li>This will SIGKILL 3 bloat daemons. They will return on reboot.</li>",
+            "<h2 class=\"q\">杀死所有膨胀守护进程？</h2>", "<li>This will SIGKILL 3 bloat daemons. They will return on reboot.</li>",
             "<li>zte_topsw_diag, zte_dua</li>", "<li>Left running: zte_topsw_wms, zte_dm. The SMS daemon",
-            "action=\"/ui/health/processes/kill-all\"", ">Kill All Bloat</button>",
+            "action=\"/ui/health/processes/kill-all\"", ">消灭一切膨胀</button>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }

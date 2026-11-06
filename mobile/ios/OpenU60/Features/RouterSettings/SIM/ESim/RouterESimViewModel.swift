@@ -223,8 +223,8 @@ final class RouterESimViewModel {
             try await Task.sleep(for: .seconds(8))
             let data = try await client.getJSON("/api/esim/notifications")
             if let count = data["count"] as? Int { pendingReceipts = count }
-            showMessage(pendingReceipts == 0 ? "Operator receipts sent."
-                        : "Some receipts couldn't be sent yet. The router keeps retrying.", isError: pendingReceipts != 0)
+            showMessage(pendingReceipts == 0 ? "发送的运营商收据。"
+                        : "部分收据尚未发送。路由器不断重试。", isError: pendingReceipts != 0)
         } catch { if !error.isCancellation { showMessage(errorText(error), isError: true) } }
     }
 
@@ -258,7 +258,7 @@ final class RouterESimViewModel {
     func startDownload(code: String, confirmationCode: String) async {
         guard !blocksSwitching, let parsed = RouterESimActivationCode.parse(code) else { return }
         guard !parsed.needsConfirmationCode || RouterESimActivationCode.validConfirmationCode(confirmationCode) else {
-            downloadNote = "Enter the confirmation code from your operator (up to 64 characters)."
+            downloadNote = "请输入运营商提供的确认码（最多 64 个字符）。"
             return
         }
         var body: [String: Any] = ["activation_code": parsed.value, "preview": true]

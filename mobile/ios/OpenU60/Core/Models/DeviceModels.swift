@@ -181,7 +181,7 @@ enum DeviceParser {
         battery.currentMA = asInt(data["current_ua"]).map { $0 / 1000 }
         battery.voltageMV = asInt(data["voltage_uv"]).map { $0 / 1000 }
         switch data["status"] as? String {
-        case "Charging", "Full": battery.charging = "charging"
+        case "充电中", "Full": battery.charging = "charging"
         case "Not charging": battery.charging = "stopped"
         case "Discharging": battery.charging = "discharging"
         default: break

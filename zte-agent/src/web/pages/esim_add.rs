@@ -79,17 +79,17 @@ const DECODE_LIMIT: Duration = if cfg!(test) { Duration::from_secs(4) } else { D
 // The app's input errors (`RouterESimAddView`, `RouterESimActivationCode`).
 const INVALID: &str = "该二维码不是 eSIM 激活码。";
 const ONE_CODE: &str = "选择一张带有eSIM二维码的照片。";
-const UNREADABLE: &str = "Couldn\u{2019}t read this photo. Choose another image or enter the code manually.";
-const NEED_CC: &str = "Enter the confirmation code from your operator (up to 64 characters).";
+const UNREADABLE: &str = "无法读取此图片。请选择其他图片或手动输入激活码。";
+const NEED_CC: &str = "请输入运营商提供的确认码（最多 64 个字符）。";
 // Web additions: no input, two, an image the router does not read, the
 // decoder busy; and what a refused post asks (the code is never kept).
-const NOTHING: &str = "Scan or choose a photo of the QR code, or enter the code manually.";
-const TWO: &str = "Use one photo or the code entered manually, not both.";
-const NOT_IMAGE: &str = "Choose a JPEG or PNG photo, or enter the code manually.";
-const TOO_LARGE: &str = "This photo is too large to read. Choose a smaller image or enter the code manually.";
-const DECODER_BUSY: &str = "The router is reading another photo. Try again in a moment.";
-const AGAIN: &str = "Your code isn\u{2019}t kept, so scan, choose or enter it again.";
-const NO_DATA: &str = "Your router has no mobile data connection. Connect it before downloading; your phone\u{2019}s own data can\u{2019}t be used.";
+const NOTHING: &str = "扫描或选择二维码照片，或手动输入二维码。";
+const TWO: &str = "使用一张照片或手动输入的代码，而不是两者都使用。";
+const NOT_IMAGE: &str = "选择 JPEG 或 PNG 照片，或手动输入代码。";
+const TOO_LARGE: &str = "这张照片太大，无法阅读。选择较小的图像或手动输入代码。";
+const DECODER_BUSY: &str = "路由器正在读取另一张照片。稍后再试一次。";
+const AGAIN: &str = "激活码不会保存，请重新扫描、选择图片或手动输入。";
+const NO_DATA: &str = "路由器尚未连接移动数据。请先连接后再下载；此操作无法使用手机自身的移动数据。";
 
 // --- The app's activation code check (`RouterESimActivationCode.parse`) ---
 
@@ -236,7 +236,7 @@ fn card(v: &Views) -> Markup {
                 } @else {
                     span.eic { (kit::icon(match st { "confirm" => Icon::SimCard, "done" => Icon::Check, _ => Icon::Alert })) }
                 }
-                b { @if st == "idle" { "No download in progress" } @else { (esim::download_text(&d)) } }
+                b { @if st == "idle" { "没有正在进行下载" } @else { (esim::download_text(&d)) } }
             }
             @match st {
                 "confirm" => {
@@ -257,24 +257,24 @@ fn card(v: &Views) -> Markup {
                     }
                 }
                 "failed" => {
-                    p { (error.map_or_else(|| "The operator couldn\u{2019}t add this profile.".to_owned(), scrub)) }
+                    p { (error.map_or_else(|| "运营商无法添加此配置文件。".to_owned(), scrub)) }
                     // The app's Try again opens the code field.
                     p.actions { a.btn href=(MANUAL) { "重试" } }
                 }
                 "cancelled" | "idle" => {
-                    @if error.is_some_and(|e| e.contains("2 minutes")) { p.det { "It wasn\u{2019}t confirmed within 2 minutes." } }
+                    @if error.is_some_and(|e| e.contains("2 minutes")) { p.det { "未在两分钟内确认。" } }
                     p.actions { a.btn.btn-quiet href=(ADD) { "添加 eSIM" } }
                 }
                 _ => p.det {
                     (if installing {
-                        "Keep the router powered on. Installation can\u{2019}t be cancelled at this stage."
+                        "请保持路由器供电。当前安装阶段无法取消。"
                     } else {
-                        "Keep your router connected to the internet. You can close this screen and return to check progress."
+                        "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。"
                     })
                 },
             }
             @if can_cancel {
-                p.actions { button.btn.btn-quiet.bad type="submit" form=(FORM) formaction=(CANCEL) { "Cancel download" } }
+                p.actions { button.btn.btn-quiet.bad type="submit" form=(FORM) formaction=(CANCEL) { "取消下载" } }
             }
         }
     }
@@ -291,7 +291,7 @@ pub fn note(n: Notice) -> Markup {
     html! {
         div.eerr role="alert" {
             b { (kit::icon(Icon::Alert)) (text) }
-            a.btn.btn-quiet.sm href=(DL) { "Check status" }
+            a.btn.btn-quiet.sm href=(DL) { "检查状态" }
         }
     }
 }
@@ -317,8 +317,8 @@ fn entry(pd: &PageData) -> Markup {
     html! {
         div.ahead {
             span.eic.ebig { (kit::icon(Icon::QrScan)) }
-            h2 { "Add a profile to your router" }
-            p.cap { "Use the eSIM QR code from your operator. You\u{2019}ll review the profile before installing it." }
+            h2 { "将配置文件添加到您的路由器" }
+            p.cap { "使用运营商提供的 eSIM 二维码。您\u{2019}将在安装之前查看配置文件。" }
         }
         @if offline(pd) { p.enote { (kit::icon(Icon::Wifi)) span { (NO_DATA) } } }
         @if let Some(n) = &pd.notice { (n) }
@@ -330,10 +330,10 @@ fn entry(pd: &PageData) -> Markup {
             section.card.emsg.ebad role="alert" {
                 span.eic { (kit::icon(Icon::Alert)) }
                 div {
-                    b { "Can\u{2019}t start this download" }
+                    b { "Can\u{2019}t开始下载" }
                     p { (n) }
                     @if n.contains("no mobile data") && !offline(pd) { p.cap { (NO_DATA) } }
-                    @if n.contains("agent password required") { p.cap { "Set the router agent password in Agent Settings, then try again." } }
+                    @if n.contains("agent password required") { p.cap { "在代理设置中设置路由器代理密码，然后重试。" } }
                     p.cap { (AGAIN) }
                 }
             }
@@ -342,35 +342,35 @@ fn entry(pd: &PageData) -> Markup {
             (pd.csrf())
             (once_field(&pd.once()))
             label.fbtn.prim {
-                span { (kit::icon(Icon::Camera)) "Scan QR code" }
+                span { (kit::icon(Icon::Camera)) "扫描二维码" }
                 input type="file" name="scan" accept="image/jpeg,image/png" capture="environment";
             }
             label.fbtn {
-                span { (kit::icon(Icon::Photo)) "Choose QR from Photos" }
+                span { (kit::icon(Icon::Photo)) "从照片中选择二维码" }
                 input type="file" name="photo" accept="image/jpeg,image/png";
             }
             details.eopt open[flag(pd, "manual").is_some() || pd.param("manual").as_deref() == Some("1")] {
-                summary { (kit::icon(Icon::Keyboard)) "Enter code manually" }
+                summary { (kit::icon(Icon::Keyboard)) "手动输入代码" }
                 div.fld {
-                    label for="code" { "Activation code" }
+                    label for="code" { "激活码" }
                     input #code type="password" name="code" placeholder="LPA:1$\u{2026}" maxlength="512" autocomplete="one-time-code"
                         autocapitalize="off" spellcheck="false" "data-1p-ignore" data-lpignore=(ignore) data-bwignore;
                 }
             }
             details.eopt open[flag(pd, "cc").is_some()] {
-                summary { (kit::icon(Icon::LockShield)) "Operator confirmation code (if you have one)" }
+                summary { (kit::icon(Icon::LockShield)) "运营商确认码（如果有的话）" }
                 div.fld {
-                    label for="cc" { "Confirmation code" }
-                    input #cc type="password" name="cc" placeholder="Operator confirmation code" maxlength="64" autocomplete="one-time-code"
+                    label for="cc" { "确认码" }
+                    input #cc type="password" name="cc" placeholder="运营商确认码" maxlength="64" autocomplete="one-time-code"
                         autocapitalize="off" spellcheck="false" "data-1p-ignore" data-lpignore=(ignore) data-bwignore;
-                    small.cap { "Enter the separate confirmation code supplied by your operator (up to 64 characters)." }
+                    small.cap { "输入运营商提供的单独确认码（最多 64 个字符）。" }
                 }
             }
-            button.btn.btn-wide.teal type="submit" disabled[switching] { "Read profile details" }
+            button.btn.btn-wide.teal type="submit" disabled[switching] { "阅读配置文件详细信息" }
         }
         ul.hints {
-            li { (kit::icon(Icon::Wifi)) "Your router needs internet to download the profile. Keep its Wi-Fi connected. Downloads usually take 10\u{2013}60 seconds." }
-            li { (kit::icon(Icon::Lock)) "Your activation code is private and single-use. It is sent only to your router and isn\u{2019}t saved by OpenU60." }
+            li { (kit::icon(Icon::Wifi)) "您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10\u{2013}60 秒。" }
+            li { (kit::icon(Icon::Lock)) "激活码是私密的一次性凭据，只会发送至你的路由器，OpenU60 不会保存它。" }
         }
     }
 }

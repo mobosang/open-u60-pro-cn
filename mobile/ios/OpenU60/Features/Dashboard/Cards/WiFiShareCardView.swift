@@ -121,7 +121,7 @@ struct WiFiShareCardView: View {
                                     Image(systemName: showPassword ? "eye.slash" : "eye")
                                         .foregroundStyle(.secondary)
                                 }
-                                .accessibilityLabel(showPassword ? "Hide password" : "Show password")
+                                .accessibilityLabel(showPassword ? "Hide password" : "显示密码")
 
                                 Button {
                                     UIPasteboard.general.string = currentPassword

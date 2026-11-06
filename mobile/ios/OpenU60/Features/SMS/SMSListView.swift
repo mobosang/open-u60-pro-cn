@@ -110,7 +110,7 @@ struct SMSListView: View {
                     }
                 }
             }
-            .searchable(text: $searchText, prompt: "Search messages")
+            .searchable(text: $searchText, prompt: "搜索消息")
             .refreshable { await viewModel.refresh() }
             .overlay {
                 if viewModel.isLoading && viewModel.conversations.isEmpty {

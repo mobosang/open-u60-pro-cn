@@ -103,7 +103,7 @@ class BandLockViewModel @Inject constructor(
                     isLoading = false,
                     selectedNRBands = emptySet(),
                     selectedLTEBands = emptySet(),
-                    successMessage = "All bands unlocked",
+                    successMessage = "所有频段已解锁",
                 )
             } catch (e: AgentError.Unauthorized) {
                 if (authManager.reauthenticate()) unlockAll()

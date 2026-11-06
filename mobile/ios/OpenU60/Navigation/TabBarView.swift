@@ -37,7 +37,7 @@ struct TabBarView: View {
 
             SMSListView(viewModel: smsVM, client: client, authManager: authManager)
                 .tabItem {
-                    Label("SMS", systemImage: "message")
+                    Label("短信", systemImage: "message")
                 }
                 .tag(Tab.sms)
 

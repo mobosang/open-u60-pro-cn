@@ -28,7 +28,7 @@ struct SMSForwardLogView: View {
                         } else {
                             Image(systemName: entry.success ? "checkmark.circle.fill" : "xmark.circle.fill")
                                 .foregroundStyle(entry.success ? .green : .red)
-                                .accessibilityLabel(entry.success ? "Forwarded" : "Failed")
+                                .accessibilityLabel(entry.success ? "Forwarded" : "失败")
                         }
                     }
                     Text("\(entry.ruleName) → \(entry.destinationType)")

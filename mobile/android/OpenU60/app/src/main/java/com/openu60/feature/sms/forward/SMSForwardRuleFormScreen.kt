@@ -59,7 +59,7 @@ fun SMSForwardRuleFormScreen(
     var slackUrl by remember { mutableStateOf("") }
 
     val destTypes = listOf("telegram", "webhook", "sms", "ntfy", "discord", "slack")
-    val destLabels = listOf("Telegram", "Webhook", "SMS", "ntfy", "Discord", "Slack")
+    val destLabels = listOf("Telegram", "Webhook", "短信", "ntfy", "Discord", "Slack")
 
     fun buildFilter(): SmsFilter = when (filterType) {
         "sender" -> SmsFilter.Sender(senderPatterns.split(",").map { it.trim() }.filter { it.isNotEmpty() })
@@ -98,7 +98,7 @@ fun SMSForwardRuleFormScreen(
                 title = { Text("新规则") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -145,9 +145,9 @@ fun SMSForwardRuleFormScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     listOf(
-                        "all" to "All Messages",
-                        "sender" to "By Sender",
-                        "content" to "By Content",
+                        "all" to "全部短信",
+                        "sender" to "按发件人",
+                        "content" to "按内容",
                         "sender_and_content" to "By Sender & Content",
                     ).forEach { (value, label) ->
                         Row(

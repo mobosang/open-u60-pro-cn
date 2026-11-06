@@ -146,26 +146,26 @@ private struct SignalHistoryChart: View {
             ForEach(history) { point in
                 if let nrRSRP = point.nrRSRP {
                     LineMark(
-                        x: .value("Time", point.timestamp),
+                        x: .value("时间", point.timestamp),
                         y: .value("dBm", nrRSRP)
                     )
-                    .foregroundStyle(by: .value("Type", "NR"))
+                    .foregroundStyle(by: .value("类型", "NR"))
                     .interpolationMethod(.catmullRom)
                 }
                 if showLTE, let lteRSRP = point.lteRSRP {
                     LineMark(
-                        x: .value("Time", point.timestamp),
+                        x: .value("时间", point.timestamp),
                         y: .value("dBm", lteRSRP)
                     )
-                    .foregroundStyle(by: .value("Type", "LTE"))
+                    .foregroundStyle(by: .value("类型", "LTE"))
                     .interpolationMethod(.catmullRom)
                 }
                 if show3G, let wcdmaRSCP = point.wcdmaRSCP {
                     LineMark(
-                        x: .value("Time", point.timestamp),
+                        x: .value("时间", point.timestamp),
                         y: .value("dBm", wcdmaRSCP)
                     )
-                    .foregroundStyle(by: .value("Type", "3G"))
+                    .foregroundStyle(by: .value("类型", "3G"))
                     .interpolationMethod(.catmullRom)
                 }
             }
@@ -307,7 +307,7 @@ private struct CellularPanel: View, Equatable {
             Label(data.title, systemImage: data.systemImage)
                 .font(.headline)
             if data.showsNSAAnchor {
-                badge("NSA Anchor")
+                badge("美国国家安全局锚")
             }
             if data.caActive {
                 badge("\(data.numCC) CC")
@@ -347,7 +347,7 @@ private struct CellularPanel: View, Equatable {
             MetaRow(label: "小区 ID", value: data.cellID)
             MetaRow(label: data.channelLabel, value: data.channel)
             MetaRow(label: "带宽", value: SignalFormat.bandwidth(data.bandwidth, band: data.band, technology: data.technology))
-            MetaRow(label: "CA", value: data.caActive ? "Active (\(data.numCC) CC)" : "Inactive")
+            MetaRow(label: "CA", value: data.caActive ? "Active (\(data.numCC) CC)" : "未启用")
             if data.showsTotalBandwidth, data.caActive, let total = totalBandwidth {
                 MetaRow(label: "总带宽", value: "\(total) MHz")
             }
@@ -551,6 +551,6 @@ struct SignalMetricView: View {
         .padding(.vertical, 2)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
-        .accessibilityValue(value.map { "\(Int($0)) \(unit)" } ?? "Unavailable")
+        .accessibilityValue(value.map { "\(Int($0)) \(unit)" } ?? "不可用")
     }
 }

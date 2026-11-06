@@ -655,35 +655,35 @@ mod tests {
     #[test]
     fn the_toolkit_follows_the_app() {
         let s = toolkit(&views(Some(menu()), None, 1_700_000_000_001)).into_string();
-        assert!(s.starts_with("<section class=\"group\" id=\"stk\"><h2>Test SIM</h2>"), "{s}");
+        assert!(s.starts_with("<section class=\"group\" id=\"stk\"><h2>测试SIM</h2>"), "{s}");
         assert!(s.contains(
-            "<button class=\"it bt\" type=\"submit\" form=\"stkf\" formaction=\"/ui/router/sim-services/stk/select\" name=\"c\" value=\"1700000000001.2\">Plans</button>"
+            "<button class=\"it bt\" type=\"submit\" form=\"stkf\" formaction=\"/ui/router/sim-services/stk/select\" name=\"c\" value=\"1700000000001.2\">计划</button>"
         ), "{s}");
         let n = nav(&views(Some(menu()), None, 0)).into_string();
-        assert!(!n.contains("返回") && !n.contains("Reload") && n.contains("运营商通过您的 SIM 卡提供的服务"), "{n}");
+        assert!(!n.contains("返回") && !n.contains("重新加载") && n.contains("运营商通过您的 SIM 卡提供的服务"), "{n}");
         let mut sub = menu();
         sub["root_menu"] = json!(false);
         sub["busy"] = json!(true);
         let n = nav(&views(Some(sub.clone()), None, 0)).into_string();
-        assert!(n.contains("value=\"1700000000001\" disabled>Back</button>") && n.contains("结束 SIM 会话"), "{n}");
+        assert!(n.contains("value=\"1700000000001\" disabled>返回</button>") && n.contains("结束 SIM 会话"), "{n}");
         assert!(toolkit(&views(Some(sub), None, 0)).into_string().contains("disabled>Balance"));
         // No session: the error, the app's line, Reload.
         let s = toolkit(&views(None, Some("RIL connection failed: <no socket>"), 0)).into_string();
         assert!(s.contains("RIL 连接失败：<无套接字>") && s.contains("重新加载SIM菜单以重新连接。"), "{s}");
-        assert!(nav(&views(None, Some("x"), 0)).into_string().contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">Reload SIM Menu</a>"));
+        assert!(nav(&views(None, Some("x"), 0)).into_string().contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">重新加载SIM菜单</a>"));
         let status = json!({"type": "status", "items": [], "reason": "等待SIM", "busy": true, "command_id": "7"});
         let s = toolkit(&views(Some(status.clone()), None, 0)).into_string();
-        assert!(s.contains("<h2>SIM Toolkit</h2>") && s.contains("等待SIM"), "{s}");
+        assert!(s.contains("<h2>SIM工具包</h2>") && s.contains("等待SIM"), "{s}");
         // Busy: Reload is dimmed, as the app disables the section.
-        assert!(nav(&views(Some(status), None, 0)).into_string().contains("<span class=\"it bt off\" aria-disabled=\"true\">Reload SIM Menu</span>"));
+        assert!(nav(&views(Some(status), None, 0)).into_string().contains("<span class=\"it bt off\" aria-disabled=\"true\">重新加载SIM菜单</span>"));
         // After a failed action (`held`): the app's failure state, not the
         // menu the worker still has; only Reload; no stream.
         let mut held = views(Some(menu()), None, 1_700_000_000_001);
         held.arg |= 1;
         let s = toolkit(&held).into_string();
-        assert_eq!(s, "<section class=\"group\" id=\"stk\"><h2>SIM Toolkit</h2><ul class=\"list\"><li class=\"it\"><span class=\"muted\">Reload the SIM menu to reconnect.</span></li></ul></section>");
+        assert_eq!(s, "<section class=\"group\" id=\"stk\"><h2>SIM工具包</h2><ul class=\"list\"><li class=\"it\"><span class=\"muted\">重新加载SIM菜单以重新连接。</span></li></ul></section>");
         let n = nav(&held).into_string();
-        assert!(n.contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">Reload SIM Menu</a>") && !n.contains("返回") && !n.contains("<button"), "{n}");
+        assert!(n.contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">重新加载SIM菜单</a>") && !n.contains("返回") && !n.contains("<button"), "{n}");
         assert!(!live(&held) && live(&views(Some(menu()), None, 0)));
         assert_eq!(arg(&views(Some(menu()), None, 0), Some("held=1")), 1_700_000_000_001 << 1 | 1);
     }
@@ -695,15 +695,15 @@ mod tests {
         let yn = json!({"type": "input", "text": "购买 1 GB？", "command_id": "9", "root_menu": false,
                         "input": {"min": 1, "max": 1, "yes_no": true}});
         let s = toolkit(&views(Some(yn), None, 9)).into_string();
-        assert!(s.contains("value=\"9.y\">Yes</button>") && s.contains("value=\"9.n\">No</button>") && !s.contains("own"), "{s}");
+        assert!(s.contains("value=\"9.y\">是的</button>") && s.contains("value=\"9.n\">No</button>") && !s.contains("own"), "{s}");
         let text = json!({"type": "input", "text": "输入PIN 0000000000000042", "command_id": "9", "input": {"min": 4, "max": 8, "hidden": true}});
         let s = toolkit(&views(Some(text.clone()), None, 9)).into_string();
         // The SIM's text as it is (the app's).
         assert!(s.contains("class=\"group own\"") && s.contains("输入PIN 0000000000000042") && !s.contains("输入响应"), "{s}");
         let s = toolkit(&views(Some(text), None, 8)).into_string();
-        assert!(!s.contains("own") && s.contains("<a class=\"it bt\" href=\"\">Enter Response</a>"), "{s}");
+        assert!(!s.contains("own") && s.contains("<a class=\"it bt\" href=\"\">输入响应</a>"), "{s}");
         let display = json!({"type": "display", "text": "完成", "command_id": "10"});
-        assert!(toolkit(&views(Some(display), None, 10)).into_string().contains("value=\"10\">Continue</button>"));
+        assert!(toolkit(&views(Some(display), None, 10)).into_string().contains("value=\"10\">继续</button>"));
     }
 
     #[test]

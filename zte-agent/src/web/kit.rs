@@ -17,7 +17,7 @@ pub enum Tab {
 
 const TABS: [(Tab, &str, &str, Icon); 5] = [
     (Tab::Dashboard, "/ui/", "仪表盘", Icon::Gauge),
-    (Tab::Sms, "/ui/sms", "SMS", Icon::Message),
+    (Tab::Sms, "/ui/sms", "短信", Icon::Message),
     (Tab::Tools, "/ui/tools", "工具", Icon::Tools),
     (Tab::Router, "/ui/router", "路由器", Icon::Router),
     (Tab::Settings, "/ui/settings", "设置", Icon::Gear),

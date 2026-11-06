@@ -65,7 +65,7 @@ fun DeviceControlScreen(
                 title = { Text("设备控制") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -193,13 +193,13 @@ fun DeviceControlScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         if (state.powerSaveLoaded) {
-                            ToggleRow("Power Save", state.powerSave) { viewModel.togglePowerSave(it) }
+                            ToggleRow("省电模式", state.powerSave) { viewModel.togglePowerSave(it) }
                         }
                         if (state.fastBootLoaded) {
-                            ToggleRow("Fast Boot", state.fastBoot) { viewModel.toggleFastBoot(it) }
+                            ToggleRow("快速启动", state.fastBoot) { viewModel.toggleFastBoot(it) }
                         }
                         if (state.autoSleepLoaded) {
-                            ToggleRow("Auto Sleep", state.autoSleepEnabled) {
+                            ToggleRow("自动睡眠", state.autoSleepEnabled) {
                                 viewModel.setAutoSleep(it)
                             }
                             if (state.autoSleepEnabled) {

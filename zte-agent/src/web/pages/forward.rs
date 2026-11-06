@@ -736,7 +736,7 @@ pub async fn get(ctx: &Ctx, p: Principal, nonce: String, page: Page) -> Response
             let w = Draw { p: &p, nonce: &n, once: &once, drafts: &drafts, m, stored: s.as_ref() };
             match rule {
                 Some(r) => form(app, &w, &Input::of_rule(&forward::public_rule(r)), None, None, &Vec::new(), 200),
-                None => message(&n, m, "Rule not found", "可能已被删除。", 404),
+                None => message(&n, m, "未找到规则", "可能已被删除。", 404),
             }
         })
     });

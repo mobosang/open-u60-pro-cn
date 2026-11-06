@@ -7,8 +7,8 @@ enum DNSMode: Int, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .auto: "Auto"
-        case .custom: "Custom"
+        case .auto: "自动"
+        case .custom: "自定义"
         case .doh: "DoH"
         case .dot: "DoT"
         }
@@ -153,7 +153,7 @@ final class DNSSettingsViewModel {
         isLoading = true
         do {
             let _ = try await client.postJSON("/api/dns/cache/clear")
-            showMessage("DNS cache cleared", isError: false)
+            showMessage("DNS 缓存清除", isError: false)
             await refresh()
         } catch {
             showMessage("失败：\(error.localizedDescription)", isError: true)

@@ -91,12 +91,12 @@ fun SignalMonitorScreen(
                             SignalRow("RSRQ", nr.rsrq?.let { "${it.toInt()} dB" } ?: "--", numericValue = nr.rsrq?.toInt(), numericSuffix = " dB"),
                             SignalRow("SINR", nr.sinr?.let { "${it.toInt()} dB" } ?: "--", sinrColor(nr.sinr), numericValue = nr.sinr?.toInt(), numericSuffix = " dB"),
                             SignalRow("RSSI", nr.rssi?.let { "${it.toInt()} dBm" } ?: "--", numericValue = nr.rssi?.toInt(), numericSuffix = " dBm"),
-                            SignalRow("Band", if (nr.band.isNotBlank()) "n${nr.band}${if (nrCaActive) " · PCC" else ""}" else "--"),
+                            SignalRow("频段", if (nr.band.isNotBlank()) "n${nr.band}${if (nrCaActive) " · PCC" else ""}" else "--"),
                             SignalRow("PCI", nr.pci.ifBlank { "--" }),
-                            SignalRow("Cell ID", nr.cellID.ifBlank { "--" }),
+                            SignalRow("小区 ID", nr.cellID.ifBlank { "--" }),
                             SignalRow("ARFCN", nr.channel.ifBlank { "--" }),
-                            SignalRow("Bandwidth", nr.bandwidth.ifBlank { "--" }),
-                            SignalRow("CA", if (nrCaActive) "Active (${1 + nr.sccCarriers.size} CC)" else "Inactive"),
+                            SignalRow("带宽", nr.bandwidth.ifBlank { "--" }),
+                            SignalRow("CA", if (nrCaActive) "Active (${1 + nr.sccCarriers.size} CC)" else "未启用"),
                         ),
                         sccCarriers = nr.sccCarriers,
                     )
@@ -109,7 +109,7 @@ fun SignalMonitorScreen(
                 if (lte.hasSignal) {
                     SignalPanel(
                         title = "LTE",
-                        badge = if (showNR) "NSA Anchor" else null,
+                        badge = if (showNR) "美国国家安全局锚" else null,
                         badgeColor = if (showNR) Color(0xFFFF9800) else Color(0xFF2196F3),
                         secondBadge = if (lteCaActive) "${1 + lte.sccCarriers.size} CC" else null,
                         rows = listOf(
@@ -117,12 +117,12 @@ fun SignalMonitorScreen(
                             SignalRow("RSRQ", lte.rsrq?.let { "${it.toInt()} dB" } ?: "--", numericValue = lte.rsrq?.toInt(), numericSuffix = " dB"),
                             SignalRow("SINR", lte.sinr?.let { "${it.toInt()} dB" } ?: "--", sinrColor(lte.sinr), numericValue = lte.sinr?.toInt(), numericSuffix = " dB"),
                             SignalRow("RSSI", lte.rssi?.let { "${it.toInt()} dBm" } ?: "--", numericValue = lte.rssi?.toInt(), numericSuffix = " dBm"),
-                            SignalRow("Band", if (lte.band.isNotBlank()) "B${lte.band}${if (lteCaActive) " · PCC" else ""}" else "--"),
+                            SignalRow("频段", if (lte.band.isNotBlank()) "B${lte.band}${if (lteCaActive) " · PCC" else ""}" else "--"),
                             SignalRow("PCI", lte.pci.ifBlank { "--" }),
-                            SignalRow("Cell ID", lte.cellID.ifBlank { "--" }),
+                            SignalRow("小区 ID", lte.cellID.ifBlank { "--" }),
                             SignalRow("EARFCN", lte.earfcn.ifBlank { "--" }),
-                            SignalRow("Bandwidth", lte.bandwidth.ifBlank { "--" }),
-                            SignalRow("CA", if (lteCaActive) "Active (${1 + lte.sccCarriers.size} CC)" else "Inactive"),
+                            SignalRow("带宽", lte.bandwidth.ifBlank { "--" }),
+                            SignalRow("CA", if (lteCaActive) "Active (${1 + lte.sccCarriers.size} CC)" else "未启用"),
                         ),
                         sccCarriers = lte.sccCarriers,
                     )
@@ -149,7 +149,7 @@ fun SignalMonitorScreen(
                             ambrText?.let { add(SignalRow("AMBR", it)) }
                         },
                         caption = ambrText?.let {
-                            "Down / up. Operator rate cap, set when the data session started. Not a speed test."
+                            "向下/向上。运营商速率上限，在数据会话开始时设置。不是速度测试。"
                         },
                     )
                 }

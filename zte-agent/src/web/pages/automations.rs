@@ -1045,10 +1045,10 @@ mod tests {
             let j = job(json!({"id": 4, "last_status": st, "schedule": {"type": "once"}, "action": {"method": "POST", "path": "/api/x"}}));
             row(&csrf, &j).into_string()
         };
-        assert!(j(json!(200)).contains("<span class=\"dot\" role=\"img\" aria-label=\"Last run succeeded\"></span>"));
-        assert!(j(json!(503)).contains("<span class=\"dot bad\" role=\"img\" aria-label=\"Last run failed\"></span>"));
+        assert!(j(json!(200)).contains("<span class=\"dot\" role=\"img\" aria-label=\"上次运行成功\"></span>"));
+        assert!(j(json!(503)).contains("<span class=\"dot bad\" role=\"img\" aria-label=\"上次运行失败\"></span>"));
         assert!(!j(Value::Null).contains("dot"));
-        assert!(j(Value::Null).contains("<span class=\"rs\">One-time</span><span class=\"rs rd\">POST /api/x</span>"));
+        assert!(j(Value::Null).contains("<span class=\"rs\">单次</span><span class=\"rs rd\">POST /api/x</span>"));
     }
 
     #[test]

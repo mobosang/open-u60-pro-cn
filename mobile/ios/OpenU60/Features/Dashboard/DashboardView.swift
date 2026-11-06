@@ -131,7 +131,7 @@ struct DashboardView: View {
                                 .font(.subheadline).foregroundStyle(.secondary)
                         } else {
                             WiFiCardScope(viewModel: viewModel, showWiFiShare: $showWiFiShare)
-                            Button(showWiFiShare ? "Hide Wi-Fi sharing" : "Share Wi-Fi") { showWiFiShare.toggle() }
+                            Button(showWiFiShare ? "Hide Wi-Fi sharing" : "共享 Wi-Fi") { showWiFiShare.toggle() }
                             if showWiFiShare {
                                 WiFiShareCardScope(viewModel: viewModel, client: client,
                                     authManager: authManager, isExpanded: $showWiFiShare)
@@ -194,7 +194,7 @@ struct DashboardView: View {
             Circle()
                 .fill(isAuthenticated ? .green : .red)
                 .frame(width: 10, height: 10)
-            Text(isAuthenticated ? "Connected" : "Offline")
+            Text(isAuthenticated ? "Connected" : "离线")
                 .font(.caption)
                 .fontWeight(.medium)
                 .foregroundStyle(isAuthenticated ? .green : .red)
@@ -329,7 +329,7 @@ private struct ConnectionSignalDetail: View {
         SignalMonitorView(viewModel: viewModel) {
             ConnectionAddresses(viewModel: dashboard)
             if let networkModeViewModel {
-                NavigationLink("Network mode") { NetworkModeView(viewModel: networkModeViewModel) }
+                NavigationLink("网络模式") { NetworkModeView(viewModel: networkModeViewModel) }
             }
         }
             .navigationBarTitleDisplayMode(.inline)
@@ -456,7 +456,7 @@ private struct HealthOverview: View {
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     VStack(spacing: 6) {
                         temperature("CPU", value: viewModel.thermal.cpuTemp, date: viewModel.thermalUpdatedAt, now: context.date)
-                        temperature("Battery", value: viewModel.battery.temperature, date: viewModel.batteryUpdatedAt, now: context.date)
+                        temperature("电池", value: viewModel.battery.temperature, date: viewModel.batteryUpdatedAt, now: context.date)
                     }
                 }
             }
@@ -481,7 +481,7 @@ private struct WiFiOverview: View {
             VStack(alignment: .leading, spacing: 10) {
                 OverviewHeading(title: "Wi-Fi 和设备", icon: "wifi")
                 HStack(alignment: .firstTextBaseline) {
-                    Text(viewModel.wifiStatus.wifiOn ? "Wi-Fi on" : "Wi-Fi off")
+                    Text(viewModel.wifiStatus.wifiOn ? "Wi-Fi on" : "无线网络关闭")
                         .font(.subheadline).foregroundStyle(viewModel.wifiStatus.wifiOn ? .green : .secondary)
                     Spacer()
                     AnimatedNumber(value: viewModel.connectedDevices.count, font: .title3.bold())

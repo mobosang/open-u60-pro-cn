@@ -14,7 +14,7 @@ struct SchedulerJobFormView: View {
     @State private var restoreEnabled: Bool
     @State private var restoreTime: Date
 
-    private let dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    private let dayLabels = ["Mon", "周二", "周三", "周四", "周五", "周六", "周日"]
 
     init(viewModel: SchedulerViewModel, editingJob: SchedulerJob? = nil) {
         self.viewModel = viewModel
@@ -174,7 +174,7 @@ struct SchedulerJobFormView: View {
                     .disabled(name.isEmpty || (scheduleType == "recurring" && selectedDays.isEmpty))
                 }
             }
-            .navigationTitle(editingJob != nil ? "Edit Automation" : "New Automation")
+            .navigationTitle(editingJob != nil ? "Edit Automation" : "新的自动化")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

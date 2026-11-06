@@ -356,18 +356,18 @@ mod tests {
             (Topic::BatteryInfo, json!({"battery_time_to_full": 37, "battery_time_to_empty": 1240})),
         ]);
         let s = battery_rows(&v).into_string();
-        for want in [">Discharging<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "Time to Full</span><span class=\"v\">\u{2014}"] {
+        for want in [">放电中<", ">-480 mA<", ">1.9 W<", ">3.900 V<", ">20h 40m<", "Time to Full</span><span class=\"v\">\u{2014}"] {
             assert!(s.contains(want), "{want} in {s}");
         }
         // Unknown voltage and current: no Voltage, Current or Power rows.
         let s = battery_rows(&views(vec![(Topic::Battery, json!({"status": "已充满", "capacity": 100}))])).into_string();
-        assert!(s.contains(">Full<") && !s.contains("电压") && !s.contains("当前") && !s.contains("电源"), "{s}");
+        assert!(s.contains(">已充满<") && !s.contains("电压") && !s.contains("当前") && !s.contains("电源"), "{s}");
         assert_eq!(s.matches("<li class=\"it\">").count(), 5);
         let s = battery_rows(&views(vec![(Topic::Battery, json!({"capacity": 50, "current_ua": 120_000}))])).into_string();
-        assert!(s.contains(">Unavailable<") && s.contains(">120 mA<") && !s.contains("电源"), "{s}");
+        assert!(s.contains(">不可用<") && s.contains(">120 mA<") && !s.contains("电源"), "{s}");
         // Nothing read yet.
         let s = battery_rows(&views(vec![])).into_string();
-        assert!(s.contains("Capacity</span><span class=\"v\">\u{2014}") && s.contains(">Unavailable<"), "{s}");
+        assert!(s.contains("Capacity</span><span class=\"v\">\u{2014}") && s.contains(">不可用<"), "{s}");
     }
 
     #[test]
@@ -384,10 +384,10 @@ mod tests {
         // zeroc and a repeated zone are left out; 999 °C is no reading.
         assert_eq!(names, ["cpuss-0", "cpuss-1", "usb", "sys-therm-2", "pmx75_tz", "xo-therm", "<b>odd</b>"]);
         let all = hl_all(&v).into_string();
-        assert!(all.contains("<dt>CPU sensor 0<small class=\"lbl\">cpuss-0</small></dt><dd>40.1 °C</dd>"), "{all}");
-        assert!(all.contains("<dt>Board sensor 2<small class=\"lbl\">sys-therm-2</small></dt><dd class=\"muted\">Unavailable</dd>"));
+        assert!(all.contains("<dt>CPU传感器 0<small class=\"lbl\">cpuss-0</small></dt><dd>40.1 °C</dd>"), "{all}");
+        assert!(all.contains("<dt>板传感器 2<small class=\"lbl\">sys-therm-2</small></dt><dd class=\"muted\">不可用</dd>"));
         // The raw name only when it differs; device text escaped.
-        assert!(all.contains("<dt>&lt;b&gt;odd&lt;/b&gt;</dt><dd class=\"muted\">Unavailable</dd>"), "{all}");
+        assert!(all.contains("<dt>&lt;b&gt;odd&lt;/b&gt;</dt><dd class=\"muted\">不可用</dd>"), "{all}");
     }
 
     /// The temperature rows show "—" once the reading is 10 s old and
@@ -403,7 +403,7 @@ mod tests {
         let s = hl_temps(&at(3, 3)).into_string();
         for want in [
             "CPU · hottest sensor</dt><dd><b>41.5 °C</b>", "Battery</dt><dd><b>26.0 °C</b>", "USB</dt><dd><b>33.0 °C</b>",
-            "Board sensor 2</dt><dd class=\"muted\">Unavailable</dd>", "Power chip · PMX75</dt><dd><b>38.2 °C</b>",
+            "Board sensor 2</dt><dd class=\"muted\">不可用</dd>", "Power chip · PMX75</dt><dd><b>38.2 °C</b>",
             "3秒前更新 · 每2秒刷新一次",
         ] {
             assert!(s.contains(want), "{want} in {s}");
@@ -438,7 +438,7 @@ mod tests {
             assert!(!html.contains("<details") && !html.contains("<summary"), "{}", f.id);
         }
         // The fragment sits inside the disclosure, never around it.
-        assert!(page.contains("<details><summary>All sensors</summary><dl class=\"kv tk\" id=\"hl-all\">"), "{page}");
+        assert!(page.contains("<details><summary>所有传感器</summary><dl class=\"kv tk\" id=\"hl-all\">"), "{page}");
         for want in [
             "<section class=\"card ctr\" id=\"hl-cpu\">", "<p class=\"big\">12.3%</p>", "<p class=\"cap num\">41.5 °C</p>",
             "<a class=\"nl\" href=\"/ui/health/cpu\">CPU, memory &amp; processes</a>", "温度",
@@ -449,7 +449,7 @@ mod tests {
         // No sensors: an empty list, which CSS hides with its "All sensors"
         // (the app shows it only with sensors); live updates still find it.
         let none = health_body(&views(vec![(Topic::Health, json!({"cpu": {"overall": 5}, "thermal": {"sensors": []}}))])).into_string();
-        assert!(none.contains("<details><summary>All sensors</summary><dl class=\"kv tk\" id=\"hl-all\"></dl></details>"), "{none}");
+        assert!(none.contains("<details><summary>所有传感器</summary><dl class=\"kv tk\" id=\"hl-all\"></dl></details>"), "{none}");
         assert!(none.contains("<p class=\"cap num\">—</p>"), "{none}");
         assert!(include_str!("../assets/app.css").contains("details:has(>#hl-all:empty) { display: none; }"));
     }
@@ -477,7 +477,7 @@ mod tests {
         assert!(s.contains("<li class=\"it\" id=\"hc-cores\">"));
         // The app's Processes row: the bloat summary in orange, a link to the list.
         assert!(s.contains("<a class=\"it\" href=\"/ui/health/processes\">"), "{s}");
-        assert!(s.contains("<span>Processes</span><span class=\"v c-orange\">4 bloat 2%</span></a>"), "{s}");
+        assert!(s.contains("<span>流程</span><span class=\"v c-orange\">4 bloat 2%</span></a>"), "{s}");
         for f in &CPU {
             assert!(s.contains(&(f.render)(&v).into_string()), "{}", f.id);
         }
@@ -491,7 +491,7 @@ mod tests {
         }
         assert!(!s.contains("已用内存"));
         // Without a summary the row still opens the list.
-        assert!(s.contains("<span>Processes</span></a>"), "{s}");
+        assert!(s.contains("<span>流程</span></a>"), "{s}");
     }
 
     #[test]

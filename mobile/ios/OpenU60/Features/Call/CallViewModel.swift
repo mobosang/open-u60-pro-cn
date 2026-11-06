@@ -1,7 +1,7 @@
 import SwiftUI
 import os
 
-private let logger = Logger(subsystem: "com.zte.companion", category: "Call")
+private let logger = Logger(subsystem: "com.zte.companion", category: "呼叫")
 
 enum CallState: Equatable {
     case idle

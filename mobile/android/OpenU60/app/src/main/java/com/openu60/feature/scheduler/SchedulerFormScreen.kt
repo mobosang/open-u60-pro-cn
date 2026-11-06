@@ -36,7 +36,7 @@ fun SchedulerFormScreen(
                 title = { Text("新安排的工作") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -102,7 +102,7 @@ fun SchedulerFormScreen(
                     Text("计划", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     Row {
-                        listOf("recurring" to "Recurring", "once" to "One-time").forEach { (value, label) ->
+                        listOf("recurring" to "重复", "once" to "单次").forEach { (value, label) ->
                             Row(
                                 modifier = Modifier.padding(end = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -128,7 +128,7 @@ fun SchedulerFormScreen(
 
                     if (scheduleType == "recurring") {
                         Spacer(modifier = Modifier.height(8.dp))
-                        val dayNames = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+                        val dayNames = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             dayNames.forEachIndexed { index, day ->
                                 FilterChip(

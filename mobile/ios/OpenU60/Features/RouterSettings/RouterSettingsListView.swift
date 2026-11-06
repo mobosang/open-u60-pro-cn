@@ -90,7 +90,7 @@ struct RouterSettingsListView: View {
 
                 Section("安全") {
                     NavigationLink(value: Route.firewall) {
-                        Label("Firewall", systemImage: "shield.lefthalf.filled")
+                        Label("防火墙", systemImage: "shield.lefthalf.filled")
                     }
 
                     NavigationLink(value: Route.telemetryBlocker) {

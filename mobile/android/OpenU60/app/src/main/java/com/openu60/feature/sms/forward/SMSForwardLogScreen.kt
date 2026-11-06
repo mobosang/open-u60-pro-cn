@@ -33,7 +33,7 @@ fun SMSForwardLogScreen(
                 title = { Text("转发日志") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -138,7 +138,7 @@ private fun LogEntryItem(entry: ForwardLogEntry) {
                     style = MaterialTheme.typography.labelSmall,
                 )
                 else -> Text(
-                    entry.error ?: "Failed",
+                    entry.error ?: "失败",
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.labelSmall,
                 )

@@ -76,7 +76,7 @@ class ATTerminalViewModel @Inject constructor(
         val cmd = _state.value.currentCommand.trim()
         if (cmd.isEmpty()) return
         if (!cmd.uppercase().startsWith("AT")) {
-            addEntry(ATHistoryEntry(command = cmd, response = "Error: Command must start with AT", port = "", elapsedMs = 0, isError = true))
+            addEntry(ATHistoryEntry(command = cmd, response = "错误：命令必须以 AT 开头", port = "", elapsedMs = 0, isError = true))
             return
         }
         if (dangerousPatterns.any { cmd.uppercase().contains(it) }) {

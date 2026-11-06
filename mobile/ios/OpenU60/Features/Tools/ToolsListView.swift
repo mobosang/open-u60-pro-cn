@@ -144,11 +144,11 @@ struct ToolsListView: View {
         case .config:
             ConfigToolView()
         case .ttlSettings:
-            PlaceholderView(title: "TTL设置", icon: "number", description: "Set TTL override via iptables. Requires shell access.")
+            PlaceholderView(title: "TTL设置", icon: "number", description: "通过 iptables 设置 TTL 覆盖。需要外壳访问权限。")
         case .enableSSH:
-            PlaceholderView(title: "启用SSH", icon: "terminal", description: "Install and start dropbear SSH server. Requires ADB USB connection.")
+            PlaceholderView(title: "启用SSH", icon: "terminal", description: "安装并启动dropbear SSH服务器。需要 ADB USB 连接。")
         case .deviceExplorer:
-            PlaceholderView(title: "设备资源管理器", icon: "folder", description: "Browse filesystem and collect device info. Requires ADB USB connection.")
+            PlaceholderView(title: "设备资源管理器", icon: "folder", description: "浏览文件系统并收集设备信息。需要 ADB USB 连接。")
         }
     }
 }

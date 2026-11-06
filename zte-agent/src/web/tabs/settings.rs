@@ -41,7 +41,7 @@ pub static SETTINGS: Screen = Screen {
 pub static INSTALL: Screen = Screen {
     path: https::PAGE,
     id: "install",
-    title: "Install on Your Devices",
+    title: "在您的设备上安装",
     tab: Tab::Settings,
     bar: Bar::Back("/ui/settings", "设置"),
     blocks: &[Block::Custom(https::install)],

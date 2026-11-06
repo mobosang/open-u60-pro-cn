@@ -16,7 +16,7 @@ struct STCView: View {
 
             Section("状态") {
                 LabeledContent("STC") {
-                    Text(viewModel.config.enabled ? "Enabled" : "Disabled")
+                    Text(viewModel.config.enabled ? "Enabled" : "已禁用")
                         .foregroundStyle(viewModel.config.enabled ? .green : .secondary)
                 }
             }

@@ -160,7 +160,7 @@ final class DeviceControlViewModel {
 
         do {
             let _ = try await client.postJSON("/api/device/reboot")
-            showMessage("Router is rebooting...", isError: false)
+            showMessage("路由器正在重启...", isError: false)
         } catch {
             showMessage("失败：\(error.localizedDescription)", isError: true)
         }

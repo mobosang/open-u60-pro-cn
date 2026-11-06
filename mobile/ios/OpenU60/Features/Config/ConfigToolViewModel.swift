@@ -48,7 +48,7 @@ final class ConfigToolViewModel {
         let payload = data.subdata(in: payloadStart..<data.count)
 
         if header.payloadType == .plain {
-            finishDecrypt(payload, key: KnownKey(description: "Unencrypted", keyBytes: Data()))
+            finishDecrypt(payload, key: KnownKey(description: "未加密", keyBytes: Data()))
             return
         }
 

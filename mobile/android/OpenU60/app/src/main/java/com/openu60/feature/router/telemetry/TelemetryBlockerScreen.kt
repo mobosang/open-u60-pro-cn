@@ -31,7 +31,7 @@ fun TelemetryBlockerScreen(
                 title = { Text("遥测拦截") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -124,7 +124,7 @@ fun TelemetryBlockerScreen(
                                 ) {
                                     Text(rule.domain, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                                     IconButton(onClick = { viewModel.removeRule(rule.id) }) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Remove", tint = MaterialTheme.colorScheme.error)
+                                        Icon(Icons.Default.Delete, contentDescription = "移除", tint = MaterialTheme.colorScheme.error)
                                     }
                                 }
                                 HorizontalDivider()

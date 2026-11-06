@@ -27,8 +27,8 @@ enum SignalActivityMode: Equatable {
         case .lteCA: "4G+"
         case .nsa: "5G NSA"
         case .sa: "5G SA"
-        case .noService: "No service"
-        case .unknown: "Mode unknown"
+        case .noService: "没有服务"
+        case .unknown: "模式未知"
         }
     }
     var showsLTE: Bool { self == .lte || self == .lteCA || self == .nsa }

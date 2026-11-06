@@ -30,7 +30,7 @@ fun SignalDetectScreen(
                 title = { Text("信号检测") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -101,8 +101,8 @@ fun SignalDetectScreen(
                                 Column {
                                     // Header
                                     Row {
-                                        TableCell("Type", FontWeight.Bold)
-                                        TableCell("Band", FontWeight.Bold)
+                                        TableCell("类型", FontWeight.Bold)
+                                        TableCell("频段", FontWeight.Bold)
                                         TableCell("EARFCN", FontWeight.Bold)
                                         TableCell("PCI", FontWeight.Bold)
                                         TableCell("RSRP", FontWeight.Bold)

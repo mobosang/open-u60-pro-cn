@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import os
 
-private let logger = Logger(subsystem: "com.zte.companion", category: "Dashboard")
+private let logger = Logger(subsystem: "com.zte.companion", category: "仪表盘")
 
 /// Which cadence groups a single refresh pass should fetch.
 ///

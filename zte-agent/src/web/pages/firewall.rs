@@ -66,16 +66,16 @@ const LEVELS: [(&str, &str); 3] = [("low", "低"), ("medium", "中等"), ("high"
 /// The app's protocols (value, label).
 const PROTOCOLS: [(&str, &str); 3] = [("tcp", "TCP"), ("udp", "UDP"), ("tcp+udp", "TCP + UDP")];
 
-const LOCK: &str = "Connections the firewall doesn\u{2019}t allow are blocked, which can cut access to the router or to devices on it.";
+const LOCK: &str = "防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。";
 /// The remote line where the firewall may block this browser's own way in.
-const REMOTE_LOCK: &str = "You are connected remotely: if the firewall blocks this connection, change it back from a device on the router\u{2019}s Wi-Fi.";
-const STALE: &str = "The rule list was out of date and has been reloaded. Try again.";
+const REMOTE_LOCK: &str = "你正在远程连接。如果防火墙阻止此连接，请通过连接路由器 Wi-Fi 的设备恢复设置。";
+const STALE: &str = "规则列表已过期，现已重新加载，请重试。";
 /// Less filtering: the agent refuses the mobile side itself
 /// (`httpd::mobile`), the router's other services do not.
-const EXPOSED: &str = "The router\u{2019}s other services, such as SSH on port 2222 and the firmware\u{2019}s own web pages, may become reachable from the mobile network. This web UI and the agent\u{2019}s API keep refusing connections from it.";
+const EXPOSED: &str = "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。";
 /// The same while the agent serves that side too (`ZTE_AGENT_ALLOW_MOBILE=1`,
 /// or its interface lookup fails).
-const EXPOSED_ALL: &str = "The router itself, this web UI included, may become reachable from the mobile network; only the agent password then protects it.";
+const EXPOSED_ALL: &str = "路由器本身及此管理网页可能变得可从移动网络访问，届时仅由 Agent 密码保护。";
 
 /// What less filtering exposes.
 fn exposed() -> &'static str {
@@ -143,7 +143,7 @@ impl Rule {
     /// The app's row title.
     fn title(&self) -> &str {
         if self.name.is_empty() {
-            "Rule"
+            "规则"
         } else {
             &self.name
         }
@@ -192,7 +192,7 @@ fn rule_row(r: &Rule, g: &str) -> Markup {
                 small { (r.route()) }
             }
             // The app's swipe to delete (asked first on the web).
-            a.del href=(href) aria-label=(format!("Delete {}", r.title())) { (kit::icon(Icon::Trash)) }
+            a.del href=(href) aria-label=(format!("删除 {}", r.title())) { (kit::icon(Icon::Trash)) }
         }
     }
 }
@@ -227,7 +227,7 @@ fn on_link(path: &str, on: bool) -> String {
 pub fn page(pd: &PageData) -> Markup {
     let d = match pd.reads.first() {
         Some(Ok(d)) => d,
-        Some(Err(e)) => return html! { p.msg.err role="alert" { "Failed to load firewall: " (fmt::truncate(e, 120)) } },
+        Some(Err(e)) => return html! { p.msg.err role="alert" { "加载防火墙失败： " (fmt::truncate(e, 120)) } },
         None => return html! {},
     };
     let c = Config::of(d);
@@ -239,48 +239,48 @@ pub fn page(pd: &PageData) -> Markup {
     let filters = pd.read(2).filter(|l| l["rule_list"].as_array().is_some_and(|a| !a.is_empty()));
     let none = html! {};
     html! {
-        (kit::section(Some("Firewall"), None, html! {
+        (kit::section(Some("防火墙"), None, html! {
             li.it { span { "状态" } @if c.enabled { span.c-green { "已启用" } } @else { span.v { "已禁用" } } }
-            li { a.it.bt href=(on_link(SWITCH, !c.enabled)) { span { (if c.enabled { "Disable Firewall" } else { "Enable Firewall" }) } } }
+            li { a.it.bt href=(on_link(SWITCH, !c.enabled)) { span { (if c.enabled { "禁用防火墙" } else { "启用防火墙" }) } } }
             @if c.enabled {
                 // The app's picker: each level a link to its question.
                 li.it.lv {
-                    span { "Level" }
-                    span.seg role="group" aria-label="Level" {
+                    span { "等级" }
+                    span.seg role="group" aria-label="等级" {
                         @for (v, l) in LEVELS {
                             @if v == c.level { span aria-current="true" { (l) } } @else { a href=(format!("{LEVEL}?level={v}")) { (l) } }
                         }
                     }
                 }
             }
-            (kit::kv_row(None, "WAN Ping", if c.ping_blocked { "Blocked" } else { "Allowed" }))
+            (kit::kv_row(None, "万平", if c.ping_blocked { "被封锁" } else { "允许" }))
         }))
         (kit::section(Some("NAT / UPnP"), None, html! {
             (kit::switch_row(&none, "NAT", Some(c.nat), Act::Link(&on_link(NAT, true)), Act::Link(&on_link(NAT, false))))
-            (kit::switch_row(&none, "UPnP", upnp, Act::Link(&on_link(UPNP, true)), Act::Link(&on_link(UPNP, false))))
+            (kit::switch_row(&none, "通用即插即用", upnp, Act::Link(&on_link(UPNP, true)), Act::Link(&on_link(UPNP, false))))
         }))
         (form_error(pd))
         form.rf.dmz method="post" action=(DMZ) autocomplete="off" {
             (pd.csrf())
             (once_field(&pd.once()))
             (kit::section(Some("DMZ"), None, html! {
-                (switch("dmz", "Enable DMZ", dmz_on, "it", "sr"))
+                (switch("dmz", "启用DMZ", dmz_on, "it", "sr"))
                 // Shown while Enable DMZ is on (CSS; without `:has()` always).
-                (text_row("ip", "DMZ Host IP", &dmz_ip, f.and_then(|f| f.error("ip")), "it fld dip", 15, Some("decimal")))
-                li { button.it.cv.snd type="submit" { "Apply DMZ" } }
+                (text_row("ip", "DMZ主机IP", &dmz_ip, f.and_then(|f| f.error("ip")), "it fld dip", 15, Some("decimal")))
+                li { button.it.cv.snd type="submit" { "申请DMZ" } }
             }))
         }
         (kit::section(Some("端口转发"), None, html! {
             (kit::switch_row(&none, "启用", Some(c.pf), Act::Link(&on_link(PF_SWITCH, true)), Act::Link(&on_link(PF_SWITCH, false))))
             @if c.pf {
                 // The app's button (blue, no chevron).
-                li { a.it.bt href=(NEW) { (kit::icon(Icon::Plus)) span { "Add Rule" } } }
+                li { a.it.bt href=(NEW) { (kit::icon(Icon::Plus)) span { "添加规则" } } }
                 @match pd.reads.get(1) {
                     Some(Ok(list)) => {
                         @let g = generation(list);
                         @for r in rules(list) { (rule_row(&r, &g)) }
                     }
-                    Some(Err(e)) => li.it.off { span { "Failed to load port forwarding rules: " (fmt::truncate(e, 120)) } },
+                    Some(Err(e)) => li.it.off { span { "加载端口转发规则失败： " (fmt::truncate(e, 120)) } },
                     None => {}
                 }
             }
@@ -303,16 +303,16 @@ pub fn rule_form(pd: &PageData) -> Markup {
         form.rf.pff method="post" action=(PF_ADD) autocomplete="off" {
             (pd.csrf())
             (once_field(&pd.once()))
-            (kit::section(Some("Rule"), None, html! {
+            (kit::section(Some("规则"), None, html! {
                 (text_row("pfname", "名称", &typed("pfname"), err("pfname"), "it fld", 32, None))
-                (select_row("proto", "Protocol", &protos, proto, None, "it"))
+                (select_row("proto", "协议", &protos, proto, None, "it"))
             }))
-            (kit::section(Some("WAN"), None, text_row("wan", "WAN Port", &typed("wan"), err("wan"), "it fld", 5, Some("numeric"))))
+            (kit::section(Some("WAN"), None, text_row("wan", "广域网端口", &typed("wan"), err("wan"), "it fld", 5, Some("numeric"))))
             (kit::section(Some("LAN"), None, html! {
                 (text_row("ip", "LAN IP", &typed("ip"), err("ip"), "it fld", 15, Some("decimal")))
-                (text_row("lan", "LAN Port", &typed("lan"), err("lan"), "it fld", 5, Some("numeric")))
+                (text_row("lan", "局域网接口", &typed("lan"), err("lan"), "it fld", 5, Some("numeric")))
             }))
-            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "Add Rule" } } }))
+            (kit::section(None, None, html! { li { button.it.cv.snd type="submit" { "添加规则" } } }))
         }
     }
 }
@@ -347,7 +347,7 @@ fn lan_net(app: &AppState) -> Option<(Ipv4Addr, u32)> {
 fn host_error(net: Option<(Ipv4Addr, u32)>, s: &str) -> Option<String> {
     let Some(a) = lan::ip(s) else { return Some("输入 IPv4 地址，例如 192.168.0.50。".into()) };
     let Some((router, m)) = net else {
-        return Some("Couldn\u{2019}t read the router\u{2019}s network. Try again.".into());
+        return Some("Couldn\u{2019}t 读取路由器\u{2019}s 网络。再试一次。".into());
     };
     let (x, net) = (u32::from(a), u32::from(router) & m);
     let last = net | !m;
@@ -450,11 +450,11 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         ask_lines(title.to_owned(), lines.iter().map(|l| (*l).to_owned()).collect(), label, locks)
     };
     match kind {
-        Kind::FwSwitch if on => ask("是否开启防火墙？", &["传入连接再次被过滤。", LOCK], "Enable Firewall", true),
+        Kind::FwSwitch if on => ask("是否开启防火墙？", &["传入连接再次被过滤。", LOCK], "启用防火墙", true),
         Kind::FwSwitch => ask(
             "关闭防火墙？",
             &["路由器上的设备失去防火墙\u{2019} 的互联网保护。", exposed()],
-            "Disable Firewall",
+            "禁用防火墙",
             false,
         ),
         Kind::FwLevel => {
@@ -501,8 +501,8 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         }
         Kind::FwPfSwitch => ask(
             "关闭端口转发？",
-            &["The forwarded ports close: what devices serve through them can\u{2019}t be reached from the internet."],
-            "Turn Off Port Forwarding",
+            &["转发端口将关闭，互联网将无法通过这些端口访问设备提供的服务。"],
+            "关闭端口转发",
             false,
         ),
         Kind::FwDmz => {
@@ -516,14 +516,14 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
                 return nothing("没有什么可申请的", vec![line]);
             }
             if on {
-                let mut lines = vec![format!("Connections from the internet that no other rule takes go to {ip}: every port of that device can be reached from the internet.")];
+                let mut lines = vec![format!("未被其他规则处理的互联网连接将转发至 {ip}，该设备的所有端口都可能从互联网访问。")];
                 if c.dmz && !c.dmz_ip.is_empty() {
                     lines.push(format!("{} stops receiving them.", c.dmz_ip));
                 }
-                ask_lines(format!("Make {ip} the DMZ host?"), lines, "Apply DMZ", false)
+                ask_lines(format!("将{ip}设为DMZ主机？"), lines, "申请DMZ", false)
             } else {
-                let host = if c.dmz_ip.is_empty() { "The DMZ host" } else { c.dmz_ip.as_str() };
-                ask_lines("Turn off DMZ?".into(), vec![format!("{host} no longer receives connections from the internet that no other rule takes.")], "Apply DMZ", false)
+                let host = if c.dmz_ip.is_empty() { "DMZ主机" } else { c.dmz_ip.as_str() };
+                ask_lines("关闭DMZ？".into(), vec![format!("{host} no longer receives connections from the internet that no other rule takes.")], "申请DMZ", false)
             }
         }
         Kind::FwPfAdd => {
@@ -531,22 +531,22 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             let (wan, ip, lan) = (val(vals, "wan"), val(vals, "ip"), val(vals, "lan"));
             let mut lines = vec![format!("{proto} WAN port {wan} goes to {ip}:{lan}: that port of the device can be reached from the internet.")];
             if super::api_get(app, API).is_ok_and(|d| !Config::of(&d).pf) {
-                lines.push("Port forwarding is off: the rule applies once it is turned on.".into());
+                lines.push("端口转发关闭：开启后规则生效。".into());
             }
             let name = val(vals, "pfname");
-            let title = if name.is_empty() { "Add this port forward?".to_owned() } else { format!("Add \u{201c}{name}\u{201d}?") };
-            ask_lines(title, lines, "Add Rule", false)
+            let title = if name.is_empty() { "添加此端口转发？".to_owned() } else { format!("添加\u{201c}{name}\u{201d}？") };
+            ask_lines(title, lines, "添加规则", false)
         }
         _ => {
             let list = match super::api_get(app, PF_API) {
                 Ok(l) => l,
-                Err(e) => return nothing("Failed to load port forwarding rules", vec![fmt::truncate(&e, 120)]),
+                Err(e) => return nothing("加载端口转发规则失败", vec![fmt::truncate(&e, 120)]),
             };
             if generation(&list) != val(vals, "g") {
-                return nothing("The rule list changed", vec!["It changed since this page was loaded. Go back and choose the rule again.".into()]);
+                return nothing("规则列表变更", vec!["自该页面加载后发生了变化。返回并再次选择规则。".into()]);
             }
             match rules(&list).into_iter().find(|r| r.id == val(vals, "id")) {
-                None => nothing("Rule not found", vec!["可能已被删除。".into()]),
+                None => nothing("未找到规则", vec!["可能已被删除。".into()]),
                 Some(r) => ask_lines(
                     format!("删除\u{201c}{}\u{201d}？", r.title()),
                     vec![format!("{} stops: what it serves can\u{2019}t be reached from the internet any more.", r.route())],
@@ -567,13 +567,13 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
         Kind::FwSwitch => {
             claim.disarm();
             call(Method::Put, "/api/router/firewall/switch", json!({"firewall_switch": s, "enable": n}))?;
-            line(format!("Firewall {state}"))
+            line(format!("防火墙{state}"))
         }
         Kind::FwLevel => {
             let level = val(vals, "level");
             claim.disarm();
             call(Method::Put, "/api/router/firewall/level", json!({"firewall_level": level, "level": level}))?;
-            line(format!("Firewall level set to {level}"))
+            line(format!("防火墙级别设置为{level}"))
         }
         Kind::FwNat => {
             claim.disarm();
@@ -589,12 +589,12 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
             let (s, n, _) = set(val(vals, "dmz") == "1");
             claim.disarm();
             call(Method::Put, "/api/router/firewall/dmz", json!({"dmz_enabled": s, "dmz_ip": val(vals, "ip"), "dmz_enable": n}))?;
-            line("DMZ settings updated".into())
+            line("DMZ 设置更新".into())
         }
         Kind::FwPfSwitch => {
             claim.disarm();
             call(Method::Put, "/api/router/firewall/port-forward/switch", json!({"port_forward_switch": s, "portforward_enable": n}))?;
-            line(format!("Port forwarding {state}"))
+            line(format!("端口转发{state}"))
         }
         Kind::FwPfAdd => {
             let (name, proto, wan, ip) = (val(vals, "pfname"), val(vals, "proto"), val(vals, "wan"), val(vals, "ip"));
@@ -604,7 +604,7 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
             });
             claim.disarm();
             call(Method::Post, PF_API, body)?;
-            line("Port forward rule added".into())
+            line("添加端口转发规则".into())
         }
         _ => {
             let list = super::api_get(app, PF_API).map_err(|e| (503, failed(&e)))?;
@@ -613,11 +613,11 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
             }
             let id = val(vals, "id");
             if !rules(&list).iter().any(|r| r.id == id) {
-                return Err((404, "Rule not found".into()));
+                return Err((404, "未找到规则".into()));
             }
             claim.disarm();
             call(Method::Post, PF_API, json!({"action": "delete", "id": id, "section_id": [id]}))?;
-            line("Port forward rule deleted".into())
+            line("端口转发规则已删除".into())
         }
     }
 }
@@ -635,12 +635,12 @@ mod tests {
         let c = Config::of(&json!({"firewall_switch": "0", "wan_ping_filter": "1", "port_forward_switch": "1"}));
         assert!(!c.enabled && c.level == "medium" && c.ping_blocked && c.pf);
         let list = json!({"rule_list": [
-            {"name": "Web", "protocol": "tcp", "wan_port": "8080", "lan_ip": "192.168.0.50", "lan_port": "80", "enabled": "1"},
-            {"section_id": "cfg0a1b2c", "comment": "Game", "proto": "udp", "src_dport": "3074", "dest_ip": "192.168.0.60"},
+            {"name": "网络", "protocol": "tcp", "wan_port": "8080", "lan_ip": "192.168.0.50", "lan_port": "80", "enabled": "1"},
+            {"section_id": "cfg0a1b2c", "comment": "游戏", "proto": "udp", "src_dport": "3074", "dest_ip": "192.168.0.60"},
         ]});
         let r = rules(&list);
         assert_eq!((r[0].id.as_str(), r[0].route().as_str(), r[0].enabled), ("0", "TCP WAN:8080 \u{2192} 192.168.0.50:80", true));
-        assert_eq!((r[1].id.as_str(), r[1].title(), r[1].route().as_str(), r[1].enabled), ("cfg0a1b2c", "Game", "UDP WAN:3074 \u{2192} 192.168.0.60:", false));
+        assert_eq!((r[1].id.as_str(), r[1].title(), r[1].route().as_str(), r[1].enabled), ("cfg0a1b2c", "游戏", "UDP WAN:3074 \u{2192} 192.168.0.60:", false));
         assert_eq!(generation(&list), generation(&list.clone()));
         assert_ne!(generation(&list), generation(&json!({"rule_list": []})));
         assert_eq!(protocols("tcp+udp"), (true, true));
@@ -665,7 +665,7 @@ mod tests {
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
         assert!(host_error(net, "nope").unwrap().starts_with("输入 IPv4"));
         for unread in ["10.0.0.9", "192.168.0.1", "8.8.8.8"] {
-            assert_eq!(host_error(None, unread).as_deref(), Some("Couldn\u{2019}t read the router\u{2019}s network. Try again."), "{unread}");
+            assert_eq!(host_error(None, unread).as_deref(), Some("Couldn\u{2019}t 读取路由器\u{2019}s 网络。再试一次。"), "{unread}");
         }
         assert!(host_error(net, "192.168.0.50 ").unwrap().starts_with("输入 IPv4"));
         assert_eq!(port("8080"), Some(8080));

@@ -123,7 +123,7 @@ data class RouterESimInventory(
         get() {
             val message = errorMessage ?: return null
             return when (errorKind) {
-                "sim_reloading" -> "The eSIM is still settling after the switch."
+                "sim_reloading" -> "切换后 eSIM 仍在准备中。"
                 "management_unavailable" -> "The eSIM's management app isn't responding ($message)."
                 else -> message
             }
@@ -160,21 +160,21 @@ data class RouterESimSwitchStatus(
 
     /** Shown while the switch runs: the eSIM refused for now and the router keeps trying. */
     val progressNote: String?
-        get() = if (state == "card_busy") "The eSIM is busy and refused the switch for now. The router keeps trying for up to 4 minutes." else null
+        get() = if (state == "card_busy") "eSIM 正忙，暂时拒绝切换。路由器会持续尝试长达 4 分钟。" else null
 
     /** Why a finished switch did not reach `connected`. */
     val outcomeNote: String?
         get() = when (state) {
             "no_data" -> when (reason) {
-                "roaming_off" -> "This profile roams on a local network and Data Roaming is off. Turn on Data Roaming in Mobile Network."
-                "data_off" -> "The profile is active, but Mobile Data is off. Turn it on in Mobile Network."
-                else -> "The profile is active, but mobile data hasn't connected. Check the plan or coverage."
+                "roaming_off" -> "此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。"
+                "data_off" -> "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。"
+                else -> "配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。"
             }
-            "modem_unconfirmed" -> "The eSIM switched, but the router still uses the previous SIM. Restart the router to finish."
-            "card_unconfirmed" -> "The eSIM couldn't be read after the switch. Refresh in a moment."
+            "modem_unconfirmed" -> "eSIM已更换，但路由器仍使用之前的SIM。重新启动路由器即可完成。"
+            "card_unconfirmed" -> "切换后无法读取eSIM。一会儿刷新一下。"
             "not_applied" ->
-                if (reason == "card_busy") "The eSIM stayed busy and didn't switch; the previous profile is still active. Try again in a few minutes."
-                else "The switch didn't happen; the previous profile is still active."
+                if (reason == "card_busy") "eSIM 保持忙碌状态，不切换；之前的配置文件仍然有效。几分钟后重试。"
+                else "切换没有发生；之前的配置文件仍然有效。"
             else -> null
         }
 }
@@ -296,7 +296,7 @@ class RouterESimActivationCode private constructor(
     val value: String, val server: String, val needsConfirmationCode: Boolean,
 ) {
     companion object {
-        const val INVALID_MESSAGE = "This QR code isn't an eSIM activation code."
+        const val INVALID_MESSAGE = "该二维码不是 eSIM 激活码。"
         fun parse(input: String): RouterESimActivationCode? {
             val code = input.trim()
             if (code.toByteArray().size > 512 || !code.startsWith("LPA:", ignoreCase = true) ||
@@ -322,16 +322,16 @@ data class RouterESimDownloadStatus(
     val canCancel: Boolean get() = state in setOf("running", "confirm") && step != "es10b_load_bound_profile_package"
     val displayName: String get() = listOfNotNull(provider, name).firstOrNull { it.isNotEmpty() } ?: "eSIM profile"
     val progressText: String get() = when {
-        state == "confirm" -> "Ready to install"
-        state == "cancelling" || step?.endsWith("_cancel_session") == true -> "Cancelling…"
+        state == "confirm" -> "准备安装"
+        state == "cancelling" || step?.endsWith("_cancel_session") == true -> "取消..."
         state == "done" -> "$displayName added."
-        state == "failed" -> "Couldn’t add the profile"
-        state == "cancelled" -> "Download cancelled"
-        step in setOf("es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client") -> "Connecting to the operator…"
-        step == "es8p_metadata_parse" -> "Reading profile details…"
-        step in setOf("es10b_prepare_download", "es9p_get_bound_profile_package") -> "Downloading profile…"
-        step == "es10b_load_bound_profile_package" -> "Installing on the eSIM…"
-        else -> "Preparing eSIM…"
+        state == "failed" -> "无法添加配置文件"
+        state == "cancelled" -> "下载已取消"
+        step in setOf("es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client") -> "连接到运营商..."
+        step == "es8p_metadata_parse" -> "阅读配置文件详细信息..."
+        step in setOf("es10b_prepare_download", "es9p_get_bound_profile_package") -> "正在下载配置文件..."
+        step == "es10b_load_bound_profile_package" -> "在 eSIM 上安装..."
+        else -> "准备eSIM……"
     }
 }
 

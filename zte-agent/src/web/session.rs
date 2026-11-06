@@ -535,7 +535,7 @@ mod tests {
             assert!(set_cookies(&r).is_empty());
             let body = String::from_utf8(axum::body::to_bytes(r.into_body(), 1 << 16).await.unwrap().to_vec()).unwrap();
             assert!(body.contains(r#"<meta http-equiv="refresh" content="0; url=/ui/sms?store=sim&amp;hop=1">"#), "{body}");
-            assert!(body.contains(r#"<a class="btn" href="/ui/sms?store=sim&amp;hop=1">Continue</a>"#), "{body}");
+            assert!(body.contains(r#"<a class="btn" href="/ui/sms?store=sim&amp;hop=1">继续</a>"#), "{body}");
         }
         // The hop itself, a request from this site, or one that brought a
         // (stale) session cookie: the session is gone; login, marker cleared.

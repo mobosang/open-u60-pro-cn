@@ -25,7 +25,7 @@ struct DeviceInfoView: View {
             }
 
             Section("LAN") {
-                infoRow("Gateway", viewModel.identity.lanIP)
+                infoRow("网关", viewModel.identity.lanIP)
             }
         }
         .navigationTitle("设备信息")
@@ -58,7 +58,7 @@ struct DeviceInfoView: View {
             Text("漫游")
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(roaming ? "漫游" : "Home")
+            Text(roaming ? "漫游" : "首页")
                 .font(.body.monospacedDigit())
                 .foregroundStyle(roaming ? .orange : .green)
         }

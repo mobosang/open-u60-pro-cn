@@ -206,7 +206,7 @@ mod tests {
         let off = Some(json!({"otg_powerbank_state": 0}));
         let s = fragment(&views(cable(), off)).into_string();
         assert!(s.starts_with("<div id=\"card-usb\" class=\"on\"><svg"), "{s}");
-        for want in ["<h2>USB-C Connected</h2>", "<p class=\"cap\">A USB-C cable is attached to your U60 Pro.</p>"] {
+        for want in ["<h2>USB-C 已连接</h2>", "<p class=\"cap\">U60 Pro 上连接有一条 USB-C 电缆。</p>"] {
             assert!(s.contains(want), "{want} in {s}");
         }
         assert!(!s.contains("快速充电已启动"));
@@ -216,7 +216,7 @@ mod tests {
             let s = fragment(&views(cable(), Some(on))).into_string();
             assert!(s.starts_with("<div id=\"card-usb\" class=\"on pb\">"), "{s}");
             assert!(s.contains("<p class=\"c-orange\"><svg"), "{s}");
-            assert!(s.contains("</svg> Fast charging is active</p>"), "{s}");
+            assert!(s.contains("</svg> 快速充电已启动</p>"), "{s}");
         }
         // The forms follow the fragment, outside it; the button posts the one value.
         let csrf = html! { input type="hidden" name="csrf" value="t"; };
@@ -225,8 +225,8 @@ mod tests {
         assert!(card.starts_with(&format!("<section class=\"card usbc\">{text}<form class=\"fc\" method=\"post\" action=\"/ui/usb/powerbank\">")), "{card}");
         for want in [
             "<input type=\"hidden\" name=\"csrf\" value=\"t\"><input type=\"hidden\" name=\"state\" value=\"1\">",
-            "</svg> Fast Charging</button>", "<p class=\"cap\">Charge your phone using the U60 Pro battery</p>",
-            "<form method=\"post\" action=\"/ui/usb/dismiss\"><input type=\"hidden\" name=\"csrf\" value=\"t\"><button class=\"btn btn-quiet\" type=\"submit\">Dismiss</button>",
+            "</svg> 快速充电</button>", "<p class=\"cap\">使用U60 Pro电池给手机充电</p>",
+            "<form method=\"post\" action=\"/ui/usb/dismiss\"><input type=\"hidden\" name=\"csrf\" value=\"t\"><button class=\"btn btn-quiet\" type=\"submit\">驳回</button>",
         ] {
             assert!(card.contains(want), "{want} in {card}");
         }
@@ -262,11 +262,11 @@ mod tests {
         let on = Some(json!({"otg_powerbank_state": 1}));
         let s = mode_html(&views(cable(), on.clone()));
         for want in [
-            "<h2>USB Status</h2>", "<span>Cable</span><span class=\"v\"><span class=\"c-green\">Connected</span></span>",
-            "<span>USB-C CC</span><span class=\"v\">cc1</span>", "<span>Mode</span><span class=\"v\">rndis</span>",
-            "<span>Fast Charging (Powerbank)</span><form class=\"sf\" method=\"post\" action=\"/ui/tools/usb/powerbank\">",
+            "<h2>USB状态</h2>", "<span>电缆</span><span class=\"v\"><span class=\"c-green\">已连接</span></span>",
+            "<span>USB-C CC</span><span class=\"v\">cc1</span>", "<span>模式</span><span class=\"v\">rndis</span>",
+            "<span>快速充电（移动电源）</span><form class=\"sf\" method=\"post\" action=\"/ui/tools/usb/powerbank\">",
             "<input type=\"hidden\" name=\"state\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\"",
-            "<p class=\"foot\">When enabled, the U60 Pro battery will charge your connected device. This will drain the router's battery faster.</p>",
+            "<p class=\"foot\">启用后，U60 Pro 电池将为您连接的设备充电。这会更快地耗尽路由器的电池。</p>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -274,7 +274,7 @@ mod tests {
         assert!(s.contains("name=\"state\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\""), "{s}");
         // No cable: "Disconnected", the switch disabled (as the app's), no form.
         let s = mode_html(&views(Some(json!({"typec_cc": "no_cc", "mode": ""})), on));
-        assert!(s.contains("<span>Cable</span><span class=\"v\">Disconnected</span>") && s.contains("<span>Mode</span><span class=\"v\">—</span>"), "{s}");
+        assert!(s.contains("<span>电缆</span><span class=\"v\">未连接</span>") && s.contains("<span>模式</span><span class=\"v\">—</span>"), "{s}");
         assert!(s.contains("aria-disabled=\"true\"") && !s.contains("<form"), "{s}");
     }
 

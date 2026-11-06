@@ -1,7 +1,7 @@
 import SwiftUI
 import os
 
-private let logger = Logger(subsystem: "com.zte.companion", category: "SMS")
+private let logger = Logger(subsystem: "com.zte.companion", category: "短信")
 
 /// Hands a decoded JSON payload to a background task. Safe because the value is transferred
 /// exactly once, is never mutated, and the sender drops it at the call site.

@@ -301,9 +301,9 @@ mod tests {
     fn fragments_follow_the_phase() {
         let v = views(json!({"phase": "download", "progress": 42, "live_speed_mbps": 87.26, "server": "S (N)"}));
         let run = controls(&v).into_string();
-        assert!(run.starts_with("<li class=\"it fld run\" id=\"st-run\"><span class=\"row\"><span>Downloading...</span><span class=\"muted num\">42%</span></span>"), "{run}");
-        assert!(run.contains("<progress max=\"100\" value=\"42\" aria-label=\"Downloading...\"></progress>"));
-        assert!(run.contains("<b class=\"num\">87.3</b> <span class=\"muted\">Mbps</span>"), "{run}");
+        assert!(run.starts_with("<li class=\"it fld run\" id=\"st-run\"><span class=\"row\"><span>正在下载...</span><span class=\"muted num\">42%</span></span>"), "{run}");
+        assert!(run.contains("<progress max=\"100\" value=\"42\" aria-label=\"正在下载...\"></progress>"));
+        assert!(run.contains("<b class=\"num\">87.3</b> <span class=\"muted\">兆比特/秒</span>"), "{run}");
         assert_eq!(message(&v).into_string(), "<div id=\"st-msg\"></div>");
         assert_eq!(results(&v).into_string(), "<div id=\"st-res\"></div>");
         let done = views(json!({
@@ -311,17 +311,17 @@ mod tests {
             "upload_mbps": 20.0, "download_bytes": 240_000_000u64, "upload_bytes": 10_000_000, "server": "Example <b>Net</b> (Town)",
         }));
         assert_eq!(controls(&done).into_string(), "<li class=\"it\" id=\"st-run\"></li>");
-        assert!(message(&done).into_string().contains("<p class=\"msg ok\" role=\"status\">Speed test complete</p>"));
+        assert!(message(&done).into_string().contains("<p class=\"msg ok\" role=\"status\">速度测试完成</p>"));
         let r = results(&done).into_string();
-        for want in ["<span>Ping</span><span class=\"v\">21.5 ms</span>", "<span>Download</span><span class=\"v\">123.46 Mbps</span>",
-            "<span>Downloaded</span><span class=\"v\">228.9 MB</span>", "<span>Uploaded</span><span class=\"v\">9.5 MB</span>",
-            "<span class=\"v\">Example &lt;b&gt;Net&lt;/b&gt; (Town)</span>"] {
+        for want in ["<span>延迟测试</span><span class=\"v\">21.5 ms</span>", "<span>下载</span><span class=\"v\">123.46 兆比特/秒</span>",
+            "<span>已下载</span><span class=\"v\">228.9 MB</span>", "<span>已上传</span><span class=\"v\">9.5 MB</span>",
+            "<span class=\"v\">示例 &lt;b&gt;Net&lt;/b&gt; (Town)</span>"] {
             assert!(r.contains(want), "{want} in {r}");
         }
         let err = views(json!({"phase": "error", "error": "all ping attempts failed"}));
-        assert!(message(&err).into_string().contains("<p class=\"msg err\" role=\"alert\">all ping attempts failed</p>"));
-        assert!(message(&views(json!({"phase": "error"}))).into_string().contains(">Speed test failed<"));
-        assert!(message(&views(json!({"phase": "cancelled"}))).into_string().contains(">Speed test cancelled<"));
+        assert!(message(&err).into_string().contains("<p class=\"msg err\" role=\"alert\">所有 ping 尝试均失败</p>"));
+        assert!(message(&views(json!({"phase": "error"}))).into_string().contains(">速度测试失败<"));
+        assert!(message(&views(json!({"phase": "cancelled"}))).into_string().contains(">速度测试取消<"));
         // Only an end after the watch point (version 1 here) shows; never
         // on the page Stop led to.
         for arg in [2, 1, 3] {

@@ -65,7 +65,7 @@ fun SMSConversationScreen(
                 title = { Text(displayNumber) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -100,7 +100,7 @@ fun SMSConversationScreen(
                             },
                             enabled = messageText.isNotBlank(),
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send")
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "发送")
                         }
                     }
                 }

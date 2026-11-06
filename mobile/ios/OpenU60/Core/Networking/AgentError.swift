@@ -15,7 +15,7 @@ enum AgentError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unauthorized:
-            return "未经过验证。请登录。"
+            return "尚未登录，请先登录。"
         case .serverError(let message):
             return "服务器错误：\(message)"
         case .networkError(let error):
@@ -23,7 +23,7 @@ enum AgentError: LocalizedError {
         case .decodingError(let detail):
             return "解码响应失败：\(detail)"
         case .serverUnreachable:
-            return "无法联系到代理"
+            return "无法连接 Agent"
         case .timeout:
             return "请求超时"
         case .cancelled:

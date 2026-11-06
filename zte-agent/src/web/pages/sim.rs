@@ -768,10 +768,10 @@ mod tests {
         });
         let s = card(&views(sim.clone())).into_string();
         for want in [
-            "<span>Status</span><span class=\"v c-green\">Ready</span>", "<span>ICCID</span><span class=\"v\">…8877</span>",
+            "<span>状态</span><span class=\"v c-green\">准备好了</span>", "<span>ICCID</span><span class=\"v\">…8877</span>",
             "<span>IMSI</span><span class=\"v\">001/01 …1111</span>", "<span>MSISDN</span><span class=\"v\">…0042</span>",
-            "<span>SPN</span><span class=\"v\">Test</span>", "<span>MCC/MNC</span><span class=\"v\">001/01</span>",
-            "<span>Operator</span><span class=\"v\">Test Net</span>", "<span>SIM Slot</span><span class=\"v\">1</span>",
+            "<span>SPN</span><span class=\"v\">测试</span>", "<span>MCC/MNC</span><span class=\"v\">001/01</span>",
+            "<span>运营商</span><span class=\"v\">测试网</span>", "<span>SIM 插槽</span><span class=\"v\">1</span>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -780,15 +780,15 @@ mod tests {
         }
         let p = pins(&views(sim)).into_string();
         for want in [
-            "<span class=\"v c-green\">Enabled</span>", "<span>PIN Attempts</span><span class=\"v c-red\">1</span>",
-            "<span>PUK Attempts</span><span class=\"v c-orange\">3</span>", "href=\"/ui/router/sim/pin-lock/disable\"",
+            "<span class=\"v c-green\">已启用</span>", "<span>PIN 尝试</span><span class=\"v c-red\">1</span>",
+            "<span>PUK 尝试</span><span class=\"v c-orange\">3</span>", "href=\"/ui/router/sim/pin-lock/disable\"",
             "href=\"/ui/router/sim/change-pin\"",
         ] {
             assert!(p.contains(want), "{want} in {p}");
         }
         // Empty values: the app's "--"; a status from the modem state.
         let s = card(&views(json!({"modem_main_state": "modem_waitpuk"}))).into_string();
-        assert!(s.contains("<span class=\"v c-orange\">PUK Required</span>") && s.contains("<span>ICCID</span><span class=\"v\">--</span>"), "{s}");
+        assert!(s.contains("<span class=\"v c-orange\">PUK 必填</span>") && s.contains("<span>ICCID</span><span class=\"v\">--</span>"), "{s}");
         assert!(!s.contains("运营商"));
         assert_eq!(status("sim undetected"), ("无SIM".into(), Some("c-red")));
         assert_eq!(status("一些东西"), ("一些东西".into(), None));
@@ -805,11 +805,11 @@ mod tests {
     fn locked_sims_show_the_banners() {
         let v = views(json!({"sim_states": "wait pin", "pin_status": "1"}));
         let b = banners(&v).into_string();
-        assert!(b.contains("<b>SIM PIN Required</b><small>Enter your PIN to unlock the SIM card</small>"), "{b}");
-        assert!(b.contains("<a class=\"it bt snd\" href=\"/ui/router/sim/pin\">Enter PIN</a>") && !b.contains("PUK"));
+        assert!(b.contains("<b>SIM PIN 必填</b><small>输入你的PIN来解锁SIM卡</small>"), "{b}");
+        assert!(b.contains("<a class=\"it bt snd\" href=\"/ui/router/sim/pin\">输入PIN</a>") && !b.contains("PUK"));
         assert!(!pins(&v).into_string().contains("<a "));
         let v = views(json!({"sim_states": "", "modem_main_state": "MODEM_WAITPUK"}));
-        assert!(banners(&v).into_string().contains("href=\"/ui/router/sim/puk\">Enter PUK</a>"));
+        assert!(banners(&v).into_string().contains("href=\"/ui/router/sim/puk\">输入PUK</a>"));
     }
 
     /// The checks never keep a value; PINs 4–8 digits, PUK 8, NCK digits.

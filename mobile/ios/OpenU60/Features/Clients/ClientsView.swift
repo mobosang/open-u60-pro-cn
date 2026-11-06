@@ -47,7 +47,7 @@ struct ClientsView: View {
             }
         }
         .navigationTitle("已连接设备")
-        .searchable(text: $searchText, prompt: "Search devices")
+        .searchable(text: $searchText, prompt: "搜索设备")
         .refreshable { await viewModel.refresh() }
         .overlay {
             if viewModel.devices.isEmpty {

@@ -36,7 +36,7 @@ fun SpeedTestScreen(
                 title = { Text("速度测试") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -159,7 +159,7 @@ fun SpeedTestScreen(
                     containerColor = MaterialTheme.colorScheme.error,
                 ) else ButtonDefaults.buttonColors(),
             ) {
-                Text(if (isRunning) "Stop Test" else "Start Test")
+                Text(if (isRunning) "停止测试" else "Start Test")
             }
 
             // Results cards after completion

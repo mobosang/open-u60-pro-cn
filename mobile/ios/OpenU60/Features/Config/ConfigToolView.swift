@@ -17,7 +17,7 @@ struct ConfigToolView: View {
             if let header = viewModel.header {
                 Section("标题") {
                     LabeledContent("Magic", value: header.magic)
-                    LabeledContent("Encryption", value: header.payloadType.displayName)
+                    LabeledContent("加密", value: header.payloadType.displayName)
                     LabeledContent("Signature", value: header.signature.isEmpty ? "(none)" : header.signature)
                     LabeledContent("Payload Offset", value: "\(header.payloadOffset)")
                 }

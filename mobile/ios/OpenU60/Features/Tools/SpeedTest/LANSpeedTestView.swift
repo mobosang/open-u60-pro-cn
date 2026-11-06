@@ -73,13 +73,13 @@ struct LANSpeedTestView: View {
             if viewModel.phase == "complete" {
                 Section("结果") {
                     if let ping = viewModel.pingMs {
-                        LabeledContent("Ping", value: String(format: "%.1f ms", ping))
+                        LabeledContent("延迟测试", value: String(format: "%.1f ms", ping))
                     }
                     if let download = viewModel.downloadMbps {
-                        LabeledContent("Download", value: String(format: "%.1f Mbps", download))
+                        LabeledContent("下载", value: String(format: "%.1f Mbps", download))
                     }
                     if let upload = viewModel.uploadMbps {
-                        LabeledContent("Upload", value: String(format: "%.1f Mbps", upload))
+                        LabeledContent("上传", value: String(format: "%.1f Mbps", upload))
                     }
                 }
             }

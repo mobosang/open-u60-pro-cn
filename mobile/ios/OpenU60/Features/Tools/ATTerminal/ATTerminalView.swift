@@ -5,14 +5,14 @@ struct ATTerminalView: View {
     @Bindable var viewModel: ATTerminalViewModel
 
     private let quickCommands: [(cmd: String, label: String)] = [
-        ("AT", "Ping"),
-        ("ATI", "Device info"),
-        ("AT+CSQ", "Signal quality"),
-        ("AT+COPS?", "Operator"),
-        ("AT+CPIN?", "SIM status"),
-        ("AT+CGDCONT?", "APN config"),
+        ("AT", "延迟测试"),
+        ("ATI", "设备信息"),
+        ("AT+CSQ", "信号质量"),
+        ("AT+COPS?", "运营商"),
+        ("AT+CPIN?", "SIM状态"),
+        ("AT+CGDCONT?", "APN配置"),
         ("AT+CGSN", "IMEI"),
-        ("AT+CLCC", "Active calls"),
+        ("AT+CLCC", "活跃通话"),
     ]
 
     /// Fixed-format, so it needs a fixed locale — and `static` so it isn't rebuilt with the view.

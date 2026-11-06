@@ -379,15 +379,15 @@ fn done(nonce: &str, w: Power) -> Response {
             @if reset {
                 p.msg.ok role="status" { "恢复出厂设置已启动..." }
                 p { "路由器清除其设置并重新启动。其 Wi-Fi 名称、Wi-Fi 密码和地址将恢复为出厂默认值，因此您可能需要先加入其默认 Wi-Fi 网络。" }
-                p { "If this web UI doesn\u{2019}t come back within a few minutes, the reset may have removed the agent; install it again as the README describes." }
+                p { "如果几分钟后管理网页仍无法打开，重置可能已删除 Agent，请按 README 说明重新安装。" }
             } @else {
-                p.msg.ok role="status" { "Router is rebooting..." }
-                p { "The router comes back in about a minute. A restart logs every browser out, so you will log in again." }
+                p.msg.ok role="status" { "路由器正在重启..." }
+                p { "路由器将在约一分钟后恢复。重启会使所有浏览器退出登录，需要重新登录。" }
             }
-            p.actions { a.btn href="/ui/" { "Reload" } }
+            p.actions { a.btn href="/ui/" { "重新加载" } }
         }
     };
-    let pc = PageCtx { title: if reset { "Resetting\u{2026}" } else { "Rebooting\u{2026}" }, tab: Some(Tab::Router), nonce, ..PageCtx::default() };
+    let pc = PageCtx { title: if reset { "正在重置\u{2026}" } else { "正在重启\u{2026}" }, tab: Some(Tab::Router), nonce, ..PageCtx::default() };
     render::html(200, render::page(&pc, body))
 }
 
@@ -418,13 +418,13 @@ pub async fn post(ctx: Ctx, req: Request, w: Power) -> Response {
         Ok(()) => {}
         Err(LoginError::RateLimited { retry_after }) => {
             let secs = retry_after_secs(retry_after);
-            r.typed = Some(refused(format!("Too many attempts. Try again in {secs} s.")));
+            r.typed = Some(refused(format!("尝试次数过多，请在 {secs} 秒后重试。")));
             let mut resp = screen::show(&ctx, p, r, s, None, 429).await;
             resp.headers_mut().insert(RETRY_AFTER, HeaderValue::from(secs));
             return resp;
         }
         Err(_) => {
-            r.typed = Some(refused("Incorrect password".into()));
+            r.typed = Some(refused("密码错误".into()));
             return screen::show(&ctx, p, r, s, None, 401).await;
         }
     }
@@ -486,7 +486,7 @@ mod tests {
         assert!(question(Kind::AutoSleep, &on, false).is_none() && question(Kind::PowerSave, &on, true).is_none());
         let q = question(Kind::AutoSleep, &on, true).unwrap();
         assert_eq!((q.title.as_str(), q.label), ("开启自动睡眠？", Some("打开自动睡眠")));
-        assert!(q.lines[0].contains("for 20 min,") && q.lines[1].starts_with("You are connected remotely:"));
+        assert!(q.lines[0].contains("for 20 min,") && q.lines[1].starts_with("您已远程连接："));
         assert!(question(Kind::AutoSleep, &Input::of(&[("timeout", "20")]), true).is_none());
         assert_eq!(Power::of(REBOOT).map(Power::api), Some("/api/device/reboot"));
         assert_eq!(Power::of(RESET).map(Power::api), Some("/api/device/factory-reset"));

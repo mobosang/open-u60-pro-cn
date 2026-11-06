@@ -207,7 +207,7 @@ final class STKViewModel {
         stkReply = ""
         stkBusy = false
         stkPollingStopped = true
-        stkReason = "Reload the SIM menu to reconnect."
+        stkReason = "重新加载SIM菜单以重新连接。"
         showMessage(error.localizedDescription, isError: true)
     }
 

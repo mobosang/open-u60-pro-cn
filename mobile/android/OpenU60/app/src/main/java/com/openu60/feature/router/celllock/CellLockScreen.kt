@@ -30,7 +30,7 @@ fun CellLockScreen(
                 title = { Text("小区锁定") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -76,7 +76,7 @@ fun CellLockScreen(
                             if (state.status.nrPCI.isNotBlank()) {
                                 InfoRow("NR PCI", state.status.nrPCI)
                                 InfoRow("NR EARFCN", state.status.nrEARFCN)
-                                InfoRow("NR Band", state.status.nrBand)
+                                InfoRow("NR 频段", state.status.nrBand)
                             }
                             if (state.status.ltePCI.isNotBlank()) {
                                 InfoRow("LTE PCI", state.status.ltePCI)

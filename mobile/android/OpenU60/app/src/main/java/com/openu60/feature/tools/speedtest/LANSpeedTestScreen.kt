@@ -33,7 +33,7 @@ fun LANSpeedTestScreen(
                 title = { Text("局域网速度测试") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -125,9 +125,9 @@ fun LANSpeedTestScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             when (state.phase) {
-                                "ping" -> "Testing Latency..."
-                                "download" -> "Downloading..."
-                                "upload" -> "Uploading..."
+                                "ping" -> "测试延迟..."
+                                "download" -> "正在下载..."
+                                "upload" -> "正在上传..."
                                 else -> state.phase.replaceFirstChar { it.uppercase() }
                             },
                             style = MaterialTheme.typography.titleSmall,
@@ -157,7 +157,7 @@ fun LANSpeedTestScreen(
                     containerColor = MaterialTheme.colorScheme.error,
                 ) else ButtonDefaults.buttonColors(),
             ) {
-                Text(if (isRunning) "Stop Test" else "Start Test")
+                Text(if (isRunning) "停止测试" else "Start Test")
             }
 
             // Results

@@ -910,7 +910,7 @@ mod tests {
         let (title, body) = applied(&vals(&[("wifi", "")]));
         let html = body.into_string();
         assert_eq!(title, "WiFi 已关闭");
-        assert!(html.contains("<p class=\"msg ok\" role=\"status\">WiFi turned off</p>"), "{html}");
+        assert!(html.contains("<p class=\"msg ok\" role=\"status\">WiFi 关闭</p>"), "{html}");
         assert!(!html.contains("restart"), "{html}");
         let (title, body) = applied(&vals(&[]));
         let html = body.into_string();

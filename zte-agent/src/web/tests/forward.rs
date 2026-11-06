@@ -89,30 +89,30 @@ async fn the_page_in_both_tabs() {
         let html = r.text();
         assert_no_secrets(&html);
         for want in [
-            "<title>SMS Forwarding · U60 Pro</title>",
-            &format!("<div class=\"lead\"><a class=\"nl back\" href=\"{tab}\">{back}</a></div><h1>SMS Forwarding</h1>"),
+            "<title>短信转发 · U60 Pro</title>",
+            &format!("<div class=\"lead\"><a class=\"nl back\" href=\"{tab}\">{back}</a></div><h1>短信转发</h1>"),
             &format!("<a href=\"{tab}\" aria-current=\"page\">"),
-            "<h2>Settings</h2>",
+            "<h2>设置</h2>",
             &format!("<form class=\"sf\" method=\"post\" action=\"{base}/enabled\">"),
-            "<input type=\"hidden\" name=\"enabled\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"Enabled\">",
+            "<input type=\"hidden\" name=\"enabled\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"已启用\">",
             "<input class=\"sr\" id=\"fw-mr\" type=\"checkbox\" role=\"switch\" name=\"mark_read\" value=\"1\" form=\"fwset\">",
             "name=\"delete_after\" value=\"1\" form=\"fwset\">",
             &format!("<form id=\"fwset\" method=\"post\" action=\"{base}/settings\">"),
-            "<button class=\"it cv snd\" type=\"submit\">Save Settings</button>",
-            "<h2>Rules</h2>",
+            "<button class=\"it cv snd\" type=\"submit\">保存设置</button>",
+            "<h2>规则</h2>",
             &format!("<li class=\"cr fr\" id=\"r1\"><a class=\"it cv\" href=\"{base}/rules/1\">"),
-            "<span class=\"nm\">Fake &lt;b&gt;bot&lt;/b&gt;</span><span class=\"rs\">All messages</span><span class=\"rs rd\">Telegram (chat: -100123)</span>",
-            "<span class=\"rs\">Sender: BANK, +1555*</span><span class=\"rs rd\">Webhook (example.com)</span>",
-            "<span class=\"rs\">Keywords: code</span><span class=\"rs rd\">ntfy (fake-topic)</span>",
-            "<span class=\"rs rd\">SMS (+15555550123)</span>",
+            "<span class=\"nm\">假的 &lt;b&gt;bot&lt;/b&gt;</span><span class=\"rs\">全部短信</span><span class=\"rs rd\">Telegram（聊天：-100123）</span>",
+            "<span class=\"rs\">发件人：银行，+1555*</span><span class=\"rs rd\">Webhook (example.com)</span>",
+            "<span class=\"rs\">关键词：代码</span><span class=\"rs rd\">ntfy (fake-topic)</span>",
+            "<span class=\"rs rd\">短信 (+15555550123)</span>",
             // Rule 2 is off: its switch turns it on.
             &format!("<form class=\"sf\" method=\"post\" action=\"{base}/rules/toggle\">"),
-            "<input type=\"hidden\" name=\"id\" value=\"2\"><input type=\"hidden\" name=\"enabled\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"Hook\">",
-            "<input type=\"hidden\" name=\"id\" value=\"1\"><input type=\"hidden\" name=\"enabled\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"Fake &lt;b&gt;bot&lt;/b&gt;\">",
-            &format!("<a class=\"del\" href=\"{base}/rules/delete?id=2\">Delete<span class=\"sr\"> rule Hook</span></a>"),
+            "<input type=\"hidden\" name=\"id\" value=\"2\"><input type=\"hidden\" name=\"enabled\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"钩子\">",
+            "<input type=\"hidden\" name=\"id\" value=\"1\"><input type=\"hidden\" name=\"enabled\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"假的 &lt;b&gt;bot&lt;/b&gt;\">",
+            &format!("<a class=\"del\" href=\"{base}/rules/delete?id=2\">删除<span class=\"sr\"> rule 钩子</span></a>"),
             &format!("<a class=\"it bt\" href=\"{base}/rules/new\">"),
             &format!("<a class=\"it\" href=\"{base}/log\"><svg"),
-            "<span>Forward Log</span>",
+            "<span>转发日志</span>",
         ] {
             assert!(html.contains(want), "{want} in {html}");
         }
@@ -122,12 +122,12 @@ async fn the_page_in_both_tabs() {
         q.assert_secure_html(200);
         let q = q.text();
         for want in [
-            &format!("<a class=\"nl back\" href=\"{base}\">SMS Forwarding</a></div><h1>Confirm</h1>"),
-            "<h2 class=\"q\">Delete “Fake &lt;b&gt;bot&lt;/b&gt;”?</h2>",
+            &format!("<a class=\"nl back\" href=\"{base}\">短信转发</a></div><h1>确认</h1>"),
+            "<h2 class=\"q\">删除 “假的 &lt;b&gt;bot&lt;/b&gt;”?</h2>",
             "新消息不再使用此规则转发。",
             &format!("<form class=\"panel\" method=\"post\" action=\"{base}/rules/delete\">"),
             "<input type=\"hidden\" name=\"id\" value=\"1\"><input type=\"hidden\" name=\"confirm\" value=\"1\">",
-            &format!("<a class=\"btn btn-quiet\" href=\"{base}\">Cancel</a>"),
+            &format!("<a class=\"btn btn-quiet\" href=\"{base}\">取消</a>"),
             &format!("<a href=\"{tab}\" aria-current=\"page\">"),
         ] {
             assert!(q.contains(want), "{want} in {q}");
@@ -141,8 +141,8 @@ async fn the_page_in_both_tabs() {
     // No rules: the app's empty state; a forwarded message: its id.
     let (c, cookie, _) = signed_in(81).await;
     let html = get_with(&c, SMS_FWD, peer(81, 2), &cookie).await.text();
-    assert!(html.contains("<strong>No Rules</strong><p>Add forwarding rules to automatically forward SMS messages to Telegram, Discord, webhooks, and more.</p>"), "{html}");
-    assert!(!html.contains("<h2>Rules</h2>"));
+    assert!(html.contains("<strong>没有规则</strong><p>添加转发规则，自动将短信转发到Telegram、Discord、webhooks等。</p>"), "{html}");
+    assert!(!html.contains("<h2>规则</h2>"));
 }
 
 /// "Enabled" applies at once and "Save Settings" saves the two switches;
@@ -165,7 +165,7 @@ async fn switches_settings_and_delete() {
         (Some(true), Some(45), Some(true), Some(false))
     );
     let html = get_with(&c, &format!("{TOOLS_FWD}?saved=settings"), peer(82, 3), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg ok\" role=\"status\">Settings saved</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg ok\" role=\"status\">已保存设置</p>"), "{html}");
     assert!(html.contains("name=\"mark_read\" value=\"1\" checked form=\"fwset\">"), "{html}");
     // A rule's switch.
     let r = post(&c, &format!("{SMS_FWD}/rules/toggle"), peer(82, 4), &cookie, &format!("csrf={csrf}&id=2&enabled=1")).await;
@@ -173,7 +173,7 @@ async fn switches_settings_and_delete() {
     assert_eq!(config(&c).await["rules"][1]["enabled"], true);
     let r = post(&c, &format!("{SMS_FWD}/rules/toggle"), peer(82, 4), &cookie, &format!("csrf={csrf}&id=9&enabled=1")).await;
     r.assert_secure_html(404);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Failed: rule not found</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败：找不到规则</p>"), "{}", r.text());
     // Delete: asked first, then gone, "Rule deleted".
     let del = format!("{TOOLS_FWD}/rules/delete");
     post(&c, &del, peer(82, 5), &cookie, &format!("csrf={csrf}&id=1")).await.assert_see_other(&format!("{del}?id=1"));
@@ -214,28 +214,28 @@ async fn rule_forms_never_show_secrets() {
     rules(&c).await;
     let html = rule_form(&c, &cookie, &format!("{TOOLS_FWD}/rules/new")).await.text();
     for want in [
-        "<title>New Rule · U60 Pro</title>",
-        &format!("<div class=\"lead\"><a class=\"nl\" href=\"{TOOLS_FWD}\">Cancel</a></div><h1>New Rule</h1>"),
+        "<title>新规则 · U60 Pro</title>",
+        &format!("<div class=\"lead\"><a class=\"nl\" href=\"{TOOLS_FWD}\">取消</a></div><h1>新规则</h1>"),
         "<a href=\"/ui/tools\" aria-current=\"page\">",
         &format!("<form class=\"rf\" id=\"rf\" method=\"post\" action=\"{TOOLS_FWD}/rules/save\">"),
-        "<button class=\"sr\" type=\"submit\" tabindex=\"-1\" aria-hidden=\"true\">Save</button>",
-        "<h2>Name</h2>",
-        "placeholder=\"Rule name\" aria-label=\"Rule name\"",
-        "<input class=\"sr\" type=\"radio\" id=\"ft-all\" name=\"ft\" value=\"all\" checked><span>All Messages</span>",
-        "<span>Sender + Content</span>",
-        "<label for=\"patterns\">Sender patterns (comma-separated)</label>",
-        "<label for=\"keywords\">Keywords (comma-separated)</label>",
+        "<button class=\"sr\" type=\"submit\" tabindex=\"-1\" aria-hidden=\"true\">保存</button>",
+        "<h2>名称</h2>",
+        "placeholder=\"Rule name\" aria-label=\"规则名称\"",
+        "<input class=\"sr\" type=\"radio\" id=\"ft-all\" name=\"ft\" value=\"all\" checked><span>全部短信</span>",
+        "<span>发件人+内容</span>",
+        "<label for=\"patterns\">发件人模式（以逗号分隔）</label>",
+        "<label for=\"keywords\">关键字（以逗号分隔）</label>",
         "<input class=\"sr\" type=\"radio\" id=\"dt-telegram\" name=\"dt\" value=\"telegram\" checked><span>Telegram</span>",
         "<input id=\"tg_token\" type=\"password\" name=\"tg_token\" placeholder=\"Required\" autocomplete=\"new-password\" data-1p-ignore data-lpignore=\"true\" data-bwignore>",
         "<input id=\"wh_url\" type=\"text\" name=\"wh_url\" inputmode=\"url\" placeholder=\"Required\" autocomplete=\"off\"",
-        "<li class=\"it fld dx d-ntfy\"><label for=\"nt_url\">Server URL</label><input id=\"nt_url\" type=\"text\" name=\"nt_url\" value=\"https://ntfy.sh\"",
+        "<li class=\"it fld dx d-ntfy\"><label for=\"nt_url\">服务器地址</label><input id=\"nt_url\" type=\"text\" name=\"nt_url\" value=\"https://ntfy.sh\"",
         "<option value=\"POST\" selected>POST</option><option value=\"PUT\">PUT</option>",
-        "<input type=\"text\" name=\"wh_hn0\" value=\"\" placeholder=\"Name\" aria-label=\"Header 1 name\"",
-        "<input type=\"password\" name=\"wh_hv1\" aria-label=\"Header 2 value\" placeholder=\"Value\" autocomplete=\"new-password\" data-1p-ignore",
+        "<input type=\"text\" name=\"wh_hn0\" value=\"\" placeholder=\"Name\" aria-label=\"标题 1 name\"",
+        "<input type=\"password\" name=\"wh_hv1\" aria-label=\"标题 2 value\" placeholder=\"Value\" autocomplete=\"new-password\" data-1p-ignore",
         "<button class=\"it bt\" type=\"submit\" name=\"add\" value=\"1\"><svg",
-        "<span>Add Header</span>",
+        "<span>添加标题</span>",
         &format!("formaction=\"{TOOLS_FWD}/rules/test\"><svg"),
-        "<span>Test Destination</span>",
+        "<span>测试目的地</span>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -246,16 +246,16 @@ async fn rule_forms_never_show_secrets() {
     let html = r.text();
     assert_no_secrets(&html);
     for want in [
-        "<title>Edit Rule · U60 Pro</title>",
+        "<title>编辑规则 · U60 Pro</title>",
         "<input type=\"hidden\" name=\"id\" value=\"2\">",
         "name=\"name\" value=\"Hook\"",
         "id=\"ft-sender\" name=\"ft\" value=\"sender\" checked>",
         "name=\"patterns\" value=\"BANK, +1555*\"",
         "id=\"dt-webhook\" name=\"dt\" value=\"webhook\" checked>",
         "<input id=\"wh_url\" type=\"text\" name=\"wh_url\" inputmode=\"url\" placeholder=\"Leave empty to keep\" autocomplete=\"off\"",
-        "<small>Saved: example.com</small>",
+        "<small>已保存: example.com</small>",
         "name=\"wh_hn0\" value=\"Authorization\"",
-        "name=\"wh_hv0\" aria-label=\"Header 1 value\" placeholder=\"Leave empty to keep\" autocomplete=\"new-password\"",
+        "name=\"wh_hv0\" aria-label=\"标题 1 value\" placeholder=\"Leave empty to keep\" autocomplete=\"new-password\"",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -266,7 +266,7 @@ async fn rule_forms_never_show_secrets() {
     // Unknown rule: 404; a bad id is no page.
     let r = get_with(&c, &format!("{SMS_FWD}/rules/9"), peer(83, 3), &cookie).await;
     r.assert_secure_html(404);
-    assert!(r.text().contains("Rule not found"));
+    assert!(r.text().contains("未找到规则"));
     for bad in ["0", "x", "1x", "-1"] {
         get_with(&c, &format!("{SMS_FWD}/rules/{bad}"), peer(83, 3), &cookie).await.assert_secure_html(404);
     }
@@ -304,7 +304,7 @@ async fn save_creates_updates_and_keeps_secrets() {
     assert_no_secrets(&html);
     assert!(html.contains("再次输入值：URL 已更改。") && html.contains("name=\"name\" value=\"Hook 3\""), "{html}");
     // Nothing is kept for the new URL, so the field does not say so.
-    assert!(html.contains("name=\"wh_hv0\" aria-label=\"Header 1 value\" placeholder=\"Value\""), "{html}");
+    assert!(html.contains("name=\"wh_hv0\" aria-label=\"标题 1 value\" placeholder=\"Value\""), "{html}");
     assert_eq!(config(&c).await["rules"][1]["name"], "挂钩2");
     // New Rule (Telegram) with the name missing: the token typed is not
     // in the answer, but the next post of that form keeps it.
@@ -315,8 +315,8 @@ async fn save_creates_updates_and_keeps_secrets() {
     let html = r.text();
     assert_no_secrets(&html);
     for want in [
-        "<p class=\"msg err\" role=\"alert\">Check the highlighted fields.</p>",
-        "<p class=\"ferr\" id=\"name-err\">Required.</p>",
+        "<p class=\"msg err\" role=\"alert\">检查突出显示的字段。</p>",
+        "<p class=\"ferr\" id=\"name-err\">必填。</p>",
         "name=\"keywords\" value=\"otp, code\"",
         "name=\"tg_chat\" value=\"77\"",
         "name=\"tg_silent\" value=\"1\" checked>",
@@ -379,7 +379,7 @@ async fn test_destination() {
     r.assert_secure_html(200);
     let html = r.text();
     assert_no_secrets(&html);
-    assert!(html.contains("<p class=\"msg ok\" role=\"status\">Test message sent</p>") && html.contains("value=\"Changed, unsaved\""), "{html}");
+    assert!(html.contains("<p class=\"msg ok\" role=\"status\">测试消息发送</p>") && html.contains("value=\"Changed, unsaved\""), "{html}");
     assert_eq!(fake::tests(&c.app), [json!({"destination": {"type": "telegram", "bot_token": TOKEN, "chat_id": "-100999", "silent": false}})]);
     // A double click: one test.
     let again = post(&c, &test, peer(85, 2), &cookie, &b).await;
@@ -392,7 +392,7 @@ async fn test_destination() {
     let b = body(&f, &[("id", "3"), ("name", "推"), ("ft", "all"), ("dt", "ntfy"), ("nt_url", "https://evil.example"), ("nt_topic", "t")]);
     let r = post(&c, &test, peer(85, 3), &cookie, &b).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("<p class=\"ferr\" id=\"nt_token-err\">Enter it again: the server changed.</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"ferr\" id=\"nt_token-err\">再次输入：服务器发生变化。</p>"), "{}", r.text());
     assert!(r.text().contains("<input id=\"nt_token\" type=\"password\" name=\"nt_token\" placeholder=\"Optional\""), "{}", r.text());
     assert_eq!(fake::tests(&c.app).len(), 1);
     // The device's failure, with the app's prefix, and a new token.
@@ -401,7 +401,7 @@ async fn test_destination() {
     let b = body(&f, &[("id", "1"), ("name", "机器人"), ("ft", "all"), ("dt", "telegram"), ("tg_chat", "1")]);
     let r = post(&c, &test, peer(85, 4), &cookie, &b).await;
     r.assert_secure_html(502);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Test failed: telegram: http status: 401</p>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">测试失败：电报：http状态：401</p>"), "{}", r.text());
     assert_ne!(r.input("once"), f.input("once"));
     let replay = post(&c, &test, peer(85, 4), &cookie, &b).await;
     assert!(replay.status == 502 && replay.text().contains("测试失败：电报：http状态：401"));
@@ -414,12 +414,12 @@ async fn test_destination() {
     q.assert_secure_html(200);
     let html = q.text();
     for want in [
-        "<h2 class=\"q\">Send a test SMS?</h2>",
-        "<li>This sends a real SMS to +15555550123, which your plan may charge.</li>",
+        "<h2 class=\"q\">发送测试短信？</h2>",
+        "<li>This sends a real 短信 to +15555550123, which your plan may charge.</li>",
         &format!("<form class=\"panel\" method=\"post\" action=\"{TOOLS_FWD}/rules/test\">"),
         "<input type=\"hidden\" name=\"sms_number\" value=\"+1 555 555 0123\" autocomplete=\"off\">",
-        "<button class=\"btn\" type=\"submit\" name=\"confirm\" value=\"1\">Send Test SMS</button>",
-        "<button class=\"btn btn-quiet\" type=\"submit\" name=\"back\" value=\"1\">Cancel</button>",
+        "<button class=\"btn\" type=\"submit\" name=\"confirm\" value=\"1\">发送测试短信</button>",
+        "<button class=\"btn btn-quiet\" type=\"submit\" name=\"back\" value=\"1\">取消</button>",
         "<a href=\"/ui/tools\" aria-current=\"page\">",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -434,7 +434,7 @@ async fn test_destination() {
     };
     let back = post(&c, &format!("{TOOLS_FWD}/rules/test"), peer(85, 5), &cookie, &hidden("&back=1")).await;
     back.assert_secure_html(200);
-    assert!(back.text().contains("name=\"sms_number\" value=\"+1 555 555 0123\"") && back.text().contains("<h1>New Rule</h1>"));
+    assert!(back.text().contains("name=\"sms_number\" value=\"+1 555 555 0123\"") && back.text().contains("<h1>新规则</h1>"));
     assert!(fake::tests(&c.app).is_empty());
     for _ in 0..2 {
         let r = post(&c, &format!("{TOOLS_FWD}/rules/test"), peer(85, 5), &cookie, &hidden("&confirm=1")).await;
@@ -498,24 +498,24 @@ async fn forward_log_in_both_tabs() {
         assert_no_secrets(&html);
         assert!(!html.contains("FAKE-CONTENT") && !html.contains("26,10,22") && !html.contains("+15555550199"), "{html}");
         for want in [
-            "<title>Forward Log · U60 Pro</title>",
+            "<title>转发日志 · U60 Pro</title>",
             &format!(
-                "<div class=\"lead\"><a class=\"nl back\" href=\"{base}\">SMS Forwarding</a></div><h1>Forward Log</h1>\
-                 <div class=\"trail\"><a class=\"nl\" href=\"{base}/log/clear\">Clear</a></div>"
+                "<div class=\"lead\"><a class=\"nl back\" href=\"{base}\">短信转发</a></div><h1>转发日志</h1>\
+                 <div class=\"trail\"><a class=\"nl\" href=\"{base}/log/clear\">清除</a></div>"
             ),
             &format!("<a href=\"{tab}\" aria-current=\"page\">"),
             "<div class=\"l1\"><span class=\"nm\">+15555550123</span><span class=\"c-orange hl\"><svg",
-            "</svg>Held, will retry</span></div>",
+            "</svg>已举行，将重试</span></div>",
             "<span class=\"rs\">no WAN connectivity; held for retry</span>",
-            "<span class=\"nm\">EXAMPLE-BANK</span><span class=\"c-red\" role=\"img\" aria-label=\"Failed\"><svg",
+            "<span class=\"nm\">EXAMPLE-BANK</span><span class=\"c-red\" role=\"img\" aria-label=\"失败\"><svg",
             "<span class=\"rs er\">webhook: bad uri</span>",
             "<span class=\"nm\">+15555550100</span><span class=\"c-green\" role=\"img\" aria-label=\"Forwarded\"><svg",
-            "<span class=\"rs\">Fake &lt;b&gt;bot&lt;/b&gt; → webhook</span><span class=\"pv\">Your code is 000000</span>",
+            "<span class=\"rs\">假的 &lt;b&gt;bot&lt;/b&gt; → webhook</span><span class=\"pv\">您的密码是 000000</span>",
             &format!("<div class=\"l2\"><span class=\"tm\">{}</span></div>", stamp(1_792_000_100)),
             &format!("<span class=\"tm\">{}</span><form class=\"sf\" method=\"post\" action=\"{base}/log/retry\">", stamp(1_792_000_200)),
             "<input type=\"hidden\" name=\"i\" value=\"1\"><input type=\"hidden\" name=\"sms\" value=\"11\">\
              <input type=\"hidden\" name=\"rule\" value=\"2\"><input type=\"hidden\" name=\"ts\" value=\"1792000200\">\
-             <button class=\"btn sm\" type=\"submit\">Retry<span class=\"sr\"> forward from EXAMPLE-BANK</span></button>",
+             <button class=\"btn sm\" type=\"submit\">重试<span class=\"sr\"> forward from EXAMPLE-BANK</span></button>",
         ] {
             assert!(html.contains(want), "{want} in {html}");
         }
@@ -527,11 +527,11 @@ async fn forward_log_in_both_tabs() {
     }
     fake::with(&c.app, |d| d.log_error = Some("Failed <to> lock".into()));
     let html = get_with(&c, &format!("{SMS_FWD}/log"), peer(86, 3), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">Failed to load log: Failed &lt;to&gt; lock</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载失败 log: 失败 &lt;to&gt; lock</p>"), "{html}");
     // The agent's own log (empty): no entries, no token.
     drop(fake);
     let html = get_with(&c, &format!("{TOOLS_FWD}/log"), peer(86, 4), &cookie).await.text();
-    assert!(html.contains("<strong>No Log Entries</strong><p>Forwarded messages will appear here</p>"), "{html}");
+    assert!(html.contains("<strong>无日志条目</strong><p>转发的消息将出现在这里</p>"), "{html}");
     assert!(!html.contains("name=\"once\""));
 }
 
@@ -545,7 +545,7 @@ async fn retried(c: &Ctx, cookie: &str, log: &str, r: &Reply) -> String {
     html
 }
 
-const OK_LINE: &str = "<p class=\"msg ok\" role=\"status\">Retry succeeded</p>";
+const OK_LINE: &str = "<p class=\"msg ok\" role=\"status\">重试成功</p>";
 
 /// Retry: by the entry's fingerprint (where it is now; "The log changed.
 /// Try again." once it is gone or was retried), once per single-use token
@@ -586,7 +586,7 @@ async fn retry_once_by_fingerprint() {
     let page = get_with(&c, &log, peer(87, 4), &cookie).await;
     fake::with(&c.app, |d| d.log.as_mut().unwrap()[2]["timestamp"] = json!(1_792_000_500));
     let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 4), &cookie, &body(&page)).await).await;
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">The log changed. Try again.</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">日志已更改。再试一次。</p>"), "{html}");
     assert_eq!(fake::retries(&c.app).len(), 2);
     // The agent's failure, its URI dropped; a replay shows it again.
     fake::with(&c.app, |d| {
@@ -596,7 +596,7 @@ async fn retry_once_by_fingerprint() {
     let page = get_with(&c, &log, peer(87, 5), &cookie).await;
     for _ in 0..2 {
         let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 5), &cookie, &body(&page)).await).await;
-        assert!(html.contains("<p class=\"msg err\" role=\"alert\">Retry failed: webhook: bad uri</p>"), "{html}");
+        assert!(html.contains("<p class=\"msg err\" role=\"alert\">重试 failed: webhook: bad uri</p>"), "{html}");
     }
     assert_eq!(fake::retries(&c.app).len(), 3);
     // The slow lane busy: nothing sent, the token given back.
@@ -646,14 +646,14 @@ async fn clear_asks_first() {
         q.assert_secure_html(200);
         let html = q.text();
         for want in [
-            &format!("<div class=\"lead\"><a class=\"nl back\" href=\"{log}\">Forward Log</a></div><h1>Confirm</h1>"),
+            &format!("<div class=\"lead\"><a class=\"nl back\" href=\"{log}\">转发日志</a></div><h1>确认</h1>"),
             &format!("<a href=\"{tab}\" aria-current=\"page\">"),
-            "<h2 class=\"q\">Clear the forward log?</h2>",
-            "<li>Forwarded and failed entries are removed, except failures of a message that is still held.</li>",
-            "<li>Held forwards are kept and still sent once the connection returns.</li>",
+            "<h2 class=\"q\">清除转发日志？</h2>",
+            "<li>转发和失败的条目将被删除，但仍保留的消息的失败除外。</li>",
+            "<li>保留的转发将被保留，并在连接返回后仍然发送。</li>",
             &format!("<form class=\"panel\" method=\"post\" action=\"{clear}\">"),
-            "<input type=\"hidden\" name=\"confirm\" value=\"1\"><p class=\"actions\"><button class=\"btn btn-danger\" type=\"submit\">Clear</button>",
-            &format!("<a class=\"btn btn-quiet\" href=\"{log}\">Cancel</a>"),
+            "<input type=\"hidden\" name=\"confirm\" value=\"1\"><p class=\"actions\"><button class=\"btn btn-danger\" type=\"submit\">清除</button>",
+            &format!("<a class=\"btn btn-quiet\" href=\"{log}\">取消</a>"),
         ] {
             assert!(html.contains(want), "{want} in {html}");
         }
@@ -663,8 +663,8 @@ async fn clear_asks_first() {
         r.assert_see_other(&format!("{log}?saved=log-cleared"));
         no_router_disk();
         let html = get_with(&c, &format!("{log}?saved=log-cleared"), peer(88, 4), &cookie).await.text();
-        assert!(html.contains("<p class=\"msg ok\" role=\"status\">Log cleared</p>"), "{html}");
-        assert!(html.contains("<strong>No Log Entries</strong>"));
+        assert!(html.contains("<p class=\"msg ok\" role=\"status\">日志已清除</p>"), "{html}");
+        assert!(html.contains("<strong>无日志条目</strong>"));
     }
 }
 
@@ -723,7 +723,7 @@ async fn headers_that_redirect_are_refused() {
         let b = body(&f, &[("id", "2"), ("name", "钩子"), ("ft", "all"), ("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "Host"), ("wh_hv1", "attacker.example")]);
         let r = post(&c, &format!("{SMS_FWD}/rules/{action}"), peer(90, 2), &cookie, &b).await;
         r.assert_secure_html(400);
-        assert!(r.text().contains("<p class=\"ferr\">This header can't be set.</p>"), "{}", r.text());
+        assert!(r.text().contains("<p class=\"ferr\">无法设置此标头。</p>"), "{}", r.text());
         assert_no_secrets(&r.text());
     }
     assert!(fake::tests(&c.app).is_empty());
@@ -816,17 +816,17 @@ async fn config_reads_last_id_and_failures() {
     let read = json!({"ok": true, "data": {"config": {"enabled": true, "rules": []}, "last_forwarded_id": 9}});
     fake::with(&c.app, |d| d.config = Some((200, read)));
     let html = get_with(&c, TOOLS_FWD, peer(92, 2), &cookie).await.text();
-    assert!(html.contains("<li class=\"it\"><span class=\"muted\">Last Forwarded ID</span><span class=\"tm num\">9</span></li>"), "{html}");
+    assert!(html.contains("<li class=\"it\"><span class=\"muted\">最后转发的 ID</span><span class=\"tm num\">9</span></li>"), "{html}");
     let f = rule_form(&c, &cookie, &format!("{SMS_FWD}/rules/new")).await;
     fake::with(&c.app, |d| d.config = Some((500, json!({"ok": false, "error": "Failed <to> read"}))));
     let page = get_with(&c, SMS_FWD, peer(92, 3), &cookie).await;
-    assert!(page.text().contains("<p class=\"msg err\" role=\"alert\">Failed to load: Failed &lt;to&gt; read</p>"), "{}", page.text());
-    assert!(page.text().contains("<span>New Rule</span>") && page.text().contains("<span>Forward Log</span>"));
+    assert!(page.text().contains("<p class=\"msg err\" role=\"alert\">加载失败：<to> 读取失败</p>"), "{}", page.text());
+    assert!(page.text().contains("<span>新规则</span>") && page.text().contains("<span>转发日志</span>"));
     let q = get_with(&c, &format!("{SMS_FWD}/rules/delete?id=1"), peer(92, 3), &cookie).await.text();
     assert!(q.contains("加载失败：<to> 读取失败") && !q.contains("name=\"confirm\""), "{q}");
     let edit = get_with(&c, &format!("{SMS_FWD}/rules/1"), peer(92, 3), &cookie).await;
     edit.assert_secure_html(503);
-    assert!(edit.text().contains("<strong>Failed to load</strong><p>Failed &lt;to&gt; read</p>"), "{}", edit.text());
+    assert!(edit.text().contains("<strong>加载失败</strong><p>失败 &lt;to&gt; read</p>"), "{}", edit.text());
     for (action, want) in [("save", "失败：<to> 读取失败"), ("test", "测试失败：<to> 读取失败")] {
         let b = body(&f, &[("name", "X"), ("ft", "all"), ("dt", "telegram"), ("tg_token", "999:NEW-FAKE"), ("tg_chat", "1")]);
         let r = post(&c, &format!("{SMS_FWD}/rules/{action}"), peer(92, 4), &cookie, &b).await;

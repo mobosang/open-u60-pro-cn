@@ -67,7 +67,7 @@ pub static ROUTER: Screen = Screen {
         Block::Links(
             "安全",
             &[
-                to(firewall::PATH, "Firewall", Icon::Shield),
+                to(firewall::PATH, "防火墙", Icon::Shield),
                 to(telemetry::PATH, "遥测拦截", Icon::EyeSlash),
                 to(vpnqos::VPN, "VPN 穿透", Icon::LockShield),
             ],
@@ -355,7 +355,7 @@ pub static DNS_CACHE: Screen = Screen {
 pub static FIREWALL: Screen = Screen {
     path: firewall::PATH,
     id: "firewall",
-    title: "Firewall",
+    title: "防火墙",
     reads: &[Read::Api(firewall::API), Read::Api(firewall::PF_API), Read::Api(firewall::FILTER_API), Read::Api(firewall::UPNP_API)],
     blocks: &[Block::Custom(firewall::page)],
     ..PUSHED
@@ -585,8 +585,8 @@ mod tests {
         };
         let s = page("ONLINE");
         let order = [
-            "<h2>Connectivity</h2>", "移动数据", "<h2>Connection Mode</h2>", "数据漫游", "启用漫游",
-            "<h2>Network Selection</h2>", "扫描网络", ">Apply</button>",
+            "<h2>网络连接</h2>", "移动数据", "<h2>连接方式</h2>", "数据漫游", "启用漫游",
+            "<h2>网络选择</h2>", "扫描网络", ">应用</button>",
         ];
         let at: Vec<usize> = order.iter().map(|w| s.find(w).unwrap_or_else(|| panic!("{w} in {s}"))).collect();
         assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");
@@ -595,7 +595,7 @@ mod tests {
         let s = page("LPM");
         // Mobile Data shown, not switchable; Airplane Mode is; Apply is off.
         assert_eq!(s.matches("aria-disabled=\"true\"").count(), 1, "{s}");
-        assert!(s.contains("<span class=\"sw\" role=\"switch\" aria-checked=\"true\" aria-disabled=\"true\" aria-label=\"Mobile Data\">"), "{s}");
+        assert!(s.contains("<span class=\"sw\" role=\"switch\" aria-checked=\"true\" aria-disabled=\"true\" aria-label=\"移动数据\">"), "{s}");
         assert!(!s.contains(MOBILE_DATA.path) && s.contains(AIRPLANE.path), "{s}");
         assert!(s.contains("<fieldset class=\"mnf\" disabled>"), "{s}");
     }

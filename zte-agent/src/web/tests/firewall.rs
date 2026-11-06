@@ -50,7 +50,7 @@ fn has(html: &str, wants: &[&str]) {
 
 fn rules() -> Value {
     json!({"rule_list": [
-        {"id": "0", "name": "Web", "protocol": "tcp", "wan_port": "8080", "lan_ip": "192.168.0.50", "lan_port": "80", "enabled": "1"},
+        {"id": "0", "name": "网络", "protocol": "tcp", "wan_port": "8080", "lan_ip": "192.168.0.50", "lan_port": "80", "enabled": "1"},
         {"section_id": "cfg0a1b2c", "comment": "", "proto": "udp", "src_dport": "3074", "dest_ip": "192.168.0.60", "dest_port": "3074"},
     ]})
 }
@@ -88,19 +88,19 @@ async fn firewall_page_switches_and_level() {
     let html = r.text();
     let g = html.split("&amp;g=").nth(1).unwrap()[..16].to_owned();
     has(&html, &[
-        "<h1>Firewall</h1>", "href=\"/ui/router\">Router</a>", "<h2>Firewall</h2>", "<span>Status</span><span class=\"c-green\">Enabled</span>",
-        "<a class=\"it bt\" href=\"/ui/router/firewall/switch?on=0\"><span>Disable Firewall</span></a>",
-        "<span aria-current=\"true\">Medium</span>", "<a href=\"/ui/router/firewall/level?level=high\">High</a>",
-        "<span>WAN Ping</span><span class=\"v\">Allowed</span>", "<h2>NAT / UPnP</h2>",
+        "<h1>防火墙</h1>", "href=\"/ui/router\">路由器</a>", "<h2>防火墙</h2>", "<span>状态</span><span class=\"c-green\">已启用</span>",
+        "<a class=\"it bt\" href=\"/ui/router/firewall/switch?on=0\"><span>禁用防火墙</span></a>",
+        "<span aria-current=\"true\">中等</span>", "<a href=\"/ui/router/firewall/level?level=high\">高</a>",
+        "<span>万平</span><span class=\"v\">允许</span>", "<h2>网络地址转换/UPnP</h2>",
         "<a class=\"sw\" href=\"/ui/router/firewall/nat?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"NAT\">",
-        "<a class=\"sw\" href=\"/ui/router/firewall/upnp?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"UPnP\">",
+        "<a class=\"sw\" href=\"/ui/router/firewall/upnp?on=0\" role=\"switch\" aria-checked=\"true\" aria-label=\"通用即插即用\">",
         "<form class=\"rf dmz\" method=\"post\" action=\"/ui/router/firewall/dmz\" autocomplete=\"off\">",
-        "<input class=\"sr\" id=\"dmz\" type=\"checkbox\" role=\"switch\" name=\"dmz\" value=\"1\">", "DMZ Host IP", ">Apply DMZ</button>",
-        "<h2>Port Forwarding</h2>", "<a class=\"it bt\" href=\"/ui/router/firewall/port-forward/new\">", "Add Rule",
-        "<b class=\"nm\">Web</b><small class=\"c-green\">Active</small>", "TCP WAN:8080 \u{2192} 192.168.0.50:80",
-        "<b class=\"nm\">Rule</b><small>Inactive</small>", "UDP WAN:3074 \u{2192} 192.168.0.60:3074",
-        "href=\"/ui/router/firewall/port-forward/delete?id=cfg0a1b2c&amp;g=", "aria-label=\"Delete Web\"",
-        "<h2>MAC/IP/Port Filters</h2>", "MAC: \u{2022}\u{2022}:\u{2022}\u{2022}:\u{2022}\u{2022}:\u{2022}\u{2022}:3a:7f",
+        "<input class=\"sr\" id=\"dmz\" type=\"checkbox\" role=\"switch\" name=\"dmz\" value=\"1\">", "DMZ主机IP", ">申请DMZ</button>",
+        "<h2>端口转发</h2>", "<a class=\"it bt\" href=\"/ui/router/firewall/port-forward/new\">", "添加规则",
+        "<b class=\"nm\">网络</b><small class=\"c-green\">已启用</small>", "TCP WAN:8080 \u{2192} 192.168.0.50:80",
+        "<b class=\"nm\">规则</b><small>未启用</small>", "UDP WAN:3074 \u{2192} 192.168.0.60:3074",
+        "href=\"/ui/router/firewall/port-forward/delete?id=cfg0a1b2c&amp;g=", "aria-label=\"删除 网络\"",
+        "<h2>MAC/IP/端口过滤器</h2>", "MAC: \u{2022}\u{2022}:\u{2022}\u{2022}:\u{2022}\u{2022}:\u{2022}\u{2022}:3a:7f",
         "192.168.0.70: \u{2192} 203.0.113.9:443",
     ]);
     assert!(!html.contains("02:00:5e") && !html.contains("进入网络用户界面"), "{html}");
@@ -110,9 +110,9 @@ async fn firewall_page_switches_and_level() {
     let q = get_with(&c, "/ui/router/firewall/switch?on=0", peer(210, 2), &cookie).await;
     q.assert_secure_html(200);
     has(&q.text(), &[
-        "<h2 class=\"q\">Turn off the firewall?</h2>", "lose the firewall\u{2019}s protection from the internet",
-        "The router\u{2019}s other services, such as SSH on port 2222 and the firmware\u{2019}s own web pages, may become reachable from the mobile network. This web UI and the agent\u{2019}s API keep refusing connections from it.",
-        "<input type=\"hidden\" name=\"on\" value=\"0\">", ">Disable Firewall</button>", "href=\"/ui/router/firewall\">Cancel</a>",
+        "<h2 class=\"q\">关闭防火墙？</h2>", "lose the firewall\u{2019}s protection from the internet",
+        "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。",
+        "<input type=\"hidden\" name=\"on\" value=\"0\">", ">禁用防火墙</button>", "href=\"/ui/router/firewall\">取消</a>",
     ]);
     assert!(!q.text().contains("connected remotely") && !q.text().contains("this web UI included"), "{}", q.text());
     let once = q.input("once");
@@ -128,15 +128,15 @@ async fn firewall_page_switches_and_level() {
     let done = to(&post(&c, "/ui/router/firewall/switch", peer(210, 2), &cookie, &confirmed).await);
     assert_eq!(done, format!("{FW}?r={once}"));
     assert_eq!(calls(&c), vec![("/api/router/firewall/switch".to_owned(), json!({"firewall_switch": "0", "enable": 0}))]);
-    has(&get_with(&c, &done, peer(210, 2), &cookie).await.text(), &["<p class=\"msg ok\" role=\"status\">Firewall disabled</p>"]);
+    has(&get_with(&c, &done, peer(210, 2), &cookie).await.text(), &["<p class=\"msg ok\" role=\"status\">防火墙 disabled</p>"]);
     // A replay sends nothing and lands on the same line.
     assert_eq!(to(&post(&c, "/ui/router/firewall/switch", peer(210, 2), &cookie, &confirmed).await), done);
     assert_eq!(calls(&c).len(), 1);
     // Turning it on or raising the level can lock a remote browser out.
     let q = get_with(&c, "/ui/router/firewall/switch?on=1", tailnet(41001), &cookie).await.text();
-    has(&q, &["是否开启防火墙？", "which can cut access to the router", "您已远程连接", ">Enable Firewall</button>"]);
+    has(&q, &["是否开启防火墙？", "which can cut access to the router", "您已远程连接", ">启用防火墙</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=high", tailnet(41002), &cookie).await.text();
-    has(&q, &["<h2 class=\"q\">Set the firewall level to High?</h2>", "blocks more connections at High", "您已远程连接", ">Set Level</button>"]);
+    has(&q, &["<h2 class=\"q\">Set the firewall level to 高?</h2>", "blocks more connections at High", "您已远程连接", ">设置级别</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=low", tailnet(41003), &cookie).await.text();
     has(&q, &["将防火墙级别设置为低？", "lets more connections from the internet through at Low", "such as SSH on port 2222", "此 Web UI 和 agent\u{2019}s API 不断拒绝来自它的连接。"]);
     assert!(!q.contains("connected remotely") && !q.contains("can cut access"), "{q}");
@@ -182,18 +182,18 @@ async fn dmz_and_new_port_forward() {
     let r = post(&c, DMZ, peer(211, 2), &cookie, &body(&csrf, &once, &[("dmz", "1"), ("ip", "192.168.0.77")])).await;
     assert_eq!(to(&r), format!("{DMZ}?t={once}"));
     let q = get_with(&c, &to(&r), peer(211, 2), &cookie).await;
-    has(&q.text(), &["<h2 class=\"q\">Make 192.168.0.77 the DMZ host?</h2>", "every port of that device can be reached from the internet", ">Apply DMZ</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">Make 192.168.0.77 the DMZ host?</h2>", "every port of that device can be reached from the internet", ">申请DMZ</button>"]);
     let confirm = format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"));
     let done = to(&post(&c, DMZ, peer(211, 2), &cookie, &confirm).await);
     assert_eq!(calls(&c), vec![("/api/router/firewall/dmz".to_owned(), json!({"dmz_enabled": "1", "dmz_ip": "192.168.0.77", "dmz_enable": 1}))]);
-    has(&get_with(&c, &done, peer(211, 2), &cookie).await.text(), &["DMZ settings updated"]);
+    has(&get_with(&c, &done, peer(211, 2), &cookie).await.text(), &["DMZ 设置更新"]);
     // New Port Forward: the app's sheet.
     let f = get_with(&c, NEW, peer(211, 3), &cookie).await;
     f.assert_secure_html(200);
     has(&f.text(), &[
-        "<h1>New Port Forward</h1>", "<a class=\"nl\" href=\"/ui/router/firewall\">Cancel</a>", "<h2>Rule</h2>", "placeholder=\"Name\"",
+        "<h1>新港口转发</h1>", "<a class=\"nl\" href=\"/ui/router/firewall\">取消</a>", "<h2>规则</h2>", "placeholder=\"Name\"",
         "<option value=\"tcp+udp\">TCP + UDP</option>", "<h2>WAN</h2>", "placeholder=\"WAN Port\"", "<h2>LAN</h2>", "placeholder=\"LAN IP\"",
-        "placeholder=\"LAN Port\"", ">Add Rule</button>",
+        "placeholder=\"LAN Port\"", ">添加规则</button>",
     ]);
     let once = f.input("once");
     let typed = |name: &'static str, proto: &'static str, wan: &'static str, ip: &'static str, lan: &'static str| {
@@ -211,7 +211,7 @@ async fn dmz_and_new_port_forward() {
     assert!(r.text().contains("WAN端口8080已转发。"), "{}", r.text());
     let r = post(&c, ADD, peer(211, 3), &cookie, &typed("凸轮", "udp", "8080", "192.168.0.80", "554")).await;
     let q = get_with(&c, &to(&r), peer(211, 3), &cookie).await;
-    has(&q.text(), &["<h2 class=\"q\">Add \u{201c}Cam\u{201d}?</h2>", "UDP WAN 端口 8080 转至 192.168.0.80:554", ">Add Rule</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">添加 \u{201c}凸轮\u{201d}?</h2>", "UDP WAN 端口 8080 转至 192.168.0.80:554", ">添加规则</button>"]);
     // A device failure: the form as typed, with the app's "Failed: …".
     let _fail = device::set(&c.app, device::Device {
         replies: vec![("/api/router/firewall/port-forward", (503, json!({"ok": false, "error": "ubus call zwrt_router.api router_set_portforward failed: Invalid argument"})))],
@@ -230,7 +230,7 @@ async fn dmz_and_new_port_forward() {
     let once = f.input("once");
     let r = post(&c, ADD, peer(211, 4), &cookie, &body(&csrf, &once, &[("pfname", ""), ("proto", "tcp"), ("wan", "9000"), ("ip", "192.168.0.80"), ("lan", "554")])).await;
     let q = get_with(&c, &to(&r), peer(211, 4), &cookie).await;
-    assert!(q.text().contains("Add this port forward?"), "{}", q.text());
+    assert!(q.text().contains("添加此端口转发？"), "{}", q.text());
     let confirm = format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"));
     let done = to(&post(&c, ADD, peer(211, 4), &cookie, &confirm).await);
     assert_eq!(done, format!("{FW}?r={once}"));
@@ -239,7 +239,7 @@ async fn dmz_and_new_port_forward() {
         json!({"action": "add", "name": "", "protocol": "tcp", "wan_port": "9000", "lan_ip": "192.168.0.80", "lan_port": "554", "enabled": 1,
                "comment": "", "proto": "tcp", "src_dport": "9000", "dest_ip": "192.168.0.80"}),
     )]);
-    has(&get_with(&c, &done, peer(211, 4), &cookie).await.text(), &["Port forward rule added"]);
+    has(&get_with(&c, &done, peer(211, 4), &cookie).await.text(), &["添加端口转发规则"]);
     assert_eq!(to(&post(&c, ADD, peer(211, 4), &cookie, &confirm).await), done);
     assert_eq!(calls(&c).len(), 1);
 }
@@ -256,7 +256,7 @@ async fn port_forward_delete_names_its_list() {
     let href = html[at + 6..at + 6 + html[at + 6..].find('"').unwrap()].replace("&amp;", "&");
     let q = get_with(&c, &href, peer(212, 2), &cookie).await;
     q.assert_secure_html(200);
-    has(&q.text(), &["<h2 class=\"q\">Delete \u{201c}Web\u{201d}?</h2>", "TCP WAN:8080 \u{2192} 192.168.0.50:80 stops", ">Delete</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">删除 \u{201c}网络\u{201d}?</h2>", "TCP WAN:8080 \u{2192} 192.168.0.50:80 stops", ">删除</button>"]);
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     let g = q.input("g");
     // Another rule appears: the question and the post refuse.
@@ -264,10 +264,10 @@ async fn port_forward_delete_names_its_list() {
     more["rule_list"].as_array_mut().unwrap().insert(0, json!({"id": "9", "name": "新建", "protocol": "tcp", "wan_port": "22", "lan_ip": "192.168.0.9", "lan_port": "22"}));
     let _changed = device::set(&c.app, router(firewall(), more));
     let stale = get_with(&c, &href, peer(212, 2), &cookie).await.text();
-    assert!(stale.contains("The rule list changed") && !stale.contains("name=\"confirm\""), "{stale}");
+    assert!(stale.contains("规则列表变更") && !stale.contains("name=\"confirm\""), "{stale}");
     let confirm = body(&csrf, &once, &[("id", "0"), ("g", &g), ("confirm", "1")]);
     let line = to(&post(&c, DEL, peer(212, 2), &cookie, &confirm).await);
-    has(&get_with(&c, &line, peer(212, 2), &cookie).await.text(), &["<p class=\"msg err\" role=\"alert\">The rule list was out of date and has been reloaded. Try again.</p>"]);
+    has(&get_with(&c, &line, peer(212, 2), &cookie).await.text(), &["<p class=\"msg err\" role=\"alert\">规则列表已过期，现已重新加载，请重试。</p>"]);
     assert!(calls(&c).is_empty());
     assert_eq!(get_with(&c, &format!("{DEL}?id=0"), peer(212, 2), &cookie).await.status, 400);
     assert_eq!(get_with(&c, &format!("{DEL}?id=a%20b&g={g}"), peer(212, 2), &cookie).await.status, 400);
@@ -277,7 +277,7 @@ async fn port_forward_delete_names_its_list() {
     let confirm = body(&csrf, &once, &[("id", "0"), ("g", &g), ("confirm", "1")]);
     let done = to(&post(&c, DEL, peer(212, 2), &cookie, &confirm).await);
     assert_eq!(calls(&c), vec![("/api/router/firewall/port-forward".to_owned(), json!({"action": "delete", "id": "0", "section_id": ["0"]}))]);
-    has(&get_with(&c, &done, peer(212, 2), &cookie).await.text(), &["Port forward rule deleted"]);
+    has(&get_with(&c, &done, peer(212, 2), &cookie).await.text(), &["端口转发规则已删除"]);
     assert_eq!(to(&post(&c, DEL, peer(212, 2), &cookie, &confirm).await), done);
     assert_eq!(calls(&c).len(), 1);
 }
@@ -305,12 +305,12 @@ async fn telemetry_blocker() {
     r.assert_secure_html(200);
     let html = r.text();
     has(&html, &[
-        "<h1>Telemetry Blocker</h1>", "<h2>Domain Filter</h2>", "<span class=\"c-green\">Enabled</span>",
-        "<input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"it bt\" type=\"submit\"><span>Disable Filter</span></button>",
-        "<h2>Quick Actions</h2>", "<span>Block All ZTE Telemetry</span>",
-        "<span class=\"dom\">dclient.ztems.com</span><span class=\"c-green\">", "<span class=\"sr\">Blocked</span>",
-        "<span class=\"dom\">update.ztems.com</span><span class=\"v\">", "<h2>Add Custom Domain</h2>", "placeholder=\"Domain to block\"",
-        "<h2>Blocked Domains</h2>", "<span class=\"dom\">ads.example.com</span><small>Inactive</small>", "aria-label=\"Remove ads.example.com\"",
+        "<h1>遥测拦截</h1>", "<h2>域过滤器</h2>", "<span class=\"c-green\">已启用</span>",
+        "<input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"it bt\" type=\"submit\"><span>禁用过滤器</span></button>",
+        "<h2>快速行动</h2>", "<span>阻止所有 ZTE 遥测</span>",
+        "<span class=\"dom\">dclient.ztems.com</span><span class=\"c-green\">", "<span class=\"sr\">被封锁</span>",
+        "<span class=\"dom\">update.ztems.com</span><span class=\"v\">", "<h2>添加自定义域</h2>", "placeholder=\"Domain to block\"",
+        "<h2>被阻止的域</h2>", "<span class=\"dom\">ads.example.com</span><small>未启用</small>", "aria-label=\"移除 ads.example.com\"",
     ]);
     assert_eq!(html.matches("未被封锁").count(), 4);
     let (csrf, once) = (r.input("csrf"), r.input("once"));
@@ -351,7 +351,7 @@ async fn telemetry_blocker() {
     let line = to(&post(&c, "/ui/router/telemetry/block-all", peer(213, 2), &cookie, &body(&csrf, &once, &[])).await);
     assert_eq!(calls(&c).len(), 4);
     has(&get_with(&c, &line, peer(213, 2), &cookie).await.text(), &[
-        "<p class=\"msg info\" role=\"status\">Blocked 3 telemetry domains; 1 could not be added. Failed: ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument</p>",
+        "<p class=\"msg info\" role=\"status\">被封锁 3 telemetry domains; 1 could not be added. 失败：ubus 调用 zwrt_router.api router_set_domain_filter failed: 无效参数</p>",
     ]);
     let _dev = device::set(&c.app, filter(blocked()));
     // A removal: asked, by its list.
@@ -359,7 +359,7 @@ async fn telemetry_blocker() {
     let at = html.find("href=\"/ui/router/telemetry/delete?id=2&amp;g=").unwrap();
     let href = html[at + 6..at + 6 + html[at + 6..].find('"').unwrap()].replace("&amp;", "&");
     let q = get_with(&c, &href, peer(213, 2), &cookie).await;
-    has(&q.text(), &["<h2 class=\"q\">Remove ads.example.com?</h2>", "路由器上的设备可以再次访问 ads.example.com。", ">Remove</button>"]);
+    has(&q.text(), &["<h2 class=\"q\">移除 ads.example.com?</h2>", "路由器上的设备可以再次访问 ads.example.com。", ">移除</button>"]);
     let confirm = body(&csrf, &q.input("once"), &[("id", "2"), ("g", &q.input("g")), ("confirm", "1")]);
     let done = to(&post(&c, "/ui/router/telemetry/delete", peer(213, 2), &cookie, &confirm).await);
     assert_eq!(calls(&c).last().unwrap(), &("/api/router/domain-filter".to_owned(), json!({"action": "delete", "id": "2", "section_id": ["2"]})));
@@ -387,8 +387,8 @@ async fn vpn_passthrough_and_qos() {
     let r = get_with(&c, VPN, peer(214, 2), &cookie).await;
     r.assert_secure_html(200);
     has(&r.text(), &[
-        "<h1>VPN Passthrough</h1>", "<h2>VPN Passthrough</h2>", "name=\"l2tp\" value=\"1\" checked>", "name=\"pptp\" value=\"1\">",
-        "name=\"ipsec\" value=\"1\" checked>", ">Apply</button>",
+        "<h1>VPN 穿透</h1>", "<h2>VPN 穿透</h2>", "name=\"l2tp\" value=\"1\" checked>", "name=\"pptp\" value=\"1\">",
+        "name=\"ipsec\" value=\"1\" checked>", ">应用</button>",
     ]);
     let (csrf, once) = (r.input("csrf"), r.input("once"));
     let apply = body(&csrf, &once, &[("pptp", "1")]);
@@ -400,8 +400,8 @@ async fn vpn_passthrough_and_qos() {
     let r = get_with(&c, QOS, peer(214, 2), &cookie).await;
     r.assert_secure_html(200);
     has(&r.text(), &[
-        "<h1>QoS</h1>", "<h2>Quality of Service</h2>", "action=\"/ui/router/qos/switch\"", "<input type=\"hidden\" name=\"on\" value=\"1\">",
-        "role=\"switch\" aria-checked=\"false\" aria-label=\"Enable QoS\"",
+        "<h1>服务质量</h1>", "<h2>服务质量</h2>", "action=\"/ui/router/qos/switch\"", "<input type=\"hidden\" name=\"on\" value=\"1\">",
+        "role=\"switch\" aria-checked=\"false\" aria-label=\"启用服务质量\"",
     ]);
     let done = to(&post(&c, "/ui/router/qos/switch", peer(214, 2), &cookie, &body(&csrf, &r.input("once"), &[("on", "1")])).await);
     assert_eq!(calls(&c)[1], ("/api/router/qos".to_owned(), json!({"qos_switch": "1"})));
@@ -413,5 +413,5 @@ async fn vpn_passthrough_and_qos() {
     let html = get_with(&c, VPN, peer(214, 2), &cookie).await.text();
     assert!(html.contains("加载VPN失败：ubus调用") && !html.contains("<form class=\"rf\""), "{html}");
     let html = get_with(&c, QOS, peer(214, 2), &cookie).await.text();
-    has(&html, &["加载QoS失败：ubus调用", "<span class=\"v\">Unavailable</span>", ">On</button>", ">Off</button>"]);
+    has(&html, &["加载QoS失败：ubus调用", "<span class=\"v\">不可用</span>", ">开启</button>", ">关闭</button>"]);
 }

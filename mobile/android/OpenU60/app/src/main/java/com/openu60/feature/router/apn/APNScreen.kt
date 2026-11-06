@@ -35,12 +35,12 @@ fun APNScreen(
                 title = { Text("APN 设置") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.showAddForm() }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add APN")
+                        Icon(Icons.Default.Add, contentDescription = "添加APN")
                     }
                 },
             )
@@ -123,7 +123,7 @@ fun APNScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(profile.name.ifBlank { "Unnamed" }, fontWeight = FontWeight.Medium)
+                                        Text(profile.name.ifBlank { "未命名" }, fontWeight = FontWeight.Medium)
                                         Text(
                                             "APN：${profile.apn} ${profile.pdpTypeLabel}",
                                             style = MaterialTheme.typography.bodySmall,
@@ -137,10 +137,10 @@ fun APNScreen(
                                             }
                                         }
                                         IconButton(onClick = { viewModel.showEditForm(profile) }) {
-                                            Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp))
+                                            Icon(Icons.Default.Edit, contentDescription = "编辑", modifier = Modifier.size(18.dp))
                                         }
                                         IconButton(onClick = { viewModel.deleteProfile(profile.id) }) {
-                                            Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.error)
+                                            Icon(Icons.Default.Delete, contentDescription = "删除", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.error)
                                         }
                                     }
                                 }
@@ -173,7 +173,7 @@ private fun APNFormDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (profile.id.isNotBlank()) "Edit APN" else "Add APN") },
+        title = { Text(if (profile.id.isNotBlank()) "编辑APN" else "添加APN") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(

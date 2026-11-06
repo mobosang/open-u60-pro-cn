@@ -194,7 +194,7 @@ struct APNFormSheet: View {
                     )
                 }
             }
-            .navigationTitle(viewModel.isEditing ? "Edit APN" : "New APN")
+            .navigationTitle(viewModel.isEditing ? "Edit APN" : "新APN")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -228,7 +228,7 @@ struct APNAutoDetailSheet: View {
                     }
                 }
                 Section {
-                    LabeledContent("Status", value: profile.active ? "已启用" : "Inactive")
+                    LabeledContent("状态", value: profile.active ? "已启用" : "未启用")
                 }
             }
             .navigationTitle("汽车APN")

@@ -156,7 +156,7 @@ final class FirewallSettingsViewModel {
                 "dmz_enabled": editDmzEnabled ? "1" : "0",
                 "dmz_ip": editDmzIP
             ])
-            showMessage("DMZ settings updated", isError: false)
+            showMessage("DMZ 设置更新", isError: false)
             config.dmzEnabled = editDmzEnabled
             config.dmzHost = editDmzIP
         } catch {
@@ -193,7 +193,7 @@ final class FirewallSettingsViewModel {
             // Re-read the list so the new row carries the router's own id. A client-side id would
             // make a later delete a no-op on the router and silently leave the WAN port open.
             if await reloadPortForwardRules() {
-                showMessage("Port forward rule added", isError: false)
+                showMessage("添加端口转发规则", isError: false)
             } else {
                 // The router accepted the rule, so show it rather than let it vanish. Its id is a
                 // placeholder the router would not recognise, which is why `deletePortForward`
@@ -222,7 +222,7 @@ final class FirewallSettingsViewModel {
         // that index. Reload first and let the user re-pick from the authoritative list.
         if portForwardListIsStale {
             if await reloadPortForwardRules() {
-                showMessage("The rule list was out of date and has been reloaded. Try again.", isError: true)
+                showMessage("规则列表已过期，现已重新加载，请重试。", isError: true)
             } else {
                 showMessage("规则列表已过时，无法重新加载。拉动即可刷新。", isError: true)
             }
@@ -238,7 +238,7 @@ final class FirewallSettingsViewModel {
             // Deleting shifts the remaining rules up, so ids derived from the array index no longer
             // match. Re-read for the same reason the add path does.
             if await reloadPortForwardRules() {
-                showMessage("Port forward rule deleted", isError: false)
+                showMessage("端口转发规则已删除", isError: false)
             } else {
                 portForwardRules.removeAll { $0.id == rule.id }
                 showMessage("规则已删除，但无法重新加载列表。拉动即可刷新。", isError: true)

@@ -71,7 +71,7 @@ struct RouterESimInventory: Equatable {
     var errorText: String? {
         guard let errorMessage else { return nil }
         switch errorKind {
-        case "sim_reloading": return "The eSIM is still settling after the switch."
+        case "sim_reloading": return "切换后 eSIM 仍在准备中。"
         case "management_unavailable": return "eSIM 的管理应用程序没有响应 (\(errorMessage))。"
         default: return errorMessage
         }
@@ -143,16 +143,16 @@ struct RouterESimSwitchStatus: Decodable, Equatable {
         switch state {
         case "no_data":
             switch reason {
-            case "roaming_off": "This profile roams on a local network and Data Roaming is off. Turn on Data Roaming in Mobile Network."
-            case "data_off": "The profile is active, but Mobile Data is off. Turn it on in Mobile Network."
-            default: "The profile is active, but mobile data hasn't connected. Check the plan or coverage."
+            case "roaming_off": "此配置文件在本地网络上漫游，并且数据漫游已关闭。在移动网络中打开数据漫游。"
+            case "data_off": "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。"
+            default: "配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。"
             }
-        case "modem_unconfirmed": "The eSIM switched, but the router still uses the previous SIM. Restart the router to finish."
-        case "card_unconfirmed": "The eSIM couldn't be read after the switch. Refresh in a moment."
+        case "modem_unconfirmed": "eSIM已更换，但路由器仍使用之前的SIM。重新启动路由器即可完成。"
+        case "card_unconfirmed": "切换后无法读取eSIM。一会儿刷新一下。"
         case "not_applied":
             reason == "card_busy"
-                ? "The eSIM stayed busy and didn't switch; the previous profile is still active. Try again in a few minutes."
-                : "The switch didn't happen; the previous profile is still active."
+                ? "eSIM 保持忙碌状态，不切换；之前的配置文件仍然有效。几分钟后重试。"
+                : "切换没有发生；之前的配置文件仍然有效。"
         default: nil
         }
     }
@@ -269,7 +269,7 @@ struct RouterESimActivationCode {
     let server: String
     let needsConfirmationCode: Bool
 
-    static let invalidMessage = "This QR code isn't an eSIM activation code."
+    static let invalidMessage = "该二维码不是 eSIM 激活码。"
 
     static func parse(_ input: String) -> Self? {
         let code = input.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -316,7 +316,7 @@ struct RouterESimDownloadStatus: Decodable, Equatable {
         if state == "cancelling" || step?.hasSuffix("_cancel_session") == true { return "取消..." }
         if state == "done" { return "\(displayName) added." }
         if state == "failed" { return "无法添加配置文件" }
-        if state == "cancelled" { return "Download cancelled" }
+        if state == "cancelled" { return "下载已取消" }
         switch step {
         case "es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client": return "连接到运营商..."
         case "es8p_metadata_parse": return "阅读配置文件详细信息..."

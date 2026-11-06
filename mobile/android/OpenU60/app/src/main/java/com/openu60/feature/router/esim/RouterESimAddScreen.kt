@@ -80,7 +80,7 @@ fun RouterESimAddScreen(viewModel: RouterESimViewModel, onClose: () -> Unit) {
                         if (alive) {
                             val valid = barcodes.mapNotNull { it.rawValue }.filter { RouterESimActivationCode.parse(it) != null }.distinct()
                             if (valid.size == 1) accept(valid.first())
-                            else error = if (valid.isEmpty()) RouterESimActivationCode.INVALID_MESSAGE else "Choose a photo with one eSIM QR code."
+                            else error = if (valid.isEmpty()) RouterESimActivationCode.INVALID_MESSAGE else "选择一张带有eSIM二维码的照片。"
                         }
                     }.addOnFailureListener { if (alive) error = "无法阅读这张照片。选择其他图像或手动输入代码。" }
                         .addOnCompleteListener { scanner.close(); if (alive) reading = false }
@@ -99,14 +99,14 @@ fun RouterESimAddScreen(viewModel: RouterESimViewModel, onClose: () -> Unit) {
 
     Dialog(onDismissRequest = close, properties = DialogProperties(usePlatformDefaultWidth = false, securePolicy = SecureFlagPolicy.SecureOn)) {
         Scaffold(topBar = {
-            TopAppBar(title = { Text("添加 eSIM") }, actions = { TextButton(onClick = close) { Text(if (state.download.isBusy) "Close" else "Done") } })
+            TopAppBar(title = { Text("添加 eSIM") }, actions = { TextButton(onClick = close) { Text(if (state.download.isBusy) "关闭" else "完成") } })
         }) { padding ->
             Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 if (state.download.state !in setOf("idle", "cancelled") || state.operationInFlight) {
                     DownloadContent(state, viewModel, { viewModel.resetDownloadResult(); manual = true }, close)
                 } else {
                     Icon(Icons.Default.QrCodeScanner, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
-                    Text("Add a profile to your router", style = MaterialTheme.typography.headlineSmall)
+                    Text("将配置文件添加到您的路由器", style = MaterialTheme.typography.headlineSmall)
                     Text("使用运营商提供的 eSIM 二维码。您将在安装之前查看配置文件。", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (state.connectionPhase == RouterESimConnectionPhase.DISCONNECTED || state.connectionPhase == RouterESimConnectionPhase.WAITING) {
                         Surface(color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.35f), shape = RoundedCornerShape(12.dp)) {
@@ -115,30 +115,30 @@ fun RouterESimAddScreen(viewModel: RouterESimViewModel, onClose: () -> Unit) {
                     }
                     Card(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Button(onClick = scan, enabled = !reading, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.CameraAlt, null); Spacer(Modifier.width(8.dp)); Text("Scan QR code") }
+                            Button(onClick = scan, enabled = !reading, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.CameraAlt, null); Spacer(Modifier.width(8.dp)); Text("扫描二维码") }
                             OutlinedButton(onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, enabled = !reading, modifier = Modifier.fillMaxWidth()) {
-                                Icon(Icons.Default.Photo, null); Spacer(Modifier.width(8.dp)); Text(if (reading) "Reading…" else "Choose QR from Photos")
+                                Icon(Icons.Default.Photo, null); Spacer(Modifier.width(8.dp)); Text(if (reading) "Reading…" else "从照片中选择二维码")
                             }
-                            TextButton(onClick = { manual = true }, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.Keyboard, null); Spacer(Modifier.width(8.dp)); Text("Enter code manually") }
+                            TextButton(onClick = { manual = true }, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.Keyboard, null); Spacer(Modifier.width(8.dp)); Text("手动输入代码") }
                         }
                     }
                     if (manual || code.isNotEmpty()) {
                         Card(Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text("Activation code", style = MaterialTheme.typography.titleSmall)
+                                Text("激活码", style = MaterialTheme.typography.titleSmall)
                                 OutlinedTextField(code, { code = it; confirmationCode = ""; error = null }, label = { Text("LPA:1$…") }, modifier = Modifier.fillMaxWidth(),
                                     visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Password))
                                 parsed?.let { Text("代码已准备好·来自${it.server}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
                                 if (parsed?.needsConfirmationCode == true) {
-                                    OutlinedTextField(confirmationCode, { confirmationCode = it }, label = { Text("Operator confirmation code") }, modifier = Modifier.fillMaxWidth(),
+                                    OutlinedTextField(confirmationCode, { confirmationCode = it }, label = { Text("运营商确认码") }, modifier = Modifier.fillMaxWidth(),
                                         visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, keyboardType = KeyboardType.Password),
                                         supportingText = { Text("运营商提供的单独代码（最多 64 个字符）。") })
                                 }
                                 Button(onClick = {
                                     if (parsed == null) error = RouterESimActivationCode.INVALID_MESSAGE
-                                    else if (parsed.needsConfirmationCode && !RouterESimActivationCode.validConfirmationCode(confirmationCode)) error = "Enter the confirmation code from your operator (up to 64 characters)."
+                                    else if (parsed.needsConfirmationCode && !RouterESimActivationCode.validConfirmationCode(confirmationCode)) error = "请输入运营商提供的确认码（最多 64 个字符）。"
                                     else viewModel.startDownload(parsed.value, confirmationCode)
-                                }, enabled = code.isNotBlank() && !state.blocksSwitching && !reading) { Text("Read profile details") }
+                                }, enabled = code.isNotBlank() && !state.blocksSwitching && !reading) { Text("阅读配置文件详细信息") }
                             }
                         }
                     }
@@ -148,7 +148,7 @@ fun RouterESimAddScreen(viewModel: RouterESimViewModel, onClose: () -> Unit) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("无法开始此下载", style = MaterialTheme.typography.titleSmall)
                                 Text(note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                if (note.contains("agent password required", true)) Text("Set the router agent password in Agent Settings, then try again.", style = MaterialTheme.typography.bodySmall)
+                                if (note.contains("agent password required", true)) Text("在代理设置中设置路由器代理密码，然后重试。", style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }
@@ -187,13 +187,13 @@ private fun DownloadContent(state: RouterESimState, viewModel: RouterESimViewMod
                     Text(download.error ?: "The operator couldn’t add this profile.", color = MaterialTheme.colorScheme.error)
                     Button(onClick = retry) { Text("重试") }
                 }
-                else -> Text(if (download.step == "es10b_load_bound_profile_package") "Keep the router powered on. Installation can’t be cancelled at this stage." else "Keep your router connected to the internet. You can close this screen and return to check progress.")
+                else -> Text(if (download.step == "es10b_load_bound_profile_package") "保持路由器电源开启。在此阶段无法取消安装。" else "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。")
             }
             state.downloadNote?.let {
                 Text(it, color = MaterialTheme.colorScheme.error)
-                TextButton(onClick = viewModel::retryDownloadStatus, enabled = !state.operationInFlight) { Text("Check status") }
+                TextButton(onClick = viewModel::retryDownloadStatus, enabled = !state.operationInFlight) { Text("检查状态") }
             }
-            if (download.canCancel) OutlinedButton(onClick = viewModel::cancelDownload, enabled = !state.operationInFlight) { Text("Cancel download", color = MaterialTheme.colorScheme.error) }
+            if (download.canCancel) OutlinedButton(onClick = viewModel::cancelDownload, enabled = !state.operationInFlight) { Text("取消下载", color = MaterialTheme.colorScheme.error) }
         }
     }
 }

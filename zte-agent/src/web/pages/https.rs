@@ -113,21 +113,21 @@ pub fn section(pd: &PageData) -> Markup {
     let state = if s.listening.is_some() { "On" } else { "关于\u{b7}不听" };
     let foot = html! {
         @if pd.secure {
-            p.foot { "You are using HTTPS. Install the web UI from your browser\u{2019}s menu." }
+            p.foot { "你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。" }
         } @else if let Some(url) = hint(&s, pd.secure, pd.remote) {
-            p.foot { "This page is plain http. Once this device trusts the router\u{2019}s certificate authority (Install on Your Devices), open " a href=(url) rel="noreferrer" { (url) } " to install the web UI as an app." }
+            p.foot { "此页面使用明文 HTTP。请先按“在你的设备上安装”说明信任路由器证书颁发机构，然后打开  " a href=(url) rel="noreferrer" { (url) } " to install the web UI as an app." }
         }
         (error)
     };
     kit::section(Some(TITLE), Some(foot), html! {
         (kit::kv_row(Some(Icon::Lock), "HTTPS", state))
-        @if s.listening.is_none() { li { a.it href=(ON) { span { "Try Again" } } } }
+        @if s.listening.is_none() { li { a.it href=(ON) { span { "重试" } } } }
         @if let Some(t) = s.not_after {
-            (kit::kv_row(None, if s.renew_due { "Certificate expires" } else { "Certificate valid until" }, &date(t)))
+            (kit::kv_row(None, if s.renew_due { "证书过期" } else { "证书有效期至" }, &date(t)))
         }
         (url_rows(&s))
-        (kit::link_row(PAGE, Some(Icon::Shield), "Install on Your Devices"))
-        @if s.renew_due { li { a.it href=(RENEW) { span { "Renew Certificate" } } } }
+        (kit::link_row(PAGE, Some(Icon::Shield), "在您的设备上安装"))
+        @if s.renew_due { li { a.it href=(RENEW) { span { "更新证书" } } } }
         li { a.it.danger href=(RESET) { span { "复位HTTPS" } } }
     })
 }
@@ -144,7 +144,7 @@ pub fn install(pd: &PageData) -> Markup {
     if !s.on {
         return html! {
             div.vc {
-                (kit::empty_state(Icon::Lock, "HTTPS is off", "Turn it on in Settings first."))
+                (kit::empty_state(Icon::Lock, "HTTPS is off", "首先在“设置”中将其打开。"))
                 p.actions.ctr { a.btn href=(SETTINGS) { "设置" } }
             }
         };
@@ -152,7 +152,7 @@ pub fn install(pd: &PageData) -> Markup {
     let ca = s.ca_name.as_str();
     let fp_foot = html! {
         @if pd.secure {
-            p.foot { "This page came over HTTPS from the router, so these are its fingerprints. Check that the device you set up shows the same SHA-256 fingerprint; letter case, spaces and colons do not matter." }
+            p.foot { "这个页面来自路由器的 HTTPS，所以这些是它的指纹。检查您设置的设备是否显示相同的 SHA-256 指纹；字母大小写、空格和冒号并不重要。" }
         } @else {
             p.foot {
                 "Before you trust it, check that your device shows the same SHA-256 fingerprint (letter case, spaces and colons do not matter). \
@@ -162,18 +162,18 @@ pub fn install(pd: &PageData) -> Markup {
                 " over SSH (the same digits)."
             }
         }
-        p.foot { "Where devices show it: iPhone and iPad: Settings \u{203a} Profile Downloaded \u{203a} More Details \u{203a} the certificate, before you tap Install; Mac: Keychain Access \u{203a} the certificate; Android: after installing, Settings \u{203a} Trusted credentials \u{203a} User \u{203a} the certificate (remove it if they differ)." }
-        p.foot { "Windows shows the SHA-1 \u{201c}Thumbprint\u{201d} (Details tab): " span.mono { (s.sha1.replace(':', "").to_ascii_lowercase()) } }
+        p.foot { "设备显示位置：iPhone 和 iPad：设置 \u{203a} 配置文件已下载 \u{203a} 更多详细信息 \u{203a} 证书，然后点击安装； Mac：Keychain 访问\u{203a}证书； Android：安装后，设置 \u{203a} 受信任凭据 \u{203a} 用户 \u{203a} 证书（如果不同，请将其删除）。" }
+        p.foot { "Windows 显示 SHA-1 \u{201c}Thumbprint\u{201d}（详细信息选项卡）： " span.mono { (s.sha1.replace(':', "").to_ascii_lowercase()) } }
     };
     html! {
-        (kit::section(Some("Certificate Authority"), Some(fp_foot), html! {
+        (kit::section(Some("证书颁发机构"), Some(fp_foot), html! {
             (kit::kv_row(None, "名称", ca))
-            (kit::kv_row(None, "Can vouch for", &s.covers.join(" and ")))
+            (kit::kv_row(None, "可以证明", &s.covers.join(" and ")))
             // Line breaks only between the byte pairs; screen readers get
             // the whole value once.
-            li.it { span.cvb { span { "SHA-256 fingerprint" } span.sr { (s.sha256) } small.mono.fp translate="no" aria-hidden="true" { @for (i, pair) in s.sha256.split(':').enumerate() { @if i > 0 { ":" wbr; } (pair) } } } }
+            li.it { span.cvb { span { "SHA-256 指纹" } span.sr { (s.sha256) } small.mono.fp translate="no" aria-hidden="true" { @for (i, pair) in s.sha256.split(':').enumerate() { @if i > 0 { ":" wbr; } (pair) } } } }
         }))
-        (kit::section(Some("下载"), Some(html! { p.foot { "The same certificate in two formats. It holds no secret." } }), html! {
+        (kit::section(Some("下载"), Some(html! { p.foot { "两种格式的相同证书。这没有什么秘密。" } }), html! {
             li { a.it href=(DOWNLOAD_PROFILE) download="u60-pro-ca.mobileconfig" { (kit::icon(Icon::Doc)) span { "iPhone 和 iPad 的配置文件" } } }
             li { a.it href=(DOWNLOAD_CRT) download="u60-pro-ca.crt" { (kit::icon(Icon::Doc)) span { "适用于 Android、Mac 和 Windows 的证书 (.crt)" } } }
         }))
@@ -261,18 +261,18 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
                 format!("HTTPS is on, but the router is not listening on port {port}{}", s.error.as_deref().map_or(".".into(), |e| format!(": {e}"))),
                 "一旦持有端口的任何东西停止，请重试。其他什么都没有改变。".into(),
             ],
-            Some("Try Again"),
+            Some("重试"),
         ),
         Post::Renew if !s.on => ("HTTPS is off".into(), Vec::new(), None),
         Post::Reset if !s.on && s.kept.is_none() && s.error.is_none() => ("HTTPS is off".into(), Vec::new(), None),
         Post::On | Post::Renew if s.clock.usable().is_none() => {
-            ("The router\u{2019}s clock isn\u{2019}t set yet".into(), vec![crate::tls::CLOCK_UNSET.into()], None)
+            ("路由器时钟尚未设置".into(), vec![crate::tls::CLOCK_UNSET.into()], None)
         }
         Post::On if s.kept.is_some() => (
-            "Turn on HTTPS?".into(),
+            "开启 HTTPS？".into(),
             vec![
                 format!(
-                    "The router issues a new certificate for its LAN address and {} from its certificate authority ({}), and serves this web UI over HTTPS on port {port}. Devices that trust it need nothing new.",
+                    "路由器将为其 LAN 地址及 {} 签发新证书，签发机构为 {}，并通过 {port} 端口提供 HTTPS 管理网页。已信任该机构的设备无需重新设置。",
                     tls.name(),
                     s.kept.as_deref().unwrap_or_default()
                 ),
@@ -282,43 +282,43 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
             Some("开启HTTPS"),
         ),
         Post::On => (
-            "Turn on HTTPS?".into(),
+            "开启 HTTPS？".into(),
             vec![
                 format!(
-                    "The router creates its own certificate authority and a certificate for its LAN address and {}, and serves this web UI over HTTPS on port {port}.",
+                    "路由器为其 LAN 地址和 {} 创建自己的证书颁发机构和证书，并通过端口 {port} 上的 HTTPS 提供此 Web UI。",
                     tls.name()
                 ),
-                format!("Each phone or computer then trusts that authority once (Install on Your Devices shows how). It can only vouch for this router\u{2019}s LAN address and {} (and names under it), never for other websites or devices. If you later change the LAN address, only {} keeps working until you reset HTTPS.", tls.name(), tls.name()),
+                format!("然后，每部手机或计算机都会信任该权限一次（在您的设备上安装显示如何操作）。它只能为该路由器\u{2019}的LAN地址和{}（及其下的名称）提供担保，而不能为其他网站或设备提供担保。如果您稍后更改 LAN 地址，则只有 {} 继续工作，直到您重置 HTTPS。", tls.name(), tls.name()),
                 clock_line(s.clock),
                 plain_http(),
             ],
             Some("开启HTTPS"),
         ),
         Post::Renew => (
-            "Renew the certificate?".into(),
+            "更新证书？".into(),
             vec![
-                format!("The router issues a new certificate for the next {} days from the same certificate authority; devices that trust it need nothing new.", crate::tls::SERVER_DAYS - 2),
+                format!("路由器从同一证书颁发机构颁发未来 {} 天的新证书；信任它的设备不需要任何新东西。", crate::tls::SERVER_DAYS - 2),
                 clock_line(s.clock),
             ],
-            Some("Renew Certificate"),
+            Some("更新证书"),
         ),
         Post::Reset if !s.on => (
-            "Reset HTTPS?".into(),
+            "重置HTTPS？".into(),
             vec![
-                format!("This deletes the certificate files left on the router{}.", s.kept.as_deref().map_or(String::new(), |c| format!(" ({c})"))),
-                "Remove that certificate authority from every device that trusts it. If you turn HTTPS on again, each device must trust the new one.".into(),
+                format!("这将删除路由器{}上留下的证书文件。", s.kept.as_deref().map_or(String::new(), |c| format!(" ({c})"))),
+                "从每台信任该证书颁发机构的设备上删除该证书颁发机构。如果您再次打开 HTTPS，则每台设备都必须信任新设备。".into(),
             ],
             Some("复位HTTPS"),
         ),
         Post::Reset => {
             let mut lines = vec![
-                format!("This deletes the router\u{2019}s certificate authority ({}) and certificate and stops HTTPS on port {port}, also for pages open over it.", s.ca_name),
-                "Remove that certificate authority from every device that trusts it: it can no longer be used. If you turn HTTPS on again, each device must trust the new one.".into(),
+                format!("这将删除路由器 \u{2019} 的证书颁发机构 ({}) 和证书，并停止端口 {port} 上的 HTTPS，也适用于通过其打开的页面。", s.ca_name),
+                "从信任它的每个设备中删除该证书颁发机构：它不能再使用。如果您再次打开 HTTPS，则每台设备都必须信任新设备。".into(),
             ];
             if secure {
-                lines.push(format!("This page is open over HTTPS and stops working: continue on the http address (port {}).", crate::httpd::http_port()));
+                lines.push(format!("此页面通过 HTTPS 打开并停止工作：继续使用 http 地址（端口 {}）。", crate::httpd::http_port()));
             }
-            ("Reset HTTPS?".into(), lines, Some("复位HTTPS"))
+            ("重置HTTPS？".into(), lines, Some("复位HTTPS"))
         }
     }
 }
@@ -352,7 +352,7 @@ fn line(ctx_flash: &crate::web::store::Flash, app: &AppState, owner: crate::auth
 fn done(k: Post) -> &'static str {
     match k {
         Post::On => "HTTPS is on. Next: Install on Your Devices (a device that already trusts the router\u{2019}s certificate authority needs nothing new).",
-        Post::Renew => "Certificate renewed.",
+        Post::Renew => "证书更新。",
         Post::Reset => "HTTPS was reset. Remove the old certificate authority from your devices.",
     }
 }
@@ -401,7 +401,7 @@ pub async fn post(ctx: Ctx, req: Request, k: Post) -> Response {
         Sent::Ran(resp) => resp,
         Sent::Done(Ok(())) => note(Some(true), done(k)),
         Sent::Done(Err((_, e))) => note(Some(false), &e),
-        Sent::Expired => note(Some(false), "This page expired, so nothing was changed. Try again."),
+        Sent::Expired => note(Some(false), "该页面已过期，因此没有任何更改。再试一次。"),
         Sent::Unknown => note(None, "路由器可能仍在处理它。重试前请检查。"),
         Sent::Busy => note(Some(false), "失败：路由器正忙。几秒钟后重试。"),
     }

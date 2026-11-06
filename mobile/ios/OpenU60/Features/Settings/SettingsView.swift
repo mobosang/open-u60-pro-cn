@@ -86,8 +86,8 @@ struct SettingsView: View {
                 }
 
                 Section("关于") {
-                    LabeledContent("App", value: "OpenU60")
-                    LabeledContent("Device", value: "ZTE U60 Pro (MU5250)")
+                    LabeledContent("应用程序", value: "OpenU60")
+                    LabeledContent("设备", value: "ZTE U60 Pro (MU5250)")
                     LabeledContent("API", value: "zte-agent REST")
                 }
 
@@ -95,7 +95,7 @@ struct SettingsView: View {
                     Text("此应用程序不隶属于 ZTE Corporation，也不受其认可或赞助。 ZTE 和 U60 Pro 是 ZTE Corporation 的商标。")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Link("Privacy Policy", destination: URL(string: "https://open-u60-pro.vercel.app/privacy")!)
+                    Link("隐私政策", destination: URL(string: "https://open-u60-pro.vercel.app/privacy")!)
                 }
             }
             .navigationTitle("设置")

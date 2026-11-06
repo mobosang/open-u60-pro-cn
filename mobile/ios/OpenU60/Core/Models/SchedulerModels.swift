@@ -61,14 +61,14 @@ struct SchedulerJob: Identifiable {
         switch scheduleType {
         case "recurring":
             let time = scheduleTime ?? "??:??"
-            let dayNames = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+            let dayNames = ["Mon","周二","周三","周四","周五","周六","周日"]
             let dayStr: String
             if scheduleDays.count == 7 {
-                dayStr = "Every day"
+                dayStr = "每天"
             } else if scheduleDays == [0,1,2,3,4] {
-                dayStr = "Mon\u{2013}Fri"
+                dayStr = "周一\u{2013}周五"
             } else if scheduleDays == [5,6] {
-                dayStr = "Weekends"
+                dayStr = "周末"
             } else {
                 dayStr = scheduleDays.compactMap { dayNames.indices.contains($0) ? dayNames[$0] : nil }.joined(separator: ", ")
             }

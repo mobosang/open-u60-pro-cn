@@ -83,22 +83,22 @@ struct SpeedTestView: View {
             if viewModel.progress.phase == "complete" {
                 Section("结果") {
                     if let ping = viewModel.progress.pingMs {
-                        LabeledContent("Ping", value: String(format: "%.1f ms", ping))
+                        LabeledContent("延迟测试", value: String(format: "%.1f ms", ping))
                     }
                     if let jitter = viewModel.progress.jitterMs {
-                        LabeledContent("Jitter", value: String(format: "%.1f ms", jitter))
+                        LabeledContent("抖动", value: String(format: "%.1f ms", jitter))
                     }
                     if let download = viewModel.progress.downloadMbps {
-                        LabeledContent("Download", value: String(format: "%.2f Mbps", download))
+                        LabeledContent("下载", value: String(format: "%.2f Mbps", download))
                     }
                     if let upload = viewModel.progress.uploadMbps {
-                        LabeledContent("Upload", value: String(format: "%.2f Mbps", upload))
+                        LabeledContent("上传", value: String(format: "%.2f Mbps", upload))
                     }
                 }
 
                 Section("转账") {
-                    LabeledContent("Downloaded", value: formatBytes(viewModel.progress.downloadBytes))
-                    LabeledContent("Uploaded", value: formatBytes(viewModel.progress.uploadBytes))
+                    LabeledContent("已下载", value: formatBytes(viewModel.progress.downloadBytes))
+                    LabeledContent("已上传", value: formatBytes(viewModel.progress.uploadBytes))
                     if !viewModel.progress.server.isEmpty {
                         LabeledContent("服务器", value: viewModel.progress.server)
                     }

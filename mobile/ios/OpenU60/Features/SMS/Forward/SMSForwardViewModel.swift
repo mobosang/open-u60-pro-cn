@@ -44,7 +44,7 @@ final class SMSForwardViewModel {
                 ?? (data["last_forwarded_id"] as? NSNumber)?.intValue
                 ?? 0
         } catch {
-            report(error, as: "Failed to load")
+            report(error, as: "加载失败")
         }
         isLoading = false
     }
@@ -65,7 +65,7 @@ final class SMSForwardViewModel {
             config.deleteAfterForward = deleteAfter
             showMessage("已保存设置", isError: false)
         } catch {
-            report(error, as: "Failed")
+            report(error, as: "失败")
         }
         isLoading = false
     }
@@ -83,7 +83,7 @@ final class SMSForwardViewModel {
             config.enabled = enabled  // re-assert in case refresh() overwrote during await
         } catch {
             config.enabled = previous  // revert on failure
-            report(error, as: "Failed")
+            report(error, as: "失败")
         }
     }
 
@@ -102,7 +102,7 @@ final class SMSForwardViewModel {
             showMessage("规则已创建", isError: false)
             await refresh()
         } catch {
-            report(error, as: "Failed")
+            report(error, as: "失败")
         }
         isLoading = false
     }
@@ -121,7 +121,7 @@ final class SMSForwardViewModel {
             showMessage("规则更新", isError: false)
             await refresh()
         } catch {
-            report(error, as: "Failed")
+            report(error, as: "失败")
         }
         isLoading = false
     }
@@ -132,7 +132,7 @@ final class SMSForwardViewModel {
             config.rules.removeAll { $0.id == id }
             showMessage("规则已删除", isError: false)
         } catch {
-            report(error, as: "Failed")
+            report(error, as: "失败")
         }
     }
 
@@ -143,7 +143,7 @@ final class SMSForwardViewModel {
                 config.rules[idx].enabled = enabled
             }
         } catch {
-            report(error, as: "Failed")
+            report(error, as: "失败")
         }
     }
 
@@ -183,7 +183,7 @@ final class SMSForwardViewModel {
             // Held forwards survive a clear: show the entries the agent kept.
             await fetchLog()
         } catch {
-            report(error, as: "Failed")
+            report(error, as: "失败")
         }
     }
 

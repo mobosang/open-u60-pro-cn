@@ -454,8 +454,8 @@ mod tests {
         want.push("live-status".into());
         assert_eq!(ids(&open), want);
         assert!(open.last().unwrap().starts_with(
-            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>Connected</b></span>\
-             <span class=\"lost\"><a href=\"/ui/\">Offline<span class=\"sr\">. Refresh</span></a></span></p>"
+            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>已连接</b></span>\
+             <span class=\"lost\"><a href=\"/ui/\">离线<span class=\"sr\">. 刷新</span></a></span></p>"
         ));
         // Byte-equal to the same fragment of a full page (the age badge is
         // the nav bar's).
@@ -489,7 +489,7 @@ mod tests {
         assert_eq!(ids(&parts), ["age", "live-status"]);
         // The badge's digit rolls up from 0 (`roll`); its label is what
         // screen readers read.
-        assert!(parts[0].contains("aria-label=\"Updated 4 seconds ago\"><span class=\"rl\" aria-hidden=\"true\"><i id=\"age04\" data-u=\"0\">4</i>s ago</span>"), "{}", parts[0]);
+        assert!(parts[0].contains("aria-label=\"更新 4 seconds ago\"><span class=\"rl\" aria-hidden=\"true\"><i id=\"age04\" data-u=\"0\">4</i>s ago</span>"), "{}", parts[0]);
         assert!(parts[1].contains("class=\"live on ps hb-a\""));
         let much_later = v.now.saturating_add(Duration::from_secs(20));
         let parts = elements(&em.tick(much_later, &ages));
@@ -594,7 +594,7 @@ mod tests {
         let mut em = PageEmitter::new(hub(), signal_page(false), BootClock.now());
         assert_eq!(
             elements(&em.bye(ByeReason::LoggedOut)).join(""),
-            "<p class=\"live\" id=\"live-status\">Signed out. <a href=\"/ui/login?next=%2Fui%2Fsignal\">Log in</a></p>"
+            "<p class=\"live\" id=\"live-status\">已退出。 <a href=\"/ui/login?next=%2Fui%2Fsignal\">登录</a></p>"
         );
         // The dashboard: the pill says "Offline", the reason goes under the bar.
         let mut em = PageEmitter::new(hub(), dash_page(), BootClock.now());
@@ -602,13 +602,13 @@ mod tests {
         for r in [ByeReason::TokenExpired, ByeReason::LoggedOut] {
             assert_eq!(
                 note(&mut em, r),
-                "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>Offline</b></span></p>\
-                 <p id=\"live-note\">Signed out. <a href=\"/ui/login?next=%2Fui%2F\">Log in</a></p>"
+                "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>离线</b></span></p>\
+                 <p id=\"live-note\">已退出。 <a href=\"/ui/login?next=%2Fui%2F\">登录</a></p>"
             );
         }
-        assert!(note(&mut em, ByeReason::Lifetime).contains("Live updates paused after 30 minutes. <a href=\"/ui/\">Resume</a>"));
-        assert!(note(&mut em, ByeReason::Evicted).contains("Opened in another tab. <a href=\"/ui/\">Refresh</a>"));
-        assert!(note(&mut em, ByeReason::Standby).contains("The router went into standby. <a href=\"/ui/\">Refresh</a>"));
+        assert!(note(&mut em, ByeReason::Lifetime).contains("Live updates paused after 30 minutes. <a href=\"/ui/\">简历</a>"));
+        assert!(note(&mut em, ByeReason::Evicted).contains("Opened in another tab. <a href=\"/ui/\">刷新</a>"));
+        assert!(note(&mut em, ByeReason::Standby).contains("The router went into standby. <a href=\"/ui/\">刷新</a>"));
         assert!(!note(&mut em, ByeReason::Standby).contains(" on"));
     }
 
@@ -807,7 +807,7 @@ mod tests {
         let mut em = PageEmitter::new(hub(), page, now);
         let online = SlotView { version: 1, at: now, value_at: now, value: Some(Arc::new(json!({"status": {"operate_mode": "ONLINE"}}))), error: None };
         let parts = elements(&em.open(vec![(Topic::Modem, online.clone())], now));
-        assert_eq!(parts[0], "<h1 id=\"op-title\">Turning airplane mode on</h1>");
+        assert_eq!(parts[0], "<h1 id=\"op-title\">开启飞行模式</h1>");
         assert!(parts[1].contains("关闭收音机") && parts[2].contains("hb-o"));
         assert!(!em.finished());
         // Byte-equal to the page's heading and progress card.
@@ -818,7 +818,7 @@ mod tests {
         let lpm = SlotView { version: 2, at: now, value_at: now, value: Some(Arc::new(json!({"status": {"operate_mode": "LPM"}}))), error: None };
         let parts = elements(&em.changes(vec![(Topic::Modem, lpm)], now));
         // The heading turns to the past tense with the outcome.
-        assert_eq!(parts[0], "<h1 id=\"op-title\">Airplane mode turned on</h1>");
+        assert_eq!(parts[0], "<h1 id=\"op-title\">飞行模式开启</h1>");
         assert!(parts[1].contains("飞行模式已开启。收音机已关闭。"));
         assert_eq!(parts[2], "<p class=\"live\" id=\"live-status\"></p>");
         assert!(em.finished());

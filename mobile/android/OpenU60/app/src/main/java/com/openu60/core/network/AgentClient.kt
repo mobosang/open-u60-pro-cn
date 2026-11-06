@@ -180,7 +180,7 @@ class AgentClient @Inject constructor() {
         } catch (e: java.net.ConnectException) {
             throw AgentError.ServerUnreachable()
         } catch (e: Exception) {
-            throw AgentError.NetworkError(e.message ?: "Unknown", e)
+            throw AgentError.NetworkError(e.message ?: "未知", e)
         }
     }
 

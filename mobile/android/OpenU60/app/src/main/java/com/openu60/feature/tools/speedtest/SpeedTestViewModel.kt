@@ -139,9 +139,9 @@ class SpeedTestViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isLoading = false,
                     message = when (finalPhase) {
-                        "complete" -> "Speed test complete"
-                        "cancelled" -> "Speed test cancelled"
-                        "error" -> _state.value.error ?: "Speed test failed"
+                        "complete" -> "速度测试完成"
+                        "cancelled" -> "速度测试取消"
+                        "error" -> _state.value.error ?: "速度测试失败"
                         else -> null
                     },
                     messageIsError = finalPhase == "error",

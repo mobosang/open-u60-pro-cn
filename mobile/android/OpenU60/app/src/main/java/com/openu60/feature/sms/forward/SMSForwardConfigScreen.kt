@@ -48,7 +48,7 @@ fun SMSForwardConfigScreen(
                 title = { Text("短信转发") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -183,7 +183,7 @@ fun SMSForwardConfigScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Add Rule")
+                        Text("添加规则")
                     }
                 }
             }
@@ -217,14 +217,14 @@ private fun RuleCard(
             }
             Switch(checked = rule.enabled, onCheckedChange = onToggle)
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.error)
             }
         }
     }
 }
 
 private fun filterSummary(filter: SmsFilter): String = when (filter) {
-    is SmsFilter.All -> "All messages"
+    is SmsFilter.All -> "全部短信"
     is SmsFilter.Sender -> "Sender: ${filter.patterns.joinToString(", ")}"
     is SmsFilter.Content -> "Content: ${filter.keywords.joinToString(", ")}"
     is SmsFilter.SenderAndContent -> "Sender: ${filter.patterns.joinToString(", ")} + Content: ${filter.keywords.joinToString(", ")}"

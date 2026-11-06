@@ -33,7 +33,7 @@ fun GuestWiFiSettingsScreen(
                 title = { Text("访客 WiFi") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -137,10 +137,10 @@ fun GuestWiFiSettingsScreen(
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
-                        ToggleRow("Hidden Network", state.config.hidden) {
+                        ToggleRow("隐藏网络", state.config.hidden) {
                             viewModel.updateConfig(state.config.copy(hidden = it))
                         }
-                        ToggleRow("Client Isolation", state.config.isolate) {
+                        ToggleRow("客户端隔离", state.config.isolate) {
                             viewModel.updateConfig(state.config.copy(isolate = it))
                         }
                     }
@@ -153,7 +153,7 @@ fun GuestWiFiSettingsScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         var timeExpanded by remember { mutableStateOf(false) }
-                        val selectedLabel = GuestWiFiConfig.activeTimeOptions.firstOrNull { it.second == state.config.activeTime }?.first ?: "No Limit"
+                        val selectedLabel = GuestWiFiConfig.activeTimeOptions.firstOrNull { it.second == state.config.activeTime }?.first ?: "没有限制"
                         ExposedDropdownMenuBox(
                             expanded = timeExpanded,
                             onExpandedChange = { timeExpanded = it },

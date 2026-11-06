@@ -18,7 +18,7 @@ struct ProcessListSheet: View {
         NavigationStack {
             Group {
                 if isLoading && processes.isEmpty {
-                    ProgressView("Loading processes...")
+                    ProgressView("加载过程...")
                 } else {
                     List {
                         if bloatCount > 0 {

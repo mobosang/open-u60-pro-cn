@@ -49,7 +49,7 @@ fun USBModeScreen(
                 title = { Text("USB 模式") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -89,9 +89,9 @@ fun USBModeScreen(
                         Text("USB状态", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         InfoRow("Current Mode", state.usbStatus.mode.ifBlank { "--" })
-                        InfoRow("Cable", if (state.usbStatus.cableAttached) "Attached (${state.usbStatus.typecCC})" else "Disconnected")
-                        InfoRow("Data", if (state.usbStatus.dataConnected) "Connected" else "Disconnected")
-                        InfoRow("移动电源", if (state.usbStatus.powerbankActive) "Active" else "Inactive")
+                        InfoRow("电缆", if (state.usbStatus.cableAttached) "Attached (${state.usbStatus.typecCC})" else "未连接")
+                        InfoRow("数据", if (state.usbStatus.dataConnected) "已连接" else "未连接")
+                        InfoRow("移动电源", if (state.usbStatus.powerbankActive) "已启用" else "未启用")
                     }
                 }
 

@@ -48,18 +48,18 @@ struct CPUDetailSheet: View {
                 if systemInfo.cpuUsagePercent > 0 && systemInfo.cpuUsageIsEstimate {
                     row("Usage Source", icon: "info.circle", value: "Estimated")
                 }
-                row("CPU Cores", icon: "square.grid.2x2", value: "\(systemInfo.cpuCores)")
+                row("CPU 核心", icon: "square.grid.2x2", value: "\(systemInfo.cpuCores)")
                 HStack {
                     Label("CPU·最热传感器", systemImage: "thermometer.medium")
                     Spacer()
                     TemperatureValueText(value: thermal.cpuTemp).foregroundStyle(.secondary)
                 }
-                row("Uptime", icon: "clock", value: formatUptime(systemInfo.uptime))
-                row("Memory Total", icon: "memorychip", value: formatBytes(systemInfo.memTotal))
-                row("Memory Free", icon: "memorychip", value: formatBytes(systemInfo.memFree))
+                row("正常运行时间", icon: "clock", value: formatUptime(systemInfo.uptime))
+                row("内存总量", icon: "memorychip", value: formatBytes(systemInfo.memTotal))
+                row("内存释放", icon: "memorychip", value: formatBytes(systemInfo.memFree))
                 if systemInfo.memTotal > 0 {
                     let used = Double(systemInfo.memTotal - systemInfo.memFree) / Double(systemInfo.memTotal) * 100
-                    row("Memory Used", icon: "chart.bar", value: String(format: "%.0f%%", used))
+                    row("已用内存", icon: "chart.bar", value: String(format: "%.0f%%", used))
                 }
 
                 Button {
@@ -149,7 +149,7 @@ struct TemperatureCardView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         temperatureRow("CPU·最热传感器", icon: "cpu",
                             value: thermal.cpuTemp, fresh: isFresh(thermalUpdatedAt, at: context.date))
-                        temperatureRow("Battery", icon: "battery.100",
+                        temperatureRow("电池", icon: "battery.100",
                             value: battery.temperature,
                             fresh: isFresh(batteryUpdatedAt, at: context.date))
                         ForEach(summarySensors) { sensor in
@@ -162,7 +162,7 @@ struct TemperatureCardView: View {
                     }
                 }
                 if !thermal.sensors.isEmpty {
-                    DisclosureGroup("All sensors", isExpanded: $showAllSensors) {
+                    DisclosureGroup("所有传感器", isExpanded: $showAllSensors) {
                         VStack(alignment: .leading, spacing: 12) {
                             ForEach(thermal.sensors) { sensor in
                                 HStack(alignment: .firstTextBaseline) {

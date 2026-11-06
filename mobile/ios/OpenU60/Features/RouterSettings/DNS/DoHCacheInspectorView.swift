@@ -50,7 +50,7 @@ struct DoHCacheInspectorView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .searchable(text: $searchText, prompt: "Filter by domain")
+            .searchable(text: $searchText, prompt: "按域过滤")
             .navigationTitle("DNS 缓存（\(filtered.count)）")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

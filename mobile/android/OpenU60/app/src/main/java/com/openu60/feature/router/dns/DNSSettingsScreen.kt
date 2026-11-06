@@ -31,7 +31,7 @@ fun DNSSettingsScreen(
                 title = { Text("DNS设置") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -75,7 +75,7 @@ fun DNSSettingsScreen(
                 // Mode tabs
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("DNS Mode", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("DNS 模式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         TabRow(
                             selectedTabIndex = state.dnsMode.ordinal,
@@ -148,11 +148,11 @@ fun DNSSettingsScreen(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             if (state.dohStatus.enabled) {
-                                InfoRow("Status", "Running")
+                                InfoRow("状态", "运行中")
                                 InfoRow("Upstream", state.dohStatus.upstreamUrl)
                                 InfoRow("Cache Entries", "${state.dohStatus.cacheEntries}")
                                 InfoRow("Queries", "${state.dohStatus.queriesTotal}")
-                                InfoRow("Hit Ratio", "%.1f%%".format(state.dohStatus.hitRatio))
+                                InfoRow("命中率", "%.1f%%".format(state.dohStatus.hitRatio))
 
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

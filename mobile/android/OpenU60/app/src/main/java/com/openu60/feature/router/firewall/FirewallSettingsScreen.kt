@@ -30,10 +30,10 @@ fun FirewallSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Firewall") },
+                title = { Text("防火墙") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -72,9 +72,9 @@ fun FirewallSettingsScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("概述", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
-                        ToggleRow("Firewall", state.config.enabled) { viewModel.toggleFirewall(it) }
+                        ToggleRow("防火墙", state.config.enabled) { viewModel.toggleFirewall(it) }
                         ToggleRow("NAT", state.config.nat) { viewModel.toggleNAT(it) }
-                        ToggleRow("Port Forwarding", state.config.portForwardEnabled) { viewModel.togglePortForward(it) }
+                        ToggleRow("端口转发", state.config.portForwardEnabled) { viewModel.togglePortForward(it) }
                     }
                 }
 
@@ -112,7 +112,7 @@ fun FirewallSettingsScreen(
                         OutlinedTextField(
                             value = dmzHost,
                             onValueChange = { dmzHost = it },
-                            label = { Text("DMZ Host IP") },
+                            label = { Text("DMZ主机IP") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                         )
@@ -146,7 +146,7 @@ fun FirewallSettingsScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(rule.name.ifBlank { "Unnamed" }, fontWeight = FontWeight.Medium)
+                                        Text(rule.name.ifBlank { "未命名" }, fontWeight = FontWeight.Medium)
                                         Text(
                                             "${rule.protocol.uppercase()} WAN:${rule.wanPort} -> ${rule.lanIP}:${rule.lanPort}",
                                             style = MaterialTheme.typography.bodySmall,
@@ -154,7 +154,7 @@ fun FirewallSettingsScreen(
                                         )
                                     }
                                     IconButton(onClick = { viewModel.deletePortForwardRule(rule.id) }) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+                                        Icon(Icons.Default.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.error)
                                     }
                                 }
                                 HorizontalDivider()
@@ -215,9 +215,9 @@ private fun PortForwardFormInline(
                     )
                 }
             }
-            OutlinedTextField(value = wanPort, onValueChange = { wanPort = it }, label = { Text("WAN Port") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(value = wanPort, onValueChange = { wanPort = it }, label = { Text("广域网端口") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(value = lanIP, onValueChange = { lanIP = it }, label = { Text("LAN IP") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-            OutlinedTextField(value = lanPort, onValueChange = { lanPort = it }, label = { Text("LAN Port") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(value = lanPort, onValueChange = { lanPort = it }, label = { Text("局域网接口") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = { onSubmit(name, protocol, wanPort, lanIP, lanPort) },

@@ -45,7 +45,7 @@ struct SMSForwardRuleFormView: View {
                     Picker("类型", selection: $draft.destType) {
                         Text("Telegram").tag("telegram")
                         Text("Webhook").tag("webhook")
-                        Text("SMS").tag("sms")
+                        Text("短信").tag("sms")
                         Text("ntfy").tag("ntfy")
                         Text("Discord").tag("discord")
                         Text("Slack").tag("slack")
@@ -124,7 +124,7 @@ struct SMSForwardRuleFormView: View {
                     .disabled(draft.name.isEmpty || !draft.isDestinationValid)
                 }
             }
-            .navigationTitle(editingRule != nil ? "Edit Rule" : "New Rule")
+            .navigationTitle(editingRule != nil ? "Edit Rule" : "新规则")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

@@ -153,7 +153,7 @@ pub async fn submit(State(ctx): State<Ctx>, req: Request) -> Response {
         }
         Err(LoginError::RateLimited { retry_after }) => {
             let secs = retry_after_secs(retry_after);
-            let mut resp = error(429, &format!("Too many attempts. Try again in {secs} s."));
+            let mut resp = error(429, &format!("尝试次数过多，请在 {secs} 秒后重试。"));
             resp.headers_mut().insert(RETRY_AFTER, HeaderValue::from(secs));
             resp
         }

@@ -24,7 +24,7 @@ struct DNSSettingsView: View {
                 }
                 .pickerStyle(.segmented)
             } header: {
-                Text("DNS Mode")
+                Text("DNS 模式")
             } footer: {
                 Text(modeFooter)
             }
@@ -88,15 +88,15 @@ struct DNSSettingsView: View {
             // MARK: - Quick Setup
 
             Section {
-                Button("Cloudflare (1.1.1.1)") {
+                Button("Cloudflare（1.1.1.1）") {
                     viewModel.applyPreset(primary: "1.1.1.1", secondary: "1.0.0.1",
                                           upstream: "https://1.1.1.1/dns-query")
                 }
-                Button("Google (8.8.8.8)") {
+                Button("谷歌(8.8.8.8)") {
                     viewModel.applyPreset(primary: "8.8.8.8", secondary: "8.8.4.4",
                                           upstream: "https://8.8.8.8/dns-query")
                 }
-                Button("Quad9 (9.9.9.9)") {
+                Button("Quad9（9.9.9.9）") {
                     viewModel.applyPreset(primary: "9.9.9.9", secondary: "149.112.112.112",
                                           upstream: "https://9.9.9.9:5053/dns-query")
                 }
@@ -110,10 +110,10 @@ struct DNSSettingsView: View {
 
             if viewModel.doh.enabled {
                 Section("DoH 缓存") {
-                    LabeledContent("Entries", value: "\(viewModel.doh.cacheEntries)")
-                    LabeledContent("Hits", value: "\(viewModel.doh.cacheHits)")
-                    LabeledContent("Misses", value: "\(viewModel.doh.cacheMisses)")
-                    LabeledContent("Hit Ratio", value: String(format: "%.1f%%", viewModel.doh.hitRatio))
+                    LabeledContent("条目", value: "\(viewModel.doh.cacheEntries)")
+                    LabeledContent("命中次数", value: "\(viewModel.doh.cacheHits)")
+                    LabeledContent("未命中次数", value: "\(viewModel.doh.cacheMisses)")
+                    LabeledContent("命中率", value: String(format: "%.1f%%", viewModel.doh.hitRatio))
 
                     Button("检查缓存") {
                         viewModel.showCacheInspector = true
@@ -146,9 +146,9 @@ struct DNSSettingsView: View {
 
     private var modeFooter: String {
         switch viewModel.selectedMode {
-        case .auto: "Use DNS servers assigned by your ISP."
-        case .custom: "Use custom DNS servers."
-        case .doh: "Encrypt DNS queries over HTTPS."
+        case .auto: "使用您的 ISP 分配的 DNS 服务器。"
+        case .custom: "使用自定义 DNS 服务器。"
+        case .doh: "通过 HTTPS 加密 DNS 查询。"
         case .dot: "Encrypt DNS queries over TLS."
         }
     }

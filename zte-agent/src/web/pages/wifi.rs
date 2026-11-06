@@ -423,7 +423,7 @@ mod tests {
         json!({
             "wifi_onoff": "1", "wifi6_switch": "1", "radio2_disabled": "0", "radio5_disabled": "0",
             "channel_2g": "auto", "channel_5g": "36", "actual_channel_2g": "6", "actual_channel_5g": "",
-            "ssid_2g": "<b>Home</b>", "ssid_5g": "首页-5G", "key_2g": KEY, "key_5g": "WIFIKEY-5g-9c1d",
+            "ssid_2g": "<b>首页</b>", "ssid_5g": "首页-5G", "key_2g": KEY, "key_5g": "WIFIKEY-5g-9c1d",
             "encryption_2g": "psk2+ccmp", "encryption_5g": "sae-mixed", "hidden_2g": "0", "hidden_5g": "1",
             "clients_total": 3, "guest_disabled_2g": "0", "guest_disabled_5g": "1", "guest_ssid": "嘉宾",
             "txpower_2g": "100", "htmode_2g": "HE40", "country_code": "DE",
@@ -454,12 +454,12 @@ mod tests {
         assert!(!text.contains("WIFIKEY") && !text.contains("key_") && !text.contains("txpower"), "{text}");
         let s = wifi_card(Ok(&d)).into_string();
         for want in [
-            "<h2>WiFi</h2><span class=\"badge bl\">WiFi 7</span><span class=\"cap\">3 clients</span><span class=\"c-green\">On</span>",
+            "<h2>WiFi</h2><span class=\"badge bl\">WiFi 7</span><span class=\"cap\">3 clients</span><span class=\"c-green\">开启</span>",
             // 2.4G: the actual channel; the name escaped.
-            "2.4G</dt><dd><b>&lt;b&gt;Home&lt;/b&gt;</b> <small class=\"muted\">WPA2</small> <small class=\"muted\">CH 6</small></dd>",
+            "2.4G</dt><dd><b>&lt;b&gt;首页&lt;/b&gt;</b> <small class=\"muted\">WPA2</small> <small class=\"muted\">CH 6</small></dd>",
             // 5G: hidden, no actual channel: the configured one.
-            "5G</dt><dd><small class=\"c-orange\">(Hidden)</small> <b>Home-5G</b> <small class=\"muted\">WPA2/3</small> <small class=\"muted\">CH 36</small></dd>",
-            "Guest</dt><dd><b>Guests</b></dd>",
+            "5G</dt><dd><small class=\"c-orange\">（隐藏）</small> <b>首页-5G</b> <small class=\"muted\">WPA2/3</small> <small class=\"muted\">CH 36</small></dd>",
+            "Guest</dt><dd><b>嘉宾</b></dd>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -473,11 +473,11 @@ mod tests {
         }
         let s = wifi_card(Ok(&card_fields(&d))).into_string();
         assert!(s.contains("<span class=\"cap\">1 client</span>") && !s.contains("WiFi 7") && !s.contains("嘉宾"), "{s}");
-        assert!(s.contains("5G</dt><dd class=\"muted\">Disabled</dd>"), "{s}");
+        assert!(s.contains("5G</dt><dd class=\"muted\">已禁用</dd>"), "{s}");
         // Off: "Off" in red, no client count, no bands (as the app).
         d["wifi_onoff"] = json!("0");
         let s = wifi_card(Ok(&card_fields(&d))).into_string();
-        assert!(s.contains("<span class=\"c-red\">Off</span>") && !s.contains("client") && !s.contains("2.4G"), "{s}");
+        assert!(s.contains("<span class=\"c-red\">关闭</span>") && !s.contains("client") && !s.contains("2.4G"), "{s}");
         assert!(s.starts_with("<section class=\"card wf\">") && !s.contains("href"), "{s}");
         // No clients: no count.
         let mut d = status();
@@ -570,10 +570,10 @@ mod tests {
         let read = json!({"ssid": "首页；网", "key": "p@ss\"word:1234567", "encryption": "psk2+ccmp", "guest": false, "guest_on": true});
         let hidden = share_html(read.clone(), None);
         assert!(!hidden.contains("p@ss") && !hidden.contains("1234567"), "{hidden}");
-        assert!(hidden.contains("<span class=\"mono\" role=\"img\" aria-label=\"Password hidden\">••••••••••••</span> <a href=\"/ui/wifi/share?show=1\">Show password</a>"), "{hidden}");
+        assert!(hidden.contains("<span class=\"mono\" role=\"img\" aria-label=\"密码隐藏\">••••••••••••</span> <a href=\"/ui/wifi/share?show=1\">显示密码</a>"), "{hidden}");
         for want in [
-            "<nav class=\"seg\" aria-label=\"Network\"><a href=\"/ui/wifi/share\" aria-current=\"page\">Main</a><a href=\"/ui/wifi/share?net=guest\">Guest</a></nav>",
-            "<p><b>Home;Net</b></p>", "<svg class=\"qr\"", "使用任意手机摄像头扫描",
+            "<nav class=\"seg\" aria-label=\"网络\"><a href=\"/ui/wifi/share\" aria-current=\"page\">主要</a><a href=\"/ui/wifi/share?net=guest\">嘉宾</a></nav>",
+            "<p><b>首页；网</b></p>", "<svg class=\"qr\"", "使用任意手机摄像头扫描",
         ] {
             assert!(hidden.contains(want), "{want} in {hidden}");
         }
@@ -581,7 +581,7 @@ mod tests {
             assert!(!share_html(read.clone(), q).contains("p@ss"), "{q:?}");
         }
         let shown = share_html(read.clone(), Some("show=1"));
-        assert!(shown.contains("<span class=\"mono\" translate=\"no\">p@ss&quot;word:1234567</span> <a href=\"/ui/wifi/share\">Hide password</a>"), "{shown}");
+        assert!(shown.contains("<span class=\"mono\" translate=\"no\">p@ss&quot;word:1234567</span> <a href=\"/ui/wifi/share\">隐藏密码</a>"), "{shown}");
         // The same code either way, encoding the app's payload.
         let code = qr::svg(&qr::encode(r#"WIFI:T:WPA;S:Home\;Net;P:p@ss\"word\:1234567;;"#).unwrap(), "Wi-Fi二维码").into_string();
         assert!(hidden.contains(&code) && shown.contains(&code));
@@ -589,8 +589,8 @@ mod tests {
         // A short password: as many dots as characters; guest: its own links.
         let guest = json!({"ssid": "嘉宾", "key": "abc", "encryption": "sae", "guest": true, "guest_on": true});
         let s = share_html(guest, None);
-        assert!(s.contains(">•••</span> <a href=\"/ui/wifi/share?net=guest&amp;show=1\">Show password</a>"), "{s}");
-        assert!(s.contains("<a href=\"/ui/wifi/share?net=guest\" aria-current=\"page\">Guest</a>"), "{s}");
+        assert!(s.contains(">•••</span> <a href=\"/ui/wifi/share?net=guest&amp;show=1\">显示密码</a>"), "{s}");
+        assert!(s.contains("<a href=\"/ui/wifi/share?net=guest\" aria-current=\"page\">嘉宾</a>"), "{s}");
         // No guest network: no Main/Guest; an open one: no password row.
         let open = json!({"ssid": "咖啡馆", "key": "", "encryption": "none", "guest": false, "guest_on": false});
         let s = share_html(open, Some("show=1"));

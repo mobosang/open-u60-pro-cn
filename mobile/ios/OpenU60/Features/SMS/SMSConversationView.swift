@@ -69,7 +69,7 @@ struct SMSConversationView: View {
                         if await viewModel.sendSMS(to: conversation.number, message: text) {
                             messageText = ""
                         } else {
-                            sendFailure = viewModel.error ?? "Message not sent"
+                            sendFailure = viewModel.error ?? "消息未发送"
                         }
                     }
                 } label: {

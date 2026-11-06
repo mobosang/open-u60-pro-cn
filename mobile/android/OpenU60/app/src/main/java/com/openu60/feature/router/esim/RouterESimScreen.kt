@@ -64,12 +64,12 @@ fun RouterESimScreen(onBack: () -> Unit, viewModel: RouterESimViewModel = hiltVi
     Scaffold(topBar = {
         TopAppBar(
             title = { Text("eSIM 配置文件") },
-            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } },
             actions = {
                 IconButton(onClick = { viewModel.resetDownloadResult(); adding = true }, enabled = !state.blocksSwitching) { Icon(Icons.Default.Add, "添加 eSIM") }
                 IconButton(onClick = viewModel::refresh, enabled = !state.isLoading && !state.isSwitching && !state.operationInFlight) {
                     if (state.isLoading) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                    else Icon(Icons.Default.Refresh, if (state.download.isBusy) "Refresh download status" else "Refresh profiles and connection")
+                    else Icon(Icons.Default.Refresh, if (state.download.isBusy) "Refresh download status" else "刷新配置文件和连接")
                 }
             },
         )
@@ -91,7 +91,7 @@ fun RouterESimScreen(onBack: () -> Unit, viewModel: RouterESimViewModel = hiltVi
             icon = { Icon(Icons.Default.DeleteForever, null, tint = MaterialTheme.colorScheme.error) },
             title = { Text("永久删除${target.displayName}？") },
             text = { Text("这无法撤销。您需要 ${target.provider.ifEmpty { target.displayName }} 中的新二维码才能取回此 eSIM。") },
-            confirmButton = { TextButton(onClick = viewModel::confirmDelete, enabled = !state.blocksSwitching) { Text("Delete profile", color = MaterialTheme.colorScheme.error) } },
+            confirmButton = { TextButton(onClick = viewModel::confirmDelete, enabled = !state.blocksSwitching) { Text("删除配置文件", color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton(onClick = viewModel::dismissDelete) { Text("取消") } },
         )
     }
@@ -129,11 +129,11 @@ private fun RenameDialog(profile: RouterESimProfile, blocked: Boolean, dismiss: 
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(profile.displayName, style = MaterialTheme.typography.titleSmall)
-                OutlinedTextField(text, { text = it }, singleLine = true, label = { Text("Nickname") },
+                OutlinedTextField(text, { text = it }, singleLine = true, label = { Text("昵称") },
                     modifier = Modifier.fillMaxWidth(), placeholder = { Text(profile.name.ifEmpty { profile.provider }) },
                     isError = !valid, supportingText = {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(if (valid) "One line" else "Use one line, up to 64 bytes.", Modifier.weight(1f))
+                            Text(if (valid) "One line" else "请使用单行文本，最多 64 字节。", Modifier.weight(1f))
                             Text("$bytes / 64 bytes")
                         }
                     })
@@ -186,7 +186,7 @@ private fun RouterESimContent(
                         Icon(Icons.Default.Downloading, null, tint = MaterialTheme.colorScheme.primary)
                         Column(Modifier.weight(1f)) {
                             Text(state.download.progressText, style = MaterialTheme.typography.titleSmall)
-                            Text("Tap to view progress and next steps", style = MaterialTheme.typography.bodySmall)
+                            Text("点击查看进度和后续步骤", style = MaterialTheme.typography.bodySmall)
                         }
                         Icon(Icons.Default.ChevronRight, null)
                     }
@@ -200,8 +200,8 @@ private fun RouterESimContent(
                     Card(Modifier.fillMaxWidth()) {
                         Column(Modifier.fillMaxWidth().padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
                             Icon(Icons.Default.SimCard, null, Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text("No profiles yet", style = MaterialTheme.typography.titleMedium)
-                            Text("Add one with the QR code from your operator.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("还没有配置文件", style = MaterialTheme.typography.titleMedium)
+                            Text("使用运营商提供的二维码添加一个。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Button(onClick = add, enabled = !state.blocksSwitching) { Text("添加 eSIM") }
                         }
                     }
@@ -212,7 +212,7 @@ private fun RouterESimContent(
                         ProfileCard(active, false, onRename = { rename(active) }, canEdit = !state.blocksSwitching) {}
                     }
                     if (others.isNotEmpty()) {
-                        if (state.enabledProfile != null) SectionHeading("Switch to another profile")
+                        if (state.enabledProfile != null) SectionHeading("切换到其他配置文件")
                         others.forEach { profile ->
                             key(profile.iccid) {
                                 ProfileCard(profile, !state.blocksSwitching, onDelete = { delete(profile) }, onRename = { rename(profile) },
@@ -239,13 +239,13 @@ private fun RouterESimContent(
 private fun InventoryHeading(state: RouterESimState) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            SectionHeading("On your eSIM")
+            SectionHeading("在您的 eSIM 上")
             if (state.inventory.updating || state.connectionPhase.blocksSwitching) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(12.dp), strokeWidth = 1.5.dp)
                     Text("更新中……", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-            } else Text(if (state.listError != null && state.profiles.isEmpty()) "Not read yet" else if (state.profiles.size == 1) "1 profile" else "${state.profiles.size} profiles", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            } else Text(if (state.listError != null && state.profiles.isEmpty()) "尚未阅读" else if (state.profiles.size == 1) "1 profile" else "${state.profiles.size} profiles", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (state.inventory.observedAt > 0) {
             val time = remember(state.inventory.observedAt) { DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(state.inventory.observedAt * 1000)) }
@@ -285,20 +285,20 @@ private fun ProfileCard(
                     Icon(Icons.Default.CheckCircle, null, Modifier.size(12.dp), tint = accent)
                     Text("已启用", style = MaterialTheme.typography.labelSmall, color = accent)
                 }
-                Text(profile.displayName.ifEmpty { "Unnamed profile" }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(profile.displayName.ifEmpty { "未命名的配置文件" }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("…${profile.iccid.takeLast(4)}", style = MaterialTheme.typography.labelSmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (profile.canEnable) Icon(Icons.Default.SwapHoriz, null, tint = if (canSwitch) accent else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
-            else if (!profile.isEnabled) Icon(Icons.Default.Lock, "Unavailable", Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            else if (!profile.isEnabled) Icon(Icons.Default.Lock, "不可用", Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             val canDelete = !profile.isEnabled && onDelete != null
             if (canDelete || onRename != null) {
                 Box {
                     IconButton(onClick = { menu = true }, enabled = canEdit) { Icon(Icons.Default.MoreVert, "Profile options for ${profile.displayName}") }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                        if (onRename != null) DropdownMenuItem(text = { Text("Rename") },
+                        if (onRename != null) DropdownMenuItem(text = { Text("重命名") },
                             leadingIcon = { Icon(Icons.Default.Edit, null) }, onClick = { menu = false; onRename() }, enabled = canEdit)
-                        if (canDelete) DropdownMenuItem(text = { Text("Delete profile", color = MaterialTheme.colorScheme.error) },
+                        if (canDelete) DropdownMenuItem(text = { Text("删除配置文件", color = MaterialTheme.colorScheme.error) },
                             leadingIcon = { Icon(Icons.Default.DeleteOutline, null) }, onClick = { menu = false; onDelete?.invoke() }, enabled = canEdit)
                     }
                 }
@@ -319,24 +319,24 @@ private fun ConnectionCard(state: RouterESimState, refresh: () -> Unit) {
     val attention = phase == RouterESimConnectionPhase.WAITING || phase == RouterESimConnectionPhase.UNAVAILABLE
     val accent = if (attention) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
     val title = when (phase) {
-        RouterESimConnectionPhase.CHECKING -> "Checking connection"
-        RouterESimConnectionPhase.SWITCHING -> "Switching profile"
-        RouterESimConnectionPhase.RELOADING -> "Reloading SIM"
-        RouterESimConnectionPhase.REGISTERING -> "Registering on network"
-        RouterESimConnectionPhase.CONNECTED -> "Mobile data connected"
-        RouterESimConnectionPhase.DISCONNECTED -> "Mobile data offline"
-        RouterESimConnectionPhase.WAITING -> "Connection needs attention"
-        RouterESimConnectionPhase.UNAVAILABLE -> if (state.switchingTo == null) "Connection status unavailable" else "Switch needs attention"
+        RouterESimConnectionPhase.CHECKING -> "正在检查连接"
+        RouterESimConnectionPhase.SWITCHING -> "正在切换配置文件"
+        RouterESimConnectionPhase.RELOADING -> "正在重新加载 SIM"
+        RouterESimConnectionPhase.REGISTERING -> "正在注册网络"
+        RouterESimConnectionPhase.CONNECTED -> "移动数据已连接"
+        RouterESimConnectionPhase.DISCONNECTED -> "移动数据未连接"
+        RouterESimConnectionPhase.WAITING -> "连接需要处理"
+        RouterESimConnectionPhase.UNAVAILABLE -> if (state.switchingTo == null) "连接状态不可用" else "开关需要注意的地方"
     }
     val detail = state.connectionNote ?: when (phase) {
-        RouterESimConnectionPhase.SWITCHING -> "Selecting the new profile on your eSIM."
-        RouterESimConnectionPhase.RELOADING -> "The modem is loading the SIM. The card may be unreadable for 5–25 seconds."
-        RouterESimConnectionPhase.REGISTERING -> "The new profile is loaded. Waiting for a mobile data connection."
-        RouterESimConnectionPhase.WAITING -> "Mobile data hasn’t connected yet. Check the plan or coverage, or choose another profile below."
-        RouterESimConnectionPhase.DISCONNECTED -> "Your router’s Wi-Fi stays connected. You can still switch profiles."
-        RouterESimConnectionPhase.CHECKING -> "Reading live status from your router."
-        RouterESimConnectionPhase.UNAVAILABLE -> "Check again to read the router’s connection status."
-        RouterESimConnectionPhase.CONNECTED -> "Mobile data is up. Traffic may take a few more seconds."
+        RouterESimConnectionPhase.SWITCHING -> "在 eSIM 上选择新的配置文件。"
+        RouterESimConnectionPhase.RELOADING -> "调制解调器正在加载 SIM。该卡可能在 5-25 秒内无法读取。"
+        RouterESimConnectionPhase.REGISTERING -> "新的配置文件已加载。等待移动数据连接。"
+        RouterESimConnectionPhase.WAITING -> "移动数据尚未连接。检查计划或承保范围，或选择下面的其他配置文件。"
+        RouterESimConnectionPhase.DISCONNECTED -> "您的路由器的 Wi-Fi 保持连接。您仍然可以切换配置文件。"
+        RouterESimConnectionPhase.CHECKING -> "正在读取路由器实时状态。"
+        RouterESimConnectionPhase.UNAVAILABLE -> "再次查看路由器的连接状态。"
+        RouterESimConnectionPhase.CONNECTED -> "移动数据已上。交通可能还需要几秒钟。"
     }
     val current = when {
         phase == RouterESimConnectionPhase.SWITCHING || phase == RouterESimConnectionPhase.UNAVAILABLE -> 0
@@ -368,7 +368,7 @@ private fun ConnectionCard(state: RouterESimState, refresh: () -> Unit) {
             }
             if (state.switchingTo != null && (progress || phase == RouterESimConnectionPhase.CONNECTED)) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    listOf("Switch profile" to Icons.Default.SimCard, "Reload SIM" to Icons.Default.Refresh, "Connect to network" to Icons.Default.CellTower).forEachIndexed { index, (label, icon) ->
+                    listOf("切换配置文件" to Icons.Default.SimCard, "重新加载SIM" to Icons.Default.Refresh, "连接到网络" to Icons.Default.CellTower).forEachIndexed { index, (label, icon) ->
                         val complete = phase == RouterESimConnectionPhase.CONNECTED || index < current
                         val active = index == current && phase != RouterESimConnectionPhase.CONNECTED
                         val color = if (complete || active) accent else MaterialTheme.colorScheme.onSurfaceVariant
@@ -417,19 +417,19 @@ private fun ReceiptsCard(count: Int, sending: Boolean, canSend: Boolean, send: (
                     Icon(Icons.AutoMirrored.Filled.Send, null, tint = MaterialTheme.colorScheme.primary)
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text("Operator receipts", style = MaterialTheme.typography.titleSmall)
+                    Text("运营商收据", style = MaterialTheme.typography.titleSmall)
                     Text(if (sending) "Sending…" else "$count waiting · Retried automatically", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 }
                 if (sending) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
             }
             TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(0.dp)) {
-                Text("Why are these waiting?"); Spacer(Modifier.width(8.dp)); Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, Modifier.size(16.dp))
+                Text("为什么这些人在等待？"); Spacer(Modifier.width(8.dp)); Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, Modifier.size(16.dp))
             }
             if (expanded) Text("添加、切换或删除配置文件时，您的 eSIM 会向运营商发送收据。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedButton(onClick = send, enabled = canSend && !sending) {
-                Icon(Icons.Default.Upload, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)); Text(if (sending) "Sending receipts…" else "Send now")
+                Icon(Icons.Default.Upload, null, Modifier.size(16.dp)); Spacer(Modifier.width(8.dp)); Text(if (sending) "Sending receipts…" else "立即发送")
             }
         }
     }
@@ -439,10 +439,10 @@ private fun ReceiptsCard(count: Int, sending: Boolean, canSend: Boolean, send: (
 private fun MessageCard(message: String, isError: Boolean, canRetry: Boolean, retry: () -> Unit) {
     val housekeeping = message.contains("receipts", true)
     val guidance = when {
-        message.contains("agent password required", true) -> "Set the router agent password in Agent Settings, then try your action again."
-        message.contains("airplane", true) || message.contains("low-power", true) -> "Open Router Settings → Mobile Network to check the modem mode."
-        message.contains("different eSIM card", true) -> "Reloading the profiles on the card now in your router. Review the list before trying again."
-        message.contains("404") || message.contains("not found", true) -> "This action may need a newer router agent. Your saved profiles are unchanged."
+        message.contains("agent password required", true) -> "在代理设置中设置路由器代理密码，然后重试您的操作。"
+        message.contains("airplane", true) || message.contains("low-power", true) -> "打开路由器设置→移动网络检查调制解调器模式。"
+        message.contains("different eSIM card", true) -> "现在在路由器中重新加载卡上的配置文件。重试之前请查看该列表。"
+        message.contains("404") || message.contains("not found", true) -> "此操作可能需要更新的路由器代理。您保存的配置文件未更改。"
         else -> null
     }
     Card(Modifier.fillMaxWidth()) {
@@ -450,7 +450,7 @@ private fun MessageCard(message: String, isError: Boolean, canRetry: Boolean, re
             Icon(if (housekeeping) Icons.AutoMirrored.Filled.Send else if (isError) Icons.Default.Info else Icons.Default.CheckCircle, null,
                 tint = if (isError && !housekeeping) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(if (housekeeping) "Operator receipts" else if (isError) "Can’t complete this right now" else "Profile updated", style = MaterialTheme.typography.titleSmall)
+                Text(if (housekeeping) "运营商收据" else if (isError) "现在无法完成此操作" else "配置文件已更新", style = MaterialTheme.typography.titleSmall)
                 Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 guidance?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -484,21 +484,21 @@ private fun ChipCard(chip: RouterESimChip) {
                     Icon(Icons.Default.SimCard, null, tint = MaterialTheme.colorScheme.primary)
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                         Text("eSIM 卡", style = MaterialTheme.typography.titleSmall)
-                        Text("Card details & identifiers", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("卡片详情与标识符", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, if (expanded) "Collapse card details" else "Expand card details", modifier = Modifier.size(20.dp))
                 }
             }
             if (expanded) {
                 HorizontalDivider()
-                if (chip.firmware.isNotEmpty()) InfoRow("Firmware", chip.firmware)
-                chip.freeMemoryBytes?.let { InfoRow("Free memory", Formatter.formatShortFileSize(context, it.coerceAtLeast(0))) }
+                if (chip.firmware.isNotEmpty()) InfoRow("固件", chip.firmware)
+                chip.freeMemoryBytes?.let { InfoRow("可用内存", Formatter.formatShortFileSize(context, it.coerceAtLeast(0))) }
                 if (chip.eid.isNotEmpty()) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.PrivacyTip, null, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text("EID", Modifier.weight(1f).padding(start = 6.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            IconButton(onClick = { revealed = !revealed; copied = false }) { Icon(if (revealed) Icons.Default.VisibilityOff else Icons.Default.Visibility, if (revealed) "Hide EID" else "Reveal EID") }
+                            IconButton(onClick = { revealed = !revealed; copied = false }) { Icon(if (revealed) Icons.Default.VisibilityOff else Icons.Default.Visibility, if (revealed) "隐藏EID" else "揭示EID") }
                             if (revealed) IconButton(onClick = { clipboard.setText(AnnotatedString(chip.eid)); copied = true }) { Icon(if (copied) Icons.Default.Check else Icons.Default.ContentCopy, if (copied) "EID copied" else "Copy EID") }
                         }
                         Text(if (revealed) chip.eid else "•••• •••• •••• …${chip.eid.takeLast(4)}", fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

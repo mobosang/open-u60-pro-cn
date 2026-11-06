@@ -27,7 +27,7 @@ struct WiFiCardView: View {
                         }
                     }
                     Spacer()
-                    Text(wifiStatus.wifiOn ? "On" : "Off")
+                    Text(wifiStatus.wifiOn ? "On" : "关闭")
                         .font(.caption)
                         .foregroundStyle(wifiStatus.wifiOn ? .green : .red)
                 }

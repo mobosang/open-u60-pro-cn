@@ -76,9 +76,9 @@ struct SIMView: View {
                 infoRow("SPN", viewModel.simInfo.spn)
                 mccMncRow
                 if !viewModel.simInfo.operatorName.isEmpty {
-                    infoRow("Operator", viewModel.simInfo.operatorName)
+                    infoRow("运营商", viewModel.simInfo.operatorName)
                 }
-                infoRow("SIM Slot", viewModel.simInfo.currentSlot)
+                infoRow("SIM 插槽", viewModel.simInfo.currentSlot)
             }
 
             Section("PIN 管理") {
@@ -229,7 +229,7 @@ struct SIMView: View {
             Text("PIN 锁")
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(enabled ? "Enabled" : "Disabled")
+            Text(enabled ? "Enabled" : "已禁用")
                 .font(.body.monospacedDigit())
                 .foregroundStyle(enabled ? .green : .secondary)
         }

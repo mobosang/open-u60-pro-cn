@@ -29,7 +29,7 @@ fun SMSComposeScreen(
                 title = { Text("新建短信") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -50,7 +50,7 @@ fun SMSComposeScreen(
                             },
                             enabled = number.isNotBlank() && message.isNotBlank(),
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send")
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "发送")
                         }
                     }
                 },

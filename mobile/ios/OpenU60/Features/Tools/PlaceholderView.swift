@@ -5,7 +5,7 @@ struct PlaceholderView: View {
     let icon: String
     let description: String
 
-    init(title: String, icon: String = "usb", description: String = "Requires ADB USB connection") {
+    init(title: String, icon: String = "usb", description: String = "需要 ADB USB 连接") {
         self.title = title
         self.icon = icon
         self.description = description

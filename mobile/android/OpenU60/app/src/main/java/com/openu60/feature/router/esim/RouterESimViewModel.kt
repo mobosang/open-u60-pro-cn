@@ -219,7 +219,7 @@ class RouterESimViewModel @Inject constructor(
         val target = _state.value.pendingRename ?: return
         val nickname = name.trim()
         _state.value = _state.value.copy(pendingRename = null)
-        if (nickname.toByteArray().size > 64) { setError("Nicknames can be up to 64 bytes."); return }
+        if (nickname.toByteArray().size > 64) { setError("昵称最长可达 64 个字节。"); return }
         if (_state.value.blocksSwitching || nickname == target.nickname) return
         _state.value = _state.value.copy(operationInFlight = true, message = null)
         viewModelScope.launch {
@@ -227,7 +227,7 @@ class RouterESimViewModel @Inject constructor(
                 while (downloadInFlight) delay(50)
                 withReauth { agentClient.postJSON("/api/esim/nickname", mapOf("iccid" to target.iccid, "nickname" to nickname)) }
                 withReauth { loadProfiles() }
-                _state.value = _state.value.copy(message = if (nickname.isEmpty()) "Nickname cleared." else "Renamed to $nickname.", messageIsError = false)
+                _state.value = _state.value.copy(message = if (nickname.isEmpty()) "昵称已清除。" else "Renamed to $nickname.", messageIsError = false)
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) { setError(errorText(e)) }
             finally { _state.value = _state.value.copy(operationInFlight = false) }
@@ -245,7 +245,7 @@ class RouterESimViewModel @Inject constructor(
                 val left = withReauth { agentClient.get<RouterESimNotifications>("/api/esim/notifications") }.count
                 _state.value = _state.value.copy(
                     pendingReceipts = left ?: _state.value.pendingReceipts,
-                    message = if (left == 0) "Operator receipts sent." else "Some receipts couldn't be sent yet. The router keeps retrying.",
+                    message = if (left == 0) "发送的运营商收据。" else "部分收据尚未发送。路由器不断重试。",
                     messageIsError = left != 0,
                 )
             } catch (e: CancellationException) { throw e }
@@ -284,7 +284,7 @@ class RouterESimViewModel @Inject constructor(
         if (_state.value.blocksSwitching) return
         val parsed = RouterESimActivationCode.parse(code) ?: return
         if (parsed.needsConfirmationCode && !RouterESimActivationCode.validConfirmationCode(confirmationCode)) {
-            _state.value = _state.value.copy(downloadNote = "Enter the confirmation code from your operator (up to 64 characters).")
+            _state.value = _state.value.copy(downloadNote = "请输入运营商提供的确认码（最多 64 个字符）。")
             return
         }
         val body = buildJsonObject {
