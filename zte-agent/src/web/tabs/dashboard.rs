@@ -106,7 +106,7 @@ pub static BATTERY: Screen = Screen {
 pub static HEALTH: Screen = Screen {
     path: "/ui/health",
     id: "health",
-    title: "CPU & temperatures",
+    title: "CPU 和温度",
     tab: Tab::Dashboard,
     bar: Bar::Done("/ui/"),
     topics: &[Topic::Health, Topic::Battery],
@@ -119,9 +119,9 @@ pub static HEALTH: Screen = Screen {
 pub static CPU: Screen = Screen {
     path: "/ui/health/cpu",
     id: "cpu",
-    title: "CPU & Memory",
+    title: "中央处理器和内存",
     tab: Tab::Dashboard,
-    bar: Bar::Back("/ui/health", "CPU & temperatures"),
+    bar: Bar::Back("/ui/health", "CPU 和温度"),
     topics: &[Topic::Health],
     // The bloat summary as the app reads it: the API's tracker, once.
     reads: &[Read::Api("/api/device/system"), Read::Api("/api/system/top")],
@@ -237,12 +237,12 @@ pub static KILL_ALL_BLOAT: Action = Action {
 pub const NET_MODES: [(&str, &str); 6] = [
     ("WL_AND_5G", "自动"),
     ("LTE_AND_5G", "5G NSA (LTE + NR)"),
-    ("仅_5G", "5G SA Only"),
-    ("仅_LTE", "4G Only"),
+    ("Only_5G", "仅 5G SA"),
+    ("Only_LTE", "仅 4G"),
     ("WCDMA_AND_LTE", "4G + 3G"),
-    ("唯_WCDMA", "3G Only"),
+    ("Only_WCDMA", "仅 3G"),
 ];
-const MODE_VALUES: [&str; 6] = ["WL_AND_5G", "LTE_AND_5G", "仅_5G", "仅_LTE", "WCDMA_AND_LTE", "唯_WCDMA"];
+const MODE_VALUES: [&str; 6] = ["WL_AND_5G", "LTE_AND_5G", "Only_5G", "Only_LTE", "WCDMA_AND_LTE", "Only_WCDMA"];
 
 const REREGISTER: &str = "调制解调器在网络上重新注册。移动数据下降几秒钟。";
 
@@ -271,10 +271,10 @@ macro_rules! mode_confirm {
 static MODE_CONFIRMS: [Confirm; 6] = [
     mode_confirm!("WL_AND_5G", "自动"),
     mode_confirm!("LTE_AND_5G", "5G NSA (LTE + NR)"),
-    mode_confirm!("仅_5G", "5G SA Only"),
-    mode_confirm!("仅_LTE", "4G Only"),
+    mode_confirm!("Only_5G", "仅 5G SA"),
+    mode_confirm!("Only_LTE", "仅 4G"),
     mode_confirm!("WCDMA_AND_LTE", "4G + 3G"),
-    mode_confirm!("唯_WCDMA", "3G Only"),
+    mode_confirm!("Only_WCDMA", "仅 3G"),
 ];
 
 /// The two mounts differ in path, tab, way back and form target.
@@ -384,7 +384,7 @@ mod tests {
             assert!(matches!(c.need, Need::Always));
             assert_eq!(c.title, format!("更改网络模式为{label}？"));
             assert_eq!(c.lines, [REREGISTER]);
-            assert!(c.remote.unwrap()[1].contains(&format!("您已远程连接：如果{label}此处没有覆盖，")));
+            assert!(c.remote.unwrap()[1].contains(&format!("You are connected remotely: if {label} has no coverage here,")));
             // The body carries the checked value only; the operation follows it.
             let v = Valid::of(&[("mode", value)]);
             assert_eq!(mode_body(&v, &[]), Some(json!({"net_select": value})));

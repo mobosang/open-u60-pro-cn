@@ -242,7 +242,7 @@ fn card(v: &Views) -> Markup {
                 "confirm" => {
                     h2 { "安装 " (name) "?" }
                     @if let Some(n) = d["name"].as_str().map(str::trim).filter(|n| !n.is_empty() && *n != name) { p.cap { (fmt::truncate(n, 64)) } }
-                    p.det { "该配置文件将安装在您的路由器 \u{2019}s eSIM 上并保持非活动状态，直到您切换到它。 2分钟内确认。" }
+                    p.det { "该配置文件将安装在您路由器的 eSIM 上并保持非活动状态，直到您切换到它。 2分钟内确认。" }
                     p.actions { button.btn.btn-wide.teal type="submit" form=(FORM) formaction=(INSTALL) { "安装配置文件" } }
                 }
                 "done" => {
@@ -318,7 +318,7 @@ fn entry(pd: &PageData) -> Markup {
         div.ahead {
             span.eic.ebig { (kit::icon(Icon::QrScan)) }
             h2 { "将配置文件添加到您的路由器" }
-            p.cap { "使用运营商提供的 eSIM 二维码。您\u{2019}将在安装之前查看配置文件。" }
+            p.cap { "使用运营商提供的 eSIM 二维码。您’将在安装之前查看配置文件。" }
         }
         @if offline(pd) { p.enote { (kit::icon(Icon::Wifi)) span { (NO_DATA) } } }
         @if let Some(n) = &pd.notice { (n) }
@@ -330,7 +330,7 @@ fn entry(pd: &PageData) -> Markup {
             section.card.emsg.ebad role="alert" {
                 span.eic { (kit::icon(Icon::Alert)) }
                 div {
-                    b { "Can\u{2019}t开始下载" }
+                    b { "Can’t开始下载" }
                     p { (n) }
                     @if n.contains("no mobile data") && !offline(pd) { p.cap { (NO_DATA) } }
                     @if n.contains("agent password required") { p.cap { "在代理设置中设置路由器代理密码，然后重试。" } }
@@ -369,7 +369,7 @@ fn entry(pd: &PageData) -> Markup {
             button.btn.btn-wide.teal type="submit" disabled[switching] { "阅读配置文件详细信息" }
         }
         ul.hints {
-            li { (kit::icon(Icon::Wifi)) "您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10\u{2013}60 秒。" }
+            li { (kit::icon(Icon::Wifi)) "您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10–60 秒。" }
             li { (kit::icon(Icon::Lock)) "激活码是私密的一次性凭据，只会发送至你的路由器，OpenU60 不会保存它。" }
         }
     }

@@ -194,7 +194,7 @@ pub fn page_delete(pd: &PageData, m: &Mount) -> Markup {
         (Some(Err(e)), _) => ("删除规则？".to_owned(), Some(format!("加载失败：{}", fmt::truncate(e, 120))), None),
         // As Edit Rule's.
         (_, None) => ("删除规则？".to_owned(), Some("未找到规则。它可能已被删除。".to_owned()), None),
-        (_, Some(r)) => (format!("删除\u{201c}{}\u{201d}？", r["name"].as_str().unwrap_or("")), None, Some("删除")),
+        (_, Some(r)) => (format!("删除“{}”？", r["name"].as_str().unwrap_or("")), None, Some("删除")),
     };
     let lines: &[&str] = if label.is_some() {
         &[

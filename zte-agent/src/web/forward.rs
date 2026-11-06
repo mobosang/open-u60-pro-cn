@@ -112,7 +112,7 @@ pub static DESTS: [Dest; 6] = [
             f("wh_h", "headers", "请求头", Kind::Headers, false),
         ],
     },
-    Dest { key: "sms", label: "SMS", fields: &[f("sms_number", "forward_number", "转发至号码", Kind::Tel, true)] },
+    Dest { key: "sms", label: "短信", fields: &[f("sms_number", "forward_number", "转发至号码", Kind::Tel, true)] },
     Dest {
         key: "ntfy",
         label: "ntfy",
@@ -1038,7 +1038,7 @@ mod tests {
     }
 
     fn input(pairs: &[(&str, &str)]) -> Input {
-        let mut all = vec![("name", "假规则"), ("ft", "all")];
+        let mut all = vec![("name", "Fake rule"), ("ft", "all")];
         all.extend_from_slice(pairs);
         Input::parse(&form(&all)).expect("a valid form")
     }
@@ -1072,10 +1072,10 @@ mod tests {
             (
                 vec![
                     ("dt", "webhook"), ("wh_url", "https://example.com/hook"), ("wh_method", "PUT"),
-                    ("wh_hn0", "X-请求源"), ("wh_hv0", "u60-test"), ("wh_hn2", "X假货"), ("wh_hv2", "1"),
+                    ("wh_hn0", "X-Request-Source"), ("wh_hv0", "u60-test"), ("wh_hn2", "X-Fake"), ("wh_hv2", "1"),
                 ],
                 json!({"type": "webhook", "url": "https://example.com/hook", "method": "PUT",
-                       "headers": [{"name": "X-请求源", "value": "u60-test"}, {"name": "X假货", "value": "1"}]}),
+                       "headers": [{"name": "X-Request-Source", "value": "u60-test"}, {"name": "X-Fake", "value": "1"}]}),
             ),
             (
                 vec![("dt", "webhook"), ("wh_url", "http://example.com/hook"), ("wh_method", "POST")],
@@ -1151,7 +1151,7 @@ mod tests {
         assert_eq!(errors(&[("dt", "telegram"), ("tg_token", "a\u{7}b"), ("tg_chat", "1")], &[])[0].1, "删除换行符和控制字符。");
         // Header rows: a value without a name, a bad name, a name without a value.
         let e = errors(
-            &[("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hv0", "v"), ("wh_hn1", "恶名"), ("wh_hv1", "v"), ("wh_hn2", "X-新")],
+            &[("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hv0", "v"), ("wh_hn1", "Bad Name"), ("wh_hv1", "v"), ("wh_hn2", "X-New")],
             &[],
         );
         assert_eq!(e, vec![err("wh_hn0", "输入标题名称。"), err("wh_hn1", "不是有效的标头名称。"), err("wh_hv2", "输入值。")]);
@@ -1177,7 +1177,7 @@ mod tests {
         assert_eq!(ok["bot_token"], TOKEN);
         // Another type's rule keeps nothing.
         let wh = stored(json!({"type": "webhook", "url": "https://example.com/hook/FAKE-PATH", "method": "POST",
-                               "headers": [{"name": "Authorization", "value": AUTH}, {"name": "X-二", "value": "2"}]}));
+                               "headers": [{"name": "Authorization", "value": AUTH}, {"name": "X-Two", "value": "2"}]}));
         assert_eq!(errors(&[("dt", "telegram"), ("tg_chat", "2")], &[&wh]), vec![err("tg_token", REQUIRED)]);
         // ntfy: the same server keeps the token; another server needs it again.
         let nt = stored(json!({"type": "ntfy", "url": "https://ntfy.example.com", "topic": "t", "token": "tk_FAKE"}));
@@ -1192,7 +1192,7 @@ mod tests {
         let cleared = resolved(&[("dt", "ntfy"), ("nt_url", "https://ntfy.example.com"), ("nt_topic", "t"), ("nt_token_clear", "1")], &[&nt]);
         assert_eq!(cleared.unwrap().get("token"), None);
         // Webhook: an empty URL keeps the saved one, and its header values by name (any case).
-        let kept = resolved(&[("dt", "webhook"), ("wh_hn0", "authorization"), ("wh_hn1", "X-二"), ("wh_hv1", "new")], &[&wh]).unwrap();
+        let kept = resolved(&[("dt", "webhook"), ("wh_hn0", "authorization"), ("wh_hn1", "X-Two"), ("wh_hv1", "new")], &[&wh]).unwrap();
         assert_eq!(kept["url"], "https://example.com/hook/FAKE-PATH");
         assert_eq!(kept["headers"], json!([{"name": "authorization", "value": AUTH}, {"name": "X-二", "value": "new"}]));
         let typed_same = resolved(&[("dt", "webhook"), ("wh_url", "https://example.com/hook/FAKE-PATH"), ("wh_hn0", "Authorization")], &[&wh]);
@@ -1218,7 +1218,7 @@ mod tests {
         assert_eq!(e, vec![err("nt_token", "再次输入：服务器发生变化。")]);
         // What an answer keeps: the chosen type's secrets typed into the
         // form (valid ones), never the rule's own.
-        let pairs = [("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-二"), ("wh_hv1", "new"), ("tg_token", "x")];
+        let pairs = [("dt", "webhook"), ("wh_hn0", "Authorization"), ("wh_hn1", "X-Two"), ("wh_hv1", "new"), ("tg_token", "x")];
         let keep = resolve(&input(&pairs), &[&wh]).secrets;
         assert_eq!((keep.dest, keep.saved, keep.url.as_str()), ("webhook", false, "https://example.com/hook/FAKE-PATH"));
         assert_eq!(keep.get("wh_url"), None);
@@ -1276,7 +1276,7 @@ mod tests {
     fn a_form_shown_again_has_no_secrets() {
         let i = input(&[
             ("dt", "webhook"), ("wh_url", "https://example.com/FAKE-PATH"), ("tg_token", TOKEN), ("nt_url", "https://u:FAKE-PW@n.example/b?auth=FAKE-Q"),
-            ("wh_hn0", "Authorization: Bearer FAKE-SECRET"), ("wh_hn1", "X-Bad Bearer 假秘密"), ("wh_hv1", "v"), ("wh_hn3", "X-Ok"), ("wh_hv3", "FAKE-SECRET"),
+            ("wh_hn0", "Authorization: Bearer FAKE-SECRET"), ("wh_hn1", "X-Bad Bearer FAKE-SECRET"), ("wh_hv1", "v"), ("wh_hn3", "X-Ok"), ("wh_hv3", "FAKE-SECRET"),
         ]);
         assert_eq!(i.headers[0], ("Authorization".to_owned(), AUTH.to_owned()));
         assert_eq!(i.rows, 4);
@@ -1294,9 +1294,9 @@ mod tests {
     fn the_public_config_has_no_secrets() {
         let data = json!({"config": {"enabled": true, "poll_interval_secs": 45, "mark_read_after_forward": true, "delete_after_forward": false,
             "rules": [
-                {"id": 1, "name": "机器人", "enabled": true, "filter": {"type": "all"},
+                {"id": 1, "name": "Bot", "enabled": true, "filter": {"type": "all"},
                  "destination": {"type": "telegram", "bot_token": TOKEN, "chat_id": "-100123", "silent": true}},
-                {"id": 2, "name": "钩子", "enabled": false, "filter": {"type": "sender", "patterns": ["BANK", "+1555*"]},
+                {"id": 2, "name": "Hook", "enabled": false, "filter": {"type": "sender", "patterns": ["BANK", "+1555*"]},
                  "destination": {"type": "webhook", "url": "https://user:pw@Example.com:8443/hook/FAKE-PATH?k=FAKE-Q", "method": "PUT",
                                  "headers": [{"name": "Authorization", "value": AUTH}]}},
                 {"id": 3, "name": "N", "enabled": true, "filter": {"type": "content", "keywords": ["code"]},
@@ -1323,8 +1323,8 @@ mod tests {
                 ("全部短信", "Telegram（聊天：-100123）"),
                 ("发件人：银行，+1555*", "Webhook (example.com:8443)"),
                 ("关键词：代码", "ntfy (fake)"),
-                ("发件人：A + 关键字：b、c", "Discord"),
-                ("全部短信", "SMS (+15555550123)"),
+                ("发件人：A + 关键字：b, c", "Discord"),
+                ("全部短信", "短信 (+15555550123)"),
                 ("全部短信", "Slack"),
             ]
             .map(|(a, b)| (a.to_owned(), b.to_owned()))
@@ -1398,9 +1398,9 @@ mod tests {
         let log = json!([e(30, 3, 1), e(20, 2, 1), e(20, 2, 2), e(10, 1, 1)]);
         let fp = |index: usize, sms_id: u64, rule_id: u64, timestamp: i64| Fingerprint { index, sms_id, rule_id, timestamp };
         assert_eq!(fp(2, 2, 2, 20).find(&log), Some(2));
-        assert_eq!(fp(0, 1, 1, 10).find(&log), Some(3), "moved down: new entries came first");
-        assert_eq!(fp(1, 2, 1, 21).find(&log), None, "retried meanwhile");
-        assert_eq!(fp(1, 2, 3, 20).find(&log), None, "another rule");
+        assert_eq!(fp(0, 1, 1, 10).find(&log), Some(3), "下移：新条目先行");
+        assert_eq!(fp(1, 2, 1, 21).find(&log), None, "同时重试");
+        assert_eq!(fp(1, 2, 3, 20).find(&log), None, "另一条规则");
         assert_eq!(fp(9, 4, 1, 40).find(&json!([])), None);
         // A rule id the agent left out is 0 (as its serde default).
         assert_eq!(fp(0, 5, 0, 50).find(&json!([{"timestamp": 50, "sms_id": 5}])), Some(0));

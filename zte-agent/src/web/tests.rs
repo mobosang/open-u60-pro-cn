@@ -94,10 +94,10 @@ impl Reply {
         assert!(nonce.bytes().all(|b| b.is_ascii_hexdigit()));
         let html = self.text();
         let scripts = html.matches("<script").count();
-        assert_eq!(html.matches(&format!(" nonce=\"{nonce}\"")).count(), scripts, "a script without this response's nonce");
+        assert_eq!(html.matches(&format!(" nonce=\"{nonce}\"")).count(), scripts, "没有此响应随机数的脚本");
         let live = html.contains("/ui/a/datastar-");
         assert_eq!(html.contains(&format!("data-nonce=\"{nonce}\"")), live, "data-nonce only on a live page");
-        assert_eq!(html.matches(nonce).count(), scripts + usize::from(live), "the nonce elsewhere in the markup");
+        assert_eq!(html.matches(nonce).count(), scripts + usize::from(live), "标记中其他地方的随机数");
         // Scripts by nonce only (no 'self').
         assert!(csp.starts_with("default-src 'none'; script-src 'nonce-"));
         assert_eq!(self.header("cross-origin-opener-policy"), Some("same-origin"));
@@ -249,18 +249,18 @@ async fn host_allowlist_and_redirects() {
         .body(Body::empty())
         .unwrap();
     let r = send(&c, evil).await;
-    assert_eq!((r.status, r.text().as_str()), (403, "Host not allowed"));
+    assert_eq!((r.status, r.text().as_str()), (403, "主机不允许"));
     r.assert_security_headers();
     let none = axum::http::Request::builder().uri("/ui/").extension(peer(1, 2)).body(Body::empty()).unwrap();
     let r = send(&c, none).await;
-    assert_eq!((r.status, r.text().as_str()), (400, "Missing Host"));
+    assert_eq!((r.status, r.text().as_str()), (400, "缺少主机"));
     // `localhost` (like the Tailscale names) only from this device: a LAN
     // browser never gets there for that name.
     let local = |p: Peer| {
         axum::http::Request::builder().uri("/ui/login").header("host", "localhost:9090").extension(p).body(Body::empty()).unwrap()
     };
     let r = send(&c, local(peer(1, 8))).await;
-    assert_eq!((r.status, r.text().as_str()), (403, "Host not allowed"));
+    assert_eq!((r.status, r.text().as_str()), (403, "主机不允许"));
     send(&c, local(Peer(SocketAddr::from(([127, 0, 0, 1], 40002))))).await.assert_secure_html(200);
     get(&c, "/ui/login", peer(1, 3)).await.assert_secure_html(200);
     get(&c, "/", peer(1, 4)).await.assert_see_other("/ui/");
@@ -280,7 +280,7 @@ async fn unknown_ui_paths_get_the_html_404() {
     for uri in ["/ui/nope", "/ui/settings/", "/ui/a/x/y", "/ui/login/", "/ui/a/"] {
         let r = get(&c, uri, peer(2, 1)).await;
         r.assert_secure_html(404);
-        assert!(r.text().contains("Page not found"));
+        assert!(r.text().contains("找不到页面"));
     }
     // A posted body is read off, so the connection can stay.
     let r = send(&c, form("/ui/nope", peer(2, 4), "", "a=1").body(Body::from("a=1")).unwrap()).await;
@@ -320,7 +320,7 @@ async fn sessions_are_separate_from_bearer_tokens() {
     assert!(r.text().contains("<div id=\"live\" hidden data-init=\"document.hidden ? "));
     assert!(r.text().contains(" : @get('/ui/live/dashboard/"));
     assert!(r.text().contains("<p class=\"snap ps\" id=\"live-status\"><a href=\"/ui/\">快照<span class=\"sr\">"));
-    assert!(r.text().contains("<span class=\"agebadge sa ages\"><span class=\"age1\">over 1 min old</span><span class=\"age5\">over 5 min old</span></span></div></header>"));
+    assert!(r.text().contains("<span class=\"agebadge sa ages\"><span class=\"age1\">over 1 min old</span><span class=\"age5\">over 5 分钟 old</span></span></div></header>"));
     for id in ["live-status", "live-note", "age", "banners", "card-conn", "card-traffic", "card-battery", "card-health", "wifi-state", "card-devices"] {
         assert!(r.text().contains(&format!("id=\"{id}\"")), "{id}");
     }
@@ -454,7 +454,7 @@ async fn wrong_password_then_rate_limit() {
     let r = post(&c, "/ui/login", p, &cookie, &body).await;
     r.assert_secure_html(429);
     assert_eq!(r.header("retry-after"), Some("1"));
-    assert!(r.text().contains("尝试次数过多。 1 秒后重试。"));
+    assert!(r.text().contains("尝试次数过多，请在 1 秒后重试。"));
     // The right password while blocked is still 429.
     let body = format!("login_csrf={}&password={}", enc(&token), enc(PW));
     assert_eq!(post(&c, "/ui/login", p, &cookie, &body).await.status, 429);
@@ -773,10 +773,10 @@ async fn detail_sheets_open_from_the_dashboard() {
     for (id, href) in [("card-traffic", "/ui/traffic"), ("card-battery", "/ui/battery"), ("card-health", "/ui/health")] {
         assert!(dash.contains(&format!("<a class=\"card\" id=\"{id}\" href=\"{href}\">")), "{id}");
     }
-    let done = "<div class=\"trail\"><a class=\"nl\" href=\"/ui/\">完成</a>";
+    let done = "<div class=\"trail\"><a class=\"nl\" href=\"/ui/\">Done</a>";
     for (uri, id, title, nav) in [
-        ("/ui/traffic", "traffic", "实时路况", done),
-        ("/ui/battery", "battery", "电池详情", done),
+        ("/ui/traffic", "traffic", "Live traffic", done),
+        ("/ui/battery", "battery", "Battery Details", done),
         ("/ui/health", "health", "CPU &amp; temperatures", done),
         ("/ui/health/cpu", "cpu", "CPU &amp; Memory", "<a class=\"nl back\" href=\"/ui/health\">CPU &amp; temperatures</a>"),
     ] {
@@ -823,16 +823,14 @@ async fn network_mode_in_both_mounts() {
     };
     // The page shows the current mode and preselects it (here: the hub's
     // reading; no device on the host).
-    signal("仅_LTE");
+    signal("Only_LTE");
     let r = get_with(&c, SIG, peer(31, 2), &cookie).await;
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
         "<a class=\"nl back\" href=\"/ui/signal\">连接与信号</a>", "<h1>网络模式</h1>", "<h2>当前</h2>",
         "<span>网络模式</span><span class=\"v\">仅 4G</span>", "<h2>网络模式</h2>", "<label for=\"mode\">模式</label>",
-        "<option value=\"WL_AND_5G\">自动</option><option value=\"LTE_AND_5G\">5G NSA (LTE + NR)</option>\
-         <option value=\"Only_5G\">仅 5G SA</option><option value=\"Only_LTE\" selected>仅 4G</option>\
-         <option value=\"WCDMA_AND_LTE\">4G + 3G</option><option value=\"Only_WCDMA\">仅 3G</option>",
+        "<option value=\\\"WL_AND_5G\\\">自动</option><option value=\\\"LTE_AND_5G\\\">5G NSA (LTE + NR)</option>         <option value=\\\"Only_5G\\\">仅 5G SA</option><option value=\\\"Only_LTE\\\" selected>仅 4G</option>         <option value=\\\"WCDMA_AND_LTE\\\">4G + 3G</option><option value=\\\"Only_WCDMA\\\">仅 3G</option>",
         "<input type=\"hidden\" name=\"cur\" value=\"Only_LTE\">", "<button class=\"btn btn-wide\" type=\"submit\">应用</button>",
         "<a href=\"/ui/\" aria-current=\"page\">",
     ] {
@@ -855,7 +853,7 @@ async fn network_mode_in_both_mounts() {
         async move { post(&c, uri, peer(31, 3), &cookie, &body).await }
     };
     // Anything but the six values: 400, nothing sent (also when confirmed).
-    for bad in ["AUTO", "only_lte", "Only_LTE%22%7D", "%3Cx%3E", "", "仅_5G%20"] {
+    for bad in ["AUTO", "only_lte", "Only_LTE%22%7D", "%3Cx%3E", "", "Only_5G%20"] {
         for mount in [SIG, RT] {
             p(mount, format!("csrf={csrf}&mode={bad}&confirm=1")).await.assert_secure_html(400);
         }
@@ -870,26 +868,26 @@ async fn network_mode_in_both_mounts() {
             let to = format!("{mount}/confirm?mode={value}");
             p(mount, format!("csrf={csrf}&mode={value}&cur=")).await.assert_see_other(&to);
             let html = get_with(&c, &to, peer(31, 4), &cookie).await.text();
-            assert!(html.contains(&format!("<h2 class=\"q\">更改网络模式为{label}？</h2>")), "{html}");
-            assert!(html.contains(&format!("<a class=\"nl back\" href=\"{mount}\">网络模式</a></div><h1>确认</h1>")), "{html}");
+            assert!(html.contains(&format!("<h2 class=\"q\">Change network mode to {label}?</h2>")), "{html}");
+            assert!(html.contains(&format!("<a class=\"nl back\" href=\"{mount}\">Network Mode</a></div><h1>Confirm</h1>")), "{html}");
             assert!(html.contains("调制解调器在网络上重新注册。移动数据下降几秒钟。"));
             assert!(html.contains(&format!("name=\"mode\" value=\"{value}\"")) && html.contains("name=\"confirm\" value=\"1\""));
             assert!(html.contains(&format!("href=\"{mount}\">Cancel")) && html.contains(">改变模式</button>"));
-            assert!(!html.contains("connected remotely"));
+            assert!(!html.contains("远程连接"));
         }
     }
     // Over Tailscale: what a mode without coverage does to this connection.
     let tailnet = Peer(SocketAddr::from(([127, 0, 0, 1], 40002)));
     let html = get_with(&c, &format!("{RT}/confirm?mode=Only_5G"), tailnet, &cookie).await.text();
     assert!(html.contains(
-        "您已远程连接：如果此处没有 5G SA Only 覆盖，则需要在路由器上更改模式后才能访问此页面。"
+        "您已远程连接：如果仅 5G SA此处没有覆盖， this page can’t be reached until the mode is changed on the router."
     ), "{html}");
     get_with(&c, &format!("{RT}/confirm?mode=Only_4G"), peer(31, 4), &cookie).await.assert_secure_html(400);
     // Confirmed: the PUT runs (no ubus on the host, so it fails for sure):
     // the page again with the error, no operation.
     let r = p(SIG, format!("csrf={csrf}&mode=Only_5G&confirm=1")).await;
     assert!(r.status >= 500 && r.header("location").is_none(), "{}", r.status);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Failed: ubus exec"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败: ubus exec"), "{}", r.text());
     assert!(r.text().contains("<h1>网络模式</h1>"));
 }
 
@@ -907,9 +905,9 @@ async fn network_mode_operation_settles_or_times_out() {
     let id = c.app.auth.authenticate(Kind::Browser, &session).unwrap().id;
     let cookie = format!("zte_ui_session={session}");
     let now = c.app.auth.now();
-    c.ops.insert("00000000000000a1".into(), id, Op { spec: &NET_MODE_ROUTER, started: now, arg: "仅_LTE" }, now);
-    c.ops.insert("00000000000000a2".into(), id, Op { spec: &NET_MODE_SIGNAL, started: now, arg: "仅_5G" }, now);
-    let sel = serde_json::json!({"net_select": "仅_LTE"});
+    c.ops.insert("00000000000000a1".into(), id, Op { spec: &NET_MODE_ROUTER, started: now, arg: "Only_LTE" }, now);
+    c.ops.insert("00000000000000a2".into(), id, Op { spec: &NET_MODE_SIGNAL, started: now, arg: "Only_5G" }, now);
+    let sel = serde_json::json!({"net_select": "Only_LTE"});
     c.app.hub.offer(Topic::Signal, ReadOut { value: Some(sel), error: None }, std::time::Instant::now());
     let html = get_with(&c, "/ui/op/00000000000000a1", peer(32, 2), &cookie).await.text();
     assert!(html.contains("<h1 id=\"op-title\">网络模式更新</h1>") && html.contains("调制解调器报告新模式。"), "{html}");
@@ -918,12 +916,12 @@ async fn network_mode_operation_settles_or_times_out() {
     assert!(!html.contains("http-equiv"), "a finished operation does not reload");
     // The other one is still waiting: it reloads without JS and streams the signal topic.
     let html = get_with(&c, "/ui/op/00000000000000a2", peer(32, 3), &cookie).await.text();
-    assert!(html.contains("<h1 id=\"op-title\">更改网络模式</h1>") && html.contains("切换网络模式\u{2026}"), "{html}");
+    assert!(html.contains("<h1 id=\"op-title\">更改网络模式</h1>") && html.contains("切换网络模式…"), "{html}");
     assert!(html.contains("http-equiv=\"refresh\"") && html.contains("@get('/ui/live/op/00000000000000a2/"));
     assert!(html.contains("<a href=\"/ui/\" aria-current=\"page\">") && html.contains("href=\"/ui/signal/network-mode\""));
     clock.advance(Duration::from_secs(10));
     let html = get_with(&c, "/ui/op/00000000000000a2", peer(32, 4), &cookie).await.text();
-    assert!(html.contains("<h1 id=\"op-title\">\u{2014}路由器发送的模式可能仍在切换</h1>"), "{html}");
+    assert!(html.contains("<h1 id=\"op-title\">发送模式 — 路由器可能仍在切换</h1>"), "{html}");
     assert!(html.contains("调制解调器尚未报告新模式。") && !html.contains("http-equiv"));
     // Not an error (the app's "Mode sent" is not red): the mode was sent.
     assert!(html.contains("<p class=\"msg info\" role=\"status\">The modem has not") && !html.contains("role=\"alert\""), "{html}");
@@ -960,7 +958,7 @@ async fn every_screen_marks_its_tab() {
     // The other signed-in pages: logout under Settings, an operation under Router.
     let r = get_with(&c, "/ui/logout", peer(26, 4), &cookie).await;
     assert!(r.text().contains("<a href=\"/ui/settings\" aria-current=\"page\">"));
-    assert!(r.text().contains("href=\"/ui/settings\">Cancel"));
+    assert!(r.text().contains("href=\"/ui/settings\">取消"));
     // Live ids are [a-z0-9]+ and unique; paths are unique.
     let mut seen = Vec::new();
     for s in super::routes::SCREENS {
@@ -976,14 +974,14 @@ async fn tab_roots_follow_the_app() {
     let html = get_with(&c, "/ui/settings", peer(27, 2), &cookie).await.text();
     for want in [
         "<h2>会议</h2>", "在此浏览器中登录", "href=\"/ui/logout\"><span>退出登录</span>", "<h2>关于</h2>",
-        "OpenU60", "ZTE U60 Pro (MU5250)", "zte-agent web UI 0.1.0", "<h2>法律声明</h2>", "not affiliated with",
-        "href=\"https://open-u60-pro.vercel.app/privacy\" rel=\"noopener noreferrer\"",
+        "OpenU60", "ZTE U60 Pro (MU5250)", "中兴代理 web UI 0.1.0", "<h2>法律声明</h2>", "不隶属于",
+        "href=\"https://开放-u60-pro.vercel.app/privacy\" rel=\"没有开启者也没有推荐者\"",
     ] {
         assert!(html.contains(want), "{want}");
     }
     let html = get_with(&c, "/ui/router", peer(27, 3), &cookie).await.text();
     for (section, rows) in [
-        ("蜂窝网络", 8), ("网络连接", 5), ("安全", 3), ("服务质量", 1), ("系统", 1),
+        ("Cellular", 8), ("Connectivity", 5), ("Security", 3), ("Quality", 1), ("System", 1),
     ] {
         let at = html.find(&format!("<h2>{section}</h2>")).unwrap_or_else(|| panic!("{section}"));
         let list = &html[at..at + html[at..].find("</ul>").unwrap()];
@@ -997,12 +995,12 @@ async fn tab_roots_follow_the_app() {
     ] {
         assert!(html.contains(&format!("<a class=\"it\" href=\"{href}\">")), "{href}");
     }
-    assert_eq!(html.matches("进入网络用户界面").count(), 0);
+    assert_eq!(html.matches("Coming to the web UI").count(), 0);
     let html = get_with(&c, "/ui/tools", peer(27, 4), &cookie).await.text();
     for want in ["自动化任务", "网络工具", "配置", "需要 Shell 访问", "速度测试", "AT 终端", "设备资源管理器"] {
         assert!(html.contains(want), "{want}");
     }
-    assert_eq!(html.matches("进入网络用户界面").count(), 0);
+    assert_eq!(html.matches("Coming to the web UI").count(), 0);
     for href in [
         "/ui/tools/automations", "/ui/tools/sms-forward", "/ui/tools/speedtest", "/ui/tools/lan-speedtest", "/ui/tools/adb",
         "/ui/tools/usb", "/ui/tools/band-lock", "/ui/tools/at", "/ui/tools/device-info", "/ui/tools/devices", "/ui/tools/config",
@@ -1069,7 +1067,7 @@ async fn every_action_checks_session_csrf_origin_and_confirmation() {
             // (A question about something that is gone may say so with 404.)
             let page = get_with(&c, &to, peer(29, 4), &cookie).await;
             page.assert_secure_html(if page.status == 404 { 404 } else { 200 });
-            let back = format!("<div class=\"lead\"><a class=\"nl back\" href=\"{}\">{}</a></div><h1>确认</h1>", a.screen.path, a.screen.title);
+            let back = format!("<div class=\"lead\"><a class=\"nl back\" href=\"{}\">{}</a></div><h1>Confirm</h1>", a.screen.path, a.screen.title);
             assert!(page.text().contains(&back), "{}", page.text());
         }
         for case in a.confirm.iter().filter(|c| matches!(c.need, Need::Always)) {
@@ -1080,7 +1078,7 @@ async fn every_action_checks_session_csrf_origin_and_confirmation() {
             page.assert_secure_html(200);
             // The question in the page (it wraps); the nav bar leads back to the form.
             assert!(page.text().contains(&format!("<div class=\"narrow\"><h2 class=\"q\">{}</h2>", case.title)), "{}", case.title);
-            let back = format!("<div class=\"lead\"><a class=\"nl back\" href=\"{}\">{}</a></div><h1>确认</h1>", a.screen.path, a.screen.title);
+            let back = format!("<div class=\"lead\"><a class=\"nl back\" href=\"{}\">{}</a></div><h1>Confirm</h1>", a.screen.path, a.screen.title);
             assert!(page.text().contains(&back), "{}", page.text());
         }
     }
@@ -1106,7 +1104,7 @@ async fn mobile_network_page_and_confirmations() {
         assert!(html.contains(want), "{want}");
     }
     // No device here: the read's error, and the Apply form is disabled.
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">Failed to load: ") && html.contains("<fieldset class=\"mnf\" disabled>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载失败： ") && html.contains("<fieldset class=\"mnf\" disabled>"), "{html}");
     // Every POST form starts with the CSRF field; no page script; no form
     // inside a paragraph (the parser would close it there).
     for form in html.split("<form").skip(1) {
@@ -1114,7 +1112,7 @@ async fn mobile_network_page_and_confirmations() {
     }
     assert!(!html.contains("/ui/a/datastar-") && !html.contains("style=") && !html.contains("<p class=\"actions\"><form"));
     // The state is unknown here (no device): both directions, saying what they turn on or off.
-    for label in ["开启移动数据", "关闭移动数据", "打开飞行模式", "关闭飞行模式"] {
+    for label in ["Turn on Mobile Data", "Turn off Mobile Data", "Turn on Airplane Mode", "Turn off Airplane Mode"] {
         assert!(html.contains(&format!("aria-label=\"{label}\"")), "{label}");
     }
     // Unknown flash keys show nothing from the URL.
@@ -1124,11 +1122,11 @@ async fn mobile_network_page_and_confirmations() {
     let r = get_with(&c, &format!("{MN}/mobile-data/confirm?enable=0"), peer(17, 3), &cookie).await;
     r.assert_secure_html(200);
     let html = r.text();
-    assert!(html.contains("<h2 class=\"q\">关闭移动数据？</h2>"));
+    assert!(html.contains("<h2 class=\"q\">关闭mobile data?</h2>"));
     assert!(html.contains("所有连接的设备都无法访问互联网。 Wi-Fi 和此页面继续工作。"));
     assert!(html.contains(&format!("action=\"{MN}/mobile-data\"")));
     assert!(html.contains("name=\"enable\" value=\"0\"") && html.contains("name=\"confirm\" value=\"1\""));
-    assert!(html.contains(&format!("href=\"{MN}\">Cancel")) && !html.contains("connected remotely"));
+    assert!(html.contains(&format!("href=\"{MN}\">Cancel")) && !html.contains("远程连接"));
     assert!(html.contains("<a href=\"/ui/router\" aria-current=\"page\">"));
     let r = get_with(&c, &format!("{MN}/airplane/confirm?mode=LPM"), peer(17, 3), &cookie).await;
     assert!(r.text().contains("蜂窝无线电关闭；电话、短信和互联网停止。"));
@@ -1136,7 +1134,7 @@ async fn mobile_network_page_and_confirmations() {
     let apply = |roam: &str, roam0: &str| format!("{MN}/apply?cm=1&roam={roam}&sel=auto_select&cm0=1&roam0={roam0}&sel0=auto_select");
     let r = get_with(&c, &apply("1", "0"), peer(17, 3), &cookie).await;
     r.assert_secure_html(200);
-    assert!(r.text().contains("<h2 class=\"q\">开启数据漫游？</h2>"));
+    assert!(r.text().contains("<h2 class=\"q\">开启data roaming?</h2>"));
     assert!(r.text().contains("您的运营商可能会对在国外使用的数据收费。"));
     assert!(r.text().contains("如果移动数据已关闭，此操作也会将其打开。"));
     assert!(r.text().contains("name=\"roam\" value=\"1\"") && r.text().contains("name=\"roam0\" value=\"0\""));
@@ -1149,7 +1147,7 @@ async fn mobile_network_page_and_confirmations() {
     assert!(r.text().contains("您已远程连接：这将切断连接，并且只有在路由器上重新打开连接后才能访问此页面。"));
     let r = get_with(&c, &format!("{MN}/mobile-data/confirm?enable=0"), tailnet, &cookie).await;
     assert!(r.text().contains("所有连接的设备都无法访问互联网。 Wi-Fi 继续工作。"));
-    assert!(r.text().contains("this cuts the connection") && !r.text().contains("this page keep working"));
+    assert!(r.text().contains("这会切断连接") && !r.text().contains("此页面继续工作"));
     // Remotely, roaming off is asked too (abroad it cuts the connection).
     let r = get_with(&c, &apply("0", "1"), tailnet, &cookie).await;
     assert!(r.text().contains("您已远程连接：如果路由器在国外，则只有在路由器上重新开启漫游后才能访问此页面。") && r.text().contains("btn-danger"));
@@ -1221,20 +1219,20 @@ async fn router_posts_check_session_csrf_confirm_and_values() {
         assert!(html.contains(&format!("<option value=\"{hyst}\" selected>{hyst}%</option>")));
         assert!(html.contains("name=\"enabled\" value=\"1\" checked"));
         let bad_limit = limit != "80";
-        assert_eq!(html.contains("输入 50 到 100 之间的整数。"), bad_limit);
-        assert_eq!(html.contains("输入 1 到 20 之间的整数。"), !bad_limit);
+        assert_eq!(html.contains("Enter a whole number from 50 to 100."), bad_limit);
+        assert_eq!(html.contains("Enter a whole number from 1 to 20."), !bad_limit);
         assert!(html.contains("aria-invalid=\"true\""));
     }
     for bad in ["5e1", "80.5", "-1", ""] {
         let r = p(charge.clone(), format!("csrf={csrf}&limit={bad}&hysteresis=5")).await;
-        assert!(r.text().contains("输入 50 到 100 之间的整数。"), "{bad}");
+        assert!(r.text().contains("输入从 50 到 100 的整数。"), "{bad}");
         assert!(!r.text().contains("name=\"enabled\" value=\"1\" checked"));
     }
     // What was typed and is no number is not shown.
     let r = p(charge.clone(), format!("csrf={csrf}&limit=%22%3E%3Cscript%3E&hysteresis=5")).await;
     r.assert_secure_html(400);
     let html = r.text();
-    assert!(html.contains("输入 50 到 100 之间的整数。") && !html.contains("\"><script>") && !html.contains("&lt;script&gt;"), "{html}");
+    assert!(html.contains("输入从 50 到 100 的整数。") && !html.contains("\"><script>") && !html.contains("&lt;script&gt;"), "{html}");
     // A valid charge limit (kept in memory here: no device files on the
     // host): saved, and the page shows the new values.
     // Without the page's single-use token nothing is saved.
@@ -1250,14 +1248,14 @@ async fn router_posts_check_session_csrf_confirm_and_values() {
     let html = get_with(&c, DEV, peer(18, 6), &cookie).await.text();
     assert!(!html.contains("已保存费用限额。") && html.contains("<option value=\"85\" selected>85%</option>"));
     assert!(html.contains("<option value=\"7\" selected>7%</option>") && html.contains("name=\"enabled\" value=\"1\" checked"));
-    assert!(html.contains("充电在 85% 时停止，在 78% 时恢复。"));
+    assert!(html.contains("充电在 85% 处停止，并在 85% 处恢复。"));
     // A confirmed change whose state cannot be read (no device here): the
     // page with the error; no operation is started, and the question's
     // single-use token is given back (nothing was sent).
     let token = get_with(&c, &at("mobile-data/confirm?enable=0"), peer(18, 5), &cookie).await.input("once");
     let r = p(at("mobile-data"), format!("csrf={csrf}&enable=0&confirm=1&once={token}")).await;
     assert!(r.status >= 500, "{}", r.status);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Failed: ") && r.header("location").is_none(), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： ") && r.header("location").is_none(), "{}", r.text());
     // With the state read: two posts at once send one write and land on one
     // operation (kept under the token); a replay finds it.
     let wwan = serde_json::json!({"enable": 1, "roam_enable": 0, "connect_mode": 1, "connect_status": "ipv4_connected"});
@@ -1281,7 +1279,7 @@ async fn operations_start_unless_the_write_surely_failed() {
     use super::action::unsure;
     assert!(unsure(500, "AT+CFUN=1 failed"));
     assert!(unsure(503, "ubus call zwrt_data set_wwaniface failed: Command failed: Request timed out"));
-    assert!(!unsure(503, "移动数据状态不可用") && !unsure(503, "no serial port found"));
+    assert!(!unsure(503, "Mobile data state unavailable") && !unsure(503, "no serial port found"));
     // Turning airplane mode off on the host: no AT port, which surely did
     // not change anything: the page with the error, no operation.
     let (c, cookie, _) = signed_in(28).await;
@@ -1303,11 +1301,11 @@ async fn operation_page_is_its_owners_and_refreshes_without_js() {
     r.assert_secure_html(200);
     let html = r.text();
     assert!(html.contains("<h1 id=\"op-title\">开启移动数据</h1>") && html.contains("id=\"op-progress\""));
-    assert!(html.contains("<title>开启移动数据 \u{b7} U60 Pro</title>"));
-    assert!(html.contains("开启移动数据\u{2026}") && html.contains("返回移动网络"));
+    assert!(html.contains("<title>开启移动数据 · U60 Pro</title>"));
+    assert!(html.contains("开启移动数据…") && html.contains("返回移动网络"));
     // Under Router, with the way back in the nav bar.
     assert!(html.contains("<a href=\"/ui/router\" aria-current=\"page\">"));
-    assert!(html.contains(&format!("<a class=\"nl back\" href=\"{MN}\">移动网络</a>")));
+    assert!(html.contains(&format!("<a class=\"nl back\" href=\"{MN}\">Mobile Network</a>")));
     // Pending: refresh without JS, live with it.
     assert!(html.contains("<noscript><meta http-equiv=\"refresh\" content=\"3\"></noscript>"));
     assert!(html.contains("@get('/ui/live/op/00000000000000aa/"));
@@ -1327,7 +1325,7 @@ async fn a_timed_out_operation_stops_refreshing() {
     c.ops.insert("00000000000000cc".into(), id, Op { spec: &AIRPLANE_ON, started: now, arg: "" }, now);
     let cookie = format!("zte_ui_session={session}");
     let r = get_with(&c, "/ui/op/00000000000000cc", peer(24, 2), &cookie).await;
-    assert!(r.text().contains("http-equiv=\"refresh\"") && r.text().contains("0 s so far"));
+    assert!(r.text().contains("http-equiv=\"refresh\"") && r.text().contains("0 到目前为止"));
     // No modem state here: nothing is read, so it times out, saying so.
     clock.advance(Duration::from_secs(20));
     let r = get_with(&c, "/ui/op/00000000000000cc", peer(24, 3), &cookie).await;
@@ -1369,7 +1367,7 @@ async fn live_endpoints_need_datastar_and_a_session() {
     for (uri, status, link) in [
         (
             "/ui/live/dashboard",
-            "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>离线</b></span></p>\ndata: elements <p id=\"live-note\">",
+            "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>Offline</b></span></p>\ndata: elements <p id=\"live-note\">",
             "/ui/login?next=%2Fui%2F",
         ),
         ("/ui/live/signal", "<p class=\"live\" id=\"live-status\">", "/ui/login?next=%2Fui%2Fsignal"),
@@ -1381,7 +1379,7 @@ async fn live_endpoints_need_datastar_and_a_session() {
         let body = axum::body::to_bytes(resp.into_body(), usize::MAX).await.unwrap();
         assert_eq!(
             String::from_utf8(body.to_vec()).unwrap(),
-            format!("event: datastar-patch-elements\ndata: elements {status}Signed out. <a href=\"{link}\">登录</a></p>\n\n")
+            format!("event: datastar-patch-elements\ndata: elements {status}已退出。 <a href=\"{link}\">登录</a></p>\n\n")
         );
     }
     // Someone else's or an unknown (expired) operation: finished, so a page
@@ -1425,7 +1423,7 @@ async fn live_dashboard_opens_with_every_fragment_and_ends_on_logout() {
     let csrf = get_with(&c, "/ui/logout", peer(21, 3), &cookie).await.input("csrf");
     post(&c, "/ui/logout", peer(21, 3), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/login");
     let last = frame(&mut b).await.unwrap();
-    assert!(last.contains("Signed out. <a href=\"/ui/login?next=%2Fui%2F\">登录</a>"), "{last}");
+    assert!(last.contains("已退出。 <a href=\"/ui/login?next=%2Fui%2F\">登录</a>"), "{last}");
     assert!(frame(&mut b).await.is_none(), "the stream ended");
     assert_eq!(c.app.hub.demand(Topic::Traffic), 0);
 }
@@ -1441,7 +1439,7 @@ async fn a_fourth_live_page_of_a_session_replaces_the_oldest() {
     let oldest = &mut streams[0];
     assert!(frame(oldest).await.unwrap().contains("hb-o"));
     let bye = frame(oldest).await.unwrap();
-    assert!(bye.contains("Opened in another tab. <a href=\"/ui/signal\">刷新</a>"), "{bye}");
+    assert!(bye.contains("在另一个选项卡中打开。 <a href=\"/ui/signal\">刷新</a>"), "{bye}");
     assert!(frame(oldest).await.is_none());
 }
 
@@ -1499,8 +1497,7 @@ async fn processes_kills_report_their_result_to_their_session() {
     r.assert_secure_html(200);
     let html = r.text();
     assert!(html.contains(
-        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/health/cpu\">完成</a></div><h1>流程</h1>\
-         <div class=\"trail\"><span id=\"pr-all\"></span></div>"
+        "<div class=\\\"lead\\\"><a class=\\\"nl\\\" href=\\\"/ui/health/cpu\\\">完成</a></div><h1>流程</h1>         <div class=\\\"trail\\\"><span id=\\\"pr-all\\\"></span></div>"
     ), "{html}");
     assert!(html.contains("@get('/ui/live/processes/") && html.contains("id=\"pr-sum\"") && html.contains("id=\"pr-list\""));
     // Its stream samples the processes topic only, and only while open.
@@ -1521,7 +1518,7 @@ async fn processes_kills_report_their_result_to_their_session() {
     assert_eq!(to.status, 303);
     assert!(location.starts_with("/ui/health/processes?r=") && super::ops::is_op_id(&location[23..]), "{location}");
     let shown = get_with(&c, &location, peer(46, 4), &cookie).await.text();
-    let line = "<p class=\"msg err\" role=\"alert\">PID 4194304 is no longer zte_topsw_diag. 没有什么被杀死.</p>";
+    let line = "<p class=\"msg err\" role=\"alert\">PID 4194304 is no longer zte_topsw_diag. Nothing was killed.</p>";
     assert!(shown.contains(line), "{shown}");
     // Another session, or an unknown id: nothing.
     let other = format!("zte_ui_session={}", login(&c, 46, 9).await);
@@ -1530,8 +1527,8 @@ async fn processes_kills_report_their_result_to_their_session() {
     // Kill All with nothing safe to kill: nothing is sent; a neutral line, never a success.
     let to = post(&c, "/ui/health/processes/kill-all", peer(46, 5), &cookie, &format!("csrf={csrf}&confirm=1")).await;
     let shown = get_with(&c, to.header("location").unwrap(), peer(46, 5), &cookie).await.text();
-    let line = "<p class=\"msg info\" role=\"status\">没有可以安全杀死的膨胀守护进程正在运行。什么也没被杀。</p>";
-    assert!(shown.contains(line) && !shown.contains("msg ok"), "{shown}");
+    let line = "<p class=\"msg info\" role=\"status\">No bloat daemons that are safe to kill are running. Nothing was killed.</p>";
+    assert!(shown.contains(line) && !shown.contains("消息好的"), "{shown}");
     // The questions: a PID that is not running, and no safe bloat running.
     let q = get_with(&c, "/ui/health/processes/kill?pid=4194304", peer(46, 6), &cookie).await.text();
     assert!(q.contains("<h2 class=\"q\">该进程不再运行。</h2>") && !q.contains("<form"), "{q}");
@@ -1554,7 +1551,7 @@ async fn wifi_pages_link_stream_clients_and_never_stream_the_password() {
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
-        "<h1>Wi-Fi &amp; devices</h1><div class=\"trail\"><a class=\"nl\" href=\"/ui/\">完成</a>",
+        "<h1>Wi-Fi &amp; 设备</h1><div class=\"trail\"><a class=\"nl\" href=\"/ui/\">完成</a>",
         "<p class=\"ctr\"><a class=\"nl\" href=\"/ui/wifi/share\">共享 Wi-Fi</a></p>",
         "<details class=\"card devc\" open><summary class=\"ch\">", "<span>已连接设备</span><b class=\"big\" id=\"wf-count\">",
         "<div id=\"wf-devices\">", "<h2>WiFi</h2>",
@@ -1569,9 +1566,9 @@ async fn wifi_pages_link_stream_clients_and_never_stream_the_password() {
         r.assert_secure_html(200);
         let html = r.text();
         assert!(!html.contains("/ui/live/") && !html.contains("/ui/a/datastar-"), "{uri}");
-        assert!(html.contains("<a class=\"nl back\" href=\"/ui/wifi\">Wi-Fi &amp; devices</a></div><h1>WiFi 凭证</h1>"), "{html}");
+        assert!(html.contains("<a class=\"nl back\" href=\"/ui/wifi\">Wi-Fi &amp; 设备</a></div><h1>WiFi 凭证</h1>"), "{html}");
         // The build machine has no Wi-Fi configuration: the read's error.
-        assert!(html.contains("<p class=\"msg err\" role=\"alert\">Failed to load Wi-Fi credentials: "), "{html}");
+        assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载失败 Wi-Fi credentials: "), "{html}");
     }
     // No stream for the share page.
     let r = open_live(&c, &format!("/ui/live/wifishare/{KEY}"), peer(47, 5), &cookie).await;
@@ -1624,7 +1621,7 @@ async fn usb_card_shows_while_attached_and_stays_dismissed_until_detached() {
     }
     let r = post(&c, "/ui/usb/powerbank", peer(47, 3), &cookie, &format!("csrf={csrf}&state=1&mode=x")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Failed: "), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： "), "{}", r.text());
     // Dismissed: hidden on reload while attached, for this session only.
     post(&c, "/ui/usb/dismiss", peer(47, 3), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/");
     assert!(dash(cookie.clone()).await.contains(OFF));
@@ -1690,12 +1687,12 @@ async fn usb_mode_turns_fast_charging_on_and_off() {
     // On the host the call fails: the screen again with "Failed: …".
     let r = post(&c, "/ui/tools/usb/powerbank", peer(48, 3), &cookie, &format!("csrf={csrf}&state=0")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Failed: ") && r.text().contains("<h1>USB 模式</h1>"), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： ") && r.text().contains("<h1>USB 模式</h1>"), "{}", r.text());
     drop(fake);
     // The card's button checks the cable first: the read fails here, so nothing is sent.
     let r = post(&c, "/ui/usb/powerbank", peer(48, 4), &cookie, &format!("csrf={csrf}&state=1")).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">Failed: "), "{}", r.text());
+    assert!(r.text().contains("<p class=\"msg err\" role=\"alert\">失败： "), "{}", r.text());
 }
 
 /// The hub holds a value for every topic of every screen (a page load also
@@ -1750,11 +1747,11 @@ async fn every_live_screen_streams_its_fragments_as_in_the_page() {
     // What the visible states put in their fragments.
     let shows = [
         ("card-usb", "<div id=\"card-usb\" class=\"on pb\">"), ("card-devices", "<b class=\"big\">1</b>"),
-        ("pr-all", "消灭一切膨胀"), ("pr-sum", "冗余后台服务"), ("pr-list", "PID 812"),
+        ("pr-all", "Kill All Bloat"), ("pr-sum", "Bloat Daemons"), ("pr-list", "PID 812"),
         ("wf-count", ">1</b>"), ("wf-devices", "<b>tv</b>"), ("cd-list", "<b class=\"dn\">tv</b>"),
-        ("st-run", "<span>正在上传...</span><span class=\"muted num\">80%</span>"),
-        ("sd-run", "<span>进展</span><span class=\"muted num\">40%</span>"),
-        ("eadd-dl", "<b>连接到运营商...</b>"),
+        ("st-run", "<span>Uploading...</span><span class=\"muted num\">80%</span>"),
+        ("sd-run", "<span>Progress</span><span class=\"muted num\">40%</span>"),
+        ("eadd-dl", "<b>Connecting to the operator…</b>"),
     ];
     let mut shown = 0;
     for s in super::routes::SCREENS.iter().filter(|s| !s.live.is_empty()) {
@@ -1811,7 +1808,7 @@ async fn every_live_screen_streams_its_fragments_as_in_the_page() {
 async fn no_identifier_reaches_any_screen_or_stream() {
     let (c, cookie, _) = signed_in(41).await;
     let hostile = serde_json::json!({
-        "wifi_onoff": "1", "radio2_disabled": "0", "ssid_2g": "网络42", "key_5g": "WIFIKEY-5g", "encryption_2g": "psk2",
+        "wifi_onoff": "1", "radio2_disabled": "0", "ssid_2g": "Net-42", "key_5g": "WIFIKEY-5g", "encryption_2g": "psk2",
         "guest_disabled_2g": "1", "guest_disabled_5g": "1",
         "imei": "000000000000042", "imsi": "001019999911111", "sim_imsi": "001019999911111",
         "sim_iccid": "8900100000009998877", "iccid": "8900100000009998877", "msisdn": "+10000000042",
@@ -1886,7 +1883,7 @@ fn fragments_show_identifiers_only_where_allowed() {
             assert!(!html.contains(x), "{} has {x}", s.path);
         }
         let devices = html.contains("alice-laptop-42") && html.contains("192.168.0.42") && html.contains("••:••:••:••:ee:42");
-        assert_eq!(devices, ["/ui/wifi", "/ui/tools/devices"].contains(&s.path), "{}", s.path);
+        assert_eq!(devices, ["/ui/wifi", "/ui/tools/设备"].contains(&s.path), "{}", s.path);
     }
 }
 
@@ -1929,7 +1926,7 @@ async fn unknown_notices_show_nothing_and_pages_change_nothing() {
     for s in super::routes::SCREENS {
         let r = get_with(&c, &format!("{}?saved=%3Cb%3Eowned", s.path), peer(43, 2), &cookie).await;
         r.assert_secure_html(if s.status.is_some() { 404 } else { 200 });
-        assert!(!r.text().contains("owned") && !r.text().contains("class=\"msg info\"") && !r.text().contains("class=\"msg ok\""), "{}", s.path);
+        assert!(!r.text().contains("owned") && !r.text().contains("class=\"消息信息\"") && !r.text().contains("class=\"消息好的\""), "{}", s.path);
     }
 }
 
@@ -1972,7 +1969,7 @@ async fn a_failed_state_read_starts_no_operation() {
     assert_eq!(resp.status(), 503);
     assert!(resp.headers().get("location").is_none());
     let html = String::from_utf8(axum::body::to_bytes(resp.into_body(), usize::MAX).await.unwrap().to_vec()).unwrap();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">Failed: ubus call zwrt_data get_wwaniface failed"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败：ubus 调用 zwrt_data get_wwaniface failed"), "{html}");
     // An action without confirmations has no confirmation page.
     for uri in ["/ui/router/device/charge-limit/confirm", "/ui/router/device/charge-limit/confirm?enabled=1"] {
         get_with(&c, uri, peer(44, 4), &cookie).await.assert_secure_html(404);

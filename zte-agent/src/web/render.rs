@@ -404,7 +404,7 @@ mod tests {
     fn live_page_carries_the_nonce_in_three_places() {
         let ctx = PageCtx { title: "T", nonce: "00ff", live: Some("/ui/live/x"), ..PageCtx::default() };
         let s = page(&ctx, html! { p { "x" } }).into_string();
-        assert!(s.starts_with("<!DOCTYPE html><html lang=\"en\" data-nonce=\"00ff\">"), "{s}");
+        assert!(s.starts_with("<!DOCTYPE html><html lang=\"zh-CN\" data-nonce=\"00ff\">"), "{s}");
         assert!(s.contains(&format!(r#"<script type="module" src="{DATASTAR_JS}" nonce="00ff"></script>"#)));
         // Opened only once the page is visible (Datastar itself does not
         // check at the start); the URL is the only value in the expression.
@@ -428,7 +428,7 @@ mod tests {
         assert_eq!(s.matches("<script").count(), 1, "{s}");
         assert!(s.contains(&format!(r#"<script src="{THEME_JS}" nonce="00ff" defer></script>"#)), "{s}");
         assert!(!s.contains("datastar") && !s.contains("data-init") && !s.contains("data-nonce") && s.matches("00ff").count() == 1, "{s}");
-        assert!(s.starts_with("<!DOCTYPE html><html lang=\"en\">"));
+        assert!(s.starts_with("<!DOCTYPE html><html lang=\"zh-CN\">"));
     }
 
     #[test]
@@ -443,9 +443,9 @@ mod tests {
 
     #[test]
     fn error_pages_offer_a_way_on() {
-        let s = error_page("路由器忙", "m", "00", Some("/ui/")).into_string();
-        assert_eq!(s.matches("href=\"/ui/\"").count(), 1, "one link per target: {s}");
-        let s = error_page("表格不被接受", "m", "00", Some("/ui/login")).into_string();
+        let s = error_page("Router busy", "m", "00", Some("/ui/")).into_string();
+        assert_eq!(s.matches("href=\"/ui/\"").count(), 1, "每个目标一个链接：{s}");
+        let s = error_page("Form not accepted", "m", "00", Some("/ui/login")).into_string();
         assert!(s.contains("href=\"/ui/login\"") && s.contains("返回仪表盘"));
     }
 
@@ -453,9 +453,7 @@ mod tests {
     fn snapshot_status_line() {
         assert_eq!(
             live_snapshot("/ui/").into_string(),
-            "<p class=\"snap\" id=\"live-status\">页面加载快照<span class=\"ages\">\
-             <span class=\"age1\"> · over 1 min old</span><span class=\"age5\"> · over 5 min old</span></span> · \
-             <a href=\"/ui/\">刷新</a></p>"
+            "<p class=\\\"snap\\\" id=\\\"live-status\\\">页面加载快照<span class=\\\"ages\\\">             <span class=\\\"age1\\\"> · over 1 min old</span><span class=\\\"age5\\\"> · over 5 分钟 old</span></span> ·              <a href=\\\"/ui/\\\">刷新</a></p>"
         );
     }
 }

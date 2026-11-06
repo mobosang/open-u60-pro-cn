@@ -368,7 +368,7 @@ pub fn switch_row(csrf: &Markup, label: &str, state: Option<bool>, on: Act, off:
                 Some(false) => (act(csrf, &on, "sw", Some(false), label, "")),
                 None => {
                     span.v { "不可用" }
-                    (act(csrf, &on, "btn sm", None, &format!("开启{label}"), "On"))
+                    (act(csrf, &on, "btn sm", None, &format!("开启{label}"), "开启"))
                     (act(csrf, &off, "btn sm", None, &format!("关闭{label}"), "关闭"))
                 }
             }

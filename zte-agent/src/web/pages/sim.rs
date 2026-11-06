@@ -763,7 +763,7 @@ mod tests {
     fn the_card_follows_the_app_with_identifiers_masked() {
         let sim = json!({
             "sim_states": "sim ready", "sim_iccid": "8900100000009998877F", "sim_imsi": "001019999911111",
-            "msisdn": "+10000000042", "mdm_mcc": "001", "mdm_mnc": "01", "运营商": "测试网",
+            "msisdn": "+10000000042", "mdm_mcc": "001", "mdm_mnc": "01", "Operator": "Test Net",
             "current_sim_slot": "1", "spn_name_data": "0054006500730074", "pin_status": "1", "pinnumber": "1", "puknumber": 3,
         });
         let s = card(&views(sim.clone())).into_string();
@@ -791,7 +791,7 @@ mod tests {
         assert!(s.contains("<span class=\"v c-orange\">PUK 必填</span>") && s.contains("<span>ICCID</span><span class=\"v\">--</span>"), "{s}");
         assert!(!s.contains("运营商"));
         assert_eq!(status("sim undetected"), ("无SIM".into(), Some("c-red")));
-        assert_eq!(status("一些东西"), ("一些东西".into(), None));
+        assert_eq!(status("Something"), ("一些东西".into(), None));
         // An IMSI whose network the card does not name: 3 + 2 digits.
         assert_eq!(imsi("310260000000042", "", ""), "310/26 …0042");
         assert_eq!(imsi("310260000000042", "310", "260"), "310/260 …0042");

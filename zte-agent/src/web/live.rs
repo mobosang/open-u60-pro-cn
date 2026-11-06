@@ -454,8 +454,7 @@ mod tests {
         want.push("live-status".into());
         assert_eq!(ids(&open), want);
         assert!(open.last().unwrap().starts_with(
-            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>已连接</b></span>\
-             <span class=\"lost\"><a href=\"/ui/\">离线<span class=\"sr\">. 刷新</span></a></span></p>"
+            "<p class=\\\"live on ps hb-o\\\" id=\\\"live-status\\\"><span class=\\\"ok\\\"><b>已连接</b></span>             <span class=\\\"lost\\\"><a href=\\\"/ui/\\\">离线<span class=\\\"sr\\\">. 刷新</span></a></span></p>"
         ));
         // Byte-equal to the same fragment of a full page (the age badge is
         // the nav bar's).
@@ -489,7 +488,7 @@ mod tests {
         assert_eq!(ids(&parts), ["age", "live-status"]);
         // The badge's digit rolls up from 0 (`roll`); its label is what
         // screen readers read.
-        assert!(parts[0].contains("aria-label=\"更新 4 seconds ago\"><span class=\"rl\" aria-hidden=\"true\"><i id=\"age04\" data-u=\"0\">4</i>s ago</span>"), "{}", parts[0]);
+        assert!(parts[0].contains("aria-label=\"几秒前更新 4\"><span class=\"rl\" aria-hidden=\"true\"><i id=\"age04\" data-u=\"0\">4</i>s ago</span>"), "{}", parts[0]);
         assert!(parts[1].contains("class=\"live on ps hb-a\""));
         let much_later = v.now.saturating_add(Duration::from_secs(20));
         let parts = elements(&em.tick(much_later, &ages));
@@ -497,7 +496,7 @@ mod tests {
         // temperatures blank after 10 s; the battery card shows no age (the
         // app's cards have none), so it is not sent.
         assert_eq!(ids(&parts), ["card-traffic", "card-health", "age", "live-status"], "{parts:?}");
-        assert!(parts[0].contains("最后一次流量样本 · 16 秒前 · 等待设备"));
+        assert!(parts[0].contains("· 之前的最后一个流量样本 · 16 正在等待设备"));
         assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("20 秒前更新")));
         assert!(parts.last().unwrap().contains("class=\"live on ps hb-b\""));
     }
@@ -602,13 +601,12 @@ mod tests {
         for r in [ByeReason::TokenExpired, ByeReason::LoggedOut] {
             assert_eq!(
                 note(&mut em, r),
-                "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>离线</b></span></p>\
-                 <p id=\"live-note\">已退出。 <a href=\"/ui/login?next=%2Fui%2F\">登录</a></p>"
+                "<p class=\\\"live ps\\\" id=\\\"live-status\\\"><span class=\\\"off\\\"><b>离线</b></span></p>                 <p id=\\\"live-note\\\">已退出。 <a href=\\\"/ui/login?next=%2Fui%2F\\\">登录</a></p>"
             );
         }
-        assert!(note(&mut em, ByeReason::Lifetime).contains("Live updates paused after 30 minutes. <a href=\"/ui/\">简历</a>"));
-        assert!(note(&mut em, ByeReason::Evicted).contains("Opened in another tab. <a href=\"/ui/\">刷新</a>"));
-        assert!(note(&mut em, ByeReason::Standby).contains("The router went into standby. <a href=\"/ui/\">刷新</a>"));
+        assert!(note(&mut em, ByeReason::Lifetime).contains("实时更新在 30 分钟后暂停。 <a href=\"/ui/\">简历</a>"));
+        assert!(note(&mut em, ByeReason::Evicted).contains("在另一个选项卡中打开。 <a href=\"/ui/\">刷新</a>"));
+        assert!(note(&mut em, ByeReason::Standby).contains("路由器进入待机状态。 <a href=\"/ui/\">刷新</a>"));
         assert!(!note(&mut em, ByeReason::Standby).contains(" on"));
     }
 
@@ -749,7 +747,7 @@ mod tests {
         let mut files = Vec::new();
         rust_files(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/web"), &mut files);
         assert!(files.len() > 10, "{files:?}");
-        let raw = concat!("前言", "caped");
+        let raw = concat!("PreEs", "caped");
         for f in files {
             assert!(!std::fs::read_to_string(&f).unwrap().contains(raw), "{} uses {raw}", f.display());
         }

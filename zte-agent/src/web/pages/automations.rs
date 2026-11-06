@@ -154,7 +154,7 @@ pub fn schedule_summary(job: &Value) -> String {
             let days: Vec<u64> = s["days"].as_array().map(|a| a.iter().filter_map(Value::as_u64).collect()).unwrap_or_default();
             let days = match days.as_slice() {
                 d if d.len() == 7 => "每天".to_owned(),
-                [0, 1, 2, 3, 4] => "周一\u{2013}周五".to_owned(),
+                [0, 1, 2, 3, 4] => "周一–周五".to_owned(),
                 [5, 6] => "周末".to_owned(),
                 d => d.iter().filter_map(|&d| DAYS.get(d as usize).copied()).collect::<Vec<_>>().join(", "),
             };
@@ -274,7 +274,7 @@ pub fn ask_delete(pd: &PageData) -> Markup {
     let id = job.map(job_id).unwrap_or(0).to_string();
     let c = job.map(created).unwrap_or(0).to_string();
     let name = job.and_then(|j| j["name"].as_str()).unwrap_or("");
-    let title = if job.is_some() { format!("删除\u{201c}{name}\u{201d}？") } else { "删除自动化？".to_owned() };
+    let title = if job.is_some() { format!("删除“{name}”？") } else { "删除自动化？".to_owned() };
     let restore = job.and_then(|j| j["restore"]["time"].as_str()).map(|t| {
         format!("它在 {t} 的恢复也不再运行，因此如果它已经运行，则不会撤消该操作。")
     });
@@ -609,7 +609,7 @@ struct Draw<'a> {
     remote: bool,
 }
 
-const REMOTE: &str = "您已远程连接：飞行模式打开和移动数据关闭在运行时会切断此连接。打开\u{201c}在\u{201d}处的反向动作将其恢复。";
+const REMOTE: &str = "您已远程连接：飞行模式打开和移动数据关闭在运行时会切断此连接。打开“在”处的反向动作将其恢复。";
 
 /// A notice above the form: (success, text).
 type Note = Option<(bool, String)>;
@@ -900,7 +900,7 @@ mod tests {
     use super::*;
 
     fn job(v: Value) -> Value {
-        let mut j = json!({"id": 3, "name": "夜晚", "enabled": true, "created_at": 0, "last_run": null, "last_status": null});
+        let mut j = json!({"id": 3, "name": "Night", "enabled": true, "created_at": 0, "last_run": null, "last_status": null});
         for (k, x) in v.as_object().unwrap() {
             j[k] = x.clone();
         }
@@ -941,7 +941,7 @@ mod tests {
         let s = |schedule: Value, restore: Value| schedule_summary(&job(json!({"schedule": schedule, "restore": restore})));
         let rec = |days: Value| json!({"type": "recurring", "time": "23:00", "days": days});
         assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天23:00");
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一\u{2013}周五 23:00 \u{2192} 06:30");
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一–周五 23:00 → 06:30");
         assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 23:00");
         assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "周日、周一 23:00");
         assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "周二 ??:??");
@@ -980,7 +980,7 @@ mod tests {
         let b = body(&input(), None, now).unwrap();
         assert_eq!(b, json!({
             "name": "夜晚",
-            "action": {"method": "POST", "path": "/api/modem/airplane", "body": {"operate_mode": "LPM"}},
+            "action": {"method": "POST", "path": "/api/modem/飞机", "body": {"operate_mode": "LPM"}},
             "schedule": {"type": "recurring", "time": "23:00", "days": [0, 1, 2, 3, 4]},
         }));
         let i = Input { restore: true, action: "data".into(), ..input() };
@@ -1000,7 +1000,7 @@ mod tests {
         let stored = job(json!({"id": 3, "enabled": false, "schedule": {"type": "once", "at": now - 3601},
             "action": {"method": "POST", "path": "/api/modem/airplane", "body": {"operate_mode": "LPM"}}}));
         let i = Input { id: Some(3), ..Input::of_job(&stored, now) };
-        assert_eq!(i.action, "airplane");
+        assert_eq!(i.action, "飞机");
         let b = body(&i, Some(&stored), now).unwrap();
         assert_eq!((b["id"].clone(), b["enabled"].clone(), b["schedule"]["at"].clone()), (json!(3), json!(false), json!(now - 3601)));
         // The checks.

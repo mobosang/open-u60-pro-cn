@@ -127,16 +127,16 @@ async fn add_esim_follows_the_app() {
     let html = r.text();
     for want in [
         "<h1>添加 eSIM</h1>", "<div class=\"trail\"><a class=\"nl\" id=\"eadd-bar\" href=\"/ui/router/esim\">完成</a></div>",
-        "<h2>将配置文件添加到您的路由器</h2>", "使用运营商提供的 eSIM 二维码。您将在安装之前查看配置文件。",
-        "您的路由器没有移动数据连接。下载前先连接；无法使用您手机本身的数据。",
+        "<h2>将配置文件添加到您的路由器</h2>", "使用运营商提供的 eSIM 二维码。您’将在安装之前查看配置文件。",
+        "路由器尚未连接移动数据。请先连接后再下载；此操作无法使用手机自身的移动数据。",
         "<form class=\"card eform\" method=\"post\" action=\"/ui/router/esim/add\" enctype=\"multipart/form-data\" autocomplete=\"off\"><input type=\"hidden\" name=\"csrf\"",
-        "Scan QR code</span><input type=\"file\" name=\"scan\" accept=\"image/jpeg,image/png\" capture=\"environment\">",
-        "Choose QR from Photos</span><input type=\"file\" name=\"photo\" accept=\"image/jpeg,image/png\">",
-        "Enter code manually</summary>", "<input id=\"code\" type=\"password\" name=\"code\" placeholder=\"LPA:1$…\" maxlength=\"512\" autocomplete=\"one-time-code\"",
-        "<input id=\"cc\" type=\"password\" name=\"cc\" placeholder=\"Operator confirmation code\" maxlength=\"64\" autocomplete=\"one-time-code\"",
-        "Enter the separate confirmation code supplied by your operator (up to 64 characters).</small>", ">阅读配置文件详细信息</button>",
-        "您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10-60 秒。",
-        "您的激活码是私人且一次性的。它仅发送到您的路由器，不会被 OpenU60 保存。",
+        "扫描二维码</span><input type=\"file\" name=\"scan\" accept=\"image/jpeg,image/png\" capture=\"environment\">",
+        "从照片中选择二维码</span><input type=\"file\" name=\"photo\" accept=\"image/jpeg,image/png\">",
+        "手动输入代码</summary>", "<input id=\"code\" type=\"password\" name=\"code\" placeholder=\"LPA:1$…\" maxlength=\"512\" autocomplete=\"one-time-code\"",
+        "<input id=\"cc\" type=\"password\" name=\"cc\" placeholder=\"运营商确认码\" maxlength=\"64\" autocomplete=\"one-time-code\"",
+        "输入运营商提供的单独确认码（最多 64 个字符）。</small>", ">阅读配置文件详细信息</button>",
+        "您的路由器需要互联网来下载配置文件。保持 Wi-Fi 连接。下载通常需要 10–60 秒。",
+        "激活码是私密的一次性凭据，只会发送至你的路由器，OpenU60 不会保存它。",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -144,7 +144,7 @@ async fn add_esim_follows_the_app() {
     // Connected: no note. A switch running: the app's busy line.
     let _dev = device::set(&c.app, device_with(vec![], "ipv4_ipv6_connected"));
     let html = get_with(&c, ADD, peer(170, 3), &cookie).await.text();
-    assert!(!html.contains("no mobile data") && !html.contains("eSIM is busy"), "{html}");
+    assert!(!html.contains("没有移动数据") && !html.contains("eSIM is busy"), "{html}");
     let mut d = device_with(vec![], "connected");
     d.gets[1] = ("/api/esim/switch", Ok(json!({"state": "reloading"})));
     let _dev = device::set(&c.app, d);
@@ -167,19 +167,19 @@ async fn a_pasted_code_starts_the_preview_once() {
     let (csrf, token) = entry(&c, peer(171, 2), &cookie).await;
     // Refused by the app's checks, each with its words; nothing sent.
     let cases: [(&str, &str, &str, bool, bool); 6] = [
-        ("", "", "扫描或选择二维码照片，或手动输入二维码。", false, false),
-        ("LPA:1$evil.example/x$FAKE-MATCHING-ID", "", "该二维码不是 eSIM 激活码。", true, false),
-        ("WIFI:T:WPA;S:FAKE-0000;P:x;;", "", "该二维码不是 eSIM 激活码。", true, false),
-        (CC_CODE, "", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
-        (CC_CODE, &"x".repeat(65), "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
-        (CODE, "1\u{7}2", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
+        ("", "", "Scan or choose a photo of the QR code, or enter the code manually.", false, false),
+        ("LPA:1$evil.example/x$FAKE-MATCHING-ID", "", "This QR code isn&#39;t an eSIM activation code.", true, false),
+        ("WIFI:T:WPA;S:FAKE-0000;P:x;;", "", "This QR code isn&#39;t an eSIM activation code.", true, false),
+        (CC_CODE, "", "Enter the confirmation code from your operator (up to 64 characters).", false, true),
+        (CC_CODE, &"x".repeat(65), "Enter the confirmation code from your operator (up to 64 characters).", false, true),
+        (CODE, "1\u{7}2", "Enter the confirmation code from your operator (up to 64 characters).", false, true),
     ];
     for (code, cc, want, manual, open_cc) in cases {
         let r = upload(&c, peer(171, 3), &cookie, &fields(&csrf, &token, code, cc, None)).await;
         r.assert_secure_html(400);
         let html = r.text();
         let want = if html.contains(want) { want.to_owned() } else { want.replace("&#39;", "'") };
-        assert!(html.contains(&want) && html.contains("您的代码不会保留，因此请扫描、选择或重新输入。"), "{want} in {html}");
+        assert!(html.contains(&want) && html.contains("激活码不会保存，请重新扫描、选择图片或手动输入。"), "{want} in {html}");
         assert_eq!(html.contains("<details class=\"eopt\" open><summary>"), manual || open_cc, "{html}");
         assert!(!html.contains("evil.example") && !html.contains("WIFI:"), "{html}");
         assert_eq!(c.once.get(&token, owner, c.app.auth.now()), Some(crate::web::store::Token::Fresh));
@@ -230,7 +230,7 @@ async fn a_photo_is_read_on_the_router() {
         (&none[..], "该二维码不是 eSIM 激活码。"),
         (&wifi[..], "该二维码不是 eSIM 激活码。"),
         (b"GIF89a-not-a-photo".as_slice(), "选择 JPEG 或 PNG 照片，或手动输入代码。"),
-        (b"\xff\xd8\xff\xe0broken".as_slice(), "无法阅读这张照片。选择其他图像或手动输入代码。"),
+        (b"\xff\xd8\xff\xe0broken".as_slice(), "无法读取此图片。请选择其他图片或手动输入激活码。"),
     ] {
         let (_, token) = entry(&c, peer(172, 3), &cookie).await;
         let r = upload(&c, peer(172, 3), &cookie, &fields(&csrf, &token, "", "", Some(img))).await;
@@ -328,18 +328,18 @@ async fn uploads_are_checked_and_refusals_read_as_the_app() {
     r.assert_secure_html(409);
     let html = r.text();
     for want in [
-        "<b>无法开始此下载</b><p>the router has no mobile data connection; downloads use the router&#39;s own internet</p>",
-        "<span>您的路由器没有移动数据连接。下载前先连接；无法使用您手机本身的数据。</span>",
+        "<b>Can’t开始下载</b><p>the router has 没有移动数据 connection; downloads use the router&#39;s own internet</p>",
+        "<span>路由器尚未连接移动数据。请先连接后再下载；此操作无法使用手机自身的移动数据。</span>",
     ] {
         let want = if html.contains(want) { want.to_owned() } else { want.replace("&#39;", "'") };
         assert!(html.contains(&want), "{want} in {html}");
     }
     // The app's note once: at the top while the data connection is down
     // (read at page load), else in the card.
-    assert_eq!(html.matches("下载前先连接").count(), 1, "{html}");
+    assert_eq!(html.matches("Connect it before downloading").count(), 1, "{html}");
     assert!(!html.contains("value=\"LPA"), "{html}");
     let r = upload(&c, peer(173, 4), &cookie, &body).await;
-    assert!(r.status == 409 && r.text().contains("无法开始此下载"), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("Can’t开始下载"), "{}", r.text());
     assert_eq!(calls(&c).len(), 1);
     // Busy: the agent's 409 reads as the app's line.
     let busy = (409, json!({"ok": false, "error": "eSIM manager busy; retry shortly"}));
@@ -366,8 +366,8 @@ async fn the_download_card_follows_the_app() {
     let (c, cookie, _) = signed_in(174).await;
     let profiles = json!({
         "profiles": [
-            {"iccid": "8900000000000000101", "state": "enabled", "nickname": "首页", "provider": "示例", "name": "首页", "class": "operational"},
-            {"iccid": "8900000000000000505", "state": "disabled", "nickname": null, "provider": "旅行示例", "name": "假计划", "class": "operational"},
+            {"iccid": "8900000000000000101", "state": "enabled", "nickname": "Home", "provider": "Example", "name": "Home", "class": "operational"},
+            {"iccid": "8900000000000000505", "state": "disabled", "nickname": null, "provider": "Example Travel", "name": "Fake Plan", "class": "operational"},
         ],
         "observed_at": 1_761_200_000, "generation": 8, "updating": false, "error": null, "pending_receipts": 0,
     });
@@ -384,7 +384,7 @@ async fn the_download_card_follows_the_app() {
     for want in [
         "<div class=\"trail\"><a class=\"nl\" id=\"eadd-bar\" href=\"/ui/router/esim\">关闭</a></div>",
         "<form id=\"eaddf\" method=\"post\" action=\"/ui/router/esim/add/install\"><input type=\"hidden\" name=\"csrf\"",
-        "<section class=\"card eprog\" id=\"eadd-dl\" aria-live=\"polite\"><div class=\"ehead\"><span class=\"eic\"><span class=\"spin\"></span></span><b>连接到运营商...</b>",
+        "<section class=\"card eprog\" id=\"eadd-dl\" aria-live=\"polite\"><div class=\"ehead\"><span class=\"eic\"><span class=\"spin\"></span></span><b>正在连接运营商…</b>",
         "请保持路由器联网。你可以关闭此页面，稍后返回查看进度。",
         "<button class=\"btn btn-quiet bad\" type=\"submit\" form=\"eaddf\" formaction=\"/ui/router/esim/add/cancel\">取消下载</button>",
         "@get('/ui/live/esimadd/", &format!("content=\"3; url=/ui/router/esim/add?dl=1&amp;t={once}\""),
@@ -411,7 +411,7 @@ async fn the_download_card_follows_the_app() {
     assert_eq!(c.app.hub.demand(crate::events::Topic::EsimDownload), 0);
     drop(b);
     // The preview: the question, Install profile and Cancel; no reload.
-    let _f = fake::set(&c.app, json!({"state": "confirm", "step": "preview", "provider": "旅行示例", "name": "假计划"}));
+    let _f = fake::set(&c.app, json!({"state": "confirm", "step": "preview", "provider": "Example Travel", "name": "Fake Plan"}));
     let html = get_with(&c, ADD, peer(174, 4), &cookie).await.text();
     for want in [
         "<b>准备安装</b>", "<h2>安装 旅行示例?</h2><p class=\"cap\">假计划</p>",
@@ -425,15 +425,15 @@ async fn the_download_card_follows_the_app() {
     // Installing: it can no longer be cancelled.
     let _f = fake::set(&c.app, json!({"state": "running", "step": "es10b_load_bound_profile_package"}));
     let html = get_with(&c, ADD, peer(174, 4), &cookie).await.text();
-    assert!(html.contains("<b>在 eSIM 上安装...</b>") && html.contains("保持路由器电源开启。在此阶段无法取消安装。"), "{html}");
+    assert!(html.contains("<b>在eSIM…上安装</b>") && html.contains("请保持路由器供电。当前安装阶段无法取消。"), "{html}");
     assert!(!html.contains("取消下载"), "{html}");
     // Done: from eSIM Profiles' card (`?dl=1`), Switch to it now or Later;
     // a plain Add eSIM starts over (the app's "+").
-    let _f = fake::set(&c.app, json!({"state": "done", "provider": "旅行示例", "name": "假计划", "iccid": "8900000000000000505F"}));
+    let _f = fake::set(&c.app, json!({"state": "done", "provider": "Example Travel", "name": "Fake Plan", "iccid": "8900000000000000505F"}));
     let html = get_with(&c, DL, peer(174, 5), &cookie).await.text();
     for want in [
         "<b>旅行示例 added.</b>", "添加到您的路由器。您当前的配置文件仍然有效。",
-        "<a class=\"btn teal\" href=\"/ui/router/esim/switch?new=1\">立即切换</a><a class=\"btn btn-quiet\" href=\"/ui/router/esim\">后来</a>",
+        "<a class=\"btn teal\" href=\"/ui/router/esim/switch?new=1\">切换至it now</a><a class=\"btn btn-quiet\" href=\"/ui/router/esim\">后来</a>",
         ">完成</a></div>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -444,7 +444,7 @@ async fn the_download_card_follows_the_app() {
     let q = get_with(&c, "/ui/router/esim/switch?new=1", peer(174, 6), &cookie).await;
     q.assert_secure_html(200);
     let q = q.text();
-    assert!(q.contains("<h2 class=\"q\">开关 to 假计划?</h2>") && q.contains("路由器与 Home 断开连接并与 Fake Plan 连接。"), "{q}");
+    assert!(q.contains("<h2 class=\"q\">切换到假计划？</h2>") && q.contains("路由器与 Home 断开连接并与 Fake Plan 连接。"), "{q}");
     let key = q.split("name=\"p\" value=\"").nth(1).unwrap()[..16].to_owned();
     assert!(key.bytes().all(|b| b.is_ascii_hexdigit()) && !q.contains("0505"), "{q}");
     // Nothing downloaded: nothing to switch to.
@@ -454,10 +454,10 @@ async fn the_download_card_follows_the_app() {
     // the app's); a server's echo of a code is not shown.
     let _f = fake::set(&c.app, json!({"state": "failed", "step": "es9p_authenticate_client", "error": "es9p_authenticate_client: matching ID not found (fake)"}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<b>无法添加配置文件</b>") && html.contains("<p>es9p_authenticate_client: matching ID not found (fake)</p>"), "{html}");
+    assert!(html.contains("<b>无法添加配置文件</b>") && html.contains("<p>es9p_authenticate_client: matching ID 未找到 (fake)</p>"), "{html}");
     assert!(html.contains("<a class=\"btn\" href=\"/ui/router/esim/add?manual=1\">重试</a>"), "{html}");
     let html = get_with(&c, "/ui/router/esim/add?manual=1", peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<details class=\"eopt\" open><summary>") && html.contains("Enter code manually</summary>"), "{html}");
+    assert!(html.contains("<details class=\"eopt\" open><summary>") && html.contains("手动输入代码</summary>"), "{html}");
     let echo = format!("es9p_authenticate_client: unknown code {CODE}\tfor\nlpa:1$x$FAKE-0000");
     let _f = fake::set(&c.app, json!({"state": "failed", "step": "es9p_authenticate_client", "error": echo}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
@@ -465,7 +465,7 @@ async fn the_download_card_follows_the_app() {
     // Cancelled by the 2-minute limit.
     let _f = fake::set(&c.app, json!({"state": "cancelled", "error": "not confirmed within 2 minutes"}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<b>下载已取消</b>") && html.contains("2分钟内未得到证实。"), "{html}");
+    assert!(html.contains("<b>下载已取消</b>") && html.contains("未在两分钟内确认。"), "{html}");
     // eSIM Profiles' card opens the download as it is.
     let html = get_with(&c, "/ui/router/esim", peer(174, 8), &cookie).await.text();
     assert!(html.contains("<a class=\"card edl\" href=\"/ui/router/esim/add?dl=1\">"), "{html}");
@@ -477,7 +477,7 @@ async fn the_download_card_follows_the_app() {
 #[tokio::test]
 async fn install_and_cancel_send_once() {
     let (c, cookie, _) = signed_in(175).await;
-    let confirm = json!({"state": "confirm", "step": "preview", "provider": "旅行示例"});
+    let confirm = json!({"state": "confirm", "step": "preview", "provider": "Example Travel"});
     let mut d = device_with(vec![], "connected");
     d.gets.push(("/api/esim/download", Ok(confirm.clone())));
     let _dev = device::set(&c.app, d.clone());
@@ -517,7 +517,7 @@ async fn install_and_cancel_send_once() {
     let line = to(&post(&c, INSTALL, peer(175, 6), &cookie, &body).await);
     assert_eq!(line, format!("{DL}&r={once}"));
     let html = get_with(&c, &line, peer(175, 6), &cookie).await.text();
-    assert!(html.contains("the download is no longer waiting</b><a class=\"btn btn-quiet sm\" href=\"/ui/router/esim/add?dl=1\">检查状态</a>"), "{html}");
+    assert!(html.contains("下载不再等待</b><a class=\"btn btn-quiet sm\" href=\"/ui/router/esim/add?dl=1\">检查状态</a>"), "{html}");
     assert_eq!(to(&post(&c, INSTALL, peer(175, 6), &cookie, &body).await), line);
     assert_eq!(calls(&c).len(), 1);
     // CSRF and session.

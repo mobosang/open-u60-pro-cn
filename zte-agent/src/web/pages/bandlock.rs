@@ -39,7 +39,7 @@ fn grid(pd: &PageData, nr: bool, title: &str, action: &str, name: &str, list: &[
                         div {
                             @for b in list {
                                 @let facts = lock_facts(nr, *b);
-                                label title=[facts.as_ref().map(|(n, f)| format!("频段 {b} \u{2014} {n} \u{b7} {f}"))] {
+                                label title=[facts.as_ref().map(|(n, f)| format!("频段 {b} — {n} · {f}"))] {
                                     input.sr type="checkbox" name=(name) value=(b) checked[chosen.contains(b)];
                                     span { "B" (b) @if let Some((n, _)) = &facts { small { (n) } } }
                                 }
@@ -68,7 +68,7 @@ pub fn page(pd: &PageData) -> Markup {
         (kit::section(None, None, html! {
             li { a.it.bt.danger href=(UNLOCK) { (kit::icon(Icon::LockOpen)) span { "解除所有频段锁定" } } }
         }))
-        (grid(pd, true, "5G NR Bands", NR, "nr", &LOCK_NR, "应用 NR 频段锁定"))
+        (grid(pd, true, "5G NR 频段", NR, "nr", &LOCK_NR, "应用 NR 频段锁定"))
         (grid(pd, false, "LTE 频段", LTE, "lte", &LOCK_LTE, "应用 LTE 频段锁定"))
     }
 }

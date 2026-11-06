@@ -83,28 +83,28 @@ mod tests {
 
     #[test]
     fn payload_escapes_like_the_app() {
-        assert_eq!(payload("首页", "pass", "psk2+ccmp"), "WIFI:T:WPA;S:Home;P:pass;;");
+        assert_eq!(payload("Home", "pass", "psk2+ccmp"), "WIFI:T:WPA;S:首页;P:pass;;");
         assert_eq!(payload(r#"a\b;c,d:e"f"#, "p;w", "sae-mixed"), r#"WIFI:T:SAE;S:a\\b\;c\,d\:e\"f;P:p\;w;;"#);
         for (enc, t) in [("none", "nopass"), ("NONE", "nopass"), ("sae", "SAE"), ("SAE+psk2", "SAE"), ("psk2", "WPA"), ("", "nopass"), ("psk-mixed", "WPA")] {
             assert_eq!(auth_type(enc), t, "{enc}");
         }
         // An open network still carries an empty password field, as the app's.
-        assert_eq!(payload("咖啡馆", "", "none"), "WIFI:T:nopass;S:Cafe;P:;;");
+        assert_eq!(payload("Cafe", "", "none"), "WIFI:T:不通行证;S:咖啡馆;P:;;");
         // Non-ASCII stays as it is (UTF-8 bytes in the code).
-        assert_eq!(escape("咖啡馆 ☕"), "咖啡馆 ☕");
+        assert_eq!(escape("Café ☕"), "咖啡馆 ☕");
     }
 
     /// The SVG draws exactly the dark modules, inside a quiet zone, with
     /// attributes only (no inline style).
     #[test]
     fn svg_draws_the_modules() {
-        let text = payload("示例网络", "correct horse battery", "psk2+ccmp");
+        let text = payload("Example-Net", "correct horse battery", "psk2+ccmp");
         let qr = encode(&text).unwrap();
         assert_eq!(qr.error_correction_level(), QrCodeEcc::Medium);
         let n = qr.size();
-        let s = svg(&qr, "Wi-Fi二维码").into_string();
+        let s = svg(&qr, "Wi-Fi QR code").into_string();
         assert!(s.starts_with(&format!(
-            "<svg class=\"qr\" viewBox=\"0 0 {0} {0}\" role=\"img\" aria-label=\"Wi-Fi二维码\" shape-rendering=\"crispEdges\">\
+            "<svg class=\"qr\" viewBox=\"0 0 {0} {0}\" role=\"img\" aria-label=\"Wi-Fi QR code\" shape-rendering=\"crispEdges\">\
              <rect width=\"100%\" height=\"100%\" fill=\"#fff\"></rect><path d=\"M",
             n + 8
         )), "{s}");

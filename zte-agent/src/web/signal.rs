@@ -308,7 +308,7 @@ mod tests {
 
     fn nsa() -> Value {
         json!({
-            "network_type": "ENDC", "network_provider": "手机示例",
+            "network_type": "ENDC", "network_provider": "Example Mobile",
             "nr5g_rsrp": "-77", "nr5g_rsrq": "-11", "nr5g_snr": "11", "nr5g_rssi": "-68",
             "nr5g_action_band": "n41", "nr5g_pci": "774", "nr5g_cell_id": "1234567890",
             "nr5g_action_channel": "513000", "nr5g_bandwidth": "40",

@@ -685,7 +685,7 @@ mod tests {
         assert!(results(&stopped).into_string().contains("结果") && !message(&stopped).into_string().contains("complete"));
         // Running: the bar (the old 100 % reads 0 %).
         let c = controls(&views(sweep(json!(100), json!(0)), start + 1_000, ours)).into_string();
-        assert!(c.contains("class=\"it fld run\"") && c.contains("<progress max=\"100\" value=\"0\""), "{c}");
+        assert!(c.contains("class=\"它 run\"") && c.contains("<progress max=\"100\" value=\"0\""), "{c}");
         assert_eq!(sd_arg(&fresh, Some("since=186a0&r=ab")), ours);
         assert_eq!(sd_arg(&fresh, Some("stop=1")), 3);
         assert_eq!(sd_arg(&fresh, Some("stop=186a0")), ours | 1);
@@ -723,15 +723,15 @@ mod tests {
         assert_eq!(p(Kind::CellNr, "nr_pci=774&nr_earfcn=513000&nr_band=").unwrap(), [("nr_pci", "774".to_owned()), ("nr_earfcn", "513000".to_owned())]);
         assert_eq!(p(Kind::CellLte, "lte_pci=0&lte_earfcn=262143").unwrap().len(), 2);
         let Err(Bad::Fields(fs)) = p(Kind::CellNr, "nr_pci=1008&nr_earfcn=&nr_band=x") else { panic!() };
-        assert_eq!(fs.error("nr_pci"), Some("输入 0 到 1007 之间的整数。"));
+        assert_eq!(fs.error("nr_pci"), Some("输入从 0 到 1007 的整数。"));
         assert_eq!(fs.error("nr_earfcn"), Some("需要 PCI 和 EARFCN"));
-        assert_eq!(fs.error("nr_band"), Some("输入 1 到 1024 之间的整数。"));
+        assert_eq!(fs.error("nr_band"), Some("输入从 1 到 1024 的整数。"));
         assert_eq!(fs.value("nr_pci"), Some("1008"));
         assert!(matches!(p(Kind::CellLte, "lte_pci=504&lte_earfcn=1"), Err(Bad::Fields(_))));
         let i = Input::of(&[("nr_pci", "774"), ("nr_earfcn", "513000"), ("nr_band", "41")]);
         assert_eq!(back(Kind::CellNr, &i), "/ui/router/cell-lock?nr_pci=774&nr_earfcn=513000&nr_band=41");
         let q = question(Kind::CellNr, &i, true).unwrap();
-        assert_eq!(q.lines[0], "调制解调器将仅使用 NR-ARFCN 513000、频段 n41 上具有 PCI 774 的 5G NR 单元。");
+        assert_eq!(q.lines[0], "调制解调器将仅使用 PCI 为 774、NR-ARFCN 为 513000, band n41 的 5G NR 小区。");
         assert_eq!(q.lines.last().unwrap(), super::super::confirm::REMOTE);
         assert!(question(Kind::Neighbors, &i, true).is_none() && question(Kind::Detect, &i, true).is_none());
     }

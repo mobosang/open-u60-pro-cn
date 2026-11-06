@@ -403,7 +403,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             if def {
                 lines.extend(["成为默认设置：移动数据重新与其连接，这会暂时断开连接。".into(), NO_DATA.into()]);
             }
-            asking(format!("添加\u{201c}{}\u{201d}？", val(vals, "name")), lines, "添加APN", remote, def)
+            asking(format!("添加“{}”？", val(vals, "name")), lines, "添加APN", remote, def)
         }
         (_, None) => nothing("APN 未找到", vec!["可能已被删除。".into()]),
         (Kind::ApnSave, Some(p)) => {
@@ -413,18 +413,18 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             } else {
                 vec!["在激活此 APN 之前，连接不会发生任何变化。".into()]
             };
-            asking(format!("保存\u{201c}{}\u{201d}？", val(vals, "name")), lines, "保存", remote, live)
+            asking(format!("保存“{}”？", val(vals, "name")), lines, "保存", remote, live)
         }
         (Kind::ApnUse, Some(p)) if p.active => nothing(format!("\u{201c}{}\u{201d} is already active", p.shown()), Vec::new()),
         (Kind::ApnUse, Some(p)) => asking(
-            format!("使用\u{201c}{}\u{201d}？", p.shown()),
+            format!("使用“{}”？", p.shown()),
             vec![format!("移动数据与 APN {} 重新连接，连接暂时断开。", p.apn), NO_DATA.into()],
             "激活",
             remote,
             true,
         ),
         (_, Some(p)) if p.active => nothing("无法删除活动的APN", vec!["先激活另一个APN。".into()]),
-        (_, Some(p)) => asking(format!("删除\u{201c}{}\u{201d}？", p.shown()), vec!["APN 配置文件已从路由器中删除。".into()], "删除", remote, false),
+        (_, Some(p)) => asking(format!("删除“{}”？", p.shown()), vec!["APN 配置文件已从路由器中删除。".into()], "删除", remote, false),
     }
 }
 
@@ -509,7 +509,7 @@ mod tests {
     #[test]
     fn profiles_follow_the_app() {
         let list = json!({"apnListArray": [
-            {"profileId": "manu1", "profilename": "假的", "wanapn": "fake.apn.example", "pdpType": "1", "pppAuthMode": 2, "username": "u", "password": "FAKEPW", "isEnable": "1"},
+            {"profileId": "manu1", "profilename": "Fake", "wanapn": "fake.apn.example", "pdpType": "1", "pppAuthMode": 2, "username": "u", "password": "FAKEPW", "isEnable": "1"},
             {"profileId": "manu2", "profilename": "", "wanapn": ""},
             {"profileId": "", "profilename": "No id", "wanapn": "x"},
             {"profileId": "manu3", "wanapn": "other.example"},

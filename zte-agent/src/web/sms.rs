@@ -682,7 +682,7 @@ mod tests {
         // Groups that are not hex are skipped; a trailing partial group too.
         assert_eq!(decode_ucs2("0041zz4200420"), "AB");
         // Raw text, even non-ASCII (bytes, not chars): nothing, so shown raw.
-        for raw in ["aéé", "你好", "Код 1234", "\u{1F600}\u{1F600}", "é"] {
+        for raw in ["aéé", "Hello", "Код 1234", "\u{1F600}\u{1F600}", "é"] {
             assert_eq!(decode_ucs2(raw), "", "{raw}");
             assert_eq!(content(raw), raw);
         }
@@ -690,7 +690,7 @@ mod tests {
         assert_eq!(content("004F004B"), "OK");
         // Only a body that is all hex in groups of 4 is decoded: plain text
         // with a hex-looking group stays itself (iOS shows a NUL for this).
-        for raw in ["您的假代码是 000000。请勿分享。", "0041zz4200420", "004F004", "CAFE ", "0041 0042"] {
+        for raw in ["Your fake code is 000000. Do not share it.", "0041zz4200420", "004F004", "CAFE ", "0041 0042"] {
             assert_eq!(content(raw), raw);
         }
         // Control characters other than tab and line breaks are dropped;
@@ -787,11 +787,11 @@ mod tests {
         assert_eq!(normalize(" Example-Bank "), "EXAMPLE-BANK");
         assert_eq!(normalize("+"), "+");
         let data = json!({"messages": [
-            item(5, "+15555550100", "第二", "24,01,02,10,00,00,+0", "1"),
-            item(4, "5555550100", "第一", "24,01,01,10,00,00,+0", "0"),
-            item(3, "EXAMPLE-BANK", "代码000000", "24,01,03,10,00,00,+0", 1),
-            item(2, "5555550100", "我的", "24,01,01,11,00,00,+0", "3"),
-            {"id": "7", "number": "示例银行", "content": "纯文本", "date": "bad", "tag": "0"},
+            item(5, "+15555550100", "Second", "24,01,02,10,00,00,+0", "1"),
+            item(4, "5555550100", "First", "24,01,01,10,00,00,+0", "0"),
+            item(3, "EXAMPLE-BANK", "Code 000000", "24,01,03,10,00,00,+0", 1),
+            item(2, "5555550100", "Mine", "24,01,01,11,00,00,+0", "3"),
+            {"id": "7", "number": "Example-Bank", "content": "Plain text", "date": "bad", "tag": "0"},
             {"id": 8, "number": "+15555550199", "content": "", "date": "24,01,01,00,00,00", "tag": "9"},
             {"number": "+15555550199", "content": "", "tag": "0"},
             {"id": 9, "content": "", "tag": "0"},
@@ -814,8 +814,8 @@ mod tests {
         assert!(bank.matches("code") && bank.matches("example"));
         // Equal lengths: the newest message's, not the oldest's.
         let two = json!({"messages": [
-            item(10, "015555550101", "较新", "24,01,02,00,00,00", "0"),
-            item(9, "+15555550101", "较旧的", "24,01,01,00,00,00", "0"),
+            item(10, "015555550101", "Newer", "24,01,02,00,00,00", "0"),
+            item(9, "+15555550101", "Older", "24,01,01,00,00,00", "0"),
         ]});
         let c = &group(messages(&two), now)[0];
         assert_eq!((c.number.as_str(), c.latest().id), ("015555550101", 10));
@@ -827,10 +827,10 @@ mod tests {
     #[test]
     fn stores_are_read_as_results() {
         let app = AppState::new();
-        let mut d = fake::Device::with(json!([item(2, "+15555550100", "内部", "24,01,01,00,00,00", "0")]));
+        let mut d = fake::Device::with(json!([item(2, "+15555550100", "Internal", "24,01,01,00,00,00", "0")]));
         d.sim = Ok(json!({"messages": [
-            item(2, "+15555550100", "相同的ID", "24,01,01,00,00,00", "0"),
-            item(1, "+15555550101", "关于SIM", "24,01,01,00,00,00", "1"),
+            item(2, "+15555550100", "Same id", "24,01,01,00,00,00", "0"),
+            item(1, "+15555550101", "On the SIM", "24,01,01,00,00,00", "1"),
         ]}));
         let _g = fake::set(&app, d.clone());
         let all = read(&app, Store::All).unwrap();
@@ -841,8 +841,8 @@ mod tests {
         // One store failing: the other's messages and a note.
         let _g = fake::set(&app, fake::Device { sim: Err("ubus timeout".into()), ..d.clone() });
         let all = read(&app, Store::All).unwrap();
-        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("无法读取 SIM 消息：ubus 超时")));
-        assert_eq!(read(&app, Store::Sim).err().as_deref(), Some("ubus timeout"));
+        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("无法读取 SIM 消息：总线超时")));
+        assert_eq!(read(&app, Store::Sim).err().as_deref(), Some("总线超时"));
         // Both failing: the first error, never an empty list.
         let _g = fake::set(&app, fake::Device { internal: Err("first".into()), sim: Err("second".into()), ..d });
         assert_eq!(read(&app, Store::All).err().as_deref(), Some("first"));
@@ -854,14 +854,14 @@ mod tests {
 
     #[test]
     fn encoding_limits_and_counter() {
-        assert_eq!(encode_type("Hello @£$ ÄÖ\n"), "GSM7_default");
+        assert_eq!(encode_type("Hello @£$ ÄÖ\n"), "GSM7_默认");
         for text in ["Привет", "€", "{", "\u{1F600}", "ç"] {
             assert_eq!(encode_type(text), "UNICODE", "{text}");
         }
         assert!(check_text(&"a".repeat(765)).is_ok());
         assert_eq!(check_text(&"a".repeat(766)).unwrap_err(), "最多输入 765 个字符。");
         assert!(check_text(&"Ж".repeat(335)).is_ok());
-        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("at most 335 characters"));
+        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("最多 335 个字符"));
         // An emoji is two UTF-16 units.
         assert!(check_text(&"\u{1F600}".repeat(168)).is_err() && check_text(&"\u{1F600}".repeat(167)).is_ok());
         for blank in ["", "  ", "\n\t"] {
@@ -869,12 +869,12 @@ mod tests {
         }
         // The app's counter: 0 SMS while empty, then by 153 / 67.
         for (text, want) in [
-            ("", "0/765 (0 SMS)"),
-            ("Hi", "2/765 (1 SMS)"),
-            (&*"a".repeat(153), "153/765 (1 SMS)"),
-            (&*"a".repeat(154), "154/765 (2 SMS)"),
-            (&*"Ж".repeat(68), "68/335 (2 SMS)"),
-            (&*"Ж".repeat(336), "336/335 (6 SMS)"),
+            ("", "0/765 (0 短信)"),
+            ("Hi", "2/765 (1 短信)"),
+            (&*"a".repeat(153), "153/765 (1 短信)"),
+            (&*"a".repeat(154), "154/765 (2 短信)"),
+            (&*"Ж".repeat(68), "68/335 (2 短信)"),
+            (&*"Ж".repeat(336), "336/335 (6 短信)"),
         ] {
             assert_eq!(counter(text), want, "{text}");
         }
@@ -906,13 +906,13 @@ mod tests {
             json!({"number": "+15555550100", "sms_time": "24;01;01;10;00;00;+8", "message_body": "00480069000AD83DDE00",
                    "id": "-1", "encode_type": "UNICODE"})
         );
-        assert_eq!(send_body("+15555550100", "Hi", "t")["encode_type"], "GSM7_default");
+        assert_eq!(send_body("+15555550100", "Hi", "t")["encode_type"], "GSM7_默认");
         for ok in [json!({"result": 3}), json!({"result": "3"}), json!({}), json!({"result": null}), Value::Null] {
             assert_eq!(send_result(&ok), Ok(()), "{ok}");
         }
         // Anything else that is there is a rejection, whatever its type.
         for (bad, shown) in [(json!(1), "1"), (json!("4"), "4"), (json!(-1), "-1"), (json!("fail"), "fail"), (json!(3.0), "3.0"), (json!([3]), "[3]")] {
-            assert_eq!(send_result(&json!({"result": bad})).unwrap_err(), format!("device rejected (result={shown})"));
+            assert_eq!(send_result(&json!({"result": bad})).unwrap_err(), format!("设备被拒绝（结果={shown}）"));
         }
         assert_eq!(parse_capacity(&json!({"sms_nv_total": "100", "sms_nvused_total": "12"})), Some((12, 100)));
         assert_eq!(parse_capacity(&json!({"sms_nv_total": 50, "sms_nvused_total": 50})), Some((50, 50)));

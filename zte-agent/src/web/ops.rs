@@ -117,22 +117,22 @@ const fn modem_op(titles: [&'static str; 2], steps: &'static [&'static str], sta
 
 pub static DATA_ON: OpSpec = modem_op(
     ["开启移动数据", "移动数据已开启"],
-    &["开启移动数据\u{2026}", "正在连接\u{2026}"],
+    &["开启移动数据…", "正在连接…"],
     |_, e, v| op_status(OpKind::MobileData { on: true }, e, v.value(Topic::Modem)),
 );
 pub static DATA_OFF: OpSpec = modem_op(
     ["关闭移动数据", "移动数据已关闭"],
-    &["断开\u{2026}"],
+    &["断开…"],
     |_, e, v| op_status(OpKind::MobileData { on: false }, e, v.value(Topic::Modem)),
 );
 pub static AIRPLANE_ON: OpSpec = modem_op(
     ["开启飞行模式", "飞行模式开启"],
-    &["关闭收音机\u{2026}"],
+    &["关闭收音机…"],
     |_, e, v| op_status(OpKind::Airplane { on: true }, e, v.value(Topic::Modem)),
 );
 pub static AIRPLANE_OFF: OpSpec = modem_op(
     ["关闭飞行模式", "飞行模式已关闭"],
-    &["收音机打开，正在注册\u{2026}", "正在连接\u{2026}"],
+    &["收音机打开，正在注册…", "正在连接…"],
     |_, e, v| op_status(OpKind::Airplane { on: false }, e, v.value(Topic::Modem)),
 );
 
@@ -142,8 +142,8 @@ pub static AIRPLANE_OFF: OpSpec = modem_op(
 /// Network Mode page it was started from.
 const fn net_mode_op(back: &'static str, tab: Tab) -> OpSpec {
     OpSpec {
-        titles: ["更改网络模式", "网络模式更新", "\u{2014}路由器发送的模式可能仍在切换", "\u{2014}路由器发送的模式可能仍在切换"],
-        steps: &["切换网络模式\u{2026}"],
+        titles: ["更改网络模式", "网络模式更新", "发送模式 — 路由器可能仍在切换", "发送模式 — 路由器可能仍在切换"],
+        steps: &["切换网络模式…"],
         topics: &[Topic::Signal],
         status: net_mode_status,
         back: (back, "网络模式"),
@@ -175,8 +175,8 @@ pub fn net_mode_status(target: &str, elapsed: Duration, v: &Views) -> OpStatus {
 /// one of `APPLY_TARGETS`: "<connect mode>:<roaming>", "-" for a value
 /// Apply left as it was.
 pub static APPLY: OpSpec = OpSpec {
-    titles: ["应用设置", "应用的设置", "发送给\u{2014}路由器的设置可能仍在应用", "发送给\u{2014}路由器的设置可能仍在应用"],
-    steps: &["应用设置\u{2026}"],
+    titles: ["应用设置", "应用的设置", "已发送设置 — 路由器可能仍在应用", "已发送设置 — 路由器可能仍在应用"],
+    steps: &["应用设置…"],
     topics: MODEM,
     status: apply_status,
     back: MOBILE_NETWORK,
@@ -209,7 +209,7 @@ pub fn apply_status(target: &str, elapsed: Duration, v: &Views) -> OpStatus {
 /// apart). Its way back shows the networks found (`?scan=1`).
 pub static NETSCAN: OpSpec = OpSpec {
     titles: ["扫描网络", "扫描完成", "扫描超时", "扫描失败"],
-    steps: &["扫描网络\u{2026}"],
+    steps: &["扫描网络…"],
     topics: &[Topic::Netscan],
     status: |_, e, v| scan_status(e, v.value(Topic::Netscan)),
     back: ("/ui/router/mobile-network?scan=1", "移动网络"),
@@ -443,7 +443,7 @@ mod tests {
         let lpm_off = op(&AIRPLANE_OFF);
         assert_eq!((lpm_off.title(pending), lpm_off.title(done)), ("关闭飞行模式", "飞行模式已关闭"));
         assert_eq!(op(&DATA_OFF).title(late), "变更未确认");
-        assert_eq!(op(&AIRPLANE_ON).spec.steps, ["关闭收音机\u{2026}"]);
+        assert_eq!(op(&AIRPLANE_ON).spec.steps, ["关闭收音机…"]);
         // Every modem operation leads back to Mobile Network, under Router.
         for spec in [&DATA_ON, &DATA_OFF, &AIRPLANE_ON, &AIRPLANE_OFF] {
             assert_eq!((spec.back, spec.tab, spec.topics), (("/ui/router/mobile-network", "移动网络"), Tab::Router, MODEM));
@@ -466,25 +466,25 @@ mod tests {
             };
             Views::new(BootInstant::from_duration(at(1)), vec![(Topic::Signal, slot)])
         };
-        let st = |sel: &str, secs| net_mode_status("仅_LTE", at(secs), &signal(sel));
+        let st = |sel: &str, secs| net_mode_status("Only_LTE", at(secs), &signal(sel));
         assert_eq!(st("WL_AND_5G", 2), OpStatus::Pending { step: 0 });
-        assert_eq!(st("仅_LTE", 4), OpStatus::Done { msg: "调制解调器报告新模式。" });
-        assert_eq!(st("仅_LTE", 30), OpStatus::Done { msg: "调制解调器报告新模式。" });
+        assert_eq!(st("Only_LTE", 4), OpStatus::Done { msg: "调制解调器报告新模式。" });
+        assert_eq!(st("Only_LTE", 30), OpStatus::Done { msg: "调制解调器报告新模式。" });
         assert_eq!(st("WL_AND_5G", 9), OpStatus::Pending { step: 0 });
-        assert!(matches!(st("WL_AND_5G", 10), OpStatus::TimedOut { msg } if msg.contains("not reported the new mode")));
+        assert!(matches!(st("WL_AND_5G", 10), OpStatus::TimedOut { msg } if msg.contains("未报道新模式")));
         let unread = Views::new(BootInstant::from_duration(at(1)), vec![]);
-        assert_eq!(net_mode_status("仅_LTE", at(10), &unread), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
+        assert_eq!(net_mode_status("Only_LTE", at(10), &unread), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         // The heading follows the app's messages; each mount leads back to its own page.
-        let op = Op { spec: &NET_MODE_ROUTER, started: BootInstant::from_duration(at(1)), arg: "仅_LTE" };
+        let op = Op { spec: &NET_MODE_ROUTER, started: BootInstant::from_duration(at(1)), arg: "Only_LTE" };
         assert_eq!(op.title(OpStatus::Done { msg: "" }), "网络模式更新");
-        assert_eq!(op.title(OpStatus::TimedOut { msg: "" }), "\u{2014}路由器发送的模式可能仍在切换");
+        assert_eq!(op.title(OpStatus::TimedOut { msg: "" }), "发送模式 — 路由器可能仍在切换");
         assert_eq!((NET_MODE_ROUTER.back, NET_MODE_ROUTER.tab), (("/ui/router/network-mode", "网络模式"), Tab::Router));
         assert_eq!((NET_MODE_SIGNAL.back, NET_MODE_SIGNAL.tab), (("/ui/signal/network-mode", "网络模式"), Tab::Dashboard));
         // The status reads the operation's own target.
-        let mut v = signal("仅_LTE");
+        let mut v = signal("Only_LTE");
         v.now = BootInstant::from_duration(at(3));
         assert_eq!(op.status(&v), OpStatus::Done { msg: "调制解调器报告新模式。" });
-        assert_eq!(Op { arg: "仅_5G", ..op }.status(&v), OpStatus::Pending { step: 0 });
+        assert_eq!(Op { arg: "Only_5G", ..op }.status(&v), OpStatus::Pending { step: 0 });
     }
 
     #[test]
@@ -525,7 +525,7 @@ mod tests {
         let m = |cm: Value, roam: Value| json!({"data": {"connect_mode": cm, "roam_enable": roam}});
         assert!(matches!(apply_status("0:1", at(2), &views_of(&m(json!("0"), json!(1)))), OpStatus::Done { .. }));
         assert_eq!(apply_status("1:1", at(9), &views_of(&m(json!(1), json!(0)))), OpStatus::Pending { step: 0 });
-        assert!(matches!(apply_status("1:1", at(10), &views_of(&m(json!(1), json!(0)))), OpStatus::TimedOut { msg } if msg.contains("not reported")));
+        assert!(matches!(apply_status("1:1", at(10), &views_of(&m(json!(1), json!(0)))), OpStatus::TimedOut { msg } if msg.contains("未见报道")));
         let none = Views::new(BootInstant::from_duration(at(1)), vec![]);
         assert_eq!(apply_status("1:0", at(10), &none), OpStatus::TimedOut { msg: "无法读取调制解调器状态。" });
         assert!(APPLY.timeout_ok && APPLY_TARGETS.contains(&"0:1"));

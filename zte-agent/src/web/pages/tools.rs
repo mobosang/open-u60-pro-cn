@@ -152,7 +152,7 @@ fn list(v: &Views, q: &str) -> Markup {
                     }
                 }))
             } @else if !q.is_empty() && !all.is_empty() {
-                (kit::empty_state(Icon::Search, &format!("\u{201c}{q}\u{201d} 没有结果"), "检查拼写或尝试新的搜索。"))
+                (kit::empty_state(Icon::Search, &format!("“{q}” 没有结果"), "检查拼写或尝试新的搜索。"))
             } @else if !error {
                 (kit::empty_state(Icon::Wifi, "没有设备", "现在没有任何东西连接到路由器。"))
             }
@@ -233,11 +233,11 @@ mod tests {
         assert!(list(&v, "0.10").into_string().contains(">tv<"));
         // The hidden octets never match.
         let s = list(&v, "aa:bb").into_string();
-        assert!(s.contains("\u{201c}aa:bb\u{201d} 没有结果") && !s.contains("Devices</h2>"), "{s}");
+        assert!(s.contains("“aa:bb” 没有结果") && !s.contains("Devices</h2>"), "{s}");
         // A failed read: the error row first.
         let slot = SlotView { version: 1, at: NOW, value_at: NOW, value: None, error: Some("ubus timed out".into()) };
         let s = list(&Views::new(NOW, vec![(Topic::Clients, slot)]), "").into_string();
-        assert!(s.starts_with("<div id=\"cd-list\"><p") && s.contains("timed out"), "{s}");
+        assert!(s.starts_with("<div id=\"cd-list\"><p") && s.contains("超时"), "{s}");
         let none = views(&[(Topic::Clients, json!({"hosts": {}}))]);
         assert!(list(&none, "").into_string().contains("没有设备"));
         assert!(list(&none, "x").into_string().contains("没有设备"));

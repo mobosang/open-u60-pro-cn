@@ -120,7 +120,7 @@ pub fn data_footer(d: &Value) -> String {
                     c.next().map(|f| f.to_uppercase().chain(c.flat_map(char::to_lowercase)).collect()).unwrap_or_default()
                 })
                 .collect();
-            format!("已连接 \u{2014} {}", words.join(" "))
+            format!("已连接 — {}", words.join(" "))
         }
         (true, false) if !status.is_empty() => "未连接".into(),
         (true, false) => "禁用移动数据将断开蜂窝连接。".into(),
@@ -411,7 +411,7 @@ fn apply_question(i: &Input, remote: bool) -> Option<Question> {
     }
     if roam_off {
         head = head.or(Some(("关闭数据漫游？", "关闭数据漫游")));
-        lines.extend(["当路由器在国外时，移动数据会停止。".into(), "您已远程连接：如果路由器在国外，则只有在路由器上重新打开漫游功能后才能访问此页面\u{2019}。".into()]);
+        lines.extend(["当路由器在国外时，移动数据会停止。".into(), "您已远程连接：如果路由器在国外，则只有在路由器上重新开启漫游后才能访问此页面。".into()]);
     }
     if auto {
         head = head.or(Some(("切换到自动网络选择？", "应用")));
@@ -594,7 +594,7 @@ mod tests {
     #[test]
     fn mobile_data_footer_follows_the_app() {
         let d = |enable: i64, status: &str| data_footer(&json!({"enable": enable, "connect_status": status}));
-        assert_eq!(d(1, "ipv4_ipv6_connected"), "已连接 \u{2014} Ipv4 Ipv6 已连接");
+        assert_eq!(d(1, "ipv4_ipv6_connected"), "已连接 — Ipv4 Ipv6 已连接");
         assert_eq!(d(1, "disconnected"), "未连接");
         assert_eq!(d(1, ""), "禁用移动数据将断开蜂窝连接。");
         assert_eq!(d(0, "disconnected"), "移动数据已禁用。");
@@ -605,9 +605,9 @@ mod tests {
     #[test]
     fn networks_parse_both_shapes() {
         let app = json!({"m_netselect_contents": [
-            {"name": "测试网", "mcc_mnc": "00101", "rat": "LTE", "status": "current"},
-            {"operator_name": "其他", "plmn": "001002", "rat": 7, "status": "forbidden"},
-            {"name": "第三", "mcc_mnc": "00103", "rat": "NR"},
+            {"name": "Test Net", "mcc_mnc": "00101", "rat": "LTE", "status": "current"},
+            {"operator_name": "Other", "plmn": "001002", "rat": 7, "status": "forbidden"},
+            {"name": "Third", "mcc_mnc": "00103", "rat": "NR"},
         ]});
         let n = parse_networks(&app);
         assert_eq!(n[0], Network { name: "测试网".into(), plmn: "00101".into(), rat: "LTE".into(), status: "current" });
@@ -635,21 +635,21 @@ mod tests {
         assert!(matches!(next(Kind::Apply, &i("1", "0", "manual_select"), Ok(())), Next::Line(to, Some(true), l) if l == "应用的设置" && to == "/ui/router/mobile-network?sel=manual"));
         assert!(matches!(next(Kind::Apply, &i("0", "1", "manual_select"), Ok(())), Next::Op(_, "0:1")));
         // Roaming on asks; off only remotely; anything else does not.
-        assert_eq!(question(Kind::Apply, &i("1", "1", "manual_select"), false, None).unwrap().title, "开启数据漫游？");
+        assert_eq!(question(Kind::Apply, &i("1", "1", "manual_select"), false, None).unwrap().title, "开启data roaming?");
         assert!(question(Kind::Apply, &i("0", "0", "manual_select"), false, None).is_none());
         let off = Input::of(&[("cm", "1"), ("roam", "0"), ("sel", "auto_select"), ("cm0", "1"), ("roam0", "1"), ("sel0", "auto_select")]);
         assert!(question(Kind::Apply, &off, false, None).is_none());
-        assert_eq!(question(Kind::Apply, &off, true, None).unwrap().title, "关闭数据漫游？");
+        assert_eq!(question(Kind::Apply, &off, true, None).unwrap().title, "关闭data roaming?");
         // Remotely, also Automatic selection and Manual connection mode
         // (each can cut the connection), with the remote line.
         let q = question(Kind::Apply, &i("1", "0", "auto_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.last().map(String::as_str)), ("切换到自动网络选择？", Some(REMOTE)));
+        assert_eq!((q.title.as_str(), q.lines.last().map(String::as_str)), ("切换到automatic network selection？", Some(REMOTE)));
         assert!(question(Kind::Apply, &i("1", "0", "auto_select"), false, None).is_none());
         let q = question(Kind::Apply, &i("0", "0", "manual_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.len()), ("切换到手动连接模式？", 2));
+        assert_eq!((q.title.as_str(), q.lines.len()), ("切换到manual connection mode？", 2));
         // Several at once: one question naming each.
         let q = question(Kind::Apply, &i("0", "1", "auto_select"), true, None).unwrap();
-        assert_eq!((q.title.as_str(), q.lines.len()), ("开启数据漫游？", 5));
+        assert_eq!((q.title.as_str(), q.lines.len()), ("开启data roaming?", 5));
         // A scan asks only remotely.
         assert!(question(Kind::Scan, &i("1", "0", "auto_select"), false, None).is_none());
         assert_eq!(question(Kind::Scan, &i("1", "0", "auto_select"), true, None).unwrap().label, Some("扫描网络"));

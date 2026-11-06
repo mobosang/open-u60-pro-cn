@@ -206,7 +206,7 @@ pub fn banners(v: &Views) -> Markup {
                         "您的 SIM 卡已被锁定。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " to enter your PIN."
                     })),
                     Banner::Airplane => (kit::banner("b-blue", Icon::Airplane, "飞行模式", html! {
-                        "蜂窝无线电已关闭。调制解调器断电 \u{2014} 无信号或数据。"
+                        "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"
                     })),
                     Banner::DataOff => (kit::banner("b-orange", Icon::AntennaSlash, "移动数据关闭", html! {
                         "蜂窝无线电已打开，但数据已禁用。前往 "
@@ -263,9 +263,9 @@ fn traffic_caption(v: &Views) -> String {
         Some(s) => {
             let age = v.now.saturating_duration_since(s.value_at).as_secs();
             if s.error.is_some() || age >= 5 {
-                format!("\u{b7} 之前的最后一个流量样本 \u{b7} {age} 正在等待设备")
+                format!("· 之前的最后一个流量样本 · {age} 正在等待设备")
             } else {
-                "实时蜂窝流量 \u{b7} 所有设备".into()
+                "实时蜂窝流量·所有设备".into()
             }
         }
     }
@@ -346,7 +346,7 @@ pub fn card_health(v: &Views) -> Markup {
     let cpu_temp = h.and_then(|h| fmt::cpu_temp(&h["thermal"])).filter(|_| fresh(v, Topic::Health));
     let bat_temp = v.value(Topic::Battery).and_then(fmt::battery_celsius).filter(|_| fresh(v, Topic::Battery));
     let temp = |key, t: Option<f64>| roll(v, key, &t.map(fmt::celsius).unwrap_or_else(|| DASH.into()));
-    kit::card(Some("card-health"), Some("/ui/health"), Icon::Cpu, "CPU & heat", html! {
+    kit::card(Some("card-health"), Some("/ui/health"), Icon::Cpu, "CPU与散热", html! {
         p.big { (roll(v, "cpu", &percent(cpu))) }
         dl.kv {
             div { dt { "CPU" } dd { (temp("tc", cpu_temp)) } }
@@ -396,7 +396,7 @@ pub(crate) mod tests {
                 "sim_iccid": "8900100000009998877", "imsi": "001019999911111", "imei": "000000000000042",
             })),
             (Topic::Traffic, json!({"real_rx_speed": 52, "real_tx_speed": "69", "real_rx_bytes": 1_992_294, "real_tx_bytes": 121_856})),
-            (Topic::Battery, json!({"status": "充电中", "capacity": 69, "voltage_uv": 4_435_000, "current_ua": 5_680_000, "temperature": 260})),
+            (Topic::Battery, json!({"status": "Charging", "capacity": 69, "voltage_uv": 4_435_000, "current_ua": 5_680_000, "temperature": 260})),
             (Topic::Charger, json!({"charger_connect": 1, "charge_status": 1, "direct_power_supply_mode": "disable"})),
             (Topic::BatteryInfo, json!({"battery_time_to_full": 37, "battery_time_to_empty": 1240})),
             (Topic::Health, json!({"cpu": {"overall": 40.84, "cores": [1.0]}, "thermal": {"cpuss_temp": 37.2, "sensors": []}})),
@@ -410,7 +410,7 @@ pub(crate) mod tests {
                 "wan6": {"ipv6-address": [{"address": "fe80::1"}, {"address": "2001:db8::42"}]},
             })),
             (Topic::Sim, json!({
-                "sim_states": "准备好了", "modem_main_state": "modem_init_complete",
+                "sim_states": "Ready", "modem_main_state": "modem_init_complete",
                 "sim_iccid": "8900100000009998877", "sim_imsi": "001019999911111", "msisdn": "+10000000042",
                 "imei": "000000000000042",
             })),
@@ -430,7 +430,7 @@ pub(crate) mod tests {
     fn full_page(v: &Views, wifi: Option<bool>) -> String {
         use crate::web::kit::Tab;
         let pc = crate::web::render::PageCtx {
-            title: "仪表盘",
+            title: "Dashboard",
             tab: Some(Tab::Dashboard),
             nonce: "00",
             lead: render::status_pill("/ui/"),
@@ -448,22 +448,22 @@ pub(crate) mod tests {
             "<span class=\"rat\">5G NSA</span>", "NR RSRP <b class=\"num\">-77 dBm</b>", "漫游", "电台详情",
             "416.0 b/s", "552.0 b/s", "下载", "上传", "1.90 MB", "119 KB", "实时蜂窝流量·所有设备",
             "现场信号", "锁屏实时信号位于 iOS 应用程序中。",
-            ">69%<", "<span class=\"c-green\">Charging</span><span class=\"muted\"> · </span><span class=\"c-green\">25.2W</span>",
+            ">69%<", "<span class=\"c-green\">充电中</span><span class=\"muted\"> · </span><span class=\"c-green\">25.2W</span>",
             "电源详情", "<p class=\"big\">40.8%</p>", "37.2 °C", "26.0 °C", "<b class=\"big\">2</b>",
-            "<span class=\"lbl\">devices</span>", "网络、共享和连接设备", "Wi-Fi on",
+            "<span class=\"lbl\">设备</span>", "网络、共享和连接设备", "Wi-Fi on",
         ] {
             assert!(s.contains(want), "missing {want:?} in {s}");
         }
         // Not on the app's dashboard: bars, quality words, the battery's
         // temperature and times, the WAN card, a coloured CPU value.
         for gone in [
-            "极佳", "bars", "温度", "满时间", "广域网地址", "10.20.30.40", "2001:db8::42",
-            "devices connected", "c-green\">40.8", "4G LTE", "无服务",
+            "Excellent", "bars", "Temperature", "Time to Full", "WAN addresses", "10.20.30.40", "2001:db8::42",
+            "devices connected", "c-green\">40.8", "4G LTE", "No Service",
         ] {
             assert!(!s.contains(gone), "{gone} in {s}");
         }
         // Battery and CPU & heat side by side, after Live signal.
-        let order = ["card-conn", "card-traffic", "现场信号", "class=\"pair\"", "card-battery", "card-health", "wifi-state"];
+        let order = ["card-conn", "card-traffic", "Live signal", "class=\"pair\"", "card-battery", "card-health", "wifi-state"];
         let at: Vec<usize> = order.iter().map(|w| s.find(w).unwrap()).collect();
         assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");
     }
@@ -504,7 +504,7 @@ pub(crate) mod tests {
             }
             // The pill leads and the age badge trails the nav bar's title.
             assert!(page.contains("<div class=\"lead\"><p class=\"snap ps\" id=\"live-status\">"), "{page}");
-            assert!(page.contains("<h1>Dashboard</h1><div class=\"trail\"><span class=\"agebadge\" id=\"age\""), "{page}");
+            assert!(page.contains("<h1>仪表盘</h1><div class=\"trail\"><span class=\"agebadge\" id=\"age\""), "{page}");
             // Read at page load only, so never inside a live fragment.
             let devices = card_devices(&v).into_string();
             assert!(!devices.contains("wifi-state") && !devices.contains("Wi-Fi"));
@@ -529,7 +529,7 @@ pub(crate) mod tests {
         failed.value = Some(Arc::new(json!({"real_rx_speed": 1, "real_tx_speed": 1})));
         failed.value_at = at(12);
         let s = card_traffic(&Views::new(NOW, vec![(Topic::Traffic, failed)])).into_string();
-        assert!(s.contains("8.0 b/s") && s.contains("最后一次流量样本 · 12 秒前 · 等待设备"), "{s}");
+        assert!(s.contains("8.0 b/s") && s.contains("· 之前的最后一个流量样本 · 12 正在等待设备"), "{s}");
         // Other cards keep the error line under them.
         let bad = SlotView { version: 1, at: NOW, value_at: NOW, value: None, error: Some(Arc::from("no battery <y>")) };
         let s = card_battery(&Views::new(NOW, vec![(Topic::Battery, bad)])).into_string();
@@ -555,7 +555,7 @@ pub(crate) mod tests {
             card_traffic(&Views::new(NOW, vec![(Topic::Traffic, s)])).into_string()
         };
         assert!(traffic(4).contains("实时蜂窝流量"));
-        assert!(traffic(5).contains("最后一次流量样本 · 5 秒前 · 等待设备"));
+        assert!(traffic(5).contains("· 之前的最后一个流量样本 · 5 正在等待设备"));
         assert!(!traffic(600).contains("class=\"age\""), "the caption replaces the age line");
         // The cards say nothing about age (the app has only the nav bar's
         // badge); the sheets' age line shows after 3 cadences.
@@ -568,10 +568,10 @@ pub(crate) mod tests {
         let line = |t, secs| render::age_line(&views_at(t, secs), &[t]).into_string();
         // Battery every 5 s, health every 2 s: the seconds below 10, then 5 s steps.
         assert_eq!(line(Topic::Battery, 14), "");
-        assert_eq!(line(Topic::Battery, 17), "<p class=\"age\">Updated 15 s ago</p>");
-        assert_eq!(line(Topic::Battery, 600), "<p class=\"age\">Updated 10 min ago</p>");
+        assert_eq!(line(Topic::Battery, 17), "<p class=\"age\">更新 15 s ago</p>");
+        assert_eq!(line(Topic::Battery, 600), "<p class=\"age\">更新 10 分钟 ago</p>");
         assert_eq!(line(Topic::Health, 5), "");
-        assert_eq!(line(Topic::Health, 7), "<p class=\"age\">Updated 7 s ago</p>");
+        assert_eq!(line(Topic::Health, 7), "<p class=\"age\">更新 7 s ago</p>");
         // WAN has no cadence (event-driven): never "old".
         assert_eq!(line(Topic::Wan, 3600), "");
     }
@@ -595,12 +595,12 @@ pub(crate) mod tests {
             let s = SlotView { version: 1, at: at(secs), value_at: at(secs), value: Some(Arc::new(json!({}))), error: None };
             age_badge(&Views::new(NOW, vec![(Topic::Signal, s)])).into_string()
         };
-        assert_eq!(badge(0), "<span class=\"agebadge\" id=\"age\" role=\"img\" aria-label=\"Updated 0 seconds ago\">0s ago</span>");
+        assert_eq!(badge(0), "<span class=\"agebadge\" id=\"age\" role=\"img\" aria-label=\"几秒前更新 0\">0s ago</span>");
         assert!(badge(59).contains(">59s ago<"));
-        assert!(badge(65).contains("aria-label=\"Updated 1 minutes 5 seconds ago\">1m 5s ago<"));
+        assert!(badge(65).contains("aria-label=\"更新 1 分钟 5 秒前\">1m 5s ago<"));
         let never = SlotView { version: 0, at: NOW, value_at: NOW, value: None, error: None };
         let s = age_badge(&Views::new(NOW, vec![(Topic::Signal, never)])).into_string();
-        assert!(s.contains("aria-label=\"Never updated\">--<"), "{s}");
+        assert!(s.contains("aria-label=\"尚未更新\">--<"), "{s}");
         assert!(age_badge(&views(vec![])).into_string().contains(">--<"));
         // Reads failing since a good one 30 s ago: the dashboard's badge
         // keeps counting from the good one (the app's `lastUpdated`); the
@@ -619,13 +619,13 @@ pub(crate) mod tests {
         let card = |b: Value, info: Value| {
             card_battery(&views(vec![(Topic::Battery, b), (Topic::BatteryInfo, info)])).into_string()
         };
-        let s = card(json!({"status": "放电中", "capacity": 69, "voltage_uv": 3_900_000, "current_ua": -480_000}),
+        let s = card(json!({"status": "Discharging", "capacity": 69, "voltage_uv": 3_900_000, "current_ua": -480_000}),
                       json!({"battery_time_to_empty": 1240}));
         assert!(s.contains("<span class=\"c-green\">20h 40m</span><span class=\"muted\"> · </span><span class=\"c-green\">1.9W</span>"), "{s}");
-        let s = card(json!({"status": "放电中", "capacity": 15}), json!({"battery_time_to_empty": 45}));
+        let s = card(json!({"status": "Discharging", "capacity": 15}), json!({"battery_time_to_empty": 45}));
         assert!(s.contains("<span class=\"c-red\">45m left</span>") && !s.contains(" · "), "{s}");
-        let s = card(json!({"status": "充电中", "capacity": 60, "current_ua": 120_000}), json!({"battery_time_to_full": 65}));
-        assert!(s.contains(">Charging</span>") && s.contains(">+120mA<") && !s.contains("1h 5m"), "{s}");
+        let s = card(json!({"status": "Charging", "capacity": 60, "current_ua": 120_000}), json!({"battery_time_to_full": 65}));
+        assert!(s.contains(">充电中</span>") && s.contains(">+120mA<") && !s.contains("1h 5m"), "{s}");
         // The level icon (75 % and up full).
         assert!(s.contains("width=\"8.2\""), "{s}");
     }
@@ -642,7 +642,7 @@ pub(crate) mod tests {
         assert_eq!(banner_titles(vec![]), Shown(vec![]));
         assert!(banners(&views(vec![])).into_string().contains("id=\"banners\""));
         let sim = |state: &str, main: &str| (Topic::Sim, json!({"sim_states": state, "modem_main_state": main}));
-        assert_eq!(banner_titles(vec![sim("等待PUK", "")]), Shown(vec![Banner::Puk]));
+        assert_eq!(banner_titles(vec![sim("Wait PUK", "")]), Shown(vec![Banner::Puk]));
         assert_eq!(banner_titles(vec![sim("", "MODEM_WAITPIN")]), Shown(vec![Banner::Pin]));
         let modem = |mode: &str, enable: Value, status: &str| {
             (Topic::Modem, json!({"status": {"operate_mode": mode}, "data": {"enable": enable, "connect_status": status}}))
@@ -668,20 +668,19 @@ pub(crate) mod tests {
         ]);
         let s = banners(&all).into_string();
         for (class, title, text) in [
-            ("b-red", "SIM PUK 必填", "Too many wrong PIN attempts. Go to <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PUK."),
-            ("b-orange", "SIM PIN 必填", "Your SIM card is locked. Go to <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PIN."),
-            ("b-blue", "飞行模式", "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"),
+            ("b-red", "SIM PUK Required", "Too many wrong PIN attempts. Go to <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PUK."),
+            ("b-orange", "SIM PIN Required", "Your SIM card is locked. Go to <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PIN."),
+            ("b-blue", "Airplane Mode", "Cellular radio is off. The modem is powered down — no signal or data."),
         ] {
             assert!(s.contains(&format!("<div class=\"banner {class}\"><svg")), "{class}");
             // PUK: the lock with "!" (the app's `exclamationmark.lock.fill`).
-            let icon = if title == "SIM PUK 必填" { Icon::LockWarn } else if title.starts_with("SIM") { Icon::Lock } else { Icon::Airplane };
+            let icon = if title == "SIM PUK Required" { Icon::LockWarn } else if title.starts_with("SIM") { Icon::Lock } else { Icon::Airplane };
             assert!(s.contains(&format!("{}<div><strong>{title}", kit::icon(icon).into_string())), "{title}");
             assert!(s.contains(&format!("<strong>{title}</strong><span>{text}</span>")), "{title} in {s}");
         }
         let off = views(vec![(Topic::Modem, json!({"status": {"operate_mode": "ONLINE"}, "data": {"enable": 0}}))]);
         assert!(banners(&off).into_string().contains(
-            "<strong>Mobile Data Off</strong><span>Cellular radio is on but data is disabled. Go to \
-             <a href=\"/ui/router/mobile-network\">Router &gt; Mobile Network</a> to enable it.</span>"
+            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往              <a href=\\\"/ui/router/mobile-network\\\">路由器 &gt; 移动网络</a> to enable it.</span>"
         ));
     }
 
@@ -691,7 +690,7 @@ pub(crate) mod tests {
         v.set(Topic::Modem, slot(json!({"status": {"operate_mode": "LPM"}})));
         let s = card_conn(&v).into_string();
         assert!(s.contains("无运营商") && s.contains("LTE RSRP —") && s.contains("电台详情"), "{s}");
-        for gone in ["-77", "5G NSA", "漫游", "&lt;script"] {
+        for gone in ["-77", "5G NSA", "Roaming", "&lt;script"] {
             assert!(!s.contains(gone), "{gone} in {s}");
         }
     }
@@ -703,7 +702,7 @@ pub(crate) mod tests {
         for want in ["无运营商", "<span class=\"rat\">4G</span>", "LTE RSRP <b class=\"num\">-105 dBm</b>"] {
             assert!(s.contains(want), "{want} in {s}");
         }
-        for gone in ["漫游", "一般", "q-fair", "bars"] {
+        for gone in ["Roaming", "Fair", "q-fair", "bars"] {
             assert!(!s.contains(gone), "{gone} in {s}");
         }
         // The app's `Int(rsrp)` cuts the decimals off.

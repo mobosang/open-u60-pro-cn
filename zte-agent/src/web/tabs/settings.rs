@@ -62,7 +62,7 @@ const SAVED_HERE: &str = "保存在此浏览器中。";
 fn polling(pd: &PageData) -> Markup {
     let cur = pd.prefs.refresh_ms;
     let footer = html! {
-        p.foot { "实时上传和下载使用单独的 1 秒刷新，与调制解调器 \u{2019} 的更新速率相匹配。" }
+        p.foot { "实时上传和下载使用单独的 1 秒刷新，与调制解调器的更新速率相匹配。" }
         p.foot { (SAVED_HERE) }
     };
     kit::section(Some("投票"), Some(footer), html! {
@@ -103,8 +103,7 @@ fn legal(_: &PageData) -> Markup {
     kit::section(Some("法律声明"), None, html! {
         li.it {
             p.cap {
-                "This app is not affiliated with, endorsed by, or sponsored by ZTE Corporation. \
-                 ZTE and U60 Pro are trademarks of ZTE Corporation."
+                "此应用程序不隶属于 ZTE Corporation，也不受其认可或赞助。                  ZTE 和 U60 Pro 是 ZTE Corporation 的商标。"
             }
         }
         li { a.it href="https://open-u60-pro.vercel.app/privacy" rel="noopener noreferrer" { span { "隐私政策" } } }

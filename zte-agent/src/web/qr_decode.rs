@@ -648,7 +648,7 @@ pub mod tests {
 
     #[test]
     fn refuses_what_it_should_not_decode() {
-        assert_eq!(scan(b"GIF89a......"), Err(Fail::NotImage));
+        assert_eq!(scan(b"GIF89a....."), Err(Fail::NotImage));
         assert_eq!(scan(b""), Err(Fail::NotImage));
         assert_eq!(scan(&[0xff, 0xd8, 0xff, 0xe0, 0, 0]), Err(Fail::Unreadable));
         assert_eq!(scan(b"\x89PNG\r\n\x1a\n\0\0"), Err(Fail::Unreadable));

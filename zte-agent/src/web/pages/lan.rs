@@ -136,7 +136,7 @@ pub fn check(pairs: &[(String, String)]) -> Result<Vals, Bad> {
         let host = |x: u32| x != net && x != last && x & m == net;
         let (first, top) = (Ipv4Addr::from(net + 1), Ipv4Addr::from(last - 1));
         if !host(u32::from(a)) {
-            errors.push(("ip", "这是子网\u{2019}的网络或广播地址；选择另一个。".into()));
+            errors.push(("ip", "这是子网’的网络或广播地址；选择另一个。".into()));
         }
         let range = format!("使用从 {first} 到 {top} 的地址。");
         // DHCP off: a hidden range left in the old subnet keeps its host
@@ -163,7 +163,7 @@ pub fn check(pairs: &[(String, String)]) -> Result<Vals, Bad> {
             if s > e {
                 errors.push(("end", "结束地址不得位于起始地址之前。".into()));
             } else if (s..=e).contains(&u32::from(a)) {
-                errors.push(("start", "该范围不得包含路由器\u{2019}s 地址。".into()));
+                errors.push(("start", "该范围不得包含路由器’s 地址。".into()));
             }
         }
     }
@@ -213,11 +213,11 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)], port: &str, rem
         && text(&cur["dhcp_end"]) == val(vals, "end")
         && text(&cur["dhcp_lease_time"]) == val(vals, "lease");
     if unchanged {
-        return nothing("没有什么可申请的", vec!["这些已经是 router\u{2019} 的设置。".into()]);
+        return nothing("没有什么可申请的", vec!["这些已经是 router’ 的设置。".into()]);
     }
     let mut lines = Vec::new();
     if old != new && remote {
-        lines.push(format!("路由器\u{2019}在其网络上的地址从{old}更改为{new}。"));
+        lines.push(format!("路由器’在其网络上的地址从{old}更改为{new}。"));
     } else if old != new {
         lines.push(format!(
             "The router\u{2019}s address changes from {old} to {new}. This page stops working at the old address: open http://{new}{port}/ui/ afterwards and log in again."
@@ -229,9 +229,9 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)], port: &str, rem
         lines.push("设备重新连接时会从新范围获取地址。".into());
     }
     lines.push(if remote {
-        "路由器\u{2019}的网络重新启动：其WiFi或USB上的每个设备都暂时断开连接。".into()
+        "路由器’的网络重新启动：其WiFi或USB上的每个设备都暂时断开连接。".into()
     } else {
-        "路由器\u{2019}的网络重新启动：WiFi或USB上的每个设备都会暂时断开连接，该浏览器也是如此。".into()
+        "路由器’的网络重新启动：WiFi或USB上的每个设备都会暂时断开连接，该浏览器也是如此。".into()
     });
     asking("应用 LAN 设置？", lines, "应用", remote, true)
 }
@@ -254,8 +254,8 @@ pub fn applied(vals: &[(&'static str, String)], port: &str, remote: bool) -> (St
         div.narrow {
             @if moved && !new.is_empty() {
                 ul.consequences {
-                    li { "路由器\u{2019}的地址现在是 " b { (new) } "." }
-                    li { "如果该设备位于路由器 \u{2019}、WiFi 或 USB 上，则可能需要先重新连接。然后在新地址打开 Web UI 并再次登录。" }
+                    li { "路由器’的地址现在是 " b { (new) } "." }
+                    li { "如果该设备位于路由器 ’、WiFi 或 USB 上，则可能需要先重新连接。然后在新地址打开 Web UI 并再次登录。" }
                     @if remote { li { "在 Tailscale 上，路由器保留自己的地址，因此该页面通常保持工作。" } }
                 }
                 p.actions {

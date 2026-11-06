@@ -447,7 +447,7 @@ fn sim_code(c: &str) -> bool {
     ["**04*", "**042*", "**05*", "**052*"].iter().any(|p| c.starts_with(p))
 }
 
-const SIM_CODE: &str = "使用路由器\u{203a} SIM 卡更改PIN 或输入PUK。";
+const SIM_CODE: &str = "使用路由器› SIM 卡更改PIN 或输入PUK。";
 
 /// What a post sends: the body and the text its digest is made of.
 struct Send {
@@ -645,7 +645,7 @@ mod tests {
     }
 
     fn menu() -> Value {
-        json!({"type": "menu", "title": "测试SIM", "text": "", "items": [{"id": 1, "label": "余额"}, {"id": 2, "label": "计划"}],
+        json!({"type": "menu", "title": "Test SIM", "text": "", "items": [{"id": 1, "label": "Balance"}, {"id": 2, "label": "Plans"}],
                "root_menu": true, "command_id": "1700000000001", "busy": false, "status": "ready", "reason": "",
                "input": {"min": 0, "max": 0, "yes_no": false, "hidden": false, "digits_only": true}})
     }
@@ -666,12 +666,12 @@ mod tests {
         sub["busy"] = json!(true);
         let n = nav(&views(Some(sub.clone()), None, 0)).into_string();
         assert!(n.contains("value=\"1700000000001\" disabled>返回</button>") && n.contains("结束 SIM 会话"), "{n}");
-        assert!(toolkit(&views(Some(sub), None, 0)).into_string().contains("disabled>Balance"));
+        assert!(toolkit(&views(Some(sub), None, 0)).into_string().contains("disabled>余额"));
         // No session: the error, the app's line, Reload.
         let s = toolkit(&views(None, Some("RIL connection failed: <no socket>"), 0)).into_string();
         assert!(s.contains("RIL 连接失败：<无套接字>") && s.contains("重新加载SIM菜单以重新连接。"), "{s}");
         assert!(nav(&views(None, Some("x"), 0)).into_string().contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">重新加载SIM菜单</a>"));
-        let status = json!({"type": "status", "items": [], "reason": "等待SIM", "busy": true, "command_id": "7"});
+        let status = json!({"type": "status", "items": [], "reason": "Waiting for the SIM", "busy": true, "command_id": "7"});
         let s = toolkit(&views(Some(status.clone()), None, 0)).into_string();
         assert!(s.contains("<h2>SIM工具包</h2>") && s.contains("等待SIM"), "{s}");
         // Busy: Reload is dimmed, as the app disables the section.
@@ -692,17 +692,17 @@ mod tests {
     /// is the form after the fragment (`own`), another one reloads.
     #[test]
     fn inputs_are_buttons_or_the_pages_form() {
-        let yn = json!({"type": "input", "text": "购买 1 GB？", "command_id": "9", "root_menu": false,
+        let yn = json!({"type": "input", "text": "Buy 1 GB?", "command_id": "9", "root_menu": false,
                         "input": {"min": 1, "max": 1, "yes_no": true}});
         let s = toolkit(&views(Some(yn), None, 9)).into_string();
         assert!(s.contains("value=\"9.y\">是的</button>") && s.contains("value=\"9.n\">No</button>") && !s.contains("own"), "{s}");
-        let text = json!({"type": "input", "text": "输入PIN 0000000000000042", "command_id": "9", "input": {"min": 4, "max": 8, "hidden": true}});
+        let text = json!({"type": "input", "text": "Enter PIN 0000000000000042", "command_id": "9", "input": {"min": 4, "max": 8, "hidden": true}});
         let s = toolkit(&views(Some(text.clone()), None, 9)).into_string();
         // The SIM's text as it is (the app's).
         assert!(s.contains("class=\"group own\"") && s.contains("输入PIN 0000000000000042") && !s.contains("输入响应"), "{s}");
         let s = toolkit(&views(Some(text), None, 8)).into_string();
         assert!(!s.contains("own") && s.contains("<a class=\"it bt\" href=\"\">输入响应</a>"), "{s}");
-        let display = json!({"type": "display", "text": "完成", "command_id": "10"});
+        let display = json!({"type": "display", "text": "Done", "command_id": "10"});
         assert!(toolkit(&views(Some(display), None, 10)).into_string().contains("value=\"10\">继续</button>"));
     }
 
@@ -730,8 +730,8 @@ mod tests {
         }
         assert!(parse(Post::Send, &f("code=*04*1%23")).is_ok() && parse(Post::Send, &f("code=**21*1%23")).is_ok());
         // Answers: `response`, else `raw_response`, as they are (the app's).
-        assert_eq!(answer_text(&json!({"response": "", "raw_response": "优惠券 00000000000000042 好的"})), "优惠券 00000000000000042 好的");
-        assert_eq!(answer_text(&json!({"response": "余额 5.00"})), "余额 5.00");
+        assert_eq!(answer_text(&json!({"response": "", "raw_response": "Voucher 00000000000000042 ok"})), "优惠券 00000000000000042 好的");
+        assert_eq!(answer_text(&json!({"response": "Balance 5.00"})), "余额 5.00");
         // The session is opened on a plain load only (the app's screen
         // opening and Reload): not on an answer, a result line or after a
         // failed action.

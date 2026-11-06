@@ -239,7 +239,7 @@ mod tests {
     #[test]
     fn the_body_is_built_here() {
         assert_eq!(powerbank_body(&Valid::of(&[("state", "1")]), &[]), Some(json!({"state": 1})));
-        for (state, n, line) in [("0", 0, "禁用快速充电"), ("1", 1, "启用快速充电")] {
+        for (state, n, line) in [("0", 0, "Fast charging disabled"), ("1", 1, "Fast charging enabled")] {
             let v = Valid::of(&[("state", state)]);
             assert_eq!(mode_body(&v, &[]), Some(json!({"state": n})));
             assert_eq!(switched(&v, &Value::Null), (Some(true), line.to_owned()));

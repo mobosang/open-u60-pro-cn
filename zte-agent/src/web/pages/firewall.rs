@@ -255,7 +255,7 @@ pub fn page(pd: &PageData) -> Markup {
             }
             (kit::kv_row(None, "万平", if c.ping_blocked { "被封锁" } else { "允许" }))
         }))
-        (kit::section(Some("NAT / UPnP"), None, html! {
+        (kit::section(Some("网络地址转换/UPnP"), None, html! {
             (kit::switch_row(&none, "NAT", Some(c.nat), Act::Link(&on_link(NAT, true)), Act::Link(&on_link(NAT, false))))
             (kit::switch_row(&none, "通用即插即用", upnp, Act::Link(&on_link(UPNP, true)), Act::Link(&on_link(UPNP, false))))
         }))
@@ -286,7 +286,7 @@ pub fn page(pd: &PageData) -> Markup {
             }
         }))
         @if let Some(list) = filters {
-            (kit::section(Some("MAC/IP/Port Filters"), None, filter_rows(list)))
+            (kit::section(Some("MAC/IP/端口过滤器"), None, filter_rows(list)))
         }
     }
 }
@@ -347,12 +347,12 @@ fn lan_net(app: &AppState) -> Option<(Ipv4Addr, u32)> {
 fn host_error(net: Option<(Ipv4Addr, u32)>, s: &str) -> Option<String> {
     let Some(a) = lan::ip(s) else { return Some("输入 IPv4 地址，例如 192.168.0.50。".into()) };
     let Some((router, m)) = net else {
-        return Some("Couldn\u{2019}t 读取路由器\u{2019}s 网络。再试一次。".into());
+        return Some("Couldn’t 读取路由器’s 网络。再试一次。".into());
     };
     let (x, net) = (u32::from(a), u32::from(router) & m);
     let last = net | !m;
     if a == router {
-        Some("这是路由器\u{2019}自己的地址；使用设备\u{2019}的地址。".into())
+        Some("这是路由器’自己的地址；使用设备’的地址。".into())
     } else if x & m != net || x == net || x == last {
         Some(format!("使用从 {} 到 {} 的地址。", Ipv4Addr::from(net + 1), Ipv4Addr::from(last - 1)))
     } else {
@@ -453,7 +453,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         Kind::FwSwitch if on => ask("是否开启防火墙？", &["传入连接再次被过滤。", LOCK], "启用防火墙", true),
         Kind::FwSwitch => ask(
             "关闭防火墙？",
-            &["路由器上的设备失去防火墙\u{2019} 的互联网保护。", exposed()],
+            &["路由器上的设备失去防火墙’ 的互联网保护。", exposed()],
             "禁用防火墙",
             false,
         ),
@@ -479,7 +479,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         Kind::FwNat if on => ask("开启NAT？", &["路由器上的设备再次通过 NAT 共享其移动连接。"], "开启 NAT", false),
         Kind::FwNat => ask(
             "关闭NAT？",
-            &["路由器上的设备失去互联网访问权限：没有 NAT，它们可以 \u{2019} 共享路由器 \u{2019} 的移动连接。"],
+            &["路由器上的设备失去互联网访问权限：没有 NAT，它们可以 ’ 共享路由器 ’ 的移动连接。"],
             "关闭 NAT",
             false,
         ),
@@ -534,7 +534,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
                 lines.push("端口转发关闭：开启后规则生效。".into());
             }
             let name = val(vals, "pfname");
-            let title = if name.is_empty() { "添加此端口转发？".to_owned() } else { format!("添加\u{201c}{name}\u{201d}？") };
+            let title = if name.is_empty() { "添加此端口转发？".to_owned() } else { format!("添加“{name}”？") };
             ask_lines(title, lines, "添加规则", false)
         }
         _ => {
@@ -548,7 +548,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             match rules(&list).into_iter().find(|r| r.id == val(vals, "id")) {
                 None => nothing("未找到规则", vec!["可能已被删除。".into()]),
                 Some(r) => ask_lines(
-                    format!("删除\u{201c}{}\u{201d}？", r.title()),
+                    format!("删除“{}”？", r.title()),
                     vec![format!("{} stops: what it serves can\u{2019}t be reached from the internet any more.", r.route())],
                     "删除",
                     false,
@@ -635,8 +635,8 @@ mod tests {
         let c = Config::of(&json!({"firewall_switch": "0", "wan_ping_filter": "1", "port_forward_switch": "1"}));
         assert!(!c.enabled && c.level == "medium" && c.ping_blocked && c.pf);
         let list = json!({"rule_list": [
-            {"name": "网络", "protocol": "tcp", "wan_port": "8080", "lan_ip": "192.168.0.50", "lan_port": "80", "enabled": "1"},
-            {"section_id": "cfg0a1b2c", "comment": "游戏", "proto": "udp", "src_dport": "3074", "dest_ip": "192.168.0.60"},
+            {"name": "Web", "protocol": "tcp", "wan_port": "8080", "lan_ip": "192.168.0.50", "lan_port": "80", "enabled": "1"},
+            {"section_id": "cfg0a1b2c", "comment": "Game", "proto": "udp", "src_dport": "3074", "dest_ip": "192.168.0.60"},
         ]});
         let r = rules(&list);
         assert_eq!((r[0].id.as_str(), r[0].route().as_str(), r[0].enabled), ("0", "TCP WAN:8080 \u{2192} 192.168.0.50:80", true));
@@ -652,8 +652,8 @@ mod tests {
     /// refuses the mobile side.
     #[test]
     fn exposure_follows_the_agents_refusal() {
-        assert!(exposed_for(false) == EXPOSED && EXPOSED.contains("keep refusing connections from it"));
-        assert!(exposed_for(true) == EXPOSED_ALL && EXPOSED_ALL.contains("this web UI included"));
+        assert!(exposed_for(false) == EXPOSED && EXPOSED.contains("不断拒绝来自它的连接"));
+        assert!(exposed_for(true) == EXPOSED_ALL && EXPOSED_ALL.contains("包含此 Web UI"));
     }
 
     #[test]
@@ -661,11 +661,11 @@ mod tests {
         let net = Some((Ipv4Addr::new(192, 168, 0, 1), 0xffff_ff00));
         assert_eq!(host_error(net, "192.168.0.50"), None);
         assert!(host_error(net, "192.168.0.1").unwrap().contains("router\u{2019}s own address"));
-        assert_eq!(host_error(net, "192.168.1.5").unwrap(), "使用 192.168.0.1 到 192.168.0.254 之间的地址。");
+        assert_eq!(host_error(net, "192.168.1.5").unwrap(), "使用从 192.168.0.1 到 192 的地址。168.0.254.");
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
         assert!(host_error(net, "nope").unwrap().starts_with("输入 IPv4"));
         for unread in ["10.0.0.9", "192.168.0.1", "8.8.8.8"] {
-            assert_eq!(host_error(None, unread).as_deref(), Some("Couldn\u{2019}t 读取路由器\u{2019}s 网络。再试一次。"), "{unread}");
+            assert_eq!(host_error(None, unread).as_deref(), Some("Couldn’t 读取路由器’s 网络。再试一次。"), "{unread}");
         }
         assert!(host_error(net, "192.168.0.50 ").unwrap().starts_with("输入 IPv4"));
         assert_eq!(port("8080"), Some(8080));

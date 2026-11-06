@@ -73,9 +73,9 @@ fn ipv4(s: &str) -> bool {
 }
 
 const NOT_A_SERVER: &str = "使用DNS服务器的地址。";
-const ROUTER_ITSELF: &str = "这是路由器\u{2019}自己的地址；使用 DNS 服务器 \u{2019} 地址。";
+const ROUTER_ITSELF: &str = "这是路由器’自己的地址；使用 DNS 服务器 ’ 地址。";
 /// As DMZ and port forward say when the router's network can't be read.
-const NO_LAN: &str = "Couldn\u{2019}t 读取路由器\u{2019}s 网络。再试一次。";
+const NO_LAN: &str = "Couldn’t 读取路由器’s 网络。再试一次。";
 const URL_FORMAT: &str = "Enter an https:// URL with a server address or name, such as https://1.1.1.1/dns-query.";
 
 /// Why an address can't be a DNS server (or the DoH server): not a single
@@ -157,7 +157,7 @@ fn url_host(u: &str) -> Option<Host<'_>> {
 
 pub fn page(pd: &PageData) -> Markup {
     if let Some(Err(e)) = pd.reads.first() {
-        return html! { p.msg.err role="alert" { "加载DNS失败：  【6】脚dmf dm-DNS " (fmt::truncate(e, 120)) } };
+        return html! { p.msg.err role="alert" { "加载DNS失败： \n【6】脚dmf dm-DNS " (fmt::truncate(e, 120)) } };
     }
     let doh = pd.read(1);
     let d = pd.read(0);
@@ -284,8 +284,8 @@ fn check_with(pairs: &[(String, String)], router: Option<Ipv4Addr>) -> Result<Va
 /// For a remote browser: the router's own lookups use the new servers too
 /// (Custom), or the DoH server (DoH: dnsmasq forwards only to the DoH
 /// client then).
-const REMOTE: &str = "您已远程连接：路由器\u{2019}自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达\u{2019}的服务器可以切断远程访问。";
-const REMOTE_DOH: &str = "您已远程连接：路由器\u{2019}自己的查找（Tailscale重新连接、短信转发webhook）也经过此DoH服务器，因此可以到达\u{2019}的服务器可以切断远程访问。";
+const REMOTE: &str = "您已远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达’的服务器可以切断远程访问。";
+const REMOTE_DOH: &str = "您已远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也经过此DoH服务器，因此可以到达’的服务器可以切断远程访问。";
 
 pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], remote: bool) -> Question {
     let doh = super::api_get(app, DOH_API).ok();
@@ -319,7 +319,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         _ => on && same_url && manual == Some(true) && same_servers,
     };
     if unchanged {
-        return nothing("没有什么可申请的", vec!["这些已经是 router\u{2019} 的设置。".into()]);
+        return nothing("没有什么可申请的", vec!["这些已经是 router’ 的设置。".into()]);
     }
     let mut lines: Vec<String> = Vec::new();
     let title = match mode {
@@ -355,7 +355,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         }
     }
     if !(on && mode == "doh") {
-        lines.push("当路由器\u{2019} 的DNS 服务重新启动时，名称查找暂停一会儿。".into());
+        lines.push("当路由器’ 的DNS 服务重新启动时，名称查找暂停一会儿。".into());
     }
     if remote && mode != "auto" {
         lines.push(if mode == "custom" { REMOTE } else { REMOTE_DOH }.into());
@@ -458,7 +458,7 @@ pub fn cache(pd: &PageData) -> Markup {
     let entries = entries(pd);
     let more = format!("{CACHE}?n={}", n + STEP);
     html! {
-        @if let Some(Err(e)) = pd.reads.first() { p.msg.err role="alert" { "Couldn\u{2019}t 读取缓存： " (fmt::truncate(e, 120)) } }
+        @if let Some(Err(e)) = pd.reads.first() { p.msg.err role="alert" { "Couldn’t 读取缓存： " (fmt::truncate(e, 120)) } }
         form.srch method="post" action=(CACHE) role="search" {
             (pd.csrf())
             input type="search" name="q" value=(q) placeholder="按域过滤" aria-label="按域过滤" autocomplete="off" maxlength="64";

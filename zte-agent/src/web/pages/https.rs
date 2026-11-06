@@ -110,7 +110,7 @@ pub fn section(pd: &PageData) -> Markup {
             @if s.kept.is_some() || s.error.is_some() { li { a.it.danger href=(RESET) { span { "复位HTTPS" } } } }
         });
     }
-    let state = if s.listening.is_some() { "On" } else { "关于\u{b7}不听" };
+    let state = if s.listening.is_some() { "开启" } else { "关于·不听" };
     let foot = html! {
         @if pd.secure {
             p.foot { "你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。" }
@@ -155,15 +155,13 @@ pub fn install(pd: &PageData) -> Markup {
             p.foot { "这个页面来自路由器的 HTTPS，所以这些是它的指纹。检查您设置的设备是否显示相同的 SHA-256 指纹；字母大小写、空格和冒号并不重要。" }
         } @else {
             p.foot {
-                "Before you trust it, check that your device shows the same SHA-256 fingerprint (letter case, spaces and colons do not matter). \
-                 This page came over plain http, so someone on your network could change it together with the download: for a check they \
-                 cannot fake, compare with this page opened over HTTPS on a device that already trusts the authority, or with "
+                "在信任它之前，请检查您的设备是否显示相同的 SHA-256 指纹（字母大小写、空格和冒号无关紧要）。                  此页面通过纯 http 传输，因此您网络上的某人可以将其与下载一起更改：为了检查他们                 无法伪造，请与在已经信任权威的设备上通过 HTTPS 打开的此页面进行比较，或者与 "
                 span.mono { "sha256sum " (DIR_CA) }
                 " over SSH (the same digits)."
             }
         }
-        p.foot { "设备显示位置：iPhone 和 iPad：设置 \u{203a} 配置文件已下载 \u{203a} 更多详细信息 \u{203a} 证书，然后点击安装； Mac：Keychain 访问\u{203a}证书； Android：安装后，设置 \u{203a} 受信任凭据 \u{203a} 用户 \u{203a} 证书（如果不同，请将其删除）。" }
-        p.foot { "Windows 显示 SHA-1 \u{201c}Thumbprint\u{201d}（详细信息选项卡）： " span.mono { (s.sha1.replace(':', "").to_ascii_lowercase()) } }
+        p.foot { "设备显示位置：iPhone 和 iPad：设置 › 配置文件已下载 › 更多详细信息 › 证书，然后点击安装； Mac：Keychain 访问›证书； Android：安装后，设置 › 受信任凭据 › 用户 › 证书（如果不同，请将其删除）。" }
+        p.foot { "Windows 显示 SHA-1 “Thumbprint”（详细信息选项卡）： " span.mono { (s.sha1.replace(':', "").to_ascii_lowercase()) } }
     };
     html! {
         (kit::section(Some("证书颁发机构"), Some(fp_foot), html! {
@@ -182,7 +180,7 @@ pub fn install(pd: &PageData) -> Markup {
             html! { "打开 " b { "设置" } " \u{203a} " b { "简介已下载" } " \u{203a} " b { "安装" } "." },
             html! { b { "设置" } " \u{203a} " b { "概述" } " \u{203a} " b { "关于" } " \u{203a} " b { "证书信任设置" } ": turn on full trust for " b { (ca) } "." },
         ])))
-        (kit::section(Some("安卓"), Some(html! { p.foot { "菜单名称因制造商而异：搜索 \u{201c}CA 证书 \u{201d} 的设置。" } }), steps(&[
+        (kit::section(Some("安卓"), Some(html! { p.foot { "菜单名称因制造商而异：搜索 “CA 证书 ” 的设置。" } }), steps(&[
             html! { "点击 " b { "证书（.crt）" } " to download it." },
             html! { b { "设置" } " \u{203a} " b { "安全与隐私" } " \u{203a} " b { "更高的安全性和隐私性" } " \u{203a} " b { "加密和凭证" } " \u{203a} " b { "安装证书" } " \u{203a} " b { "CA证书" } " \u{203a} " b { "无论如何安装" } ", confirm with your screen lock, then pick the downloaded file." },
         ])))
@@ -190,13 +188,13 @@ pub fn install(pd: &PageData) -> Markup {
             html! { "下载证书（.crt）并打开它：Keychain Access 将其添加到您的登录钥匙串中。" },
             html! { "双击 " b { (ca) } " \u{203a} " b { "信任" } " \u{203a} " b { "使用此证书时：始终信任" } ", then close the window and confirm." },
         ])))
-        (kit::section(Some("窗户"), Some(html! { p.foot { "Firefox 120 及更高版本使用您添加到 Windows、macOS 或 Android 的证书。在 Linux 上，或关闭该设置： 设置 \u{203a} 隐私和安全 \u{203a} 证书 \u{203a} 查看证书 \u{2026} \u{203a} 权限 \u{203a} 导入 \u{2026}，并信任它的网站。" } }), steps(&[
-            html! { "下载证书（.crt）并打开\u{203a} " b { "安装证书" } " \u{203a} " b { "当前用户" } "." },
+        (kit::section(Some("窗户"), Some(html! { p.foot { "Firefox 120 及更高版本使用您添加到 Windows、macOS 或 Android 的证书。在 Linux 上，或关闭该设置： 设置 › 隐私和安全 › 证书 › 查看证书 … › 权限 › 导入 …，并信任它的网站。" } }), steps(&[
+            html! { "下载证书（.crt）并打开› " b { "安装证书" } " \u{203a} " b { "当前用户" } "." },
             html! { b { "将所有证书放入以下存储中" } " \u{203a} " b { "浏览" } " \u{203a} " b { "受信任的根证书颁发机构" } " \u{203a} " b { "完成" } " \u{203a} " b { "是的" } "." },
         ])))
         (kit::section(Some("然后安装应用程序"), Some(html! {
-            p.foot { "打开这些地址之一并登录。Chrome：菜单\u{203a} " b { "安装" } " (Android: " b { "添加到主屏幕" } "). Safari on iPhone: \u{2022}\u{2022}\u{2022} \u{203a} Share \u{203a} View More \u{203a} " b { "添加到主屏幕" } ". Safari on Mac: File \u{203a} " b { "添加到 Dock" } "." }
-            p.foot { "使用自己的 DNS 的设备（Android\u{2019}s Private DNS 设置为提供商，浏览器中的 DNS over HTTPS，VPN）可能找不到 " (s.name) "; the address always works. Each address keeps its own login." }
+            p.foot { "打开这些地址之一并登录。Chrome：菜单› " b { "安装" } " (Android: " b { "添加到主屏幕" } "). Safari on iPhone: \u{2022}\u{2022}\u{2022} \u{203a} Share \u{203a} View More \u{203a} " b { "添加到主屏幕" } ". Safari on Mac: File \u{203a} " b { "添加到 Dock" } "." }
+            p.foot { "使用自己的 DNS 的设备（Android’s Private DNS 设置为提供商，浏览器中的 DNS over HTTPS，VPN）可能找不到 " (s.name) "; the address always works. Each address keeps its own login." }
         }), url_rows(&s)))
     }
 }
@@ -235,9 +233,9 @@ impl Post {
 /// The clock line of Turn On and Renew.
 fn clock_line(c: Utc) -> String {
     match c {
-        Utc::Verified(t) => format!("证书的日期来自路由器 \u{2019} 的时钟，通过互联网检查：{}。", utc_stamp(t)),
+        Utc::Verified(t) => format!("证书的日期来自路由器 ’ 的时钟，通过互联网检查：{}。", utc_stamp(t)),
         _ => format!(
-            "证书的日期是从路由器 \u{2019} 的时钟开始的：{}。无法通过互联网进行检查；如果此日期错误，请取消并稍后重试。",
+            "证书的日期是从路由器 ’ 的时钟开始的：{}。无法通过互联网进行检查；如果此日期错误，请取消并稍后重试。",
             utc_stamp(c.secs())
         ),
     }
@@ -288,7 +286,7 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
                     "路由器为其 LAN 地址和 {} 创建自己的证书颁发机构和证书，并通过端口 {port} 上的 HTTPS 提供此 Web UI。",
                     tls.name()
                 ),
-                format!("然后，每部手机或计算机都会信任该权限一次（在您的设备上安装显示如何操作）。它只能为该路由器\u{2019}的LAN地址和{}（及其下的名称）提供担保，而不能为其他网站或设备提供担保。如果您稍后更改 LAN 地址，则只有 {} 继续工作，直到您重置 HTTPS。", tls.name(), tls.name()),
+                format!("然后，每部手机或计算机都会信任该权限一次（在您的设备上安装显示如何操作）。它只能为该路由器’的LAN地址和{}（及其下的名称）提供担保，而不能为其他网站或设备提供担保。如果您稍后更改 LAN 地址，则只有 {} 继续工作，直到您重置 HTTPS。", tls.name(), tls.name()),
                 clock_line(s.clock),
                 plain_http(),
             ],
@@ -312,7 +310,7 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
         ),
         Post::Reset => {
             let mut lines = vec![
-                format!("这将删除路由器 \u{2019} 的证书颁发机构 ({}) 和证书，并停止端口 {port} 上的 HTTPS，也适用于通过其打开的页面。", s.ca_name),
+                format!("这将删除路由器 ’ 的证书颁发机构 ({}) 和证书，并停止端口 {port} 上的 HTTPS，也适用于通过其打开的页面。", s.ca_name),
                 "从信任它的每个设备中删除该证书颁发机构：它不能再使用。如果您再次打开 HTTPS，则每台设备都必须信任新设备。".into(),
             ];
             if secure {

@@ -305,7 +305,7 @@ fn back(kind: Kind, input: &Input) -> String {
 
 /// The remote line: what a change that may cut this connection means for a
 /// browser over Tailscale (every remote line opens the same way).
-pub const REMOTE: &str = "您已远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面\u{2019}。";
+pub const REMOTE: &str = "您已远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面’。";
 
 pub struct Question {
     pub title: String,
@@ -681,7 +681,7 @@ mod tests {
         assert_eq!(back(Kind::Unlock, &i), "/ui/tools/band-lock");
         assert_eq!(back(Kind::Nr, &i), "/ui/tools/band-lock?nr=1&nr=3&nr=78");
         let app = AppState::new();
-        assert!(matches!(next(Kind::Nr, &i, Ok(()), &app), Next::Line(to, Some(true), l) if l == "NR 锁定频段：1,3,78" && to == "/ui/tools/band-lock?nr=1&nr=3&nr=78"));
+        assert!(matches!(next(Kind::Nr, &i, Ok(()), &app), Next::Line(to, Some(true), l) if l == "NR 频段锁定：1,3,78" && to == "/ui/tools/band-lock?nr=1&nr=3&nr=78"));
     }
 
     /// The lanes are the calls' (`server::lane`): only Enable ADB, Mobile
@@ -706,7 +706,7 @@ mod tests {
         assert!(!question(Kind::Nr, &i, false, None).unwrap().lines.contains(&REMOTE.to_owned()));
         assert_eq!(question(Kind::Lte, &Input::default(), false, None).unwrap().label, None);
         assert!(!question(Kind::Adb, &i, true, None).unwrap().lines.contains(&REMOTE.to_owned()));
-        let servers = Ok(json!([{"id": 7, "sponsor": "示例网", "name": "泰斯特维尔", "country": "无处可去"}]));
+        let servers = Ok(json!([{"id": 7, "sponsor": "Example Net", "name": "Testville", "country": "Nowhere"}]));
         let s = Input { server: Some(7), ..Input::default() };
         let q = question(Kind::Speed, &s, false, Some((&servers, &json!({"phase": "complete"})))).unwrap();
         assert_eq!((q.title.as_str(), q.lines[0].as_str()), ("开始速度测试？", "服务器：示例网络 - Testville，Nowhere"));
@@ -716,7 +716,7 @@ mod tests {
         let gone = Input { server: Some(8), ..Input::default() };
         assert_eq!(question(Kind::Speed, &gone, false, Some((&servers, &Value::Null))).unwrap().label, None);
         let failed = Err("fetch servers: timed out".to_owned());
-        assert_eq!(question(Kind::Speed, &s, false, Some((&failed, &Value::Null))).unwrap().lines, ["fetch servers: timed out"]);
+        assert_eq!(question(Kind::Speed, &s, false, Some((&failed, &Value::Null))).unwrap().lines, ["获取服务器：超时"]);
         // Every Tools question asks; a scan only a remote browser; a neighbour scan never.
         assert!(asks(Kind::Adb, &i, false) && !asks(Kind::Scan, &Input::default(), false) && asks(Kind::Scan, &Input::default(), true));
         assert!(!asks(Kind::Neighbors, &Input::default(), true));

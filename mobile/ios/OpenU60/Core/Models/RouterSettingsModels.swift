@@ -10,10 +10,10 @@ struct NetworkModeConfig: Equatable {
     static let netSelectOptions: [(label: String, value: String)] = [
         ("自动", "WL_AND_5G"),
         ("5G NSA (LTE + NR)", "LTE_AND_5G"),
-        ("5G SA Only", "仅_5G"),
-        ("4G Only", "仅_LTE"),
+        ("5G SA Only", "Only_5G"),
+        ("4G Only", "Only_LTE"),
         ("4G + 3G", "WCDMA_AND_LTE"),
-        ("3G Only", "唯_WCDMA"),
+        ("3G Only", "Only_WCDMA"),
     ]
 }
 

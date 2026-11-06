@@ -91,7 +91,7 @@ fn login_markup(nonce: &str, token: &str, next: &str, notice: Option<&Notice>, h
                 button.btn.btn-wide type="submit" { "登录" }
             }
             @if let Some(url) = hint {
-                p.note.ctr { "要将此 Web UI 安装为应用程序，请信任此设备上的路由器\u{2019}s 证书颁发机构（设置 \u{203a} HTTPS 并作为应用程序安装 \u{203a} 在您的设备上安装），然后打开 " a href=(url) rel="noreferrer" { (url) } "." }
+                p.note.ctr { "要将此 Web UI 安装为应用程序，请信任此设备上的路由器’s 证书颁发机构（设置 › HTTPS 并作为应用程序安装 › 在您的设备上安装），然后打开 " a href=(url) rel="noreferrer" { (url) } "." }
             }
         }
     };

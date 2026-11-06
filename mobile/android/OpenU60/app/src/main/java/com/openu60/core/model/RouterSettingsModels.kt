@@ -12,10 +12,10 @@ data class NetworkModeConfig(
         val netSelectOptions = listOf(
             "自动" to "WL_AND_5G",
             "5G NSA (LTE + NR)" to "LTE_AND_5G",
-            "5G SA Only" to "仅_5G",
-            "4G Only" to "仅_LTE",
+            "5G SA Only" to "Only_5G",
+            "4G Only" to "Only_LTE",
             "4G + 3G" to "WCDMA_AND_LTE",
-            "3G Only" to "唯_WCDMA",
+            "3G Only" to "Only_WCDMA",
         )
     }
 }

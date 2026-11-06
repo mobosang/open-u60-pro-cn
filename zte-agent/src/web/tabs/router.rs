@@ -50,7 +50,7 @@ pub static ROUTER: Screen = Screen {
                 to(cell::STC, "智能基站连接", Icon::Antenna),
                 to(cell::SD, "信号检测", Icon::Waveform),
                 to(sim::PATH, "SIM 卡", Icon::SimCard),
-                to(esim::PATH, "eSIM Profiles", Icon::SimCard),
+                to(esim::PATH, "eSIM 配置文件", Icon::SimCard),
                 to(services::PATH, "SIM 服务", Icon::Phone),
             ],
         ),
@@ -196,7 +196,7 @@ pub static SIM_SERVICES: Screen = Screen {
 pub static ESIM: Screen = Screen {
     path: esim::PATH,
     id: "esim",
-    title: "eSIM Profiles",
+    title: "eSIM 配置文件",
     bar: Bar::BackIcons("/ui/router", "路由器", &[(esim::ADD, Icon::Plus, "添加 eSIM"), (esim::PATH, Icon::Refresh, "刷新配置文件和连接")]),
     topics: &[Topic::EsimSwitch, Topic::EsimDownload, Topic::Modem, Topic::Signal],
     reads: &[Read::Api(esim::PROFILES), Read::Api(esim::CHIP)],
@@ -214,7 +214,7 @@ pub static ESIM: Screen = Screen {
 /// download state (nothing is offered while either holds the eSIM).
 const ESIM_PAGE: Screen = Screen {
     tab: Tab::Router,
-    bar: Bar::Back(esim::PATH, "eSIM Profiles"),
+    bar: Bar::Back(esim::PATH, "eSIM 配置文件"),
     topics: &[Topic::EsimSwitch, Topic::EsimDownload],
     reads: &[Read::Api(esim::PROFILES)],
     status: Some(esim::status),
@@ -436,7 +436,7 @@ pub static DEVICE_RESET: Screen = Screen {
 
 /// The remote line of a change that surely cuts the connection (the same
 /// opening as `confirm::REMOTE`).
-const CUT: &str = "您已远程连接：这将切断连接，并且在路由器重新打开该页面之前，无法访问此页面\u{2019}。";
+const CUT: &str = "您已远程连接：这将切断连接，并且只有在路由器上重新打开连接后才能访问此页面。";
 const AIRPLANE_LINE: &str = "蜂窝无线电关闭；电话、短信和互联网停止。";
 const ENABLE: &[Field] = &[Field { name: "enable", kind: Kind::Choice(&["0", "1"]) }];
 
@@ -585,13 +585,13 @@ mod tests {
         };
         let s = page("ONLINE");
         let order = [
-            "<h2>网络连接</h2>", "移动数据", "<h2>连接方式</h2>", "数据漫游", "启用漫游",
-            "<h2>网络选择</h2>", "扫描网络", ">应用</button>",
+            "<h2>Connectivity</h2>", "Mobile Data", "<h2>Connection Mode</h2>", "Data Roaming", "Enabling roaming",
+            "<h2>Network Selection</h2>", "Scan Networks", ">Apply</button>",
         ];
         let at: Vec<usize> = order.iter().map(|w| s.find(w).unwrap_or_else(|| panic!("{w} in {s}"))).collect();
         assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");
         assert!(!s.contains("aria-disabled") && s.contains(&format!("href=\"{}/confirm?enable=0\"", MOBILE_DATA.path)));
-        assert!(s.contains("<fieldset class=\"mnf\">") && s.contains("value=\"auto_select\" checked"));
+        assert!(s.contains("<fieldset class=\"mnf\">") && s.contains("value=\"汽车_select\" checked"));
         let s = page("LPM");
         // Mobile Data shown, not switchable; Airplane Mode is; Apply is off.
         assert_eq!(s.matches("aria-disabled=\"true\"").count(), 1, "{s}");

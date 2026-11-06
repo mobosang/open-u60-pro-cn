@@ -488,7 +488,7 @@ pub(crate) mod tests {
             })),
             (Topic::Wan, json!({"wan": {"ipv4-address": [{"address": "10.20.30.40"}]}, "wan6": {}})),
             (Topic::Sim, json!({
-                "sim_states": "准备好了", "sim_iccid": "8900100000009998877", "msisdn": "+10000000042",
+                "sim_states": "Ready", "sim_iccid": "8900100000009998877", "msisdn": "+10000000042",
                 "sim_imsi": "001019999911111", "imei": "000000000000042",
             })),
         ]);
@@ -503,7 +503,7 @@ pub(crate) mod tests {
         for want in [
             "示例<b>移动</b>", "5G NSA", "5G NR", "n41 (2500 MHz, TDD)", "50 / 100 MHz max", ">774<", ">4242<",
             "513000", "美国国家安全局锚", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "活动（2 CC）", "EARFCN", "SCC0",
-            "B3 (1800 MHz)\u{2003}PCI 12\u{2003}BW 20", "数据会话", "QCI", "10000 / 10000 Mbps", "不是速度测试。",
+            "B3 (1800 MHz)\u{2003}PCI 12\u{2003}BW 20", "数据会话", "QCI", "10000 / 10000 兆比特/秒", "不是速度测试。",
             "信号历史", "10.20.30.40", "极佳", "良好",
         ] {
             assert!(s.contains(want), "missing {want:?} in {s}");
@@ -549,7 +549,7 @@ pub(crate) mod tests {
         // The app's legend names, nothing else.
         assert!(s.contains("<figcaption class=\"legend\"><span class=\"nr\">NR</span> <span class=\"lte\">LTE</span> </figcaption>"), "{s}");
         // No history yet (the app's text, with three dots).
-        assert!(sig_chart(&views(vec![])).into_string().contains("<p class=\"muted\">Collecting data...</p>"));
+        assert!(sig_chart(&views(vec![])).into_string().contains("<p class=\"muted\">正在采集数据...</p>"));
     }
 
     /// The line follows the cadence a page asked for (Settings › Polling,
@@ -592,12 +592,12 @@ pub(crate) mod tests {
 
     #[test]
     fn wcdma_shows_its_own_quality_and_mode() {
-        let v = views(vec![(Topic::Signal, json!({"network_type": "WCDMA", "network_provider": "示例", "rscp": "-80", "ecio": "-7"}))]);
+        let v = views(vec![(Topic::Signal, json!({"network_type": "WCDMA", "network_provider": "Example", "rscp": "-80", "ecio": "-7"}))]);
         let s = sig_op(&v).into_string();
         assert!(s.contains("<span class=\"muted\">WCDMA</span>") && s.contains("<span class=\"pill\" aria-hidden=\"true\">WCDMA</span>"), "{s}");
         assert!(!s.contains("无信号数据") && !s.contains("模式未知"));
         let w = sig_wcdma(&v).into_string();
-        assert!(w.contains("RSCP") && w.contains("class=\"q-good\">Good<"), "{w}");
+        assert!(w.contains("RSCP") && w.contains("class=\"q-good\">良好<"), "{w}");
     }
 
     /// iOS `OperatorCardView` and `NetworkTypeIcon`.
@@ -605,14 +605,14 @@ pub(crate) mod tests {
     fn operator_card_follows_the_app() {
         let op = |d: Value| sig_op(&views(vec![(Topic::Signal, d)])).into_string();
         let s = sig_op(&fixture()).into_string();
-        assert!(s.contains("<div><b>Example &lt;b&gt;Mobile&lt;/b&gt;</b><span class=\"muted\">5G NSA</span></div>"), "{s}");
+        assert!(s.contains("<div><b>示例<b>移动</b></b><span class=\"muted\">5G NSA</span></div>"), "{s}");
         assert!(s.contains("<span class=\"pill\" aria-hidden=\"true\">5G<small>NSA</small></span>"), "{s}");
         // No bars reported: the glyph is grey; no roaming label, no quality word.
-        assert!(s.contains("<span class=\"sb muted\" role=\"img\" aria-label=\"Signal\">"), "{s}");
+        assert!(s.contains("<span class=\"sb muted\" role=\"img\" aria-label=\"信号\">"), "{s}");
         assert!(!s.contains("漫游") && !s.contains("极佳") && !s.contains("无运营商"), "{s}");
         let s = op(json!({"network_type": "SA", "nr5g_rsrp": "-80", "signalbar": "3", "simcard_roam": "1", "network_provider": " "}));
-        assert!(s.contains("<b>No Operator</b><span class=\"muted\">5G SA</span>") && s.contains("5G<small>SA</small>"), "{s}");
-        assert!(s.contains("<span class=\"sb\" role=\"img\"") && s.contains(" Roaming</span>"), "{s}");
+        assert!(s.contains("<b>无运营商</b><span class=\"muted\">5G SA</span>") && s.contains("5G<small>SA</small>"), "{s}");
+        assert!(s.contains("<span class=\"sb\" role=\"img\"") && s.contains(" 漫游</span>"), "{s}");
         // Limited or no service: the warning pill; the type in words above it.
         for t in ["LIMITED_SERVICE_SA", "NO_SERVICE"] {
             let s = op(json!({"network_type": t}));
@@ -622,7 +622,7 @@ pub(crate) mod tests {
         assert!(s.contains("<span class=\"pill\" aria-hidden=\"true\">4G</span>"), "{s}");
         // Nothing read: "--" in grey.
         let s = sig_op(&views(vec![])).into_string();
-        assert!(s.contains("<b>No Operator</b><span class=\"muted\">--</span>") && s.contains("<span class=\"pill none\" aria-hidden=\"true\">--</span>"), "{s}");
+        assert!(s.contains("<b>无运营商</b><span class=\"muted\">--</span>") && s.contains("<span class=\"pill none\" aria-hidden=\"true\">--</span>"), "{s}");
     }
 
     #[test]
@@ -630,13 +630,13 @@ pub(crate) mod tests {
         // Connected but with gaps: "--" in the grid and the rows (WAN keeps "—").
         let v = views(vec![(Topic::Signal, json!({"network_type": "LTE", "lte_rsrp": "-90", "bearer": {"ambr_dl_mbps": 50}}))]);
         let lte = sig_lte(&v).into_string();
-        assert!(lte.contains("<b class=\"muted\">--</b>") && lte.contains("<dt>PCI</dt><dd>--</dd>") && lte.contains("<dt>Band</dt><dd>--</dd>"), "{lte}");
+        assert!(lte.contains("<b class=\"muted\">--</b>") && lte.contains("<dt>PCI</dt><dd>--</dd>") && lte.contains("<dt>频段</dt><dd>--</dd>"), "{lte}");
         assert!(lte.contains("<h2><svg") && lte.contains("</svg> LTE</h2>") && !lte.contains("美国国家安全局锚"), "{lte}");
-        assert!(sig_bearer(&v).into_string().contains("50 / -- Mbps"));
+        assert!(sig_bearer(&v).into_string().contains("50 / -- 兆比特/秒"));
         assert!(sig_wan(&v).into_string().contains("<dt>IPv4</dt><dd>—</dd>"));
         // The page ends with the way to Network Mode.
         let page = body(&fixture()).into_string();
-        assert!(page.ends_with("<a class=\"it\" href=\"/ui/signal/network-mode\"><span>Network mode</span></a></li></ul></section>"), "{page}");
+        assert!(page.ends_with("<a class=\"it\" href=\"/ui/signal/network-mode\"><span>网络模式</span></a></li></ul></section>"), "{page}");
         // NR carrier aggregation: a blue badge.
         let mut d = signal();
         d["nrca"] = json!("774,41,0,513000,50;775,78,1,630000,100");

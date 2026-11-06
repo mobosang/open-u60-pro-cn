@@ -260,7 +260,7 @@ pub fn list(pd: &PageData) -> Markup {
         @if convs.is_empty() && error.is_none() {
             (kit::empty_state(Icon::Message, "暂无短信", "SMS消息将出现在这里"))
         } @else if shown.is_empty() && !q.is_empty() {
-            (kit::empty_state(Icon::Search, &format!("\u{201c}{q}\u{201d} 没有结果"), "检查拼写或尝试新的搜索。"))
+            (kit::empty_state(Icon::Search, &format!("“{q}” 没有结果"), "检查拼写或尝试新的搜索。"))
         }
         p.foot { "通话仅在OpenU60应用程序中进行。" }
     }

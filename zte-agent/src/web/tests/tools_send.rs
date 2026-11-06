@@ -62,7 +62,7 @@ async fn speed_test_page_lists_servers_and_streams() {
     // Coming back from the question keeps its server.
     assert!(get_with(&c, &format!("{ST}?server=8"), peer(110, 3), &cookie).await.text().contains("<option value=\"8\" selected>"));
     // A test that runs (whoever started it): its progress, Stop, a bounded reload.
-    let _fake = fake::set(&c.app, json!({"phase": "upload", "progress": 80, "live_speed_mbps": 12.34, "server": "示例网络（Testville）"}));
+    let _fake = fake::set(&c.app, json!({"phase": "upload", "progress": 80, "live_speed_mbps": 12.34, "server": "Example Net (Testville)"}));
     let html = get_with(&c, ST, peer(110, 4), &cookie).await.text();
     for want in [
         "<li class=\"it fld run\" id=\"st-run\"><span class=\"row\"><span>正在上传...</span><span class=\"muted num\">80%</span>",
@@ -161,7 +161,7 @@ async fn speed_test_start_asks_and_starts_once() {
         "下载 15 秒并上传 10 MB", "<li>您的计划可能会计算此数据。</li>",
         "<input type=\"hidden\" name=\"server\" value=\"7\"><input type=\"hidden\" name=\"once\" value=\"",
         "\" autocomplete=\"off\"><input type=\"hidden\" name=\"confirm\" value=\"1\">",
-        "<button class=\"btn\" type=\"submit\">启动速度测试</button>", "href=\"/ui/tools/speedtest?server=7\">Cancel",
+        "<button class=\"btn\" type=\"submit\">启动速度测试</button>", "href=\"/ui/tools/speedtest?server=7\">取消",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -188,9 +188,9 @@ async fn speed_test_start_asks_and_starts_once() {
     assert_eq!(calls(&c).len(), 1);
     // Nothing to do: no form, only Cancel.
     for (uri, title) in [
-        ("/ui/tools/speedtest/start", "先选择服务器"),
-        ("/ui/tools/speedtest/start?server=", "先选择服务器"),
-        ("/ui/tools/speedtest/start?server=9", "该服务器已不在列表中。"),
+        ("/ui/tools/speedtest/start", "Select a server first"),
+        ("/ui/tools/speedtest/start?server=", "Select a server first"),
+        ("/ui/tools/speedtest/start?server=9", "This server is no longer in the list."),
     ] {
         let html = get_with(&c, uri, peer(111, 6), &cookie).await.text();
         assert!(html.contains(&format!("<h2 class=\"q\">{title}</h2>")) && !html.contains("<form"), "{uri}: {html}");
@@ -247,7 +247,7 @@ async fn enable_adb_asks_and_sends_once() {
     let _dev = device::set(&c.app, device::Device::default());
     let q = get_with(&c, "/ui/tools/adb/enable", peer(113, 3), &cookie).await;
     q.assert_secure_html(200);
-    assert!(q.text().contains("<h2 class=\"q\">启用亚行？</h2>") && q.text().contains("gets a root shell on the router"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">启用亚行？</h2>") && q.text().contains("获取路由器上的 root shell"), "{}", q.text());
     assert!(q.text().contains("<button class=\"btn btn-danger\" type=\"submit\">启用亚行</button>"));
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     post(&c, "/ui/tools/adb/enable", peer(113, 4), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/tools/adb/enable");
@@ -279,15 +279,15 @@ async fn band_lock_grids_questions_and_bodies() {
     let r = get_with(&c, BL, peer(114, 2), &cookie).await;
     r.assert_secure_html(200);
     let html = r.text();
-    let nr = &html[html.find("<h2>5G NR 频段</h2>").unwrap()..html.find("<h2>LTE 频段</h2>").unwrap()];
+    let nr = &html[html.find("<h2>5G NR Bands</h2>").unwrap()..html.find("<h2>LTE Bands</h2>").unwrap()];
     assert_eq!(nr.matches("type=\"checkbox\" name=\"nr\"").count(), 19);
     assert_eq!(html.matches("type=\"checkbox\" name=\"lte\"").count(), 28);
     for want in [
         "<a class=\"it bt danger\" href=\"/ui/tools/band-lock/reset\"><svg",
         "<form class=\"bl\" method=\"get\" action=\"/ui/tools/band-lock/nr\">",
-        "<label title=\"Band 78 \u{2014} 3500 MHz \u{b7} TDD \u{b7} Max BW 100 MHz \u{b7} DL 3300\u{2013}3800 MHz \u{b7} UL 3300\u{2013}3800 MHz\"><input class=\"sr\" type=\"checkbox\" name=\"nr\" value=\"78\"><span>B78<small>3500 MHz</small></span></label>",
+        "<label title=\"频段 78 — 3500 MHz · TDD · Max BW 100 MHz · DL 3300–3800 MHz · UL 3300–3800 MHz\"><input class=\"sr\" type=\"checkbox\" name=\"nr\" value=\"78\"><span>B78<small>3500 MHz</small></span></label>",
         "<span>B66<small>AWS-3</small></span>", "</svg> 应用 NR 频段锁定</button>", "</svg> 应用 LTE 频段锁定</button>",
-        "<summary>频段详情</summary>", "<li><b>频段  29 \u{2014} 700 MHz</b><small>SDL \u{b7} Max BW 10 MHz \u{b7} DL 717\u{2013}728 MHz</small></li>",
+        "<summary>频段详情</summary>", "<li><b>频段  29 — 700 MHz</b><small>SDL · Max BW 10 MHz · DL 717–728 MHz</small></li>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -304,17 +304,17 @@ async fn band_lock_grids_questions_and_bodies() {
     for want in [
         "<h2 class=\"q\">应用 NR 锁定？</h2>", "for NSA and SA: 1, 78.</li>",
         "<input type=\"hidden\" name=\"nr\" value=\"1\"><input type=\"hidden\" name=\"nr\" value=\"78\">",
-        "<button class=\"btn btn-danger\" type=\"submit\">应用 NR 频段锁定</button>", "href=\"/ui/tools/band-lock?nr=1&amp;nr=78\">Cancel",
+        "<button class=\"btn btn-danger\" type=\"submit\">应用 NR 频段锁定</button>", "href=\"/ui/tools/band-lock?nr=1&amp;nr=78\">取消",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("connected remotely"));
+    assert!(!html.contains("远程连接"));
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     let r = post(&c, "/ui/tools/band-lock/nr", peer(114, 5), &cookie, &format!("csrf={csrf}&nr=1&nr=78&once={once}&confirm=1")).await;
     let to = r.header("location").unwrap().to_owned();
     assert!(to.starts_with("/ui/tools/band-lock?nr=1&nr=78&r="), "{to}");
     let html = get_with(&c, &to, peer(114, 5), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg ok\" role=\"status\">NR bands locked: 1,78</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg ok\" role=\"status\">NR 频段锁定：1,78</p>"), "{html}");
     assert!(html.contains("name=\"nr\" value=\"78\" checked>") && html.contains("name=\"nr\" value=\"1\" checked>"));
     assert_eq!(
         calls(&c),
@@ -349,7 +349,7 @@ async fn band_lock_grids_questions_and_bodies() {
     let q = get_with(&c, "/ui/tools/band-lock/nr?nr=41&nr=1", peer(114, 6), &cookie).await;
     let r = post(&c, "/ui/tools/band-lock/nr", peer(114, 6), &cookie, &format!("csrf={csrf}&nr=41&nr=1&once={}&confirm=1", q.input("once"))).await;
     let html = get_with(&c, r.header("location").unwrap(), peer(114, 6), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">NR bands locked for NSA only: 1,41. SA lock failed: sa down</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">NR 频段仅限 NSA 锁定：1,41。 SA锁定失败：1,41</p>"), "{html}");
     assert_eq!(device::calls(&c.app).len(), 2);
     // A band the app does not list is refused, also in a post.
     post(&c, "/ui/tools/band-lock/nr", peer(114, 7), &cookie, &format!("csrf={csrf}&nr=4&once={once}&confirm=1")).await.assert_secure_html(400);
@@ -371,7 +371,7 @@ async fn at_terminal_sends_once_masks_and_forgets_on_logout() {
         "<strong>尚未发送命令</strong>", "在下面输入 AT 命令或点击上面的快捷命令。",
         "<form class=\"atf\" method=\"post\" action=\"/ui/tools/at/send\">", "name=\"once\" value=\"",
         "<input id=\"to\" type=\"number\" name=\"timeout\" min=\"1\" max=\"30\" value=\"3\"",
-        "<input id=\"cmd\" type=\"text\" name=\"cmd\" value=\"\" placeholder=\"AT command...\"",
+        "<input id=\"cmd\" type=\"text\" name=\"cmd\" value=\"\" placeholder=\"AT命令...\"",
         "<button class=\"send\" type=\"submit\" aria-label=\"发送命令\">",
     ] {
         assert!(html.contains(want), "{want} in {html}");

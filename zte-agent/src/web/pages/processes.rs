@@ -277,7 +277,7 @@ fn warnings(name: &str, remote: bool) -> Vec<String> {
             "{name} is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."
         ));
         if remote {
-            out.push("您已远程连接：如果路由器停止应答，则在重新启动之前无法访问此页面\u{2019}。".into());
+            out.push("您已远程连接：如果路由器停止应答，则在重新启动之前无法访问此页面’。".into());
         }
     }
     out
@@ -331,8 +331,7 @@ pub fn kill_all_page(pd: &PageData) -> Markup {
     }
     if !keep.is_empty() {
         lines.push(format!(
-            "Left running: {}. The SMS daemon and the boot-critical daemons of daemon.conf are never killed all at \
-             once; kill one from the list if you must.",
+            "左跑：{}。 SMS 守护进程和 daemon.conf 的启动关键守护进程永远不会在              一次；如果必须的话，从名单上杀掉一个。",
             keep.join(", ")
         ));
     }
@@ -497,7 +496,7 @@ mod tests {
         assert!(failed.contains("role=\"alert\">no /proc<") && !failed.contains("加载中"), "{failed}");
         // The app's order: the bloat summary, then the error.
         let both = summary(&views(Some(fixture()), Some("no /proc"))).into_string();
-        assert!(both.find("冗余后台服务").unwrap() < both.find("no /proc").unwrap(), "{both}");
+        assert!(both.find("Bloat Daemons").unwrap() < both.find("no /proc").unwrap(), "{both}");
     }
 
     #[test]
@@ -530,14 +529,14 @@ mod tests {
             assert_eq!(kill_body(&Valid::of(&[("pid", &me.to_string()), ("name", "zte_topsw_diag")]), &[]), None);
         }
         let freed = json!({"killed": [{"pid": 5}, {"pid": 8}], "skipped": [], "freed_rss_kb": 2048});
-        assert_eq!(killed_all(&v, &freed), (Some(true), "杀死 2 个守护进程，释放 2.0 MB".into()));
+        assert_eq!(killed_all(&v, &freed), (Some(true), "杀死2守护进程，释放2".into()));
         // Nothing to kill by the time of the post: nothing sent, a neutral line.
-        let none = "没有可以安全杀死的膨胀守护进程正在运行。什么也没被杀。";
+        let none = "No bloat daemons that are safe to kill are running. Nothing was killed.";
         assert_eq!(killed_all(&v, &Value::Null), (None, none.into()));
         // The app's line only for a PID the agent reports killed.
         let one = Valid::of(&[("pid", "812"), ("name", "zte_topsw_diag")]);
         let d = json!({"killed": [{"pid": 812, "name": "zte_topsw_diag"}], "skipped": [], "freed_rss_kb": 900});
-        assert_eq!(killed_one(&one, &d), (Some(true), "杀死 PID 812，释放 900 KB".into()));
+        assert_eq!(killed_one(&one, &d), (Some(true), "杀死PID 812，释放812".into()));
         let gone = json!({"killed": [], "skipped": [{"pid": 812, "name": "zte_topsw_diag"}], "freed_rss_kb": 0});
         assert_eq!(killed_one(&one, &gone), (Some(false), "PID 812 未被杀死。".into()));
         assert_eq!(killed_one(&one, &json!({"killed": [{"pid": 9}]})), (Some(false), "PID 812 未被杀死。".into()));
@@ -549,7 +548,7 @@ mod tests {
         assert!(warnings("zte_topsw_diag", true).is_empty());
         let w = warnings(SMS, true);
         assert_eq!(w.len(), 1);
-        assert!(w[0].starts_with("zte_topsw_wms handles SMS") && w[0].contains("短信选项卡、发送和转发"));
+        assert!(w[0].starts_with("zte_topsw_wms handles 短信") && w[0].contains("短信选项卡、发送和转发"));
         assert_eq!(warnings("zte_dm", false), ["zte_dm is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."]);
         assert!(warnings("zte_dm", true)[1].starts_with("您已远程连接： "));
     }
@@ -582,9 +581,9 @@ mod tests {
         assert_eq!(s.matches("<li>").count(), 1);
         // The SMS daemon and a daemon.conf one: warned, still possible.
         let s = confirm(kill_page, Ok(json!({"pid": 400, "name": SMS})), false);
-        assert!(s.contains("<li>zte_topsw_wms handles SMS:") && s.contains(">杀戮</button>"), "{s}");
+        assert!(s.contains("<li>zte_topsw_wms handles 短信:") && s.contains(">杀戮</button>"), "{s}");
         let s = confirm(kill_page, Ok(json!({"pid": 401, "name": "zte_topsw_mc"})), true);
-        assert!(s.contains("boot-critical firmware daemon (daemon.conf)") && s.contains("connected remotely"), "{s}");
+        assert!(s.contains("boot-critical firmware daemon (daemon.conf)") && s.contains("远程连接"), "{s}");
         // Not bloat, or gone: no form.
         let s = confirm(kill_page, Ok(json!({"pid": 1, "name": "<b>init</b>"})), false);
         assert!(s.contains("&lt;b&gt;init&lt;/b&gt; is not a bloat daemon.") && !s.contains("<form"), "{s}");
@@ -594,8 +593,8 @@ mod tests {
         let read = split(&[(5, "zte_topsw_diag".into()), (6, SMS.into()), (8, "zte_topsw_diag".into()), (9, "zte_dua".into()), (11, "zte_dm".into())]);
         let s = confirm(kill_all_page, Ok(read), false);
         for want in [
-            "<h2 class=\"q\">杀死所有膨胀守护进程？</h2>", "<li>This will SIGKILL 3 bloat daemons. They will return on reboot.</li>",
-            "<li>zte_topsw_diag, zte_dua</li>", "<li>Left running: zte_topsw_wms, zte_dm. The SMS daemon",
+            "<h2 class=\"q\">杀死所有膨胀守护进程？</h2>", "<li>这将使 SIGKILL 3 使守护进程膨胀。他们将在重新启动后返回。</li>",
+            "<li>zte_topsw_diag, zte_dua</li>", "<li>Left running: zte_topsw_wms, zte_dm. The 短信 daemon",
             "action=\"/ui/health/processes/kill-all\"", ">消灭一切膨胀</button>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
@@ -609,7 +608,7 @@ mod tests {
     fn the_confirmation_read_takes_one_pid() {
         let app = AppState::new();
         for bad in [None, Some("pid="), Some("pid=0"), Some("pid=-1"), Some("pid=%2B5"), Some("pid=1,2"), Some("pid=4194305"), Some("pid=x")] {
-            assert_eq!(process_read(&app, bad), Err("no process".to_owned()), "{bad:?}");
+            assert_eq!(process_read(&app, bad), Err("无进程".to_owned()), "{bad:?}");
         }
     }
 }

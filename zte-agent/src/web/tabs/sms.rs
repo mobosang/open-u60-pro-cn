@@ -223,7 +223,7 @@ mod tests {
         for (m, back, page, delete, actions, (log, clear, clear_action)) in [
             (
                 &forward::SMS,
-                ("/ui/sms", "短信"),
+                ("/ui/sms", "Messages"),
                 &FORWARD,
                 &DELETE,
                 [&FW_ENABLED, &FW_SETTINGS, &FW_TOGGLE, &FW_DELETE],
@@ -231,7 +231,7 @@ mod tests {
             ),
             (
                 &forward::TOOLS,
-                ("/ui/tools", "工具"),
+                ("/ui/tools", "Tools"),
                 &TOOLS_FORWARD,
                 &TOOLS_DELETE,
                 [&TOOLS_FW_ENABLED, &TOOLS_FW_SETTINGS, &TOOLS_FW_TOGGLE, &TOOLS_FW_DELETE],
@@ -242,15 +242,15 @@ mod tests {
             assert_eq!(log.path, format!("{}/log", m.base));
             assert_eq!((log.tab, clear.tab), (m.tab, m.tab));
             let clear_path = format!("{}/clear", m.log);
-            assert!(matches!(log.bar, Bar::BackLink(href, "短信转发", to, "清除") if href == m.base && to == clear_path));
-            assert!(matches!(clear.bar, Bar::Back(href, "转发日志") if href == m.log));
+            assert!(matches!(log.bar, Bar::BackLink(href, "SMS Forwarding", to, "Clear") if href == m.base && to == clear_path));
+            assert!(matches!(clear.bar, Bar::Back(href, "Forward Log") if href == m.log));
             assert_eq!((clear.path, clear_action.path), (clear_path.as_str(), clear_path.as_str()));
             assert_eq!(clear_action.screen.path, m.log);
             assert_eq!(clear_action.confirm_at.unwrap()(&crate::web::action::Valid::of(&[])), clear_path);
             assert_eq!(page.path, m.base);
             assert_eq!((page.tab, delete.tab), (m.tab, m.tab));
             assert_eq!(delete.path, format!("{}/rules/delete", m.base));
-            assert!(matches!(delete.bar, Bar::Back(href, "短信转发") if href == m.base));
+            assert!(matches!(delete.bar, Bar::Back(href, "SMS Forwarding") if href == m.base));
             assert!(matches!(page.bar, Bar::Back(href, label) if (href, label) == back));
             for (a, rest) in actions.iter().zip(["/enabled", "/settings", "/rules/toggle", "/rules/delete"]) {
                 assert_eq!(a.path, format!("{}{rest}", m.base));

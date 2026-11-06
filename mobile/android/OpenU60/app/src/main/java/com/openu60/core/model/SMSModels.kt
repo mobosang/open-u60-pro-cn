@@ -129,7 +129,7 @@ object SMSParser {
             "¡ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
             "ÄÖÑÜabcdefghijklmnopqrstuvwxyz" +
             "äöñüà§"
-        return if (text.all { it in gsm7 }) "GSM7_默认" else "UNICODE"
+        return if (text.all { it in gsm7 }) "GSM7_default" else "UNICODE"
     }
 
     fun normalizeNumber(number: String): String {
