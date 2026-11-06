@@ -191,8 +191,8 @@ fn hl_temps(v: &Views) -> Markup {
             p.cap {
                 @match age {
                     None => "温度读数不可用 · 自动重试",
-                    Some(s) if s < 10 => { "更新 " (s) "s ago \u{b7} refreshes every 2s" },
-                    Some(s) => { "最后一个样本 " (s) "s ago \u{b7} waiting for device" },
+                    Some(s) if s < 10 => { "更新 " (s) " 秒前 · 每 2 秒刷新" },
+                    Some(s) => { "最后一个样本 " (s) " 秒前 · 等待设备" },
                 }
             }
         }

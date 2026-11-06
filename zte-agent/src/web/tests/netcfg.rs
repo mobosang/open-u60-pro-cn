@@ -90,7 +90,7 @@ async fn wifi_form_question_and_reconnect_page() {
         "<input class=\"sr ro\" id=\"r2\" type=\"checkbox\" role=\"switch\" name=\"r2\" value=\"1\" checked>",
         "name=\"ssid_2g\" value=\"Fake-Net\"", "<input id=\"key_2g\" type=\"password\" name=\"key_2g\" placeholder=\"留空保留\"",
         "<option value=\"sae-mixed\" selected>WPA2/WPA3 混合</option>", "<option value=\"EHT80\" selected>80 MHz</option>",
-        "80 MHz: channels 36\u{2013}64, 100\u{2013}128, or 149\u{2013}161", "<h2>高级</h2>", "WiFi 7 (802.11be)",
+        "80 MHz：信道 36–64、100–128 或 149–161", "<h2>高级</h2>", "WiFi 7 (802.11be)",
         "应用更改将在重新启动设置时短暂断开 WiFi 的连接",
     ] {
         assert!(html.contains(want), "{want} in {html}");

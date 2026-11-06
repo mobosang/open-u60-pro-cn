@@ -260,7 +260,7 @@ macro_rules! mode_confirm {
                 concat!(
                     "你正在远程连接：如果 ",
                     $label,
-                    " has no coverage here, this page can\u{2019}t be reached until the mode is changed on the router."
+                    " 在此处没有覆盖，则在路由器上更改模式之前将无法访问此页面。"
                 ),
             ]),
             label: "改变模式",

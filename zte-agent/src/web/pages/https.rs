@@ -144,7 +144,7 @@ pub fn install(pd: &PageData) -> Markup {
     if !s.on {
         return html! {
             div.vc {
-                (kit::empty_state(Icon::Lock, "HTTPS is off", "首先在“设置”中将其打开。"))
+                (kit::empty_state(Icon::Lock, "HTTPS 已关闭", "首先在“设置”中将其打开。"))
                 p.actions.ctr { a.btn href=(SETTINGS) { "设置" } }
             }
         };
@@ -254,17 +254,17 @@ fn question(app: &AppState, k: Post, secure: bool) -> (String, Vec<String>, Opti
     let s = tls.status();
     let port = s.port;
     match k {
-        Post::On if s.on && s.listening.is_some() => ("HTTPS is already on".into(), Vec::new(), None),
+        Post::On if s.on && s.listening.is_some() => ("HTTPS 已开启".into(), Vec::new(), None),
         Post::On if s.on => (
             "再听一遍？".into(),
             vec![
-                format!("HTTPS is on, but the router is not listening on port {port}{}", s.error.as_deref().map_or(".".into(), |e| format!(": {e}"))),
+                format!("HTTPS 已开启，但路由器未监听 {port} 端口{}", s.error.as_deref().map_or(".".into(), |e| format!(": {e}"))),
                 "一旦持有端口的任何东西停止，请重试。其他什么都没有改变。".into(),
             ],
             Some("重试"),
         ),
-        Post::Renew if !s.on => ("HTTPS is off".into(), Vec::new(), None),
-        Post::Reset if !s.on && s.kept.is_none() && s.error.is_none() => ("HTTPS is off".into(), Vec::new(), None),
+        Post::Renew if !s.on => ("HTTPS 已关闭".into(), Vec::new(), None),
+        Post::Reset if !s.on && s.kept.is_none() && s.error.is_none() => ("HTTPS 已关闭".into(), Vec::new(), None),
         Post::On | Post::Renew if s.clock.usable().is_none() => {
             ("路由器时钟尚未设置".into(), vec![crate::tls::CLOCK_UNSET.into()], None)
         }
@@ -351,9 +351,9 @@ fn line(ctx_flash: &crate::web::store::Flash, app: &AppState, owner: crate::auth
 
 fn done(k: Post) -> &'static str {
     match k {
-        Post::On => "HTTPS is on. Next: Install on Your Devices (a device that already trusts the router\u{2019}s certificate authority needs nothing new).",
+        Post::On => "HTTPS 已开启。下一步：在你的设备上安装。已信任路由器证书颁发机构的设备无需重新设置。",
         Post::Renew => "证书更新。",
-        Post::Reset => "HTTPS was reset. Remove the old certificate authority from your devices.",
+        Post::Reset => "HTTPS 已重置，请从你的设备上移除旧的证书颁发机构。",
     }
 }
 

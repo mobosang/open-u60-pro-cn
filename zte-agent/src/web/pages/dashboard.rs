@@ -200,17 +200,17 @@ pub fn banners(v: &Views) -> Markup {
             @for b in banner_list(v) {
                 @match b {
                     Banner::Puk => (kit::banner("b-red", Icon::LockWarn, "需要 SIM PUK", html! {
-                        "PIN 尝试错误太多。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " 以输入 PUK。"
+                        "PIN 尝试错误太多。前往 " a href="/ui/router/sim" { "路由器 > SIM 卡" } " 以输入 PUK。"
                     })),
                     Banner::Pin => (kit::banner("b-orange", Icon::Lock, "需要 SIM PIN", html! {
-                        "您的 SIM 卡已被锁定。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " 以输入 PIN。"
+                        "您的 SIM 卡已被锁定。前往 " a href="/ui/router/sim" { "路由器 > SIM 卡" } " 以输入 PIN。"
                     })),
                     Banner::Airplane => (kit::banner("b-blue", Icon::Airplane, "飞行模式", html! {
                         "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"
                     })),
                     Banner::DataOff => (kit::banner("b-orange", Icon::AntennaSlash, "移动数据关闭", html! {
                         "蜂窝无线电已打开，但数据已禁用。前往 "
-                        a href="/ui/router/mobile-network" { "Router > Mobile Network" }
+                        a href="/ui/router/mobile-network" { "路由器 > 移动网络" }
                         " 以开启。"
                     })),
                 }

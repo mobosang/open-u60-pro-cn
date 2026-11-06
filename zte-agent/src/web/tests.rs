@@ -393,7 +393,7 @@ async fn login_post_checks_in_order() {
     // No pre cookie: cookies are off.
     let r = post(&c, "/ui/login", p, "", &body).await;
     r.assert_secure_html(403);
-    assert!(r.text().contains("Cookies must be enabled to log in."));
+    assert!(r.text().contains("必须启用 Cookie 才能登录。"));
     assert!(r.cookie("zte_ui_pre").is_some(), "a new pre cookie for the next try");
     // Cross-site or from the router's own web UI on port 80: refused before anything.
     for (origin, site) in [("http://evil.example", "cross-site"), ("http://192.168.0.1", "same-site")] {

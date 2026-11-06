@@ -305,7 +305,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
         };
     }
     let (dns1, dns2, url) = (val(vals, "dns1"), val(vals, "dns2"), val(vals, "url"));
-    let servers = if dns2.is_empty() { dns1.to_owned() } else { format!("{dns1} and {dns2}") };
+    let servers = if dns2.is_empty() { dns1.to_owned() } else { format!("{dns1} 和 {dns2}") };
     let mode = val(vals, "mode");
     // The router's settings now (`None`: unknown, so taken as different).
     let dns = super::api_get(app, DNS_API).ok();

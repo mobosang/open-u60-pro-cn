@@ -280,8 +280,8 @@ pub fn live_snapshot(refresh: &str) -> Markup {
         p #live-status .snap {
             "页面加载快照"
             span.ages {
-                span.age1 { " · over 1 min old" }
-                span.age5 { " · over 5 min old" }
+                span.age1 { " · 超过 1 分钟未更新" }
+                span.age5 { " · 超过 5 分钟未更新" }
             }
             " · "
             a href=(refresh) { "刷新" }

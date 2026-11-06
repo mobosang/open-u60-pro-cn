@@ -402,7 +402,7 @@ fn sig_chart(v: &Views) -> Markup {
     let mut label = String::from("过去 2 分钟的信号强度");
     for (i, (_, name, get)) in SERIES.iter().enumerate() {
         if let Some(d) = latest(*get).filter(|_| show(i)) {
-            label.push_str(&format!(", {name} now {d} dBm"));
+            label.push_str(&format!("，{name} 当前为 {d} dBm"));
         }
     }
     html! {
@@ -419,7 +419,7 @@ fn sig_chart(v: &Views) -> Markup {
                     @for i in 0..6u8 {
                         text x="272" y=(format!("{:.1}", y_of(-40 - 20 * i16::from(i)) + 3.0)) { (-40 - 20 * i16::from(i)) }
                     }
-                    text x="0" y="127" { "2 min ago" }
+                    text x="0" y="127" { "2 分钟前" }
                     text x=(PLOT_W) y="127" text-anchor="end" { "now" }
                     @for (class, _, segs) in &lines {
                         @for seg in segs { polyline class=(class) points=(seg) {} }

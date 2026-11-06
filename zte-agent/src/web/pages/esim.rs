@@ -266,7 +266,7 @@ fn switch_lines(inv: &Inventory, p: &Profile) -> Vec<String> {
                 }
             }
             "roaming_off" => lines.push(format!(
-                "{name} looks like a travel (roaming) profile and Data Roaming is off, so it will have no data until you turn Data Roaming on."
+                "{name} 看起来是旅行（漫游）配置文件，而数据漫游已关闭。在开启数据漫游前将无法使用数据。"
             )),
             _ => {}
         }
@@ -574,7 +574,7 @@ pub fn download_text(d: &Value) -> String {
         "confirm" => "准备安装",
         "cancelling" => "取消...",
         _ if step.ends_with("_cancel_session") => "取消...",
-        "done" => return format!("{} added.", fmt::truncate(name, 64)),
+        "done" => return format!("已添加 {}。", fmt::truncate(name, 64)),
         "failed" => "无法添加配置文件",
         "cancelled" => "下载已取消",
         _ => match step {
@@ -680,7 +680,7 @@ fn list_error(inv: &Inventory) -> Option<String> {
         _ => fmt::truncate(msg, 120),
     };
     let at = if inv.observed_at > 0 { sms::clock(inv.observed_at, sms::local_offset(inv.observed_at)) } else { "an earlier time".to_owned() };
-    Some(format!("{text} Showing the list read at {at}."))
+    Some(format!("{text} 当前显示的是 {at} 读取的列表。"))
 }
 
 fn error_card(text: &str) -> Markup {
@@ -742,7 +742,7 @@ fn receipts(pd: &PageData, n: i64) -> Markup {
         section.card.erc {
             div.ehead {
                 span.eic.ebl { (kit::icon(Icon::PaperPlane)) }
-                div { b { "运营商收据" } small.cap { (n) " waiting \u{b7} Retried automatically" } }
+                div { b { "运营商收据" } small.cap { (n) " 条待处理 · 自动重试" } }
             }
             details {
                 summary { "为什么这些人在等待？" }
@@ -823,9 +823,9 @@ pub fn page(pd: &PageData) -> Markup {
     } else if failed.is_some() && n == 0 {
         "尚未阅读".to_owned()
     } else if n == 1 {
-        "1 profile".to_owned()
+        "1 个配置文件".to_owned()
     } else {
-        format!("{n} profiles")
+        format!("{n} 个配置文件")
     };
     let active = inv.active();
     let others: Vec<&Profile> = inv.profiles.iter().filter(|p| !p.enabled).collect();
@@ -935,10 +935,10 @@ pub fn switch_page(pd: &PageData) -> Markup {
     let Some(p) = find(pd.app, &inv, &k) else { return nothing(pd, GONE, &[]) };
     let name = p.shown();
     if p.enabled {
-        return nothing(pd, &format!("{name} is already active."), &[]);
+        return nothing(pd, &format!("{name} 已处于启用状态。"), &[]);
     }
     if !p.can_enable() {
-        return nothing(pd, &format!("{name} can\u{2019}t be switched to here."), &["只能切换到运营商配置文件。"]);
+        return nothing(pd, &format!("无法在此切换到 {name}。"), &["只能切换到运营商配置文件。"]);
     }
     if blocked(pd.views) {
         return nothing(pd, BUSY, &[]);
@@ -964,7 +964,7 @@ pub fn delete_page(pd: &PageData) -> Markup {
     let Some(p) = find(pd.app, &inv, &k) else { return nothing(pd, GONE, &[]) };
     let name = p.shown();
     if p.enabled {
-        return nothing(pd, &format!("{name} is active."), &["在删除之前切换到另一个配置文件。"]);
+        return nothing(pd, &format!("{name} 已启用。"), &["在删除之前切换到另一个配置文件。"]);
     }
     if blocked(pd.views) {
         return nothing(pd, BUSY, &[]);
@@ -998,7 +998,7 @@ pub fn rename_page(pd: &PageData) -> Markup {
     let footer = html! {
         p #nick-help .foot.ebytes.c-red[!valid] {
             span { (if valid { "留空以使用运营商名称。" } else { "请使用单行文本，最多 64 字节。" }) }
-            span.num { (bytes) " / 64 bytes" }
+            span.num { (bytes) " / 64 字节" }
         }
         p.foot { "名称中的表情符号或重音字母每个字符可能占用多个字节。" }
     };
@@ -1194,8 +1194,8 @@ fn work(app: &AppState, names: &Names, k: Post, key: &str, nick: &str, claim: &m
     };
     let name = p.shown().to_owned();
     match k {
-        Post::Switch if p.enabled => return line((Some(false), format!("{name} is already active."))),
-        Post::Switch if !p.can_enable() => return line((Some(false), format!("{name} can\u{2019}t be switched to here."))),
+        Post::Switch if p.enabled => return line((Some(false), format!("{name} 已处于启用状态。"))),
+        Post::Switch if !p.can_enable() => return line((Some(false), format!("无法在此切换到 {name}。"))),
         Post::Delete if p.enabled => return line((Some(false), "在删除活动配置文件之前切换到另一配置文件。".to_owned())),
         Post::Rename if nick == p.nickname => return Done::Back,
         _ => {}

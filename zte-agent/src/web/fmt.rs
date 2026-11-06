@@ -201,7 +201,7 @@ pub fn status_line(
     let text = match (state, to_full.filter(|m| *m > 0), to_empty.filter(|m| *m > 0)) {
         (Charge::Charging, Some(m), _) if capacity != Some(100) && !current_known => format!("充电 · {}", eta(m)),
         (Charge::Discharging, _, Some(m)) if current_known => eta(m),
-        (Charge::Discharging, _, Some(m)) => format!("{} left", eta(m)),
+        (Charge::Discharging, _, Some(m)) => format!("剩余 {}", eta(m)),
         _ => label.to_owned(),
     };
     (text, class)

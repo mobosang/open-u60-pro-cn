@@ -131,7 +131,7 @@ fn summary(v: &Views) -> Markup {
                     section.group {
                         ul.list {
                             li.it {
-                                span.c-orange { (kit::icon(Icon::Warn)) " Bloat Daemons" }
+                                span.c-orange { (kit::icon(Icon::Warn)) " 个冗余守护进程" }
                                 span.v {
                                     small.fg { (bloat_count(d)) " 个进程" }
                                     small {
@@ -268,13 +268,12 @@ fn warnings(name: &str, remote: bool) -> Vec<String> {
     let mut out = Vec::new();
     if name == SMS {
         out.push(
-            "zte_topsw_wms handles SMS: until it restarts or the router reboots, messages stop arriving and the SMS \
-             tab, sending and forwarding stop working."
+            "zte_topsw_wms 负责短信。在该进程或路由器重启前，将无法接收短信，短信页面、发送和转发功能也会停止工作。"
                 .to_owned(),
         );
     } else if KEEP.contains(&name) {
         out.push(format!(
-            "{name} is a boot-critical firmware daemon (daemon.conf). Killing it can disturb the router until it restarts."
+            "{name} 是 daemon.conf 中的关键固件守护进程，结束它可能导致路由器异常，直到该进程重启。"
         ));
         if remote {
             out.push("你正在远程连接：如果路由器停止应答，则在重新启动之前无法访问此页面。".into());
@@ -292,12 +291,12 @@ pub fn kill_page(pd: &PageData) -> Markup {
         return action::ask(csrf, &q);
     };
     if !is_bloat(name) {
-        let title = format!("{name} is not a bloat daemon.");
+        let title = format!("{name} 不是冗余守护进程。");
         let q = Ask { title: &title, lines: &["这里只能结束冗余守护进程。"], label: None, ..ask(PATH) };
         return action::ask(csrf, &q);
     }
     let title = format!("结束{name}？");
-    let mut lines = vec![format!("SIGKILL PID {pid}. It will return on reboot.")];
+    let mut lines = vec![format!("将向 PID {pid} 发送 SIGKILL，重启后该进程会恢复。")];
     lines.extend(warnings(name, pd.remote));
     let lines: Vec<&str> = lines.iter().map(String::as_str).collect();
     let pid = pid.to_string();
@@ -371,9 +370,9 @@ pub fn killed_one(v: &Valid, d: &Value) -> (Option<bool>, String) {
     if killed {
         (Some(true), format!("结束PID {pid}，释放{}", kb(d["freed_rss_kb"].as_u64().unwrap_or(0))))
     } else if d.is_null() {
-        (Some(false), format!("PID {pid} is no longer {}. Nothing was killed.", v.get("name")))
+        (Some(false), format!("PID {pid} 已不再属于 {}，未结束任何进程。", v.get("name")))
     } else {
-        (Some(false), format!("PID {pid} was not killed."))
+        (Some(false), format!("未结束 PID {pid}。"))
     }
 }
 
@@ -396,7 +395,7 @@ pub fn summary_row(top: Option<&Value>) -> Markup {
             a.it href=(PATH) {
                 (kit::icon(Icon::ListNumber)) span { "流程" }
                 @if let (Some(n), Some(d)) = (bloat, top) {
-                    span.v.c-orange { (format!("{n} bloat {:.0}%", d["bloat_cpu_pct"].as_f64().unwrap_or(0.0))) }
+                    span.v.c-orange { (format!("{n} 个冗余进程，占用 {:.0}%", d["bloat_cpu_pct"].as_f64().unwrap_or(0.0))) }
                 }
             }
         }

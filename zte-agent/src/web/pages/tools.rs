@@ -116,7 +116,7 @@ pub fn adb(pd: &PageData) -> Markup {
         div.adb {
             (kit::empty_state(Icon::Cable, "启用ADB调试", "设置 USB 模式进行调试，允许通过 USB-C 进行 ADB 访问。"))
             @if let Some(n) = &pd.notice { (n) }
-            p.ctr { a.btn.btn-wide href=(super::confirm::ADB_ENABLE) { (kit::icon(Icon::Power)) " Enable ADB" } }
+            p.ctr { a.btn.btn-wide href=(super::confirm::ADB_ENABLE) { (kit::icon(Icon::Power)) " 启用 ADB" } }
         }
     }
 }

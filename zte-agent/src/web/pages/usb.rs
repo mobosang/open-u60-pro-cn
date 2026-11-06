@@ -114,7 +114,7 @@ pub fn fragment(v: &Views) -> Markup {
                 (kit::icon(Icon::UsbC))
                 h2 { "USB-C 已连接" }
                 p.cap { "U60 Pro 上连接有一条 USB-C 电缆。" }
-                @if pb { p.c-orange { (kit::icon(Icon::Bolt)) " Fast charging is active" } }
+                @if pb { p.c-orange { (kit::icon(Icon::Bolt)) " 快速充电已开启" } }
             }
         }
     }

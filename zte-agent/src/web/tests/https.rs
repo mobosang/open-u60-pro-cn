@@ -128,7 +128,7 @@ async fn turn_on_from_settings_once() {
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
     assert!(html.contains("<span class=\"v\">开启</span>") && !html.contains("重试"));
     let html = get_with(&c, ON, p, &cookie).await.text();
-    assert!(html.contains("HTTPS is already on") && !html.contains("name=\"once\""));
+    assert!(html.contains("HTTPS 已开启") && !html.contains("name=\"once\""));
 }
 
 /// A CA kept at start (its server pair lost, no verified clock): Settings

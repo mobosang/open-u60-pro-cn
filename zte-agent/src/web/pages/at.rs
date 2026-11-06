@@ -235,7 +235,7 @@ fn danger_page(ctx: &Ctx, p: &Principal, nonce: &str, cmd: &str, sent: &str, tim
             h2.q { "危险命令" }
             ul.consequences {
                 // As the history shows it: PINs and PUKs as "••••", long digit runs masked.
-                li { "The command \"" (shown(sent)) "\" may disrupt connectivity or require a reboot. Are you sure?" }
+                li { "命令“" (shown(sent)) "”可能中断连接或要求重启，确定继续？" }
                 @if remote { li { (super::confirm::REMOTE) } }
             }
             form.panel method="post" action=(SEND) {

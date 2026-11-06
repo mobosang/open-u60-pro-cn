@@ -86,7 +86,7 @@ fn on_off(v: &Value) -> Option<bool> {
 }
 
 /// The app's idle timeouts (minutes) and their labels.
-const TIMEOUTS: [(&str, &str); 6] = [("5", "5 min"), ("10", "10 min"), ("20", "20 min"), ("30", "30 min"), ("60", "1 hour"), ("120", "2 hours")];
+const TIMEOUTS: [(&str, &str); 6] = [("5", "5 分钟"), ("10", "10 分钟"), ("20", "20 分钟"), ("30", "30 分钟"), ("60", "1 小时"), ("120", "2 小时")];
 
 /// A timeout the agent takes: 1–1440 minutes.
 fn timeout_ok(t: &str) -> bool {
@@ -94,7 +94,7 @@ fn timeout_ok(t: &str) -> bool {
 }
 
 fn timeout_label(t: &str) -> String {
-    TIMEOUTS.iter().find(|(v, _)| *v == t).map_or_else(|| format!("{t} min"), |(_, l)| (*l).to_owned())
+    TIMEOUTS.iter().find(|(v, _)| *v == t).map_or_else(|| format!("{t} 分钟"), |(_, l)| (*l).to_owned())
 }
 
 /// The router's idle timeout, else the app's default (5 minutes).
@@ -134,9 +134,7 @@ fn charge(pd: &PageData) -> Markup {
     let footer = html! {
         @if on {
             (foot(&format!("充电在 {limit}% 处停止，并在 {}% 处恢复。", limit - hysteresis)))
-            (foot("The resume gap prevents the charger from rapidly switching on and off. A smaller gap (e.g. 2%) keeps \
-                   the battery closer to your target but toggles the charger more often. A larger gap (e.g. 10%) means \
-                   fewer charge cycles but the battery level will swing more."))
+            (foot("恢复充电差值可避免充电器频繁启停。差值较小（例如 2%）时电量更接近目标值，但充电器启停更频繁；差值较大（例如 10%）时充电次数较少，但电量波动更大。"))
             (foot("默认值：5% — 对于大多数用户来说是一个很好的平衡。"))
         } @else {
             (foot("当电池电量达到设定水平时停止充电。延长电池寿命。"))
@@ -477,7 +475,7 @@ mod tests {
         for bad in ["on=1", "on=1&timeout=0", "timeout=1441", "timeout=+5", "timeout=05000", "on=x&timeout=5", ""] {
             assert_eq!(vals(Kind::AutoSleep, bad), None, "{bad}");
         }
-        assert_eq!((timeout_label("60"), timeout_label("15")), ("1 hour".to_owned(), "15 min".to_owned()));
+        assert_eq!((timeout_label("60"), timeout_label("15")), ("1 小时".to_owned(), "15 min".to_owned()));
         assert_eq!(timeout_of(Some(&json!({"timeout": "-1"}))), "5");
         assert_eq!(timeout_of(Some(&json!({"timeout": "30"}))), "30");
         assert_eq!((on_off(&json!("1")), on_off(&json!("0")), on_off(&json!(""))), (Some(true), Some(false), None));
@@ -486,7 +484,7 @@ mod tests {
         assert!(question(Kind::AutoSleep, &on, false).is_none() && question(Kind::PowerSave, &on, true).is_none());
         let q = question(Kind::AutoSleep, &on, true).unwrap();
         assert_eq!((q.title.as_str(), q.label), ("开启自动睡眠？", Some("打开自动睡眠")));
-        assert!(q.lines[0].contains("20 min") && q.lines[1].starts_with("你正在远程连接："));
+        assert!(q.lines[0].contains("20 分钟") && q.lines[1].starts_with("你正在远程连接："));
         assert!(question(Kind::AutoSleep, &Input::of(&[("timeout", "20")]), true).is_none());
         assert_eq!(Power::of(REBOOT).map(Power::api), Some("/api/device/reboot"));
         assert_eq!(Power::of(RESET).map(Power::api), Some("/api/device/factory-reset"));

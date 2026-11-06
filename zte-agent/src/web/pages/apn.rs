@@ -415,7 +415,7 @@ pub fn question(kind: Kind, app: &AppState, vals: &[(&'static str, String)], rem
             };
             asking(format!("保存“{}”？", val(vals, "name")), lines, "保存", remote, live)
         }
-        (Kind::ApnUse, Some(p)) if p.active => nothing(format!("\u{201c}{}\u{201d} is already active", p.shown()), Vec::new()),
+        (Kind::ApnUse, Some(p)) if p.active => nothing(format!("“{}”已处于启用状态", p.shown()), Vec::new()),
         (Kind::ApnUse, Some(p)) => asking(
             format!("使用“{}”？", p.shown()),
             vec![format!("移动数据与 APN {} 重新连接，连接暂时断开。", p.apn), NO_DATA.into()],

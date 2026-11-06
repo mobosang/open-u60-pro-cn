@@ -206,7 +206,7 @@ pub fn mhz(raw: &str) -> Option<u32> {
 /// "50 / 100 MHz max" when the band is known, else the raw value or "—".
 pub fn bandwidth(raw: &str, band_raw: &str, nr: bool) -> String {
     match (mhz(raw), number(band_raw).and_then(|n| spec(nr, n))) {
-        (Some(v), Some(sp)) => format!("{v} / {} MHz max", sp.max_bw),
+        (Some(v), Some(sp)) => format!("{v} / {} MHz（最大值）", sp.max_bw),
         _ if raw.trim().is_empty() => "--".into(),
         _ => raw.trim().to_owned(),
     }
@@ -259,7 +259,7 @@ const RANGES: [(u16, [u16; 4]); 31] = [
 pub fn lock_facts(nr: bool, band: u16) -> Option<(String, String)> {
     let sp = spec(nr, u32::from(band))?;
     let [dl0, dl1, ul0, ul1] = RANGES.iter().find(|(b, _)| *b == band)?.1;
-    let mut facts = format!("{} \u{b7} Max BW {} MHz \u{b7} DL {dl0}\u{2013}{dl1} MHz", sp.duplex(), sp.max_bw);
+    let mut facts = format!("{} · 最大带宽 {} MHz · 下行 {dl0}–{dl1} MHz", sp.duplex(), sp.max_bw);
     if ul0 > 0 {
         facts.push_str(&format!(" \u{b7} UL {ul0}\u{2013}{ul1} MHz"));
     }

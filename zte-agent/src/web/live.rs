@@ -97,7 +97,7 @@ pub fn live_on(page: &str, hb: &str) -> Markup {
     html! {
         p #live-status .live .on .(hb) {
             span.ok { "直播" }
-            span.lost { " No updates for 15 s \u{b7} " a href=(page) { "刷新" } }
+            span.lost { " 15 秒未更新 · " a href=(page) { "刷新" } }
         }
     }
 }

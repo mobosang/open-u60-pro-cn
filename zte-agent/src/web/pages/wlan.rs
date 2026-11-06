@@ -284,9 +284,9 @@ fn band(pd: &PageData, st: &Value, b: &Band) -> Markup {
     let footers = html! {
         @if b.five {
             @match bw.as_str() {
-                "EHT160" => (foot("160 MHz: channels 36\u{2013}64 or 100\u{2013}128")),
-                "EHT80" => (foot("80 MHz: channels 36\u{2013}64, 100\u{2013}128, or 149\u{2013}161")),
-                "EHT20" => (foot("20 MHz on 5 GHz is very narrow \u{2014} some clients may fail to connect or have poor performance. Use 80 MHz or wider for best compatibility.")),
+                "EHT160" => (foot("160 MHz：信道 36–64 或 100–128")),
+                "EHT80" => (foot("80 MHz：信道 36–64、100–128 或 149–161")),
+                "EHT20" => (foot("5 GHz 的 20 MHz 带宽较窄，部分设备可能无法连接或性能较差。建议使用 80 MHz 或更宽的带宽以获得更好的兼容性。")),
                 _ => {}
             }
             @if low(&tx) { (foot("5 GHz 上的低 TX 功率可能会阻止客户端连接，尤其是在带宽较宽的情况下")) }
@@ -442,7 +442,7 @@ pub fn body(vals: &[(&'static str, String)], cur: &Value) -> Map<String, Value> 
 
 /// The line of a network that is (or becomes) open.
 fn open(ssid: &str) -> String {
-    format!("\u{201c}{ssid}\u{201d} is an open network: anyone nearby can join it, without a password, and reach this router.")
+    format!("“{ssid}”是开放网络，附近任何人无需密码即可加入并访问此路由器。")
 }
 
 const RESTART: &str = "WiFi 重新启动以应用更改：其上的每个设备都会暂时断开连接，如果该浏览器位于路由器 ’ 和 WiFi 上，则该浏览器也会断开连接。";
@@ -487,7 +487,7 @@ pub fn question(app: &AppState, vals: &[(&'static str, String)]) -> Question {
             lines.push(format!("在{}上，设备必须再次加入“{ssid}”{with}。", band.label));
         }
         if b.contains_key(band.hidden) && val(vals, band.hidden) == "1" {
-            lines.push(format!("\u{201c}{ssid}\u{201d} is hidden: devices must type its name to join."));
+            lines.push(format!("“{ssid}”是隐藏网络，设备需要输入名称才能加入。"));
         }
         if val(vals, band.encryption) == "none" && (b.contains_key(band.encryption) || b.contains_key(band.disabled)) {
             lines.push(open(ssid));
@@ -560,18 +560,18 @@ pub fn applied(vals: &[(&'static str, String)]) -> (String, Markup) {
 /// The app's Auto-Shutoff choices (minutes).
 const TIMES: [(&str, &str); 8] = [
     ("0", "没有限制"),
-    ("30", "30 min"),
-    ("60", "1 hour"),
-    ("120", "2 hours"),
-    ("240", "4 hours"),
-    ("480", "8 hours"),
-    ("720", "12 hours"),
-    ("1440", "24 hours"),
+    ("30", "30 分钟"),
+    ("60", "1 小时"),
+    ("120", "2 小时"),
+    ("240", "4 小时"),
+    ("480", "8 小时"),
+    ("720", "12 小时"),
+    ("1440", "24 小时"),
 ];
 const TIME_VALUES: [&str; 8] = ["0", "30", "60", "120", "240", "480", "720", "1440"];
 
 fn time_label(m: &str) -> String {
-    TIMES.iter().find(|(v, _)| *v == m).map_or_else(|| format!("{m} min"), |(_, l)| (*l).to_owned())
+    TIMES.iter().find(|(v, _)| *v == m).map_or_else(|| format!("{m} 分钟"), |(_, l)| (*l).to_owned())
 }
 
 /// The minutes, "0" when unset.
@@ -583,9 +583,9 @@ fn minutes(v: &Value) -> String {
 fn remaining(secs: i64) -> String {
     let (h, m, s) = (secs / 3600, secs % 3600 / 60, secs % 60);
     if h > 0 {
-        format!("{h}h {m:02}m {s:02}s remaining")
+        format!("剩余 {h} 小时 {m:02} 分 {s:02} 秒")
     } else {
-        format!("{m}m {s:02}s remaining")
+        format!("剩余 {m} 分 {s:02} 秒")
     }
 }
 

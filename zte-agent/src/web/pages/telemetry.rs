@@ -193,7 +193,7 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
         Kind::TmAdd => {
             let domain = val(vals, "domain");
             if blocked(&rules(&read()?), domain) {
-                return Ok(Done::Line(None, format!("{domain} is already blocked")));
+                return Ok(Done::Line(None, format!("{domain} 已被拦截")));
             }
             claim.disarm();
             put(add_body(domain))?;
@@ -221,7 +221,7 @@ pub fn send(kind: Kind, app: &AppState, vals: &[(&'static str, String)], claim: 
             match failure {
                 None => Ok(Done::Line(Some(true), blocked_n(added))),
                 Some(e) if added == 0 => Err(e),
-                Some((_, e)) => Ok(Done::Line(None, format!("{}; {} could not be added. {e}", blocked_n(added), missing.len() - added))),
+                Some((_, e)) => Ok(Done::Line(None, format!("{}；无法添加 {}。{e}", blocked_n(added), missing.len() - added))),
             }
         }
         _ => {

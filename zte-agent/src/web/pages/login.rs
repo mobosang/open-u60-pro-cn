@@ -126,7 +126,7 @@ pub async fn submit(State(ctx): State<Ctx>, req: Request) -> Response {
         // The pre-login cookie lives as long as the form token, so a form
         // left open too long comes back without it.
         if form.get("login_csrf").is_some_and(|t| auth.login_form_token_fresh(t)) {
-            return error(403, "Cookies must be enabled to log in.");
+            return error(403, "必须启用 Cookie 才能登录。");
         }
         return error(403, "登录表单已过期。再试一次。");
     };
