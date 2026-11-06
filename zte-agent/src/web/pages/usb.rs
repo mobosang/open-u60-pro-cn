@@ -209,14 +209,14 @@ mod tests {
         for want in ["<h2>USB-C 已连接</h2>", "<p class=\"cap\">U60 Pro 上连接有一条 USB-C 电缆。</p>"] {
             assert!(s.contains(want), "{want} in {s}");
         }
-        assert!(!s.contains("快速充电已启动"));
+        assert!(!s.contains("Fast charging is active"));
         // Powerbank on (a number or a string): the orange line, and the
         // class that hides "Fast Charging".
         for on in [json!({"otg_powerbank_state": 1}), json!({"otg_powerbank_state": "1"})] {
             let s = fragment(&views(cable(), Some(on))).into_string();
             assert!(s.starts_with("<div id=\"card-usb\" class=\"on pb\">"), "{s}");
             assert!(s.contains("<p class=\"c-orange\"><svg"), "{s}");
-            assert!(s.contains("</svg> 快速充电已启动</p>"), "{s}");
+            assert!(s.contains("</svg> Fast charging is active</p>"), "{s}");
         }
         // The forms follow the fragment, outside it; the button posts the one value.
         let csrf = html! { input type="hidden" name="csrf" value="t"; };
@@ -225,7 +225,7 @@ mod tests {
         assert!(card.starts_with(&format!("<section class=\"card usbc\">{text}<form class=\"fc\" method=\"post\" action=\"/ui/usb/powerbank\">")), "{card}");
         for want in [
             "<input type=\"hidden\" name=\"csrf\" value=\"t\"><input type=\"hidden\" name=\"state\" value=\"1\">",
-            "</svg> 快速充电</button>", "<p class=\"cap\">使用U60 Pro电池给手机充电</p>",
+            "</svg> Fast 充电中</button>", "<p class=\"cap\">使用U60 Pro电池给手机充电</p>",
             "<form method=\"post\" action=\"/ui/usb/dismiss\"><input type=\"hidden\" name=\"csrf\" value=\"t\"><button class=\"btn btn-quiet\" type=\"submit\">驳回</button>",
         ] {
             assert!(card.contains(want), "{want} in {card}");
@@ -239,7 +239,7 @@ mod tests {
     #[test]
     fn the_body_is_built_here() {
         assert_eq!(powerbank_body(&Valid::of(&[("state", "1")]), &[]), Some(json!({"state": 1})));
-        for (state, n, line) in [("0", 0, "Fast charging disabled"), ("1", 1, "Fast charging enabled")] {
+        for (state, n, line) in [("0", 0, "禁用快速充电"), ("1", 1, "启用快速充电")] {
             let v = Valid::of(&[("state", state)]);
             assert_eq!(mode_body(&v, &[]), Some(json!({"state": n})));
             assert_eq!(switched(&v, &Value::Null), (Some(true), line.to_owned()));

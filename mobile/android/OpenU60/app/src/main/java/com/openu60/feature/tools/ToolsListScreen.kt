@@ -107,7 +107,7 @@ fun ToolsListScreen(
             ToolItem(
                 icon = Icons.Default.Memory,
                 title = "过程监视器",
-                subtitle = "查看进程、杀死膨胀守护进程",
+                subtitle = "查看进程、结束膨胀守护进程",
                 onClick = onNavigateToProcessList,
             )
             ToolItem(

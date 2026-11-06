@@ -48,8 +48,8 @@ async fn speed_test_page_lists_servers_and_streams() {
         "<h1>速度测试</h1>", "<a class=\"nl back\" href=\"/ui/tools\">工具</a>",
         "<form id=\"st-go\" method=\"get\" action=\"/ui/tools/speedtest/start\"></form>",
         "<select id=\"srv\" name=\"server\" form=\"st-go\"><option value=\"\">选择服务器</option>",
-        "<option value=\"7\" selected>示例网 - 泰斯特维尔, 无处可去</option>",
-        "<option value=\"8\">示例网 - &lt;b&gt;Far&lt;/b&gt;, 无处可去</option>",
+        "<option value=\"7\" selected>Example Net - Testville, Nowhere</option>",
+        "<option value=\"8\">Example Net - &lt;b&gt;Far&lt;/b&gt;, Nowhere</option>",
         "<li class=\"it\" id=\"st-run\"></li><li class=\"go\"><button class=\"it cv snd\" type=\"submit\" form=\"st-go\">启动速度测试</button></li>",
         "<form class=\"sf\" method=\"post\" action=\"/ui/tools/speedtest/stop\"><input type=\"hidden\" name=\"csrf\"",
         "<button class=\"it cv snd danger\" type=\"submit\">停止测试</button>", "<div id=\"st-msg\"></div>", "<div id=\"st-res\"></div>",
@@ -157,8 +157,8 @@ async fn speed_test_start_asks_and_starts_once() {
     let html = q.text();
     for want in [
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/tools/speedtest\">速度测试</a></div><h1>确认</h1>",
-        "<h2 class=\"q\">开始速度测试？</h2>", "<li>服务器：示例网络 - Testville，Nowhere</li>",
-        "下载 15 秒并上传 10 MB", "<li>您的计划可能会计算此数据。</li>",
+        "<h2 class=\"q\">开始速度测试？</h2>", "<li>服务器：Example Net - Testville, Nowhere</li>",
+        "It downloads for 15 seconds and uploads 10 MB", "<li>您的计划可能会计算此数据。</li>",
         "<input type=\"hidden\" name=\"server\" value=\"7\"><input type=\"hidden\" name=\"once\" value=\"",
         "\" autocomplete=\"off\"><input type=\"hidden\" name=\"confirm\" value=\"1\">",
         "<button class=\"btn\" type=\"submit\">启动速度测试</button>", "href=\"/ui/tools/speedtest?server=7\">取消",
@@ -188,9 +188,9 @@ async fn speed_test_start_asks_and_starts_once() {
     assert_eq!(calls(&c).len(), 1);
     // Nothing to do: no form, only Cancel.
     for (uri, title) in [
-        ("/ui/tools/speedtest/start", "Select a server first"),
-        ("/ui/tools/speedtest/start?server=", "Select a server first"),
-        ("/ui/tools/speedtest/start?server=9", "This server is no longer in the list."),
+        ("/ui/tools/speedtest/start", "先选择服务器"),
+        ("/ui/tools/speedtest/start?server=", "先选择服务器"),
+        ("/ui/tools/speedtest/start?server=9", "该服务器已不在列表中。"),
     ] {
         let html = get_with(&c, uri, peer(111, 6), &cookie).await.text();
         assert!(html.contains(&format!("<h2 class=\"q\">{title}</h2>")) && !html.contains("<form"), "{uri}: {html}");
@@ -222,7 +222,7 @@ async fn speed_test_runs_on_the_agent() {
         tokio::time::sleep(Duration::from_millis(20)).await;
     }
     let html = get_with(&c, &to, peer(112, 4), &cookie).await.text();
-    assert!(html.contains("<div id=\"st-msg\"><p class=\"msg err\" role=\"alert\">所有 ping 尝试均失败</p></div>"), "{html}");
+    assert!(html.contains("<div id=\"st-msg\"><p class=\"msg err\" role=\"alert\">all ping attempts failed</p></div>"), "{html}");
     // A fresh page shows no old outcome (the app's neither).
     assert!(get_with(&c, ST, peer(112, 4), &cookie).await.text().contains("<div id=\"st-msg\"></div>"));
     // A second start while one runs is refused without wiping it (agent).
@@ -247,7 +247,7 @@ async fn enable_adb_asks_and_sends_once() {
     let _dev = device::set(&c.app, device::Device::default());
     let q = get_with(&c, "/ui/tools/adb/enable", peer(113, 3), &cookie).await;
     q.assert_secure_html(200);
-    assert!(q.text().contains("<h2 class=\"q\">启用亚行？</h2>") && q.text().contains("获取路由器上的 root shell"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">启用亚行？</h2>") && q.text().contains("gets a root shell on the router"), "{}", q.text());
     assert!(q.text().contains("<button class=\"btn btn-danger\" type=\"submit\">启用亚行</button>"));
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     post(&c, "/ui/tools/adb/enable", peer(113, 4), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/tools/adb/enable");
@@ -267,7 +267,7 @@ async fn enable_adb_asks_and_sends_once() {
     let q = get_with(&c, "/ui/tools/adb/enable", peer(113, 5), &cookie).await;
     let r = post(&c, "/ui/tools/adb/enable", peer(113, 5), &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     let html = get_with(&c, r.header("location").unwrap(), peer(113, 5), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败: ubus &lt;b&gt;down&lt;/b&gt;</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败：ubus &lt;b&gt;down&lt;/b&gt;</p>"), "{html}");
 }
 
 /// Band Lock: the app's grids with the bands' facts; each apply and the
@@ -308,13 +308,13 @@ async fn band_lock_grids_questions_and_bodies() {
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("远程连接"));
+    assert!(!html.contains("connected remotely"));
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     let r = post(&c, "/ui/tools/band-lock/nr", peer(114, 5), &cookie, &format!("csrf={csrf}&nr=1&nr=78&once={once}&confirm=1")).await;
     let to = r.header("location").unwrap().to_owned();
     assert!(to.starts_with("/ui/tools/band-lock?nr=1&nr=78&r="), "{to}");
     let html = get_with(&c, &to, peer(114, 5), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg ok\" role=\"status\">NR 频段锁定：1,78</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg ok\" role=\"status\">NR bands locked: 1,78</p>"), "{html}");
     assert!(html.contains("name=\"nr\" value=\"78\" checked>") && html.contains("name=\"nr\" value=\"1\" checked>"));
     assert_eq!(
         calls(&c),
@@ -326,10 +326,10 @@ async fn band_lock_grids_questions_and_bodies() {
     // LTE and Unlock over Tailscale: the remote line.
     let tailnet = Peer(SocketAddr::from(([127, 0, 0, 1], 40114)));
     let q = get_with(&c, "/ui/tools/band-lock/lte?lte=3&lte=20", tailnet, &cookie).await;
-    assert!(q.text().contains("these LTE bands: 3, 20.") && q.text().contains("您已远程连接"), "{}", q.text());
+    assert!(q.text().contains("these LTE bands: 3, 20.") && q.text().contains("You are connected remotely"), "{}", q.text());
     post(&c, "/ui/tools/band-lock/lte", tailnet, &cookie, &format!("csrf={csrf}&lte=3&lte=20&once={}&confirm=1", q.input("once"))).await;
     let q = get_with(&c, "/ui/tools/band-lock/reset", tailnet, &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">解除所有频段锁定？</h2>") && q.text().contains("您已远程连接"));
+    assert!(q.text().contains("<h2 class=\"q\">解除所有频段锁定？</h2>") && q.text().contains("You are connected remotely"));
     let r = post(&c, "/ui/tools/band-lock/reset", tailnet, &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     let to = r.header("location").unwrap().to_owned();
     assert!(to.starts_with("/ui/tools/band-lock?r="), "{to}");
@@ -342,14 +342,14 @@ async fn band_lock_grids_questions_and_bodies() {
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/cell/band/nr", (503, json!({"ok": false, "error": "nope"})))], ..Default::default() });
     let q = get_with(&c, "/ui/tools/band-lock/nr?nr=41", peer(114, 6), &cookie).await;
     let r = post(&c, "/ui/tools/band-lock/nr", peer(114, 6), &cookie, &format!("csrf={csrf}&nr=41&once={}&confirm=1", q.input("once"))).await;
-    assert!(get_with(&c, r.header("location").unwrap(), peer(114, 6), &cookie).await.text().contains(">失败: nope</p>"));
+    assert!(get_with(&c, r.header("location").unwrap(), peer(114, 6), &cookie).await.text().contains(">失败：nope</p>"));
     assert_eq!(device::calls(&c.app).len(), 1);
     // NSA locked, SA failing: said so (the app's "Failed: …" would read as nothing changed).
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/cell/band/nr#2", (503, json!({"ok": false, "error": "sa down"})))], ..Default::default() });
     let q = get_with(&c, "/ui/tools/band-lock/nr?nr=41&nr=1", peer(114, 6), &cookie).await;
     let r = post(&c, "/ui/tools/band-lock/nr", peer(114, 6), &cookie, &format!("csrf={csrf}&nr=41&nr=1&once={}&confirm=1", q.input("once"))).await;
     let html = get_with(&c, r.header("location").unwrap(), peer(114, 6), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">NR 频段仅限 NSA 锁定：1,41。 SA锁定失败：1,41</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">NR bands locked for NSA only: 1,41. SA lock failed: sa down</p>"), "{html}");
     assert_eq!(device::calls(&c.app).len(), 2);
     // A band the app does not list is refused, also in a post.
     post(&c, "/ui/tools/band-lock/nr", peer(114, 7), &cookie, &format!("csrf={csrf}&nr=4&once={once}&confirm=1")).await.assert_secure_html(400);
@@ -403,7 +403,7 @@ async fn at_terminal_sends_once_masks_and_forgets_on_logout() {
     r.assert_secure_html(200);
     assert!(r.text().contains("name=\"cmd\" value=\"reboot\""));
     let html = get_with(&c, AT, peer(115, 5), &cookie).await.text();
-    assert!(html.contains("<li class=\"er\"><b class=\"mono\">&gt; reboot</b><pre>错误：命令必须以 AT 开头</pre><small>0ms"), "{html}");
+    assert!(html.contains("<li class=\"er\"><b class=\"mono\">&gt; reboot</b><pre>错误：Command must start with AT</pre><small>0ms"), "{html}");
     // Dangerous: the app's question; Cancel puts it back into the field.
     let r = post(&c, "/ui/tools/at/send", peer(115, 6), &cookie, &format!("csrf={csrf}&once={once}&cmd=at%2Bcfun%3D0&timeout=5")).await;
     r.assert_secure_html(200);
@@ -472,7 +472,7 @@ async fn at_terminal_checks_what_is_sent() {
     let once = get_with(&c, AT, peer(118, 4), &cookie).await.input("once");
     let r = post(&c, "/ui/tools/at/send", peer(118, 4), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCFUN%3D%5Cx30")).await;
     r.assert_secure_html(200);
-    assert!(r.text().contains("name=\"cmd\" value=\"AT+CFUN=\\x30\"") && r.text().contains("错误：命令不得包含反斜杠"));
+    assert!(r.text().contains("name=\"cmd\" value=\"AT+CFUN=\\x30\"") && r.text().contains("错误：Command must not contain a backslash"));
     assert_eq!(device::calls(&c.app).len(), 1);
     // A PIN is never kept.
     let r = post(&c, "/ui/tools/at/send", peer(118, 4), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCPIN%3D%221234%22")).await;
@@ -481,7 +481,7 @@ async fn at_terminal_checks_what_is_sent() {
     // A used token: the danger question is not shown, nothing sent.
     let r = post(&c, "/ui/tools/at/send", peer(118, 5), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCFUN%3D0")).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("此表格已过期") && !r.text().contains("危险命令"));
+    assert!(r.text().contains("This form expired") && !r.text().contains("危险命令"));
     assert_eq!(device::calls(&c.app).len(), 2);
     // A PIN typed into the command: masked in the question, as in the
     // history; the hidden field keeps the command as typed.
@@ -503,7 +503,7 @@ async fn at_terminal_records_the_agents_error() {
     let body = format!("csrf={}&once={}&cmd=AT", page.input("csrf"), page.input("once"));
     post(&c, "/ui/tools/at/send", peer(116, 3), &cookie, &body).await.assert_see_other(AT);
     let html = get_with(&c, AT, peer(116, 4), &cookie).await.text();
-    assert!(html.contains("<li class=\"er\"><b class=\"mono\">&gt; AT</b><pre>错误：未找到串口</pre>"), "{html}");
+    assert!(html.contains("<li class=\"er\"><b class=\"mono\">&gt; AT</b><pre>错误：no serial port found</pre>"), "{html}");
     // Clear: the history goes, nothing is sent.
     let csrf = page.input("csrf");
     post(&c, "/ui/tools/at/clear", peer(116, 5), &cookie, &format!("csrf={csrf}")).await.assert_see_other(AT);
@@ -551,14 +551,14 @@ async fn a_busy_router_gives_the_token_back() {
     c.gate = Arc::new(Gate::new(4, 0, Duration::from_millis(20)));
     let r = post(&c, "/ui/tools/at/send", peer(120, 3), &cookie, &body).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("失败：路由器正忙。") && r.text().contains("value=\"ATI\""));
+    assert!(r.text().contains("失败：the router is busy.") && r.text().contains("value=\"ATI\""));
     c.gate = Arc::new(Gate::new(0, 4, Duration::from_millis(20)));
     let to = post(&c, "/ui/tools/adb/enable", peer(120, 4), &cookie, &adb).await.header("location").unwrap().to_owned();
     let r = post(&c, "/ui/tools/automations/save", peer(120, 5), &cookie, &save).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("失败：路由器正忙。"));
+    assert!(r.text().contains("失败：the router is busy."));
     c.gate = free;
-    assert!(get_with(&c, &to, peer(120, 4), &cookie).await.text().contains("失败：路由器正忙。"));
+    assert!(get_with(&c, &to, peer(120, 4), &cookie).await.text().contains("失败：the router is busy."));
     assert!(device::calls(&c.app).is_empty());
     assert!(crate::scheduler::jobs_list(&c.app).1["data"].as_array().unwrap().is_empty());
     // The same forms again: each sends once.

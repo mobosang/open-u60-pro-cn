@@ -103,7 +103,7 @@ async fn firewall_page_switches_and_level() {
         "<h2>MAC/IP/Port Filters</h2>", "MAC: \u{2022}\u{2022}:\u{2022}\u{2022}:\u{2022}\u{2022}:\u{2022}\u{2022}:3a:7f",
         "192.168.0.70: \u{2192} 203.0.113.9:443",
     ]);
-    assert!(!html.contains("02:00:5e") && !html.contains("进入网络用户界面"), "{html}");
+    assert!(!html.contains("02:00:5e") && !html.contains("Coming to the web UI"), "{html}");
     assert!(g.bytes().all(|b| b.is_ascii_hexdigit()), "{g}");
     let csrf = r.input("csrf");
     // Turn off: the question, then the confirmed post (both names, once).
@@ -114,7 +114,7 @@ async fn firewall_page_switches_and_level() {
         "The router\u{2019}s other services, such as SSH on port 2222 and the firmware\u{2019}s own web pages, may become reachable from the mobile network. This web UI and the agent\u{2019}s API keep refusing connections from it.",
         "<input type=\"hidden\" name=\"on\" value=\"0\">", ">Disable Firewall</button>", "href=\"/ui/router/firewall\">Cancel</a>",
     ]);
-    assert!(!q.text().contains("远程连接") && !q.text().contains("包含此 Web UI"), "{}", q.text());
+    assert!(!q.text().contains("connected remotely") && !q.text().contains("this web UI included"), "{}", q.text());
     let once = q.input("once");
     let fields = body(&csrf, &once, &[("on", "0")]);
     // Origin and CSRF first; a value no page sends; no confirm: the question.
@@ -139,16 +139,16 @@ async fn firewall_page_switches_and_level() {
     has(&q, &["<h2 class=\"q\">Set the firewall level to High?</h2>", "blocks more connections at High", "You are connected remotely", ">Set Level</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=low", tailnet(41003), &cookie).await.text();
     has(&q, &["Set the firewall level to Low?", "lets more connections from the internet through at Low", "such as SSH on port 2222", "This web UI and the agent\u{2019}s API keep refusing connections from it."]);
-    assert!(!q.contains("远程连接") && !q.contains("可以切断访问权限"), "{q}");
+    assert!(!q.contains("connected remotely") && !q.contains("can cut access"), "{q}");
     let q = get_with(&c, "/ui/router/firewall/level?level=medium", peer(210, 2), &cookie).await.text();
-    assert!(q.contains("防火墙级别已经是中等") && !q.contains("name=\"confirm\""), "{q}");
+    assert!(q.contains("防火墙级别已经是Medium") && !q.contains("name=\"confirm\""), "{q}");
     assert_eq!(get_with(&c, "/ui/router/firewall/level?level=max", peer(210, 2), &cookie).await.status, 400);
     // The level, NAT, UPnP and port forwarding: the app's and the firmware's names.
     for (path, field, value, sent, line) in [
-        ("/ui/router/firewall/level", "level", "high", json!({"firewall_level": "high", "level": "high"}), "Firewall level set to high"),
+        ("/ui/router/firewall/level", "level", "high", json!({"firewall_level": "high", "level": "high"}), "防火墙级别设置为high"),
         ("/ui/router/firewall/nat", "on", "0", json!({"nat_switch": "0", "enable": 0}), "NAT disabled"),
-        ("/ui/router/firewall/upnp", "on", "1", json!({"upnp_switch": "1", "enable_upnp": 1}), "UPnP enabled"),
-        ("/ui/router/firewall/port-forward/switch", "on", "0", json!({"port_forward_switch": "0", "portforward_enable": 0}), "Port forwarding disabled"),
+        ("/ui/router/firewall/upnp", "on", "1", json!({"upnp_switch": "1", "enable_upnp": 1}), "通用即插即用 enabled"),
+        ("/ui/router/firewall/port-forward/switch", "on", "0", json!({"port_forward_switch": "0", "portforward_enable": 0}), "端口转发disabled"),
     ] {
         let q = get_with(&c, &format!("{path}?{field}={value}"), peer(210, 2), &cookie).await;
         let once = q.input("once");
@@ -160,7 +160,7 @@ async fn firewall_page_switches_and_level() {
     // A failed read shows only the error.
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/router/firewall", Err("ubus call failed: Method not found".into()))], ..Default::default() });
     let html = get_with(&c, FW, peer(210, 2), &cookie).await.text();
-    assert!(html.contains("加载防火墙失败：ubus调用失败：找不到方法") && !html.contains("<form class=\"rf dmz\""), "{html}");
+    assert!(html.contains("防火墙加载失败: ubus call failed: 方法 not found") && !html.contains("<form class=\"rf dmz\""), "{html}");
 }
 
 /// DMZ and New Port Forward: checked against the router's network and
@@ -368,7 +368,7 @@ async fn telemetry_blocker() {
     assert_eq!(to(&get_with(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie).await), TM);
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/router/domain-filter", Err("ubus call failed: timed out".into()))], ..Default::default() });
     let html = get_with(&c, TM, peer(213, 2), &cookie).await.text();
-    assert!(html.contains("加载过滤器失败：ubus 调用失败：超时") && !html.contains("全部封锁"), "{html}");
+    assert!(html.contains("加载过滤器失败: ubus call failed: timed out") && !html.contains("Block 全部"), "{html}");
 }
 
 /// VPN Passthrough and QoS: the app's switches, posted from the page once
@@ -411,7 +411,7 @@ async fn vpn_passthrough_and_qos() {
     let missing = || Err("ubus call zwrt_router.api router_get_qos_switch failed: Method not found".to_owned());
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/router/vpn", missing()), ("/api/router/qos", missing())], ..Default::default() });
     let html = get_with(&c, VPN, peer(214, 2), &cookie).await.text();
-    assert!(html.contains("加载VPN失败：ubus调用") && !html.contains("<form class=\"rf\""), "{html}");
+    assert!(html.contains("加载失败 VPN: ubus call") && !html.contains("<form class=\"rf\""), "{html}");
     let html = get_with(&c, QOS, peer(214, 2), &cookie).await.text();
     has(&html, &["Failed to load QoS: ubus call", "<span class=\"v\">Unavailable</span>", ">On</button>", ">Off</button>"]);
 }

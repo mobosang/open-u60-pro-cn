@@ -990,7 +990,7 @@ mod tests {
     fn drafts_keep_passwords_out_of_pages() {
         let vals: Vals = vec![("ssid_2g", "Fake-Net".into()), ("key_2g", "fake-pass-123".into()), ("key_5g", String::new())];
         let s = shown(&vals);
-        assert_eq!(s, vec![("ssid_2g", "假网".to_owned()), ("key_2g", KEPT.to_owned()), ("key_5g", String::new())]);
+        assert_eq!(s, vec![("ssid_2g", "Fake-Net".to_owned()), ("key_2g", KEPT.to_owned()), ("key_5g", String::new())]);
         let mut d = Draft { kind: Kind::Wifi, rev: "r".into(), ready: true, vals, next: String::new() };
         d.scrub(vec![("moved", "1".into())]);
         assert_eq!(val(&d.vals, "key_2g"), "");

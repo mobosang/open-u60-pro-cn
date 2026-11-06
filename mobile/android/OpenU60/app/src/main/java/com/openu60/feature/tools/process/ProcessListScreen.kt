@@ -140,7 +140,7 @@ fun ProcessListScreen(
     if (showKillAllConfirm) {
         AlertDialog(
             onDismissRequest = { showKillAllConfirm = false },
-            title = { Text("杀死所有膨胀守护进程？") },
+            title = { Text("结束所有膨胀守护进程？") },
             text = { Text("这将 SIGKILL ${state.bloatCount} 膨胀守护进程。他们将在重新启动后返回。") },
             confirmButton = {
                 TextButton(
@@ -152,7 +152,7 @@ fun ProcessListScreen(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text("杀死所有")
+                    Text("结束所有")
                 }
             },
             dismissButton = {
@@ -180,7 +180,7 @@ fun ProcessListScreen(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text("杀戮")
+                    Text("结束进程")
                 }
             },
             dismissButton = {
@@ -247,7 +247,7 @@ private fun ProcessRow(
                 IconButton(onClick = onKill, modifier = Modifier.size(32.dp)) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "杀戮",
+                        contentDescription = "结束进程",
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp),
                     )

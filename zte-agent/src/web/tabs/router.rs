@@ -591,7 +591,7 @@ mod tests {
         let at: Vec<usize> = order.iter().map(|w| s.find(w).unwrap_or_else(|| panic!("{w} in {s}"))).collect();
         assert!(at.windows(2).all(|w| w[0] < w[1]), "{order:?} at {at:?}");
         assert!(!s.contains("aria-disabled") && s.contains(&format!("href=\"{}/confirm?enable=0\"", MOBILE_DATA.path)));
-        assert!(s.contains("<fieldset class=\"mnf\">") && s.contains("value=\"汽车_select\" checked"));
+        assert!(s.contains("<fieldset class=\"mnf\">") && s.contains("value=\"auto_select\" checked"));
         let s = page("LPM");
         // Mobile Data shown, not switchable; Airplane Mode is; Apply is off.
         assert_eq!(s.matches("aria-disabled=\"true\"").count(), 1, "{s}");

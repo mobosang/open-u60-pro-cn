@@ -940,13 +940,13 @@ mod tests {
     fn schedule_summaries_follow_the_app() {
         let s = |schedule: Value, restore: Value| schedule_summary(&job(json!({"schedule": schedule, "restore": restore})));
         let rec = |days: Value| json!({"type": "recurring", "time": "23:00", "days": days});
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天23:00");
-        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一–周五 23:00 → 06:30");
-        assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 23:00");
-        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "周日、周一 23:00");
-        assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "周二 ??:??");
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4, 5, 6])), Value::Null), "每天 at 23:00");
+        assert_eq!(s(rec(json!([0, 1, 2, 3, 4])), json!({"time": "06:30"})), "周一–周五 at 23:00 → 06:30");
+        assert_eq!(s(rec(json!([5, 6])), Value::Null), "周末 at 23:00");
+        assert_eq!(s(rec(json!([6, 0, 9])), Value::Null), "周日, 周一 at 23:00");
+        assert_eq!(s(json!({"type": "recurring", "days": [1]}), Value::Null), "周二 at ??:??");
         assert_eq!(s(json!({"type": "once"}), Value::Null), "单次");
-        assert!(s(json!({"type": "once", "at": 1_790_000_000}), Value::Null).starts_with("一次： "));
+        assert!(s(json!({"type": "once", "at": 1_790_000_000}), Value::Null).starts_with("Once: "));
         assert_eq!(s(json!({"type": "cron"}), Value::Null), "cron");
     }
 
@@ -979,8 +979,8 @@ mod tests {
         let now = 1_790_000_000;
         let b = body(&input(), None, now).unwrap();
         assert_eq!(b, json!({
-            "name": "夜晚",
-            "action": {"method": "POST", "path": "/api/modem/飞机", "body": {"operate_mode": "LPM"}},
+            "name": "Night",
+            "action": {"method": "POST", "path": "/api/modem/airplane", "body": {"operate_mode": "LPM"}},
             "schedule": {"type": "recurring", "time": "23:00", "days": [0, 1, 2, 3, 4]},
         }));
         let i = Input { restore: true, action: "data".into(), ..input() };
@@ -1000,7 +1000,7 @@ mod tests {
         let stored = job(json!({"id": 3, "enabled": false, "schedule": {"type": "once", "at": now - 3601},
             "action": {"method": "POST", "path": "/api/modem/airplane", "body": {"operate_mode": "LPM"}}}));
         let i = Input { id: Some(3), ..Input::of_job(&stored, now) };
-        assert_eq!(i.action, "飞机");
+        assert_eq!(i.action, "airplane");
         let b = body(&i, Some(&stored), now).unwrap();
         assert_eq!((b["id"].clone(), b["enabled"].clone(), b["schedule"]["at"].clone()), (json!(3), json!(false), json!(now - 3601)));
         // The checks.

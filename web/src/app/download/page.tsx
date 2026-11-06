@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 
 export const metadata: Metadata = {
-  title: "Download",
+  title: "下载",
   description: "下载zte-agent、配套应用程序和源代码。",
 };
 

@@ -875,7 +875,7 @@ mod tests {
         assert!(ssid_error(&"é".repeat(17), "x").is_some(), "34 bytes");
         assert_eq!(ssid_error(&"a".repeat(32), "x"), None);
         assert!(ssid_error("Fake & New", "Fake").is_some(), "the agent would strip &");
-        assert_eq!(ssid_error("Fake & Net", "Fake & Net"), None, "不变的永远不会发送");
+        assert_eq!(ssid_error("Fake & Net", "Fake & Net"), None, "unchanged is never sent");
         assert!(ssid_error("two\nlines", "x").is_some());
         for ok in ["12345678", &"a".repeat(63), &"0f".repeat(32), "pass word!"] {
             assert_eq!(key_error(ok, "psk2+ccmp"), None, "{ok}");
@@ -894,9 +894,9 @@ mod tests {
         errors.clear();
         assert_eq!(key_of("", "", &"0f".repeat(32), "psk2+ccmp", &mut errors, "key_2g"), "");
         assert!(errors.is_empty());
-        assert_eq!(bandwidths_5g("165"), ["汽车", "EHT20"]);
-        assert_eq!(bandwidths_5g("149"), ["汽车", "EHT20", "EHT40", "EHT80"]);
-        assert_eq!(bandwidths_5g("136"), ["汽车", "EHT20", "EHT40"]);
+        assert_eq!(bandwidths_5g("165"), ["auto", "EHT20"]);
+        assert_eq!(bandwidths_5g("149"), ["auto", "EHT20", "EHT40", "EHT80"]);
+        assert_eq!(bandwidths_5g("136"), ["auto", "EHT20", "EHT40"]);
         assert_eq!(bandwidths_5g("36"), BW_5G);
         assert_eq!(bandwidths_5g("auto"), BW_5G);
         assert_eq!(remaining(3909), "1h 05m 09s remaining");
@@ -914,7 +914,7 @@ mod tests {
         assert!(!html.contains("restart"), "{html}");
         let (title, body) = applied(&vals(&[]));
         let html = body.into_string();
-        assert_eq!(title, "重新连接“假与网”");
+        assert_eq!(title, "重新连接“Fake & Net”");
         assert!(html.contains("WiFi 设置已应用 — WiFi 将短暂重启") && !html.contains("WiFi 关闭"), "{html}");
     }
 

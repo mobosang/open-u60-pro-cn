@@ -89,9 +89,9 @@ mod tests {
             assert_eq!(auth_type(enc), t, "{enc}");
         }
         // An open network still carries an empty password field, as the app's.
-        assert_eq!(payload("Cafe", "", "none"), "WIFI:T:不通行证;S:咖啡馆;P:;;");
+        assert_eq!(payload("Cafe", "", "none"), "WIFI:T:nopass;S:Cafe;P:;;");
         // Non-ASCII stays as it is (UTF-8 bytes in the code).
-        assert_eq!(escape("Café ☕"), "咖啡馆 ☕");
+        assert_eq!(escape("Café ☕"), "Café ☕");
     }
 
     /// The SVG draws exactly the dark modules, inside a quiet zone, with

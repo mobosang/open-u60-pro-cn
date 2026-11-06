@@ -103,7 +103,7 @@ fn legal(_: &PageData) -> Markup {
     kit::section(Some("法律声明"), None, html! {
         li.it {
             p.cap {
-                "此应用程序不隶属于 ZTE Corporation，也不受其认可或赞助。                  ZTE 和 U60 Pro 是 ZTE Corporation 的商标。"
+                "此应用程序不隶属于 ZTE Corporation，也不受其认可或赞助。 ZTE 和 U60 Pro 是 ZTE Corporation 的商标。"
             }
         }
         li { a.it href="https://open-u60-pro.vercel.app/privacy" rel="noopener noreferrer" { span { "隐私政策" } } }

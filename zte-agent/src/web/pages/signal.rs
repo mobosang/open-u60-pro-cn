@@ -501,9 +501,9 @@ pub(crate) mod tests {
     fn renders_the_app_panels() {
         let s = body(&fixture()).into_string();
         for want in [
-            "示例<b>移动</b>", "5G NSA", "5G NR", "n41 (2500 MHz, TDD)", "50 / 100 MHz max", ">774<", ">4242<",
-            "513000", "美国国家安全局锚", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "活动（2 CC）", "EARFCN", "SCC0",
-            "B3 (1800 MHz)\u{2003}PCI 12\u{2003}BW 20", "数据会话", "QCI", "10000 / 10000 兆比特/秒", "不是速度测试。",
+            "Example &lt;b&gt;Mobile&lt;/b&gt;", "5G NSA", "5G NR", "n41 (2500 MHz, TDD)", "50 / 100 MHz max", ">774<", ">4242<",
+            "513000", "美国国家安全局锚", "2 CC", "B1 (2100 MHz, FDD) \u{b7} PCC", "活跃（2 CC)", "EARFCN", "SCC0",
+            "B3 (1800 MHz)\u{2003}PCI 12\u{2003}BW 20", "数据会话", "QCI", "10000 / 10000 兆比特/秒", "Not a speed test.",
             "信号历史", "10.20.30.40", "极佳", "良好",
         ] {
             assert!(s.contains(want), "missing {want:?} in {s}");
@@ -545,7 +545,7 @@ pub(crate) mod tests {
         assert!(s.contains("<polyline class=\"lte\" points=\"245.7,54.6 245.7,54.6\">"), "{s}");
         assert!(s.contains("<polyline class=\"lte\" points=\"254.6,53.5 268.0,54.6\">"), "{s}");
         assert_eq!(s.matches("<polyline").count(), 5);
-        assert!(s.contains("role=\"img\"") && s.contains("NR 现在 -77 dBm，LTE 现在 -85 dBm"));
+        assert!(s.contains("role=\"img\"") && s.contains("NR now -77 dBm, LTE now -85 dBm"));
         // The app's legend names, nothing else.
         assert!(s.contains("<figcaption class=\"legend\"><span class=\"nr\">NR</span> <span class=\"lte\">LTE</span> </figcaption>"), "{s}");
         // No history yet (the app's text, with three dots).
@@ -595,7 +595,7 @@ pub(crate) mod tests {
         let v = views(vec![(Topic::Signal, json!({"network_type": "WCDMA", "network_provider": "Example", "rscp": "-80", "ecio": "-7"}))]);
         let s = sig_op(&v).into_string();
         assert!(s.contains("<span class=\"muted\">WCDMA</span>") && s.contains("<span class=\"pill\" aria-hidden=\"true\">WCDMA</span>"), "{s}");
-        assert!(!s.contains("无信号数据") && !s.contains("模式未知"));
+        assert!(!s.contains("No signal data") && !s.contains("模式 unknown"));
         let w = sig_wcdma(&v).into_string();
         assert!(w.contains("RSCP") && w.contains("class=\"q-good\">良好<"), "{w}");
     }
@@ -605,7 +605,7 @@ pub(crate) mod tests {
     fn operator_card_follows_the_app() {
         let op = |d: Value| sig_op(&views(vec![(Topic::Signal, d)])).into_string();
         let s = sig_op(&fixture()).into_string();
-        assert!(s.contains("<div><b>示例<b>移动</b></b><span class=\"muted\">5G NSA</span></div>"), "{s}");
+        assert!(s.contains("<div><b>Example &lt;b&gt;Mobile&lt;/b&gt;</b><span class=\"muted\">5G NSA</span></div>"), "{s}");
         assert!(s.contains("<span class=\"pill\" aria-hidden=\"true\">5G<small>NSA</small></span>"), "{s}");
         // No bars reported: the glyph is grey; no roaming label, no quality word.
         assert!(s.contains("<span class=\"sb muted\" role=\"img\" aria-label=\"信号\">"), "{s}");

@@ -296,7 +296,7 @@ mod tests {
         assert_eq!(lock_facts(false, 29).unwrap().1, "SDL \u{b7} Max BW 10 MHz \u{b7} DL 717\u{2013}728 MHz");
         assert_eq!(lock_facts(false, 66).unwrap().0, "AWS-3");
         assert_eq!(lock_facts(true, 41).unwrap().1, "TDD \u{b7} Max BW 100 MHz \u{b7} DL 2496\u{2013}2690 MHz \u{b7} UL 2496\u{2013}2690 MHz");
-        assert_eq!(lock_facts(false, 41).unwrap().1, "TDD · Max BW 20兆赫 · DL 2496–2690 MHz · UL 2496–2690 MHz");
+        assert_eq!(lock_facts(false, 41).unwrap().1, "TDD \u{b7} Max BW 20 MHz \u{b7} DL 2496\u{2013}2690 MHz \u{b7} UL 2496\u{2013}2690 MHz");
         assert_eq!(lock_facts(true, 99), None);
     }
 
@@ -326,7 +326,7 @@ mod tests {
         assert_eq!(carrier_band("3", false), "B3 (1800 MHz)");
         assert_eq!(carrier_band("200", true), "n200");
         assert_eq!(bandwidth("50", "41", true), "50 / 100 MHz max");
-        assert_eq!(bandwidth("10MHz", "1", false), "10 / 20兆赫 max");
+        assert_eq!(bandwidth("10MHz", "1", false), "10 / 20 MHz max");
         assert_eq!(bandwidth("15", "99", false), "15");
         assert_eq!(bandwidth("", "1", false), "--");
         assert_eq!(mhz("BW 100"), Some(100));

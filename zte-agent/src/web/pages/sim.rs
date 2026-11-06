@@ -92,11 +92,11 @@ fn state(sim: &Value) -> String {
 fn status(raw: &str) -> (String, Option<&'static str>) {
     let (label, class) = match raw.to_ascii_lowercase().as_str() {
         "" | "unknown" => (DASH, None),
-        "sim ready" => ("准备好了", Some("c-green")),
-        "sim undetected" => ("无SIM", Some("c-red")),
-        "wait pin" => ("PIN 必填", Some("c-orange")),
-        "wait puk" => ("PUK 必填", Some("c-orange")),
-        "sim destroy" => ("SIM 被摧毁", Some("c-red")),
+        "sim ready" => ("已就绪", Some("c-green")),
+        "sim undetected" => ("未检测到 SIM", Some("c-red")),
+        "wait pin" => ("需要 PIN", Some("c-orange")),
+        "wait puk" => ("需要 PUK", Some("c-orange")),
+        "sim destroy" => ("SIM 已损坏", Some("c-red")),
         "error" | "sim_error" => ("错误", Some("c-red")),
         _ => return (raw.to_owned(), None),
     };
@@ -221,10 +221,10 @@ fn banners(v: &Views) -> Markup {
             @if let Some(e) = err { p.msg.err role="alert" { "加载SIM信息失败： " (fmt::truncate(e, 120)) } }
             @if let Some(sim) = sim {
                 @if pin_locked(sim) {
-                    (banner(Icon::Lock, "c-orange", "SIM PIN 必填", "输入你的PIN来解锁SIM卡", PIN, "输入PIN"))
+                    (banner(Icon::Lock, "c-orange", "需要 SIM PIN", "输入你的PIN来解锁SIM卡", PIN, "输入PIN"))
                 }
                 @if puk_locked(sim) {
-                    (banner(Icon::LockWarn, "c-red", "SIM PUK 必填", "PIN 尝试错误太多。输入PUK进行解锁。", PUK, "输入PUK"))
+                    (banner(Icon::LockWarn, "c-red", "需要 SIM PUK", "PIN 尝试错误太多。输入PUK进行解锁。", PUK, "输入PUK"))
                 }
             }
         }
@@ -768,10 +768,10 @@ mod tests {
         });
         let s = card(&views(sim.clone())).into_string();
         for want in [
-            "<span>状态</span><span class=\"v c-green\">准备好了</span>", "<span>ICCID</span><span class=\"v\">…8877</span>",
+            "<span>状态</span><span class=\"v c-green\">已就绪</span>", "<span>ICCID</span><span class=\"v\">…8877</span>",
             "<span>IMSI</span><span class=\"v\">001/01 …1111</span>", "<span>MSISDN</span><span class=\"v\">…0042</span>",
-            "<span>SPN</span><span class=\"v\">测试</span>", "<span>MCC/MNC</span><span class=\"v\">001/01</span>",
-            "<span>运营商</span><span class=\"v\">测试网</span>", "<span>SIM 插槽</span><span class=\"v\">1</span>",
+            "<span>SPN</span><span class=\"v\">Test</span>", "<span>MCC/MNC</span><span class=\"v\">001/01</span>",
+            "<span>运营商</span><span class=\"v\">Test Net</span>", "<span>SIM 插槽</span><span class=\"v\">1</span>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -788,10 +788,10 @@ mod tests {
         }
         // Empty values: the app's "--"; a status from the modem state.
         let s = card(&views(json!({"modem_main_state": "modem_waitpuk"}))).into_string();
-        assert!(s.contains("<span class=\"v c-orange\">PUK 必填</span>") && s.contains("<span>ICCID</span><span class=\"v\">--</span>"), "{s}");
+        assert!(s.contains("<span class=\"v c-orange\">需要 PUK</span>") && s.contains("<span>ICCID</span><span class=\"v\">--</span>"), "{s}");
         assert!(!s.contains("运营商"));
-        assert_eq!(status("sim undetected"), ("无SIM".into(), Some("c-red")));
-        assert_eq!(status("Something"), ("一些东西".into(), None));
+        assert_eq!(status("sim undetected"), ("未检测到 SIM".into(), Some("c-red")));
+        assert_eq!(status("Something"), ("Something".into(), None));
         // An IMSI whose network the card does not name: 3 + 2 digits.
         assert_eq!(imsi("310260000000042", "", ""), "310/26 …0042");
         assert_eq!(imsi("310260000000042", "310", "260"), "310/260 …0042");
@@ -805,7 +805,7 @@ mod tests {
     fn locked_sims_show_the_banners() {
         let v = views(json!({"sim_states": "wait pin", "pin_status": "1"}));
         let b = banners(&v).into_string();
-        assert!(b.contains("<b>SIM PIN 必填</b><small>输入你的PIN来解锁SIM卡</small>"), "{b}");
+        assert!(b.contains("<b>需要 SIM PIN</b><small>输入你的PIN来解锁SIM卡</small>"), "{b}");
         assert!(b.contains("<a class=\"it bt snd\" href=\"/ui/router/sim/pin\">输入PIN</a>") && !b.contains("PUK"));
         assert!(!pins(&v).into_string().contains("<a "));
         let v = views(json!({"sim_states": "", "modem_main_state": "MODEM_WAITPUK"}));
@@ -859,7 +859,7 @@ mod tests {
         let f = |q: &str| shown_left(&Form::parse(q.as_bytes()));
         assert_eq!((f("left=3"), f("left="), f("x=1"), f("left=-1"), f("left=2a")), (Some(3), None, None, Some(-1), Some(-1)));
         let l = lines(Sheet::LockOn, Some(1), true);
-        assert!(l[0].starts_with("SIM 将要求此 PIN") && l[1].starts_with("这是最后一次尝试") && l[2] == super::super::confirm::REMOTE);
+        assert!(l[0].starts_with("The SIM will ask for this PIN") && l[1].starts_with("This is the last attempt") && l[2] == super::super::confirm::REMOTE);
         assert_eq!(lines(Sheet::Pin, Some(3), true), Vec::<&str>::new());
         assert_eq!(lines(Sheet::Nck, Some(1), true).len(), 1);
     }

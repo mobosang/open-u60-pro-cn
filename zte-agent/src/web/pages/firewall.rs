@@ -640,7 +640,7 @@ mod tests {
         ]});
         let r = rules(&list);
         assert_eq!((r[0].id.as_str(), r[0].route().as_str(), r[0].enabled), ("0", "TCP WAN:8080 \u{2192} 192.168.0.50:80", true));
-        assert_eq!((r[1].id.as_str(), r[1].title(), r[1].route().as_str(), r[1].enabled), ("cfg0a1b2c", "游戏", "UDP WAN:3074 \u{2192} 192.168.0.60:", false));
+        assert_eq!((r[1].id.as_str(), r[1].title(), r[1].route().as_str(), r[1].enabled), ("cfg0a1b2c", "Game", "UDP WAN:3074 \u{2192} 192.168.0.60:", false));
         assert_eq!(generation(&list), generation(&list.clone()));
         assert_ne!(generation(&list), generation(&json!({"rule_list": []})));
         assert_eq!(protocols("tcp+udp"), (true, true));
@@ -652,8 +652,8 @@ mod tests {
     /// refuses the mobile side.
     #[test]
     fn exposure_follows_the_agents_refusal() {
-        assert!(exposed_for(false) == EXPOSED && EXPOSED.contains("不断拒绝来自它的连接"));
-        assert!(exposed_for(true) == EXPOSED_ALL && EXPOSED_ALL.contains("包含此 Web UI"));
+        assert!(exposed_for(false) == EXPOSED && EXPOSED.contains("keep refusing connections from it"));
+        assert!(exposed_for(true) == EXPOSED_ALL && EXPOSED_ALL.contains("this web UI included"));
     }
 
     #[test]
@@ -663,11 +663,11 @@ mod tests {
         assert!(host_error(net, "192.168.0.1").unwrap().contains("router\u{2019}s own address"));
         assert_eq!(host_error(net, "192.168.1.5").unwrap(), "使用从 192.168.0.1 到 192 的地址。168.0.254.");
         assert!(host_error(net, "192.168.0.255").is_some() && host_error(net, "192.168.0.0").is_some());
-        assert!(host_error(net, "nope").unwrap().starts_with("输入 IPv4"));
+        assert!(host_error(net, "nope").unwrap().starts_with("Enter an IPv4"));
         for unread in ["10.0.0.9", "192.168.0.1", "8.8.8.8"] {
             assert_eq!(host_error(None, unread).as_deref(), Some("Couldn’t 读取路由器’s 网络。再试一次。"), "{unread}");
         }
-        assert!(host_error(net, "192.168.0.50 ").unwrap().starts_with("输入 IPv4"));
+        assert!(host_error(net, "192.168.0.50 ").unwrap().starts_with("Enter an IPv4"));
         assert_eq!(port("8080"), Some(8080));
         assert_eq!(port("080"), Some(80));
         for bad in ["", "0", "65536", "80-90", "+80", " 80", "123456"] {

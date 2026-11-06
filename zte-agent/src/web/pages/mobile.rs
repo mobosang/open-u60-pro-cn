@@ -594,7 +594,7 @@ mod tests {
     #[test]
     fn mobile_data_footer_follows_the_app() {
         let d = |enable: i64, status: &str| data_footer(&json!({"enable": enable, "connect_status": status}));
-        assert_eq!(d(1, "ipv4_ipv6_connected"), "已连接 — Ipv4 Ipv6 已连接");
+        assert_eq!(d(1, "ipv4_ipv6_connected"), "已连接 — Ipv4 Ipv6 Connected");
         assert_eq!(d(1, "disconnected"), "未连接");
         assert_eq!(d(1, ""), "禁用移动数据将断开蜂窝连接。");
         assert_eq!(d(0, "disconnected"), "移动数据已禁用。");
@@ -610,14 +610,14 @@ mod tests {
             {"name": "Third", "mcc_mnc": "00103", "rat": "NR"},
         ]});
         let n = parse_networks(&app);
-        assert_eq!(n[0], Network { name: "测试网".into(), plmn: "00101".into(), rat: "LTE".into(), status: "current" });
-        assert_eq!((n[1].name.as_str(), n[1].plmn.as_str(), n[1].rat.as_str(), n[1].status), ("其他", "001002", "7", "forbidden"));
+        assert_eq!(n[0], Network { name: "Test Net".into(), plmn: "00101".into(), rat: "LTE".into(), status: "current" });
+        assert_eq!((n[1].name.as_str(), n[1].plmn.as_str(), n[1].rat.as_str(), n[1].status), ("Other", "001002", "7", "forbidden"));
         assert_eq!(n[2].status, "available");
         let fw = json!({"m_netselect_contents": "2,Test Net,00101,7;1,Other Net,00102,12;3,Barred,00103,2;x,Bad,1,7;"});
         let n = parse_networks(&fw);
         assert_eq!(n.len(), 3);
         assert_eq!((n[0].status, n[1].status, n[2].status), ("current", "available", "forbidden"));
-        assert_eq!((n[1].name.as_str(), n[1].plmn.as_str(), n[1].rat.as_str()), ("其他网", "00102", "12"));
+        assert_eq!((n[1].name.as_str(), n[1].plmn.as_str(), n[1].rat.as_str()), ("Other Net", "00102", "12"));
         assert!(parse_networks(&json!({})).is_empty());
     }
 
@@ -670,7 +670,7 @@ mod tests {
         assert_eq!(question(Kind::Register, &i, true, None).unwrap().label, Some("注册"));
         let found = Ok(json!({"m_netselect_contents": "1,Test Net,00101,7;3,Barred,00103,7;"}));
         let q = question(Kind::Register, &i, true, Some(&found)).unwrap();
-        assert_eq!((q.title.as_str(), q.label), ("注册测试网？", Some("注册")));
+        assert_eq!((q.title.as_str(), q.label), ("注册Test Net？", Some("注册")));
         assert_eq!(q.lines.last().unwrap(), REMOTE);
         // Not offered (not found, forbidden, another RAT) or unread: nothing to do.
         for (plmn, rat) in [("99999", "7"), ("00103", "7"), ("00101", "12")] {

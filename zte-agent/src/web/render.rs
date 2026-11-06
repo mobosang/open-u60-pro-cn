@@ -444,7 +444,7 @@ mod tests {
     #[test]
     fn error_pages_offer_a_way_on() {
         let s = error_page("Router busy", "m", "00", Some("/ui/")).into_string();
-        assert_eq!(s.matches("href=\"/ui/\"").count(), 1, "每个目标一个链接：{s}");
+        assert_eq!(s.matches("href=\"/ui/\"").count(), 1, "one link per target: {s}");
         let s = error_page("Form not accepted", "m", "00", Some("/ui/login")).into_string();
         assert!(s.contains("href=\"/ui/login\"") && s.contains("返回仪表盘"));
     }
@@ -453,7 +453,7 @@ mod tests {
     fn snapshot_status_line() {
         assert_eq!(
             live_snapshot("/ui/").into_string(),
-            "<p class=\\\"snap\\\" id=\\\"live-status\\\">页面加载快照<span class=\\\"ages\\\">             <span class=\\\"age1\\\"> · over 1 min old</span><span class=\\\"age5\\\"> · over 5 分钟 old</span></span> ·              <a href=\\\"/ui/\\\">刷新</a></p>"
+            "<p class=\"snap\" id=\"live-status\">页面加载快照<span class=\"ages\"><span class=\"age1\"> · over 1 min old</span><span class=\"age5\"> · over 5 min old</span></span> · <a href=\"/ui/\">刷新</a></p>"
         );
     }
 }

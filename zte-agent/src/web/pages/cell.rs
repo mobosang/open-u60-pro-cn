@@ -685,7 +685,7 @@ mod tests {
         assert!(results(&stopped).into_string().contains("结果") && !message(&stopped).into_string().contains("complete"));
         // Running: the bar (the old 100 % reads 0 %).
         let c = controls(&views(sweep(json!(100), json!(0)), start + 1_000, ours)).into_string();
-        assert!(c.contains("class=\"它 run\"") && c.contains("<progress max=\"100\" value=\"0\""), "{c}");
+        assert!(c.contains("class=\"it fld run\"") && c.contains("<progress max=\"100\" value=\"0\""), "{c}");
         assert_eq!(sd_arg(&fresh, Some("since=186a0&r=ab")), ours);
         assert_eq!(sd_arg(&fresh, Some("stop=1")), 3);
         assert_eq!(sd_arg(&fresh, Some("stop=186a0")), ours | 1);

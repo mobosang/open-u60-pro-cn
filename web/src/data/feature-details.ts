@@ -68,7 +68,7 @@ export const featureDetails: FeatureDetail[] = [
   },
   {
     icon: Radio,
-    title: "频带锁定",
+    title: "频段锁定",
     category: "调制解调器",
     description:
       "将调制解调器锁定到特定的 NR 或 LTE 频段和小区。",

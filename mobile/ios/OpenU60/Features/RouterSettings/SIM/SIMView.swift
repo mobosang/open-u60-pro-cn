@@ -18,7 +18,7 @@ struct SIMView: View {
                 Section {
                     Label {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("SIM PIN 必填")
+                            Text("需要 SIM PIN")
                                 .font(.headline)
                             Text("输入你的PIN来解锁SIM卡")
                                 .font(.subheadline)
@@ -45,7 +45,7 @@ struct SIMView: View {
                 Section {
                     Label {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("SIM PUK 必填")
+                            Text("需要 SIM PUK")
                                 .font(.headline)
                             Text("PIN 尝试错误太多。输入PUK进行解锁。")
                                 .font(.subheadline)
@@ -240,11 +240,11 @@ struct SIMView: View {
     private func simStatusLabel(_ raw: String) -> String {
         switch raw.lowercased() {
         case "", "unknown": return "--"
-        case "sim ready": return "准备好了"
-        case "sim undetected": return "无SIM"
-        case "wait pin": return "PIN 必填"
-        case "wait puk": return "PUK 必填"
-        case "sim destroy": return "SIM 被摧毁"
+        case "sim ready": return "已就绪"
+        case "sim undetected": return "未检测到 SIM"
+        case "wait pin": return "需要 PIN"
+        case "wait puk": return "需要 PUK"
+        case "sim destroy": return "SIM 已损坏"
         case "error", "sim_error": return "错误"
         default: return raw
         }

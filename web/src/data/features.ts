@@ -41,7 +41,7 @@ export const features: Feature[] = [
   },
   {
     icon: Radio,
-    title: "频带锁定",
+    title: "频段锁定",
     description:
       "锁定特定 NR 和 LTE 频段。小区锁定、STC（智能塔连接）和载波聚合控制。",
   },

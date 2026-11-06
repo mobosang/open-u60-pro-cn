@@ -655,9 +655,9 @@ mod tests {
     #[test]
     fn the_toolkit_follows_the_app() {
         let s = toolkit(&views(Some(menu()), None, 1_700_000_000_001)).into_string();
-        assert!(s.starts_with("<section class=\"group\" id=\"stk\"><h2>测试SIM</h2>"), "{s}");
+        assert!(s.starts_with("<section class=\"group\" id=\"stk\"><h2>Test SIM</h2>"), "{s}");
         assert!(s.contains(
-            "<button class=\"it bt\" type=\"submit\" form=\"stkf\" formaction=\"/ui/router/sim-services/stk/select\" name=\"c\" value=\"1700000000001.2\">计划</button>"
+            "<button class=\"it bt\" type=\"submit\" form=\"stkf\" formaction=\"/ui/router/sim-services/stk/select\" name=\"c\" value=\"1700000000001.2\">Plans</button>"
         ), "{s}");
         let n = nav(&views(Some(menu()), None, 0)).into_string();
         assert!(!n.contains("返回") && !n.contains("重新加载") && n.contains("运营商通过您的 SIM 卡提供的服务"), "{n}");
@@ -666,14 +666,14 @@ mod tests {
         sub["busy"] = json!(true);
         let n = nav(&views(Some(sub.clone()), None, 0)).into_string();
         assert!(n.contains("value=\"1700000000001\" disabled>返回</button>") && n.contains("结束 SIM 会话"), "{n}");
-        assert!(toolkit(&views(Some(sub), None, 0)).into_string().contains("disabled>余额"));
+        assert!(toolkit(&views(Some(sub), None, 0)).into_string().contains("disabled>Balance"));
         // No session: the error, the app's line, Reload.
         let s = toolkit(&views(None, Some("RIL connection failed: <no socket>"), 0)).into_string();
-        assert!(s.contains("RIL 连接失败：<无套接字>") && s.contains("重新加载SIM菜单以重新连接。"), "{s}");
+        assert!(s.contains("RIL connection failed: &lt;no socket&gt;") && s.contains("重新加载SIM菜单以重新连接。"), "{s}");
         assert!(nav(&views(None, Some("x"), 0)).into_string().contains("<a class=\"it bt\" href=\"/ui/router/sim-services\">重新加载SIM菜单</a>"));
         let status = json!({"type": "status", "items": [], "reason": "Waiting for the SIM", "busy": true, "command_id": "7"});
         let s = toolkit(&views(Some(status.clone()), None, 0)).into_string();
-        assert!(s.contains("<h2>SIM工具包</h2>") && s.contains("等待SIM"), "{s}");
+        assert!(s.contains("<h2>SIM工具包</h2>") && s.contains("Waiting for the SIM"), "{s}");
         // Busy: Reload is dimmed, as the app disables the section.
         assert!(nav(&views(Some(status), None, 0)).into_string().contains("<span class=\"it bt off\" aria-disabled=\"true\">重新加载SIM菜单</span>"));
         // After a failed action (`held`): the app's failure state, not the
@@ -730,8 +730,8 @@ mod tests {
         }
         assert!(parse(Post::Send, &f("code=*04*1%23")).is_ok() && parse(Post::Send, &f("code=**21*1%23")).is_ok());
         // Answers: `response`, else `raw_response`, as they are (the app's).
-        assert_eq!(answer_text(&json!({"response": "", "raw_response": "Voucher 00000000000000042 ok"})), "优惠券 00000000000000042 好的");
-        assert_eq!(answer_text(&json!({"response": "Balance 5.00"})), "余额 5.00");
+        assert_eq!(answer_text(&json!({"response": "", "raw_response": "Voucher 00000000000000042 ok"})), "Voucher 00000000000000042 ok");
+        assert_eq!(answer_text(&json!({"response": "Balance 5.00"})), "Balance 5.00");
         // The session is opened on a plain load only (the app's screen
         // opening and Reload): not on an answer, a result line or after a
         // failed action.

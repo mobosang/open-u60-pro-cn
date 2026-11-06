@@ -13,7 +13,7 @@ struct CellularCardView: View, Equatable {
     var compact = false
 
     private func trafficCaption(at now: Date) -> String {
-        guard let trafficUpdatedAt else { return "实时路况不可用" }
+        guard let trafficUpdatedAt else { return "实时流量不可用" }
         let age = max(0, Int(now.timeIntervalSince(trafficUpdatedAt)))
         if !isTrafficAvailable || age >= 5 {
             return "最后一次流量样本 · \(age) 之前 · 等待设备"

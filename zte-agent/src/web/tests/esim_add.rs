@@ -144,7 +144,7 @@ async fn add_esim_follows_the_app() {
     // Connected: no note. A switch running: the app's busy line.
     let _dev = device::set(&c.app, device_with(vec![], "ipv4_ipv6_connected"));
     let html = get_with(&c, ADD, peer(170, 3), &cookie).await.text();
-    assert!(!html.contains("没有移动数据") && !html.contains("eSIM is busy"), "{html}");
+    assert!(!html.contains("no mobile data") && !html.contains("eSIM is busy"), "{html}");
     let mut d = device_with(vec![], "connected");
     d.gets[1] = ("/api/esim/switch", Ok(json!({"state": "reloading"})));
     let _dev = device::set(&c.app, d);
@@ -167,12 +167,12 @@ async fn a_pasted_code_starts_the_preview_once() {
     let (csrf, token) = entry(&c, peer(171, 2), &cookie).await;
     // Refused by the app's checks, each with its words; nothing sent.
     let cases: [(&str, &str, &str, bool, bool); 6] = [
-        ("", "", "Scan or choose a photo of the QR code, or enter the code manually.", false, false),
+        ("", "", "扫描或选择二维码照片，或手动输入二维码。", false, false),
         ("LPA:1$evil.example/x$FAKE-MATCHING-ID", "", "This QR code isn&#39;t an eSIM activation code.", true, false),
         ("WIFI:T:WPA;S:FAKE-0000;P:x;;", "", "This QR code isn&#39;t an eSIM activation code.", true, false),
-        (CC_CODE, "", "Enter the confirmation code from your operator (up to 64 characters).", false, true),
-        (CC_CODE, &"x".repeat(65), "Enter the confirmation code from your operator (up to 64 characters).", false, true),
-        (CODE, "1\u{7}2", "Enter the confirmation code from your operator (up to 64 characters).", false, true),
+        (CC_CODE, "", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
+        (CC_CODE, &"x".repeat(65), "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
+        (CODE, "1\u{7}2", "请输入运营商提供的确认码（最多 64 个字符）。", false, true),
     ];
     for (code, cc, want, manual, open_cc) in cases {
         let r = upload(&c, peer(171, 3), &cookie, &fields(&csrf, &token, code, cc, None)).await;
@@ -201,7 +201,7 @@ async fn a_pasted_code_starts_the_preview_once() {
     // Another code with the same (used) token: an expired page, nothing sent.
     let other = fields(&csrf, &token, OTHER, "", None);
     let r = upload(&c, peer(171, 4), &cookie, &other).await;
-    assert!(r.status == 409 && r.text().contains("该页面已过期，因此未发送任何内容。"), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("This page expired, so nothing was sent."), "{}", r.text());
     // A code that asks for one, with the confirmation code.
     let (_, token) = entry(&c, peer(171, 5), &cookie).await;
     let r = upload(&c, peer(171, 5), &cookie, &fields(&csrf, &token, CC_CODE, &format!(" {CC} "), None)).await;
@@ -227,8 +227,8 @@ async fn a_photo_is_read_on_the_router() {
     let wifi = png(&photo(w, h, "WIFI:T:WPA;S:Example;P:FAKE-0000;;", 5.0, 0.0, false), w, h, false);
     for (img, want) in [
         (&two[..], "选择一张带有eSIM二维码的照片。"),
-        (&none[..], "该二维码不是 eSIM 激活码。"),
-        (&wifi[..], "该二维码不是 eSIM 激活码。"),
+        (&none[..], "This QR code isn&#39;t an eSIM activation code."),
+        (&wifi[..], "This QR code isn&#39;t an eSIM activation code."),
         (b"GIF89a-not-a-photo".as_slice(), "选择 JPEG 或 PNG 照片，或手动输入代码。"),
         (b"\xff\xd8\xff\xe0broken".as_slice(), "无法读取此图片。请选择其他图片或手动输入激活码。"),
     ] {
@@ -250,13 +250,13 @@ async fn a_photo_is_read_on_the_router() {
     let (_, token) = entry(&c, peer(172, 3), &cookie).await;
     let started = std::time::Instant::now();
     let r = upload(&c, peer(172, 3), &cookie, &fields(&csrf, &token, "", "", Some(&grid))).await;
-    assert!(r.status == 400 && r.text().contains("无法阅读这张照片。"), "{}", r.text());
+    assert!(r.status == 400 && r.text().contains("Couldn’t read this photo."), "{}", r.text());
     assert!(started.elapsed() < std::time::Duration::from_secs(10), "{:?}", started.elapsed());
     // The upload slot taken (another upload in RAM): refused after a wait.
     let slot = crate::web::upload::hold().expect("the upload slot is free");
     let (_, token) = entry(&c, peer(172, 3), &cookie).await;
     let r = upload(&c, peer(172, 3), &cookie, &fields(&csrf, &token, "", "", Some(&two))).await;
-    assert!(r.status == 503 && r.text().contains("路由器正在读取另一张照片。"), "{}", r.text());
+    assert!(r.status == 503 && r.text().contains("The router is reading another photo."), "{}", r.text());
     drop(slot);
     assert!(calls(&c).is_empty());
     // One code in a camera photo (the "Scan QR code" input), turned a little.
@@ -273,7 +273,7 @@ async fn a_photo_is_read_on_the_router() {
     let (_, token) = entry(&c, peer(172, 5), &cookie).await;
     let r = upload(&c, peer(172, 5), &cookie, &fields(&csrf, &token, "", "", Some(&img))).await;
     let html = r.text();
-    assert!(r.status == 400 && html.contains("输入运营商提供的确认码") && html.contains("<details class=\"eopt\" open>"), "{html}");
+    assert!(r.status == 400 && html.contains("Enter the confirmation code from your operator") && html.contains("<details class=\"eopt\" open>"), "{html}");
     let r = upload(&c, peer(172, 5), &cookie, &fields(&csrf, &token, "", CC, Some(&img))).await;
     assert_eq!(to(&r), DL);
     assert_eq!(calls(&c)[1].1, json!({"activation_code": CC_CODE, "preview": true, "confirmation_code": CC}));
@@ -312,7 +312,7 @@ async fn uploads_are_checked_and_refusals_read_as_the_app() {
         .body(Body::from(vec![0u8; 16]))
         .unwrap();
     let r = send(&c, big).await;
-    assert!(r.status == 413 && r.text().contains("照片最大可达 8 MB。"), "{}", r.text());
+    assert!(r.status == 413 && r.text().contains("Photos can be up to 8 MB."), "{}", r.text());
     let huge = vec![b'x'; crate::web::upload::MAX_BODY + 1];
     let r = req("POST", ADD, peer(173, 3))
         .header("content-type", format!("multipart/form-data; boundary={BOUNDARY}"))
@@ -328,7 +328,7 @@ async fn uploads_are_checked_and_refusals_read_as_the_app() {
     r.assert_secure_html(409);
     let html = r.text();
     for want in [
-        "<b>Can’t开始下载</b><p>the router has 没有移动数据 connection; downloads use the router&#39;s own internet</p>",
+        "<b>Can’t开始下载</b><p>the router has no mobile data connection; downloads use the router&#39;s own internet</p>",
         "<span>路由器尚未连接移动数据。请先连接后再下载；此操作无法使用手机自身的移动数据。</span>",
     ] {
         let want = if html.contains(want) { want.to_owned() } else { want.replace("&#39;", "'") };
@@ -414,7 +414,7 @@ async fn the_download_card_follows_the_app() {
     let _f = fake::set(&c.app, json!({"state": "confirm", "step": "preview", "provider": "Example Travel", "name": "Fake Plan"}));
     let html = get_with(&c, ADD, peer(174, 4), &cookie).await.text();
     for want in [
-        "<b>准备安装</b>", "<h2>安装 旅行示例?</h2><p class=\"cap\">假计划</p>",
+        "<b>准备安装</b>", "<h2>安装 Example Travel?</h2><p class=\"cap\">Fake Plan</p>",
         "该配置文件将安装在您路由器的 eSIM 上并保持非活动状态，直到您切换到它。 2分钟内确认。",
         "<button class=\"btn btn-wide teal\" type=\"submit\" form=\"eaddf\" formaction=\"/ui/router/esim/add/install\">安装配置文件</button>",
         "formaction=\"/ui/router/esim/add/cancel\">取消下载</button>", "@get('/ui/live/esimadd/",
@@ -432,7 +432,7 @@ async fn the_download_card_follows_the_app() {
     let _f = fake::set(&c.app, json!({"state": "done", "provider": "Example Travel", "name": "Fake Plan", "iccid": "8900000000000000505F"}));
     let html = get_with(&c, DL, peer(174, 5), &cookie).await.text();
     for want in [
-        "<b>旅行示例 added.</b>", "添加到您的路由器。您当前的配置文件仍然有效。",
+        "<b>Example Travel added.</b>", "新增to your router. Your current profile is still active.",
         "<a class=\"btn teal\" href=\"/ui/router/esim/switch?new=1\">切换至it now</a><a class=\"btn btn-quiet\" href=\"/ui/router/esim\">后来</a>",
         ">完成</a></div>",
     ] {
@@ -444,7 +444,7 @@ async fn the_download_card_follows_the_app() {
     let q = get_with(&c, "/ui/router/esim/switch?new=1", peer(174, 6), &cookie).await;
     q.assert_secure_html(200);
     let q = q.text();
-    assert!(q.contains("<h2 class=\"q\">切换到假计划？</h2>") && q.contains("路由器与 Home 断开连接并与 Fake Plan 连接。"), "{q}");
+    assert!(q.contains("<h2 class=\"q\">切换到Fake Plan？</h2>") && q.contains("The router disconnects from 首页 and connects with Fake Plan."), "{q}");
     let key = q.split("name=\"p\" value=\"").nth(1).unwrap()[..16].to_owned();
     assert!(key.bytes().all(|b| b.is_ascii_hexdigit()) && !q.contains("0505"), "{q}");
     // Nothing downloaded: nothing to switch to.
@@ -454,7 +454,7 @@ async fn the_download_card_follows_the_app() {
     // the app's); a server's echo of a code is not shown.
     let _f = fake::set(&c.app, json!({"state": "failed", "step": "es9p_authenticate_client", "error": "es9p_authenticate_client: matching ID not found (fake)"}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<b>无法添加配置文件</b>") && html.contains("<p>es9p_authenticate_client: matching ID 未找到 (fake)</p>"), "{html}");
+    assert!(html.contains("<b>无法添加配置文件</b>") && html.contains("<p>es9p_authenticate_client: matching ID not found (fake)</p>"), "{html}");
     assert!(html.contains("<a class=\"btn\" href=\"/ui/router/esim/add?manual=1\">重试</a>"), "{html}");
     let html = get_with(&c, "/ui/router/esim/add?manual=1", peer(174, 7), &cookie).await.text();
     assert!(html.contains("<details class=\"eopt\" open><summary>") && html.contains("手动输入代码</summary>"), "{html}");
@@ -492,7 +492,7 @@ async fn install_and_cancel_send_once() {
     let r = post(&c, CANCEL, peer(175, 3), &cookie, &body).await;
     let line = to(&r);
     assert!(line.starts_with("/ui/router/esim/add?dl=1&r="), "{line}");
-    assert!(get_with(&c, &line, peer(175, 3), &cookie).await.text().contains("该页面已过期，因此未发送任何内容。"));
+    assert!(get_with(&c, &line, peer(175, 3), &cookie).await.text().contains("This page expired, so nothing was sent."));
     // Cancel at the preview, with a new page's token.
     let once = get_with(&c, ADD, peer(175, 4), &cookie).await.input("once");
     let r = post(&c, CANCEL, peer(175, 4), &cookie, &format!("csrf={csrf}&once={once}")).await;
@@ -517,7 +517,7 @@ async fn install_and_cancel_send_once() {
     let line = to(&post(&c, INSTALL, peer(175, 6), &cookie, &body).await);
     assert_eq!(line, format!("{DL}&r={once}"));
     let html = get_with(&c, &line, peer(175, 6), &cookie).await.text();
-    assert!(html.contains("下载不再等待</b><a class=\"btn btn-quiet sm\" href=\"/ui/router/esim/add?dl=1\">检查状态</a>"), "{html}");
+    assert!(html.contains("the download is no longer waiting</b><a class=\"btn btn-quiet sm\" href=\"/ui/router/esim/add?dl=1\">检查状态</a>"), "{html}");
     assert_eq!(to(&post(&c, INSTALL, peer(175, 6), &cookie, &body).await), line);
     assert_eq!(calls(&c).len(), 1);
     // CSRF and session.

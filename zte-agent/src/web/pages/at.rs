@@ -370,7 +370,7 @@ mod tests {
         assert!(e.resp.contains("1111") && !e.resp.contains("0010199999"), "{}", e.resp);
         assert_eq!(e.clock.len(), 8);
         let e = record("AT", 3, &Err((503, "no serial port found".into())));
-        assert_eq!((e.resp.as_str(), e.err), ("错误：未找到串口", true));
+        assert_eq!((e.resp.as_str(), e.err), ("错误：no serial port found", true));
         let long = Ok(json!({"response": "x".repeat(10_000)}));
         assert_eq!(record("AT", 3, &long).resp.len(), MAX_RESP + "\u{2026}".len());
         // Masked before the cut: an IMEI across byte 4096 shows no digits

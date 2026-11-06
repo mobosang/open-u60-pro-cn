@@ -439,8 +439,8 @@ mod tests {
     fn encryption_labels_follow_the_app() {
         for (raw, label) in [
             ("psk2", "WPA2"), ("psk2+ccmp", "WPA2"), ("PSK2+CCMP", "WPA2"), ("sae", "WPA3"), ("sae-mixed", "WPA2/3"),
-            ("sae+psk2", "WPA2/3"), ("psk-mixed", "WPA/2"), ("psk+psk2", "WPA/2"), ("psk", "WPA"), ("none", "Open"),
-            ("", "Open"), ("wpa3-192", "WPA3-192"),
+            ("sae+psk2", "WPA2/3"), ("psk-mixed", "WPA/2"), ("psk+psk2", "WPA/2"), ("psk", "WPA"), ("none", "打开"),
+            ("", "打开"), ("wpa3-192", "WPA3-192"),
         ] {
             assert_eq!(encryption_label(raw), label, "{raw}");
         }
@@ -458,8 +458,8 @@ mod tests {
             // 2.4G: the actual channel; the name escaped.
             "2.4G</dt><dd><b>&lt;b&gt;首页&lt;/b&gt;</b> <small class=\"muted\">WPA2</small> <small class=\"muted\">CH 6</small></dd>",
             // 5G: hidden, no actual channel: the configured one.
-            "5G</dt><dd><small class=\"c-orange\">（隐藏）</small> <b>首页-5G</b> <small class=\"muted\">WPA2/3</small> <small class=\"muted\">CH 36</small></dd>",
-            "嘉宾</dt><dd><b>嘉宾</b></dd>",
+            "5G</dt><dd><small class=\"c-orange\">(Hidden)</small> <b>首页-5G</b> <small class=\"muted\">WPA2/3</small> <small class=\"muted\">CH 36</small></dd>",
+            "嘉宾</dt><dd><b>Guests</b></dd>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
@@ -485,7 +485,7 @@ mod tests {
         assert!(!wifi_card(Ok(&d)).into_string().contains("client"));
         // Unreadable: why, not "Off".
         let s = wifi_card(Err("uci: <x>")).into_string();
-        assert!(s.contains("无法更新：uci：<x>") && !s.contains("关闭"), "{s}");
+        assert!(s.contains("Couldn't update: uci: &lt;x&gt;") && !s.contains("关闭"), "{s}");
     }
 
     #[test]
@@ -573,7 +573,7 @@ mod tests {
         assert!(hidden.contains("<span class=\"mono\" role=\"img\" aria-label=\"密码隐藏\">••••••••••••</span> <a href=\"/ui/wifi/share?show=1\">显示密码</a>"), "{hidden}");
         for want in [
             "<nav class=\"seg\" aria-label=\"网络\"><a href=\"/ui/wifi/share\" aria-current=\"page\">主要</a><a href=\"/ui/wifi/share?net=guest\">嘉宾</a></nav>",
-            "<p><b>首页；网</b></p>", "<svg class=\"qr\"", "使用任意手机摄像头扫描",
+            "<p><b>首页;Net</b></p>", "<svg class=\"qr\"", "使用任意手机摄像头扫描",
         ] {
             assert!(hidden.contains(want), "{want} in {hidden}");
         }

@@ -16,7 +16,7 @@ export const deviceSpecs: DeviceSpec[] = [
   { label: "电池", value: "10,000\u00a0mAh" },
   { label: "显示", value: '3.5" IPS LCD touchscreen' },
   { label: "RAM", value: "1.6\u00a0GB" },
-  { label: "Storage", value: "8\u00a0GB eMMC" },
+  { label: "存储", value: "8\u00a0GB eMMC" },
   { label: "OS", value: "OpenWrt 23.05 (ZWRT)" },
   { label: "USB", value: "USB-C (PD, OTG)" },
 ];

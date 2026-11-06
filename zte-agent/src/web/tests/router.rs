@@ -61,7 +61,7 @@ async fn mobile_network_page_follows_the_app() {
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
-        "<h2>网络连接</h2>", "已连接 — Ipv4 已连接",
+        "<h2>网络连接</h2>", "已连接 — Ipv4 Connected",
         "<form id=\"mn-scan\" method=\"post\" action=\"/ui/router/mobile-network/scan\"><input type=\"hidden\" name=\"csrf\"",
         "<form class=\"mn\" method=\"post\" action=\"/ui/router/mobile-network/apply\"><input type=\"hidden\" name=\"csrf\"",
         "<input type=\"hidden\" name=\"cm0\" value=\"1\"><input type=\"hidden\" name=\"roam0\" value=\"0\"><input type=\"hidden\" name=\"sel0\" value=\"auto_select\"><fieldset class=\"mnf\">",
@@ -88,7 +88,7 @@ async fn mobile_network_page_follows_the_app() {
     let r = post(&c, SCAN, tailnet(40140), &cookie, &format!("csrf={csrf}&once=0123456789abcdef")).await;
     assert_eq!(to(&r), SCAN);
     let q = get_with(&c, SCAN, tailnet(40140), &cookie).await.text();
-    for want in ["<h2 class=\"q\">扫描网络？</h2>", "某些调制解调器在搜索时会暂停移动数据。", "您已远程连接", ">扫描网络</button>"] {
+    for want in ["<h2 class=\"q\">扫描网络？</h2>", "Some modems pause mobile data while they search.", "You are connected remotely", ">扫描网络</button>"] {
         assert!(q.contains(want), "{want} in {q}");
     }
     assert!(calls(&c).is_empty());
@@ -114,7 +114,7 @@ async fn mobile_network_page_follows_the_app() {
     assert!(err.is_some() && err < conn, "{html}");
     let _dev = device::set(&c.app, reads(vec![("/api/modem/data", Err("ubus <down>".into())), ("/api/modem/status", Err("no".into()))]));
     let html = get_with(&c, MN, peer(140, 4), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">加载失败：ubus &lt;down&gt;</p>") && !html.contains("飞行模式状态"), "{html}");
+    assert!(html.contains("role=\"alert\">加载失败：ubus &lt;down&gt;</p>") && !html.contains("airplane mode status"), "{html}");
 }
 
 /// Apply sends only what changed (the router's current values for the
@@ -138,12 +138,12 @@ async fn apply_sends_what_changed_once() {
     assert_eq!(calls(&c), [("/api/modem/data".to_owned(), json!({"cid": 1, "connect_mode": 0, "roam_enable": 0, "enable": 1}))]);
     let op = get_with(&c, &format!("/ui/op/{token}"), peer(141, 3), &cookie).await;
     op.assert_secure_html(200);
-    assert!(op.text().contains("<h1 id=\"op-title\">应用设置</h1>") && op.text().contains("返回移动网络"), "{}", op.text());
+    assert!(op.text().contains("<h1 id=\"op-title\">应用设置</h1>") && op.text().contains("返回 移动网络"), "{}", op.text());
     // Roaming on: asked first (a post without `confirm=1` goes there).
     let token = once().await;
     let body = format!("csrf={csrf}&once={token}&{}", fields("1", "1", "auto_select"));
     let q_url = to(&post(&c, APPLY, peer(141, 4), &cookie, &body).await);
-    assert_eq!(q_url, format!("{APPLY}?{}", fields("1", "1", "汽车_select")));
+    assert_eq!(q_url, format!("{APPLY}?{}", fields("1", "1", "auto_select")));
     let q = get_with(&c, &q_url, peer(141, 4), &cookie).await;
     assert!(q.text().contains("<h2 class=\"q\">开启data roaming?</h2>") && q.text().contains("<button class=\"btn btn-danger\" type=\"submit\">开启data roaming</button>"));
     assert_eq!(calls(&c).len(), 1);
@@ -154,7 +154,7 @@ async fn apply_sends_what_changed_once() {
     let body = format!("csrf={csrf}&once={}&cm=1&roam=0&sel=auto_select&cm0=1&roam0=0&sel0=manual_select", once().await);
     let html = get_with(&c, &to(&post(&c, APPLY, peer(141, 5), &cookie, &body).await), peer(141, 5), &cookie).await.text();
     assert!(html.contains("<p class=\"msg ok\" role=\"status\">应用的设置</p>"), "{html}");
-    assert_eq!(calls(&c)[2], ("/api/modem/network-mode".to_owned(), json!({"net_select_mode": "汽车_select"})));
+    assert_eq!(calls(&c)[2], ("/api/modem/network-mode".to_owned(), json!({"net_select_mode": "auto_select"})));
     let body = format!("csrf={csrf}&once={}&{}", once().await, fields("1", "0", "manual_select"));
     let back = to(&post(&c, APPLY, peer(141, 5), &cookie, &body).await);
     assert!(back.starts_with("/ui/router/mobile-network?sel=manual&r="), "{back}");
@@ -168,7 +168,7 @@ async fn apply_sends_what_changed_once() {
     let both = "cm=0&roam=0&sel=auto_select&cm0=1&roam0=0&sel0=manual_select";
     let q_url = to(&post(&c, APPLY, tailnet(40141), &cookie, &format!("csrf={csrf}&once={}&{both}", once().await)).await);
     let q = get_with(&c, &q_url, tailnet(40141), &cookie).await;
-    for want in ["<h2 class=\"q\">切换到automatic network selection？</h2>", "移动数据不再自行重新连接", "您已远程连接"] {
+    for want in ["<h2 class=\"q\">切换到automatic network selection？</h2>", "Mobile data no longer reconnects by itself", "You are connected remotely"] {
         assert!(q.text().contains(want), "{want} in {}", q.text());
     }
     let _dev = device::set(&c.app, device::Device {
@@ -178,14 +178,14 @@ async fn apply_sends_what_changed_once() {
     });
     let r = post(&c, APPLY, tailnet(40141), &cookie, &format!("csrf={csrf}&once={}&confirm=1&{both}", q.input("once"))).await;
     let html = get_with(&c, &to(&r), tailnet(40141), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">Connection settings applied; 自动 selection failed: 无效参数</p>"), "{html}");
+    assert!(html.contains("role=\"alert\">Connection settings applied; 自动 selection failed: Invalid argument</p>"), "{html}");
     assert_eq!(calls(&c).len(), 2);
     // The state cannot be read: nothing sent, the token given back.
     let token = once().await;
     let _dev = device::set(&c.app, reads(vec![("/api/modem/data", Err("ubus <down>".into())), online()]));
     let body = format!("csrf={csrf}&once={token}&{}", fields("0", "0", "auto_select"));
     let html = get_with(&c, &to(&post(&c, APPLY, peer(141, 6), &cookie, &body).await), peer(141, 6), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败: ubus &lt;down&gt;</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败：ubus &lt;down&gt;</p>"), "{html}");
     assert!(calls(&c).is_empty());
     let _dev = device::set(&c.app, reads(vec![wwan(), online()]));
     assert!(to(&post(&c, APPLY, peer(141, 6), &cookie, &body).await).starts_with("/ui/op/"));
@@ -221,7 +221,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     clock.advance(Duration::from_secs(2));
     let html = get_with(&c, &op, peer(142, 3), &cookie).await.text();
     assert!(html.contains("<h1 id=\"op-title\">扫描完成</h1>") && html.contains("在网络选择下选择一个网络。"), "{html}");
-    assert!(html.contains("href=\"/ui/router/mobile-network?scan=1\">返回移动网络"), "{html}");
+    assert!(html.contains("href=\"/ui/router/mobile-network?scan=1\">返回 移动网络"), "{html}");
     // The networks (the firmware's string), Manual chosen.
     let results = json!({"m_netselect_contents": "2,Test Net,00101,7;1,Other <b>Net</b>,00102,12;3,Barred,00103,7"});
     let _dev = device::set(&c.app, reads(vec![
@@ -231,9 +231,9 @@ async fn scan_lists_networks_and_registers_after_asking() {
     ]));
     let html = get_with(&c, &format!("{MN}?scan=1"), peer(142, 4), &cookie).await.text();
     for want in [
-        "name=\"sel\" value=\"manual_select\" checked>", "name=\"sel0\" value=\"汽车_select\"",
-        "<a class=\"it net\" href=\"/ui/router/mobile-network/register?plmn=00101&amp;rat=7\"><span class=\"cvb\"><span class=\"nm\">测试网</span><small>00101 · 7</small></span><span class=\"c-green\"><svg",
-        "<span class=\"nm\">其他 &lt;b&gt;Net&lt;/b&gt;</span>",
+        "name=\"sel\" value=\"manual_select\" checked>", "name=\"sel0\" value=\"auto_select\"",
+        "<a class=\"it net\" href=\"/ui/router/mobile-network/register?plmn=00101&amp;rat=7\"><span class=\"cvb\"><span class=\"nm\">Test Net</span><small>00101 \u{b7} 7</small></span><span class=\"c-green\"><svg",
+        "<span class=\"nm\">Other &lt;b&gt;Net&lt;/b&gt;</span>",
         "<span class=\"it off net\" aria-disabled=\"true\"><span class=\"cvb\"><span class=\"nm\">Barred</span>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -246,8 +246,8 @@ async fn scan_lists_networks_and_registers_after_asking() {
     let q = get_with(&c, &format!("{REG}?plmn=00101&rat=7&name=Your%20Carrier"), tailnet(40142), &cookie).await;
     q.assert_secure_html(200);
     for want in [
-        "<h2 class=\"q\">注册测试网？</h2>", "调制解调器离开当前网络并注册到 测试网 (00101)。",
-        "您已远程连接", "<button class=\"btn btn-danger\" type=\"submit\">注册</button>",
+        "<h2 class=\"q\">注册Test Net？</h2>", "调制解调器离开当前网络并注册到 Test Net (00101)。",
+        "You are connected remotely", "<button class=\"btn btn-danger\" type=\"submit\">注册</button>",
         "href=\"/ui/router/mobile-network?scan=1\">取消",
     ] {
         assert!(q.text().contains(want), "{want} in {}", q.text());
@@ -265,7 +265,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     // A refused registration, and a scan that fails to start.
     let _sig = fake::set(&c.app, json!({"register": {"m_netselect_result": "fail"}}));
     let q = get_with(&c, &format!("{REG}?plmn=00102&rat=12"), peer(142, 6), &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">注册其他 &lt;b&gt;Net&lt;/b&gt;？</h2>"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">注册Other &lt;b&gt;Net&lt;/b&gt;？</h2>"), "{}", q.text());
     let op = to(&post(&c, REG, peer(142, 6), &cookie, &format!("csrf={csrf}&plmn=00102&rat=12&once={}&confirm=1", q.input("once"))).await);
     clock.advance(Duration::from_secs(3));
     let html = get_with(&c, &op, peer(142, 6), &cookie).await.text();
@@ -298,7 +298,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
     // Its switch posts the page's single-use token; without one nothing is sent.
     let r = post(&c, &format!("{MN}/airplane"), peer(143, 2), &cookie, &format!("csrf={csrf}&mode=ONLINE")).await;
     let html = get_with(&c, &to(&r), peer(143, 2), &cookie).await.text();
-    assert!(html.contains("该页面已过期，因此未发送任何内容。"), "{html}");
+    assert!(html.contains("This page expired, so nothing was sent."), "{html}");
     let fail = (500, json!({"ok": false, "error": "AT+CFUN=1 failed (fake)"}));
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/modem/airplane", fail)], ..Default::default() });
     let token = get_with(&c, MN, peer(143, 2), &cookie).await.input("once");
@@ -313,7 +313,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
     let page = to(&a);
     assert_eq!(page, format!("{REBOOT}?r={token}"));
     assert_eq!((to(&b), to(&d)), (page.clone(), page.clone()));
-    assert_eq!(calls(&c), vec![("/api/modem/飞机".to_owned(), json!({"operate_mode": "ONLINE"})); 2]);
+    assert_eq!(calls(&c), vec![("/api/modem/airplane".to_owned(), json!({"operate_mode": "ONLINE"})); 2]);
     assert_eq!(to(&post(&c, &air, peer(143, 2), &cookie, &body).await), page);
     assert_eq!(calls(&c).len(), 2);
     let r = get_with(&c, &page, peer(143, 2), &cookie).await;
@@ -328,11 +328,11 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("远程连接"));
+    assert!(!html.contains("connected remotely"));
     let token = r.input("once");
     // Over Tailscale: the remote line.
     let remote = get_with(&c, REBOOT, tailnet(40143), &cookie).await.text();
-    assert!(remote.contains("您已远程连接"), "{remote}");
+    assert!(remote.contains("You are connected remotely"), "{remote}");
     let _dev = device::set(&c.app, device::Device::default());
     // Wrong: nothing sent, the password not echoed.
     let r = post(&c, REBOOT, peer(143, 3), &cookie, &format!("csrf={csrf}&password=nope-42")).await;
@@ -345,7 +345,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
     assert!(calls(&c).is_empty());
     // The right password without the page's token: nothing sent.
     let r = post(&c, REBOOT, peer(143, 4), &cookie, &format!("csrf={csrf}&password={}", enc(PW))).await;
-    assert!(r.status == 409 && r.text().contains("该页面已过期，因此未发送任何内容。"), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("This page expired, so nothing was sent."), "{}", r.text());
     assert!(calls(&c).is_empty());
     // Right: the reboot once for a double click; both answered with the
     // "Rebooting…" page itself (the router may not answer a redirect).
@@ -368,7 +368,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
         }
     }
     let r = limited.expect("rate limited");
-    assert!(r.header("retry-after").is_some() && r.text().contains("尝试次数过多。再试一次 "), "{}", r.text());
+    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. 重试 in "), "{}", r.text());
     let token = get_with(&c, REBOOT, peer(143, 5), &cookie).await.input("once");
     assert_eq!(post(&c, REBOOT, peer(143, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await.status, 429);
     assert_eq!(calls(&c).len(), 1);
@@ -427,7 +427,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     ] {
         assert!(q.text().contains(want), "{want} in {}", q.text());
     }
-    assert!(!q.text().contains("远程连接"));
+    assert!(!q.text().contains("connected remotely"));
     let csrf = q.input("csrf");
     let body = format!("csrf={csrf}&nr_pci=774&nr_earfcn=513000&once={}&confirm=1", q.input("once"));
     let nr = format!("{CELL}/nr");
@@ -443,10 +443,10 @@ async fn cell_lock_asks_locks_once_and_scans() {
     assert!(html.contains("<span>锁定</span><span class=\"v c-orange\">是的</span>") && html.contains("解锁单元格"), "{html}");
     // LTE and Unlock over Tailscale: the remote line.
     let q = get_with(&c, &format!("{CELL}/lte?lte_pci=178&lte_earfcn=301"), tailnet(40144), &cookie).await;
-    assert!(q.text().contains("调制解调器将仅使用 PCI 为 178、EARFCN 为 301 的 LTE 小区。") && q.text().contains("您已远程连接"));
+    assert!(q.text().contains("调制解调器将仅使用 PCI 为 178、EARFCN 为 301 的 LTE 小区。") && q.text().contains("You are connected remotely"));
     post(&c, &format!("{CELL}/lte"), tailnet(40144), &cookie, &format!("csrf={csrf}&lte_pci=178&lte_earfcn=301&once={}&confirm=1", q.input("once"))).await;
     let q = get_with(&c, &format!("{CELL}/reset"), tailnet(40144), &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">解锁牢房？</h2>") && q.text().contains("带锁也可能被解开"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">解锁牢房？</h2>") && q.text().contains("band locks may be undone too"), "{}", q.text());
     let r = post(&c, &format!("{CELL}/reset"), tailnet(40144), &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     let _sig = fake::set(&c.app, json!({"cell_lock_status": 1}));
     let html = get_with(&c, &to(&r), tailnet(40144), &cookie).await.text();
@@ -486,7 +486,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     // The reading fails (no fake: the host has no ubus): the app's line.
     drop(_sig);
     let html = get_with(&c, CELL, peer(144, 7), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载单元信息失败： ") && !html.contains("无法更新"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">加载单元信息失败： ") && !html.contains("Couldn't update"), "{html}");
 }
 
 /// Smart Tower Connect: the state and parameters (either name set), the
@@ -513,7 +513,7 @@ async fn stc_shows_its_state_checks_numbers_and_asks() {
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
-    assert!(!html.contains("加载STC失败"));
+    assert!(!html.contains("加载失败 STC"));
     let csrf = get_with(&c, STC, peer(145, 3), &cookie).await.input("csrf");
     let r = post(&c, &format!("{STC}/params"), peer(145, 4), &cookie, &format!("csrf={csrf}&lte_timer=x&nrsa_timer=40&lte_max=100000&nrsa_max=6")).await;
     r.assert_secure_html(400);
@@ -528,17 +528,17 @@ async fn stc_shows_its_state_checks_numbers_and_asks() {
     d.replies.push(("/api/cell/stc/params", (503, json!({"ok": false, "error": "ubus call failed (fake)"}))));
     let _dev = device::set(&c.app, d);
     let r = post(&c, &format!("{STC}/params"), peer(145, 4), &cookie, &format!("csrf={csrf}&lte_timer=30&nrsa_timer=40&lte_max=5&nrsa_max=6")).await;
-    assert!(r.status >= 500 && r.text().contains("<p class=\"msg err\" role=\"alert\">失败: ubus调用失败（假）"), "{}", r.text());
+    assert!(r.status >= 500 && r.text().contains("<p class=\"msg err\" role=\"alert\">失败：ubus call failed (fake)"), "{}", r.text());
     // The controls ask first; each sends once.
     let _dev = device::set(&c.app, device::Device::default());
     for (path, title, label, line, api) in [
-        ("enable", "Turn on Smart Tower Connect?", "Enable STC", "STC enabled", "/api/cell/stc/enable"),
-        ("disable", "Turn off Smart Tower Connect?", "Disable STC", "STC disabled", "/api/cell/stc/disable"),
-        ("reset", "Reset the STC whitelist?", "Reset Whitelist", "STC whitelist reset", "/api/cell/stc/reset"),
+        ("enable", "开启Smart Tower Connect?", "启用STC", "STC 启用", "/api/cell/stc/enable"),
+        ("disable", "关闭Smart Tower Connect?", "禁用 STC", "STC 禁用", "/api/cell/stc/disable"),
+        ("reset", "重置STC白名单？", "重置白名单", "STC白名单重置", "/api/cell/stc/reset"),
     ] {
         post(&c, &format!("{STC}/{path}"), peer(145, 5), &cookie, &format!("csrf={csrf}")).await.assert_see_other(&format!("{STC}/{path}"));
         let q = get_with(&c, &format!("{STC}/{path}"), tailnet(40145), &cookie).await;
-        assert!(q.text().contains(&format!("<h2 class=\"q\">{title}</h2>")) && q.text().contains("您已远程连接"), "{}", q.text());
+        assert!(q.text().contains(&format!("<h2 class=\"q\">{title}</h2>")) && q.text().contains("You are connected remotely"), "{}", q.text());
         assert!(q.text().contains(&format!(">{label}</button>")) && q.text().contains("href=\"/ui/router/stc\">取消"));
         let r = post(&c, &format!("{STC}/{path}"), peer(145, 5), &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
         let html = get_with(&c, &to(&r), peer(145, 5), &cookie).await.text();
@@ -705,9 +705,9 @@ async fn network_operations_stream_their_topic_until_done() {
     let me = c.app.auth.authenticate(crate::auth::Kind::Browser, &session).unwrap().id;
     let modem = |cm: i64| json!({"status": {"operate_mode": "ONLINE"}, "data": {"connect_mode": cm, "roam_enable": 0}});
     for (n, spec, topic, arg, pending, done, title) in [
-        (1u8, &NETSCAN, Topic::Netscan, "", json!({"scan": {"m_netselect_status": "manual_selecting"}}), json!({"scan": {"m_netselect_status": "manual_selected"}}), "Scan complete"),
-        (2, &REGISTER, Topic::Netscan, "", json!({"register": {"m_netselect_result": ""}}), json!({"register": {"m_netselect_result": "manual_success"}}), "Registered to network"),
-        (3, &APPLY, Topic::Modem, "0:-", modem(1), modem(0), "Settings applied"),
+        (1u8, &NETSCAN, Topic::Netscan, "", json!({"scan": {"m_netselect_status": "manual_selecting"}}), json!({"scan": {"m_netselect_status": "manual_selected"}}), "扫描完成"),
+        (2, &REGISTER, Topic::Netscan, "", json!({"register": {"m_netselect_result": ""}}), json!({"register": {"m_netselect_result": "manual_success"}}), "注册网络"),
+        (3, &APPLY, Topic::Modem, "0:-", modem(1), modem(0), "应用的设置"),
     ] {
         let id = format!("{:016x}", 0x100 + u64::from(n));
         let now = c.app.auth.now();
@@ -715,7 +715,7 @@ async fn network_operations_stream_their_topic_until_done() {
         c.app.hub.offer(topic, ReadOut { value: Some(pending), error: None }, std::time::Instant::now());
         let resp = open_live(&c, &format!("/ui/live/op/{id}/{KEY}"), peer(149, n), &cookie).await;
         let mut b = resp.into_body().into_data_stream();
-        assert!(frame(&mut b).await.unwrap().contains("到目前为止"), "{title}");
+        assert!(frame(&mut b).await.unwrap().contains("s so far"), "{title}");
         assert_eq!(c.app.hub.demand(topic), 1, "{title}");
         assert!(Topic::ALL.iter().filter(|t| **t != topic).all(|t| c.app.hub.demand(*t) == 0), "{title}");
         clock.advance(Duration::from_secs(3));

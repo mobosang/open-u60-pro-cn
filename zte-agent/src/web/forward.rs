@@ -288,7 +288,7 @@ pub fn dest_summary(d: &Value) -> String {
     match d["type"].as_str().unwrap_or("") {
         "telegram" => format!("Telegram（聊天：{}）", s("chat_id")),
         "webhook" if s("host").is_empty() => "Webhook".to_owned(),
-        "webhook" => format!("Webhook（{}）", s("host")),
+        "webhook" => format!("Webhook ({})", s("host")),
         "sms" => format!("SMS ({})", s("forward_number")),
         "ntfy" => format!("ntfy ({})", s("topic")),
         "discord" => "Discord".to_owned(),
@@ -1148,7 +1148,7 @@ mod tests {
             vec![err("nt_url", "将用户名和密码保留在 URL 之外。"), err("nt_topic", "仅使用字母、数字、- 和 _。")]
         );
         assert_eq!(errors(&[("dt", "sms"), ("sms_number", "+1555<0123>")], &[])[0].0, "sms_number");
-        assert_eq!(errors(&[("dt", "telegram"), ("tg_token", "a\u{7}b"), ("tg_chat", "1")], &[])[0].1, "删除换行符和控制字符。");
+        assert_eq!(errors(&[("dt", "telegram"), ("tg_token", "a\u{7}b"), ("tg_chat", "1")], &[])[0].1, "删除line breaks and control characters.");
         // Header rows: a value without a name, a bad name, a name without a value.
         let e = errors(
             &[("dt", "webhook"), ("wh_url", "https://example.com/h"), ("wh_hv0", "v"), ("wh_hn1", "Bad Name"), ("wh_hv1", "v"), ("wh_hn2", "X-New")],
@@ -1194,7 +1194,7 @@ mod tests {
         // Webhook: an empty URL keeps the saved one, and its header values by name (any case).
         let kept = resolved(&[("dt", "webhook"), ("wh_hn0", "authorization"), ("wh_hn1", "X-Two"), ("wh_hv1", "new")], &[&wh]).unwrap();
         assert_eq!(kept["url"], "https://example.com/hook/FAKE-PATH");
-        assert_eq!(kept["headers"], json!([{"name": "authorization", "value": AUTH}, {"name": "X-二", "value": "new"}]));
+        assert_eq!(kept["headers"], json!([{"name": "authorization", "value": AUTH}, {"name": "X-Two", "value": "new"}]));
         let typed_same = resolved(&[("dt", "webhook"), ("wh_url", "https://example.com/hook/FAKE-PATH"), ("wh_hn0", "Authorization")], &[&wh]);
         assert_eq!(typed_same.unwrap()["headers"][0]["value"], AUTH);
         // Another URL, even on the same host: the header values are typed again.
@@ -1222,7 +1222,7 @@ mod tests {
         let keep = resolve(&input(&pairs), &[&wh]).secrets;
         assert_eq!((keep.dest, keep.saved, keep.url.as_str()), ("webhook", false, "https://example.com/hook/FAKE-PATH"));
         assert_eq!(keep.get("wh_url"), None);
-        assert_eq!(keep.headers, vec![("X-二".to_owned(), "new".to_owned())]);
+        assert_eq!(keep.headers, vec![("X-Two".to_owned(), "new".to_owned())]);
         assert_eq!(keep.get("tg_token"), None);
         let typed = resolve(&input(&[("dt", "discord"), ("dc_url", "https://discord.com/api/webhooks/2/FAKE-NEW")]), &[&dc]).secrets;
         assert_eq!(typed.get("dc_url"), Some("https://discord.com/api/webhooks/2/FAKE-NEW"));
@@ -1321,8 +1321,8 @@ mod tests {
             summaries,
             [
                 ("全部短信", "Telegram（聊天：-100123）"),
-                ("发件人：银行，+1555*", "Webhook (example.com:8443)"),
-                ("关键词：代码", "ntfy (fake)"),
+                ("发件人：BANK, +1555*", "Webhook (example.com:8443)"),
+                ("关键词：code", "ntfy (fake)"),
                 ("发件人：A + 关键字：b, c", "Discord"),
                 ("全部短信", "短信 (+15555550123)"),
                 ("全部短信", "Slack"),
@@ -1398,9 +1398,9 @@ mod tests {
         let log = json!([e(30, 3, 1), e(20, 2, 1), e(20, 2, 2), e(10, 1, 1)]);
         let fp = |index: usize, sms_id: u64, rule_id: u64, timestamp: i64| Fingerprint { index, sms_id, rule_id, timestamp };
         assert_eq!(fp(2, 2, 2, 20).find(&log), Some(2));
-        assert_eq!(fp(0, 1, 1, 10).find(&log), Some(3), "下移：新条目先行");
-        assert_eq!(fp(1, 2, 1, 21).find(&log), None, "同时重试");
-        assert_eq!(fp(1, 2, 3, 20).find(&log), None, "另一条规则");
+        assert_eq!(fp(0, 1, 1, 10).find(&log), Some(3), "moved down: new entries came first");
+        assert_eq!(fp(1, 2, 1, 21).find(&log), None, "retried meanwhile");
+        assert_eq!(fp(1, 2, 3, 20).find(&log), None, "another rule");
         assert_eq!(fp(9, 4, 1, 40).find(&json!([])), None);
         // A rule id the agent left out is 0 (as its serde default).
         assert_eq!(fp(0, 5, 0, 50).find(&json!([{"timestamp": 50, "sms_id": 5}])), Some(0));

@@ -45,7 +45,7 @@ pub static TOOLS: Screen = Screen {
                 to(usb::MODE, "USB 模式", Icon::UsbC, "USB 模式和移动电源控制"),
                 to(bandlock::PATH, "频段锁定", Icon::Lock, "锁定NR/LTE频段"),
                 to(at::PATH, "AT 终端", Icon::Terminal, "发送原始 AT 命令到调制解调器"),
-                to(tools::DEVICE_INFO, "设备信息", Icon::Info, "SIM、IMEI、WAN IP"),
+                to(tools::DEVICE_INFO, "设备信息", Icon::Info, "SIM, IMEI, WAN IPs"),
                 to(tools::DEVICES, "已连接设备", Icon::Laptop, "查看已连接的客户端和 DHCP 租约"),
             ],
         ),

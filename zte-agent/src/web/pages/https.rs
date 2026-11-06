@@ -155,7 +155,9 @@ pub fn install(pd: &PageData) -> Markup {
             p.foot { "这个页面来自路由器的 HTTPS，所以这些是它的指纹。检查您设置的设备是否显示相同的 SHA-256 指纹；字母大小写、空格和冒号并不重要。" }
         } @else {
             p.foot {
-                "在信任它之前，请检查您的设备是否显示相同的 SHA-256 指纹（字母大小写、空格和冒号无关紧要）。                  此页面通过纯 http 传输，因此您网络上的某人可以将其与下载一起更改：为了检查他们                 无法伪造，请与在已经信任权威的设备上通过 HTTPS 打开的此页面进行比较，或者与 "
+                "Before you trust it, check that your device shows the same SHA-256 fingerprint (letter case, spaces and colons do not matter). \
+                 This page came over plain http, so someone on your network could change it together with the download: for a check they \
+                 cannot fake, compare with this page opened over HTTPS on a device that already trusts the authority, or with "
                 span.mono { "sha256sum " (DIR_CA) }
                 " over SSH (the same digits)."
             }

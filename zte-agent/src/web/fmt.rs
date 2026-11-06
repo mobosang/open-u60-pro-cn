@@ -309,12 +309,12 @@ mod tests {
         }
         assert_eq!(rsrp(&d, "f"), Some(-20.0));
         let cases = [
-            (-80.0, "Excellent", "q-good"),
-            (-80.1, "Good", "q-good"),
-            (-100.0, "Good", "q-good"),
-            (-100.1, "Fair", "q-fair"),
-            (-110.0, "Fair", "q-fair"),
-            (-110.1, "Poor", "q-poor"),
+            (-80.0, "极佳", "q-good"),
+            (-80.1, "良好", "q-good"),
+            (-100.0, "良好", "q-good"),
+            (-100.1, "一般", "q-fair"),
+            (-110.0, "一般", "q-fair"),
+            (-110.1, "较差", "q-poor"),
         ];
         for (v, q, c) in cases {
             assert_eq!((quality(v), quality_class(v)), (q, c), "{v}");
@@ -375,7 +375,7 @@ mod tests {
         assert_eq!(line(Charge::Charging, Some(100), false, Some(30), None), ("已充满".into(), "c-green"));
         // With the current known (this device): no time to full.
         assert_eq!(line(Charge::Charging, Some(69), true, Some(65), None), ("充电中".into(), "c-green"));
-        assert_eq!(line(Charge::Charging, Some(69), false, Some(65), None), ("充电· 1h 5m".into(), "c-green"));
+        assert_eq!(line(Charge::Charging, Some(69), false, Some(65), None), ("充电 · 1h 5m".into(), "c-green"));
         assert_eq!(line(Charge::Charging, Some(69), false, Some(0), None), ("充电中".into(), "c-green"));
         assert_eq!(line(Charge::Unknown, None, true, None, None), ("不可用".into(), "muted"));
         assert_eq!(line(Charge::Discharging, Some(69), true, None, Some(1240)), ("20h 40m".into(), "c-green"));

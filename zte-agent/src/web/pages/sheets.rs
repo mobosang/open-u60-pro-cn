@@ -31,7 +31,7 @@ pub fn traffic_body(v: &Views) -> Markup {
         div.dash {
             (dashboard::traffic_sheet(v))
             p.note {
-                "这些速度显示所有连接设备上当前的蜂窝流量。速度测试报告                 测试期间的吞吐量；在此期间，实时数据会发生变化。"
+                "这些速度显示所有连接设备上当前的蜂窝流量。速度测试报告测试期间的吞吐量；在此期间，实时数据会发生变化。"
             }
         }
     }
@@ -226,7 +226,7 @@ pub fn health_body(v: &Views) -> Markup {
         (hl_temps(v))
         details { summary { "所有传感器" } (hl_all(v)) }
         p.cap {
-            "CPU 显示最热的 CPU 区域。板编号遵循设备’ 传感器名称。不可用             表示设备未报告有效温度。"
+            "CPU 显示最热的 CPU 区域。板号遵循设备的传感器名称。不可用意味着设备未报告有效的温度。"
         }
     };
     html! {
@@ -371,9 +371,9 @@ mod tests {
     #[test]
     fn sensors_are_labelled_like_the_app() {
         for (name, label) in [
-            ("cpuss-3", "CPU sensor 3"), ("sys-therm-1", "Board sensor 1"), ("battery", "Battery"), ("usb", "USB"),
-            ("pmx75_tz", "Power chip \u{b7} PMX75"), ("pmg1110_tz", "Power chip \u{b7} PMG1110"),
-            ("pm7550ba_tz", "Power chip \u{b7} PM7550BA"), ("xo-therm", "Crystal oscillator"), ("modem-0", "modem-0"),
+            ("cpuss-3", "CPU传感器3"), ("sys-therm-1", "板传感器 1"), ("battery", "电池"), ("usb", "USB"),
+            ("pmx75_tz", "电源芯片·PMX75"), ("pmg1110_tz", "电源芯片·PMG1110"),
+            ("pm7550ba_tz", "电源芯片·PM7550BA"), ("xo-therm", "晶体振荡器"), ("modem-0", "modem-0"),
         ] {
             assert_eq!(sensor_label(name), label);
         }
@@ -382,7 +382,7 @@ mod tests {
         // zeroc and a repeated zone are left out; 999 °C is no reading.
         assert_eq!(names, ["cpuss-0", "cpuss-1", "usb", "sys-therm-2", "pmx75_tz", "xo-therm", "<b>odd</b>"]);
         let all = hl_all(&v).into_string();
-        assert!(all.contains("<dt>CPU传感器 0<small class=\"lbl\">cpuss-0</small></dt><dd>40.1 °C</dd>"), "{all}");
+        assert!(all.contains("<dt>CPU传感器0<small class=\"lbl\">cpuss-0</small></dt><dd>40.1 °C</dd>"), "{all}");
         assert!(all.contains("<dt>板传感器 2<small class=\"lbl\">sys-therm-2</small></dt><dd class=\"muted\">不可用</dd>"));
         // The raw name only when it differs; device text escaped.
         assert!(all.contains("<dt>&lt;b&gt;odd&lt;/b&gt;</dt><dd class=\"muted\">不可用</dd>"), "{all}");
@@ -402,17 +402,17 @@ mod tests {
         for want in [
             "CPU·最热传感器</dt><dd><b>41.5 °C</b>", "电池</dt><dd><b>26.0 °C</b>", "USB</dt><dd><b>33.0 °C</b>",
             "板传感器 2</dt><dd class=\"muted\">不可用</dd>", "电源芯片·PMX75</dt><dd><b>38.2 °C</b>",
-            "3秒前更新 · 每2秒刷新一次",
+            "更新 3s ago · refreshes every 2s",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
         // Only the summary sensors: no CPU zones or crystal oscillator rows.
-        assert!(!s.contains("CPU传感器") && !s.contains("水晶"), "{s}");
+        assert!(!s.contains("CPU sensor") && !s.contains("Crystal"), "{s}");
         let s = hl_temps(&at(10, 3)).into_string();
         assert!(s.contains("CPU·最热传感器</dt><dd><b>—</b>") && s.contains("板传感器 2</dt><dd><b>—</b>"), "{s}");
-        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("最后一次采样 10 秒前 · 等待设备"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("最后一个样本 10s ago · waiting for device"), "{s}");
         let s = hl_temps(&at(3, 12)).into_string();
-        assert!(s.contains("电池</dt><dd><b>—</b>") && s.contains("3秒前更新"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>—</b>") && s.contains("更新 3s ago"), "{s}");
         // A failed read is not fresh, whatever its time.
         let mut v = at(1, 1);
         v.set(Topic::Battery, SlotView { error: Some(Arc::from("no battery")), ..slot(json!({"temperature": 260}), 1) });
@@ -423,7 +423,7 @@ mod tests {
         assert!(s.contains("温度读数不可用 · 自动重试") && s.contains("<dd><b>—</b>"), "{s}");
         // Nothing read yet.
         let s = hl_temps(&views(vec![])).into_string();
-        assert!(s.contains("温度读数不可用") && s.contains("CPU·最热传感器</dt><dd><b>—</b>"), "{s}");
+        assert!(s.contains("温度 readings unavailable") && s.contains("CPU·最热传感器</dt><dd><b>—</b>"), "{s}");
     }
 
     #[test]
@@ -440,7 +440,7 @@ mod tests {
         for want in [
             "<section class=\"card ctr\" id=\"hl-cpu\">", "<p class=\"big\">12.3%</p>", "<p class=\"cap num\">41.5 °C</p>",
             "<a class=\"nl\" href=\"/ui/health/cpu\">CPU, memory &amp; processes</a>", "温度",
-            "CPU 显示最热的 CPU 区域。板号遵循设备的传感器名称。",
+            "CPU shows the hottest CPU zone. Board numbers follow the device’s sensor names.",
         ] {
             assert!(page.contains(want), "{want} in {page}");
         }
@@ -497,7 +497,7 @@ mod tests {
         let v = views(vec![(Topic::Traffic, json!({"real_rx_speed": 52, "real_tx_speed": 69}))]);
         let s = traffic_body(&v).into_string();
         assert!(s.contains("<section class=\"card\" id=\"card-traffic\">") && !s.contains("<a class=\"card\""), "{s}");
-        assert!(s.contains("416.0 b/s") && s.contains("速度测试报告测试期间的吞吐量"));
+        assert!(s.contains("416.0 b/s") && s.contains("A speed test reports throughput over its test period"));
         assert!(dashboard::card_traffic(&v).into_string().starts_with("<a class=\"card\" id=\"card-traffic\" href=\"/ui/traffic\">"));
     }
 }

@@ -134,7 +134,9 @@ fn charge(pd: &PageData) -> Markup {
     let footer = html! {
         @if on {
             (foot(&format!("充电在 {limit}% 处停止，并在 {}% 处恢复。", limit - hysteresis)))
-            (foot("恢复间隙可防止充电器快速打开和关闭。较小的差距（例如2%）保持                   电池更接近您的目标，但更频繁地切换充电器。较大的差距（例如 10%）意味着                    充电周期更少，但电池电量波动更大。"))
+            (foot("The resume gap prevents the charger from rapidly switching on and off. A smaller gap (e.g. 2%) keeps \
+                   the battery closer to your target but toggles the charger more often. A larger gap (e.g. 10%) means \
+                   fewer charge cycles but the battery level will swing more."))
             (foot("默认值：5% — 对于大多数用户来说是一个很好的平衡。"))
         } @else {
             (foot("当电池电量达到设定水平时停止充电。延长电池寿命。"))
@@ -475,7 +477,7 @@ mod tests {
         for bad in ["on=1", "on=1&timeout=0", "timeout=1441", "timeout=+5", "timeout=05000", "on=x&timeout=5", ""] {
             assert_eq!(vals(Kind::AutoSleep, bad), None, "{bad}");
         }
-        assert_eq!((timeout_label("60"), timeout_label("15")), ("1小时".to_owned(), "15 分钟".to_owned()));
+        assert_eq!((timeout_label("60"), timeout_label("15")), ("1 hour".to_owned(), "15 min".to_owned()));
         assert_eq!(timeout_of(Some(&json!({"timeout": "-1"}))), "5");
         assert_eq!(timeout_of(Some(&json!({"timeout": "30"}))), "30");
         assert_eq!((on_off(&json!("1")), on_off(&json!("0")), on_off(&json!(""))), (Some(true), Some(false), None));
@@ -483,8 +485,8 @@ mod tests {
         let on = Input::of(&[("on", "1"), ("timeout", "20")]);
         assert!(question(Kind::AutoSleep, &on, false).is_none() && question(Kind::PowerSave, &on, true).is_none());
         let q = question(Kind::AutoSleep, &on, true).unwrap();
-        assert_eq!((q.title.as_str(), q.label), ("开启自动睡眠?", Some("打开自动睡眠")));
-        assert!(q.lines[0].contains("for 20 分钟,") && q.lines[1].starts_with("您已远程连接："));
+        assert_eq!((q.title.as_str(), q.label), ("开启Auto Sleep?", Some("打开自动睡眠")));
+        assert!(q.lines[0].contains("for 20 min,") && q.lines[1].starts_with("You are connected remotely:"));
         assert!(question(Kind::AutoSleep, &Input::of(&[("timeout", "20")]), true).is_none());
         assert_eq!(Power::of(REBOOT).map(Power::api), Some("/api/device/reboot"));
         assert_eq!(Power::of(RESET).map(Power::api), Some("/api/device/factory-reset"));

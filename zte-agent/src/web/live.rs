@@ -265,7 +265,7 @@ impl Emitter for PageEmitter {
         let (page, pill) = (self.page.page.as_str(), self.page.pill);
         let parts = match reason {
             ByeReason::TokenExpired | ByeReason::LoggedOut => signed_out(pill, self.page.next),
-            ByeReason::Lifetime => ending(pill, "实时更新在 30 分钟后暂停。", Some(("简历", page))),
+            ByeReason::Lifetime => ending(pill, "实时更新在 30 分钟后暂停。", Some(("恢复", page))),
             ByeReason::Evicted => ending(pill, "在另一个选项卡中打开。", Some(("刷新", page))),
             ByeReason::Standby => ending(pill, "路由器进入待机状态。", Some(("刷新", page))),
         };
@@ -454,7 +454,7 @@ mod tests {
         want.push("live-status".into());
         assert_eq!(ids(&open), want);
         assert!(open.last().unwrap().starts_with(
-            "<p class=\\\"live on ps hb-o\\\" id=\\\"live-status\\\"><span class=\\\"ok\\\"><b>已连接</b></span>             <span class=\\\"lost\\\"><a href=\\\"/ui/\\\">离线<span class=\\\"sr\\\">. 刷新</span></a></span></p>"
+            "<p class=\"live on ps hb-o\" id=\"live-status\"><span class=\"ok\"><b>已连接</b></span><span class=\"lost\"><a href=\"/ui/\">离线<span class=\"sr\">. 刷新</span></a></span></p>"
         ));
         // Byte-equal to the same fragment of a full page (the age badge is
         // the nav bar's).
@@ -497,7 +497,7 @@ mod tests {
         // app's cards have none), so it is not sent.
         assert_eq!(ids(&parts), ["card-traffic", "card-health", "age", "live-status"], "{parts:?}");
         assert!(parts[0].contains("· 之前的最后一个流量样本 · 16 正在等待设备"));
-        assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("20 秒前更新")));
+        assert!(parts[1].contains("<dt>CPU</dt><dd>—</dd>") && !parts.iter().any(|p| p.contains("更新 20 s ago")));
         assert!(parts.last().unwrap().contains("class=\"live on ps hb-b\""));
     }
 
@@ -601,10 +601,10 @@ mod tests {
         for r in [ByeReason::TokenExpired, ByeReason::LoggedOut] {
             assert_eq!(
                 note(&mut em, r),
-                "<p class=\\\"live ps\\\" id=\\\"live-status\\\"><span class=\\\"off\\\"><b>离线</b></span></p>                 <p id=\\\"live-note\\\">已退出。 <a href=\\\"/ui/login?next=%2Fui%2F\\\">登录</a></p>"
+                "<p class=\"live ps\" id=\"live-status\"><span class=\"off\"><b>离线</b></span></p><p id=\"live-note\">已退出。 <a href=\"/ui/login?next=%2Fui%2F\">登录</a></p>"
             );
         }
-        assert!(note(&mut em, ByeReason::Lifetime).contains("实时更新在 30 分钟后暂停。 <a href=\"/ui/\">简历</a>"));
+        assert!(note(&mut em, ByeReason::Lifetime).contains("实时更新在 30 分钟后暂停。 <a href=\"/ui/\">恢复</a>"));
         assert!(note(&mut em, ByeReason::Evicted).contains("在另一个选项卡中打开。 <a href=\"/ui/\">刷新</a>"));
         assert!(note(&mut em, ByeReason::Standby).contains("路由器进入待机状态。 <a href=\"/ui/\">刷新</a>"));
         assert!(!note(&mut em, ByeReason::Standby).contains(" on"));
@@ -806,7 +806,7 @@ mod tests {
         let online = SlotView { version: 1, at: now, value_at: now, value: Some(Arc::new(json!({"status": {"operate_mode": "ONLINE"}}))), error: None };
         let parts = elements(&em.open(vec![(Topic::Modem, online.clone())], now));
         assert_eq!(parts[0], "<h1 id=\"op-title\">开启飞行模式</h1>");
-        assert!(parts[1].contains("关闭收音机") && parts[2].contains("hb-o"));
+        assert!(parts[1].contains("Turning the radio off") && parts[2].contains("hb-o"));
         assert!(!em.finished());
         // Byte-equal to the page's heading and progress card.
         let mut views = Views::new(now, vec![(Topic::Modem, online)]);

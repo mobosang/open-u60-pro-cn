@@ -62,7 +62,7 @@ class ProcessListViewModel @Inject constructor(
                 val freedRssKb = (data["freed_rss_kb"] as? Number)?.toLong() ?: 0
                 val freedMB = String.format("%.1f", freedRssKb / 1024.0)
                 _state.value = _state.value.copy(
-                    message = "杀死 ${killedList.size} 守护进程，释放 ${freedMB} MB",
+                    message = "结束 ${killedList.size} 守护进程，释放 ${freedMB} MB",
                 )
                 fetchProcesses()
             } catch (e: AgentError.Unauthorized) {

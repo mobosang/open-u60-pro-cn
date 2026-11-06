@@ -735,11 +735,11 @@ mod tests {
         assert_eq!(clock(t, -16 * H), "11:41 PM");
         assert_eq!(clock(NEW_YEAR, 0), "12:00 AM");
         assert_eq!(clock(NEW_YEAR + 12 * H + 5 * 60, 0), "12:05 PM");
-        assert_eq!(day(t, 0), "2024年1月1日");
+        assert_eq!(day(t, 0), "一月 1, 2024");
         assert_eq!(stamp(t + 7, 0), "1/1/24, 3:41:07 PM");
         assert_eq!(stamp(t, 9 * H), "1/2/24, 12:41:00 AM");
         assert_eq!(stamp(NEW_YEAR + 300 * DAY + 9 * H + 5, -H), "10/27/24, 8:00:05 AM");
-        assert_eq!(day(t, 9 * H), "2024 年 1 月 2 日");
+        assert_eq!(day(t, 9 * H), "一月 2, 2024");
         assert_eq!(sms_time(t, 8 * H), "24;01;01;23;41;00;+8");
         assert_eq!(sms_time(t, -5 * H - 1800), "24;01;01;10;11;00;-5");
         assert_eq!(sms_time(t, 0), "24;01;01;15;41;00;+0");
@@ -770,7 +770,7 @@ mod tests {
             assert_eq!(relative(now + delta, now, 0), want, "{delta}");
         }
         // An unset router clock: the date.
-        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "2024年1月1日");
+        assert_eq!(relative(NEW_YEAR, 1_000_000, 0), "一月 1, 2024");
     }
 
     fn item(id: u64, number: &str, text: &str, date: &str, tag: impl Into<Value>) -> Value {
@@ -798,18 +798,18 @@ mod tests {
         ]});
         let msgs = messages(&data);
         assert_eq!(msgs.iter().map(|m| m.id).collect::<Vec<_>>(), [5, 4, 3, 2, 7]);
-        assert_eq!(msgs[4].content, "纯文本");
+        assert_eq!(msgs[4].content, "Plain text");
         assert_eq!(msgs[4].date, None);
         let now = NEW_YEAR + 10 * DAY;
         let convs = group(msgs, now);
         // The dateless message counts as now: the bank is newest. The
         // longest variant, the newest of equals: "Example-Bank" (id 7, now).
-        assert_eq!(convs.iter().map(|c| c.number.as_str()).collect::<Vec<_>>(), ["示例银行", "+15555550100"]);
+        assert_eq!(convs.iter().map(|c| c.number.as_str()).collect::<Vec<_>>(), ["Example-Bank", "+15555550100"]);
         let bank = &convs[0];
         assert_eq!((bank.key.as_str(), bank.unread, bank.latest().id), ("EXAMPLE-BANK", 1, 7));
         let person = &convs[1];
         assert_eq!(person.msgs.iter().map(|m| m.id).collect::<Vec<_>>(), [4, 2, 5]);
-        assert_eq!((person.unread, person.unread_ids(), person.latest().content.as_str()), (1, vec![5], "第二"));
+        assert_eq!((person.unread, person.unread_ids(), person.latest().content.as_str()), (1, vec![5], "Second"));
         assert!(person.matches("555") && person.matches("mine") && !person.matches("bank"));
         assert!(bank.matches("code") && bank.matches("example"));
         // Equal lengths: the newest message's, not the oldest's.
@@ -834,15 +834,15 @@ mod tests {
         ]}));
         let _g = fake::set(&app, d.clone());
         let all = read(&app, Store::All).unwrap();
-        assert_eq!(all.msgs.iter().map(|m| (m.id, m.content.as_str())).collect::<Vec<_>>(), [(2, "内部"), (1, "关于SIM")]);
+        assert_eq!(all.msgs.iter().map(|m| (m.id, m.content.as_str())).collect::<Vec<_>>(), [(2, "内部"), (1, "On the SIM")]);
         assert!(all.partial.is_none());
         assert_eq!(read(&app, Store::Sim).unwrap().msgs.len(), 2);
         assert_eq!(read(&app, Store::Internal).unwrap().msgs.len(), 1);
         // One store failing: the other's messages and a note.
         let _g = fake::set(&app, fake::Device { sim: Err("ubus timeout".into()), ..d.clone() });
         let all = read(&app, Store::All).unwrap();
-        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("无法读取 SIM 消息：总线超时")));
-        assert_eq!(read(&app, Store::Sim).err().as_deref(), Some("总线超时"));
+        assert_eq!((all.msgs.len(), all.partial.as_deref()), (1, Some("无法读取 SIM 消息：ubus timeout")));
+        assert_eq!(read(&app, Store::Sim).err().as_deref(), Some("ubus timeout"));
         // Both failing: the first error, never an empty list.
         let _g = fake::set(&app, fake::Device { internal: Err("first".into()), sim: Err("second".into()), ..d });
         assert_eq!(read(&app, Store::All).err().as_deref(), Some("first"));
@@ -861,7 +861,7 @@ mod tests {
         assert!(check_text(&"a".repeat(765)).is_ok());
         assert_eq!(check_text(&"a".repeat(766)).unwrap_err(), "最多输入 765 个字符。");
         assert!(check_text(&"Ж".repeat(335)).is_ok());
-        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("最多 335 个字符"));
+        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("at most 335 characters"));
         // An emoji is two UTF-16 units.
         assert!(check_text(&"\u{1F600}".repeat(168)).is_err() && check_text(&"\u{1F600}".repeat(167)).is_ok());
         for blank in ["", "  ", "\n\t"] {
@@ -912,7 +912,7 @@ mod tests {
         }
         // Anything else that is there is a rejection, whatever its type.
         for (bad, shown) in [(json!(1), "1"), (json!("4"), "4"), (json!(-1), "-1"), (json!("fail"), "fail"), (json!(3.0), "3.0"), (json!([3]), "[3]")] {
-            assert_eq!(send_result(&json!({"result": bad})).unwrap_err(), format!("设备被拒绝（结果={shown}）"));
+            assert_eq!(send_result(&json!({"result": bad})).unwrap_err(), format!("device rejected (result={shown})"));
         }
         assert_eq!(parse_capacity(&json!({"sms_nv_total": "100", "sms_nvused_total": "12"})), Some((12, 100)));
         assert_eq!(parse_capacity(&json!({"sms_nv_total": 50, "sms_nvused_total": 50})), Some((50, 50)));

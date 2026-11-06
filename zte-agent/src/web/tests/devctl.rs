@@ -87,7 +87,7 @@ async fn device_controls_follow_the_app() {
     let tokens: Vec<&str> = html.split("name=\"once\" value=\"").skip(1).map(|t| t.split('"').next().unwrap()).collect();
     assert_eq!(tokens.len(), 5, "{html}");
     assert!(tokens.iter().all(|t| *t == tokens[0]));
-    assert!(!html.contains("进入网络用户界面") && !html.contains("失败"));
+    assert!(!html.contains("Coming to the web UI") && !html.contains("失败"));
     // Charge Limit off: the app's other footer; Auto Sleep off: no timeout.
     let _dev = device::set(&c.app, device::Device {
         gets: vec![
@@ -162,9 +162,9 @@ async fn device_switches_send_once_with_the_app_bodies() {
     sent(AS, "on=1&timeout=20").await.assert_see_other(DEV);
     assert_eq!(calls(&c)[1..], [
         ("/api/device/fast-boot".to_owned(), json!({"fast_boot": "0"})),
-        ("/api/device/汽车-sleep".to_owned(), json!({"enabled": false})),
-        ("/api/device/汽车-sleep".to_owned(), json!({"enabled": true, "timeout": "60"})),
-        ("/api/device/汽车-sleep".to_owned(), json!({"enabled": true, "timeout": "20"})),
+        ("/api/device/auto-sleep".to_owned(), json!({"enabled": false})),
+        ("/api/device/auto-sleep".to_owned(), json!({"enabled": true, "timeout": "60"})),
+        ("/api/device/auto-sleep".to_owned(), json!({"enabled": true, "timeout": "20"})),
     ]);
     // Values no form sends; no session; no CSRF token; no single-use token.
     for (path, fields) in [(PS, "on=2"), (FB, ""), (AS, "on=1"), (AS, "timeout=0"), (AS, "timeout=1441"), (AS, "on=1&timeout=5%3B")] {
@@ -216,7 +216,7 @@ async fn auto_sleep_on_is_asked_over_tailscale() {
     assert!(calls(&c).is_empty());
     let r = post(&c, AS, tailnet(42222), &cookie, &format!("csrf={csrf}&once={}&on=1&timeout=30&confirm=1", q.input("once"))).await;
     r.assert_see_other(DEV);
-    assert_eq!(calls(&c), [("/api/device/汽车-sleep".to_owned(), json!({"enabled": true, "timeout": "30"}))]);
+    assert_eq!(calls(&c), [("/api/device/auto-sleep".to_owned(), json!({"enabled": true, "timeout": "30"}))]);
     // Off and the other switches: at once, also remotely.
     let token = get_with(&c, DEV, tailnet(42222), &cookie).await.input("once");
     post(&c, PS, tailnet(42222), &cookie, &format!("csrf={csrf}&once={token}&on=1")).await.assert_see_other(DEV);
@@ -248,9 +248,9 @@ async fn reboot_and_factory_reset_need_the_router_password() {
         "<p class=\"foot\">The router will restart. This takes about 60 seconds.</p>",
         "<button class=\"it cv snd danger\" type=\"submit\">Reboot</button>",
     ]);
-    assert!(!html.contains("远程连接"));
+    assert!(!html.contains("connected remotely"));
     let token = r.input("once");
-    assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("您已远程连接：如果连接断开"));
+    assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("You are connected remotely: if the connection drops"));
     let reset = get_with(&c, RESET, peer(223, 2), &cookie).await.text();
     has(&reset, &[
         "<h1>Factory Reset</h1>", "<p class=\"cap\">This will erase ALL settings. Enter your router password to confirm.</p>",
@@ -260,7 +260,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
         "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"Router Password\" autocomplete=\"off\" required data-1p-ignore=\"true\" data-lpignore=\"true\" data-bwignore=\"true\">",
     ]);
     let remote = get_with(&c, RESET, tailnet(42223), &cookie).await.text();
-    assert!(remote.contains("您已远程连接：恢复出厂设置后，路由器可能无法返回您的尾网"), "{remote}");
+    assert!(remote.contains("You are connected remotely: after a factory reset the router may not come back on your tailnet"), "{remote}");
     let csrf = page_csrf(&html);
     // Wrong: nothing sent, the password not echoed.
     let r = post(&c, REBOOT, peer(223, 3), &cookie, &format!("csrf={csrf}&once={token}&password=fake-wrong-1")).await;
@@ -272,7 +272,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     post(&c, RESET, peer(223, 3), "", &format!("csrf={csrf}&password={}", enc(PW))).await.assert_see_other(&format!("/ui/login?next={}&expired=1", enc(RESET)));
     // The right password without the sheet's token.
     let r = post(&c, REBOOT, peer(223, 4), &cookie, &format!("csrf={csrf}&password={}", enc(PW))).await;
-    assert!(r.status == 409 && r.text().contains("该页面已过期，因此未发送任何内容。"), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("This page expired, so nothing was sent."), "{}", r.text());
     assert!(calls(&c).is_empty());
     // Right: once for a double click, both answered with the page.
     let body = format!("csrf={csrf}&once={token}&password={}", enc(PW));
@@ -310,7 +310,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
         }
     }
     let r = limited.expect("rate limited");
-    assert!(r.header("retry-after").is_some() && r.text().contains("尝试次数过多。再试一次 "), "{}", r.text());
+    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. 重试 in "), "{}", r.text());
     let (pre, login_csrf) = login_form(&c, peer(223, 6)).await;
     let login = format!("login_csrf={}&next=%2Fui%2F&password={}", enc(&login_csrf), enc(PW));
     assert_eq!(post(&c, "/ui/login", peer(223, 6), &format!("zte_ui_pre={pre}"), &login).await.status, 429);
@@ -356,7 +356,7 @@ async fn settings_preferences_are_cookies() {
     let dark_cookie = format!("{cookie}; zte_ui_theme=dark");
     for uri in [SETTINGS, "/ui/", DEV, "/ui/nope", "/ui/logout"] {
         let r = get_with(&c, uri, peer(224, 4), &dark_cookie).await;
-        assert!(r.text().contains(&dark) && !r.text().contains("浅色 深色"), "{uri}: {}", r.text());
+        assert!(r.text().contains(&dark) && !r.text().contains("light dark"), "{uri}: {}", r.text());
         assert!(r.header("content-length").is_none_or(|n| n == r.body.len().to_string()), "{uri}");
     }
     assert!(get_with(&c, SETTINGS, peer(224, 4), &dark_cookie).await.text().contains("value=\"dark\" aria-pressed=\"true\""));

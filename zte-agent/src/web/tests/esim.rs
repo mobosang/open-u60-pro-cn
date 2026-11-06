@@ -100,8 +100,8 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
         "<a class=\"nl ic\" href=\"/ui/router/esim/add\" aria-label=\"添加 eSIM\">",
         "<a class=\"nl ic\" href=\"/ui/router/esim\" aria-label=\"刷新配置文件和连接\">",
         "<h2>在您的 eSIM 上</h2>", "<span class=\"cnt\">4 profiles</span>", "最后阅读 ",
-        "<small class=\"active\">", "已启用</small><b>戈莫u60</b><small class=\"cap\">GOMO</small><small class=\"cap num\">…0101</small>",
-        "<h2 class=\"esub\">切换至another profile</h2>", "<b>Klook_app</b><small class=\"cap\">旅行 - 菲律宾</small>",
+        "<small class=\"active\">", "已启用</small><b>GOMO u60</b><small class=\"cap\">GOMO</small><small class=\"cap num\">…0101</small>",
+        "<h2 class=\"esub\">切换至another profile</h2>", "<b>Klook_app</b><small class=\"cap\">Travel - PHL</small>",
         "aria-label=\"不可用\"", "添加 eSIM</a>", "切换会使互联网暂停大约一分钟。您的路由器的 Wi-Fi 保持开启状态。",
         "<b>运营商收据</b><small class=\"cap\">2 waiting · Retried automatically</small>", "为什么这些人在等待？",
         "action=\"/ui/router/esim/receipts\"", "立即发送</button>", "<b>eSIM 卡</b><small class=\"cap\">Card details &amp; identifiers</small>",
@@ -121,7 +121,7 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
     }
     // Delete profile with the app's trash icon.
     let del = html.split(&format!("href=\"{DELETE}?p={}\"", k[1])).nth(1).unwrap();
-    assert!(del.split("</a>").next().unwrap().contains("M4.5 6.5h15") && del.contains("删除配置文件"), "{del}");
+    assert!(del.split("</a>").next().unwrap().contains("M4.5 6.5h15") && del.contains("删除 profile"), "{del}");
     // The stream: the same fragments, never the EID or an ICCID (this
     // browser's 1 s refresh preference does not change the screen's own).
     let resp = open_live(&c, &live_url(&html, "esim"), peer(160, 3), &format!("{cookie}; zte_ui_refresh=1000")).await;
@@ -140,16 +140,16 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
     let offer = |t: Topic, v: Value| c.app.hub.offer(t, ReadOut { value: Some(v), error: None }, std::time::Instant::now());
     offer(Topic::EsimDownload, json!({"state": "running", "step": "es9p_authenticate_client", "started_at": 1_761_200_100}));
     let next = patch(&mut b, "esim-dl").await;
-    assert!(next.contains("<div class=\"busy\" id=\"esim-dl\">") && !next.contains("改变"), "{next}");
+    assert!(next.contains("<div class=\"busy\" id=\"esim-dl\">") && !next.contains("Changed"), "{next}");
     offer(Topic::EsimDownload, json!({"state": "done", "provider": "Example Travel", "iccid": "8900000000000000505", "started_at": 1_761_200_100}));
     let next = patch(&mut b, "esim-upd").await;
-    assert!(next.contains("<b>旅行示例 added.</b>") && next.contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"), "{next}");
+    assert!(next.contains("<b>Example Travel added.</b>") && next.contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"), "{next}");
     assert!(!next.contains("class=\"busy\" id=\"esim-dl\"") && !next.contains("0505"), "{next}");
     // A switch starts elsewhere: its card follows, the list says "Updating…".
     let sw = json!({"state": "reloading", "target_iccid": ICCIDS[1], "generation": 8, "sim_epoch": 0});
     c.app.hub.offer(Topic::EsimSwitch, ReadOut { value: Some(sw), error: None }, std::time::Instant::now());
     let next = frame(&mut b).await.unwrap();
-    assert!(next.contains("<b>正在重新加载 SIM</b>") && next.contains("切换至迪托 u60") && next.contains("更新…"), "{next}");
+    assert!(next.contains("<b>正在重新加载 SIM</b>") && next.contains("切换至DITO u60") && next.contains("更新…"), "{next}");
     assert!(!next.contains(ICCIDS[1]) && !next.contains(EID), "{next}");
     // It ends without data, which comes up later: the card says connected
     // (the app's next check); the list changed.
@@ -158,17 +158,17 @@ async fn profiles_follow_the_app_with_identifiers_masked() {
     assert!(next.contains("<b>连接需要处理</b>") && next.contains("修改为· "), "{next}");
     offer(Topic::Modem, json!({"data": {"connect_status": "ipv4_ipv6_connected"}}));
     let next = patch(&mut b, "esim-conn").await;
-    assert!(next.contains("切换至迪托 u60") && next.contains("<b>移动数据已连接</b>"), "{next}");
+    assert!(next.contains("切换至DITO u60") && next.contains("<b>移动数据已连接</b>"), "{next}");
     drop(b);
     // Loaded while the SIM reloads (the agent answers with the list read
     // before the switch): the target shows as active once its enable went
     // through; not while the outcome is unknown.
     let _sw = fake::set(&c.app, json!({"state": "reloading", "target_iccid": ICCIDS[1], "generation": 9, "note": null}));
     let html = get_with(&c, LIST, peer(160, 5), &cookie).await.text();
-    assert!(html.contains("已启用</small><b>迪托 u60</b>") && !html.contains("已启用</small><b>戈莫u60</b>"), "{html}");
+    assert!(html.contains("已启用</small><b>DITO u60</b>") && !html.contains("已启用</small><b>GOMO u60</b>"), "{html}");
     let _sw = fake::set(&c.app, json!({"state": "reloading", "target_iccid": ICCIDS[1], "generation": 9, "note": "enable error: timed out"}));
     let html = get_with(&c, LIST, peer(160, 5), &cookie).await.text();
-    assert!(html.contains("已启用</small><b>戈莫u60</b>"), "{html}");
+    assert!(html.contains("已启用</small><b>GOMO u60</b>"), "{html}");
     // While it runs, the controls are dimmed (CSS keyed on the busy card).
     assert!(html.contains("class=\"card econn esw busy\" id=\"esim-conn\""), "{html}");
     let css = include_str!("../assets/app.css");
@@ -199,7 +199,7 @@ async fn empty_and_failed_lists() {
         "error": {"kind": "sim_reloading", "message": "euicc_init failed", "at": 1}});
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/esim/profiles", Ok(stale))], ..Default::default() });
     let html = get_with(&c, LIST, peer(161, 3), &cookie).await.text();
-    assert!(html.contains("无法刷新配置文件") && html.contains("eSIM 在开关后仍然稳定。显示较早时间阅读的列表。"), "{html}");
+    assert!(html.contains("无法刷新配置文件") && html.contains("切换后 eSIM 仍在准备中。 Showing the list read at an earlier time."), "{html}");
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/esim/profiles", Err("eSIM manager busy; retry shortly".into()))], ..Default::default() });
     let html = get_with(&c, LIST, peer(161, 4), &cookie).await.text();
     assert!(html.contains("无法读取 eSIM 配置文件：eSIM manager busy; retry shortly") && html.contains("<span class=\"cnt\">尚未阅读</span>"), "{html}");
@@ -219,17 +219,17 @@ async fn switch_asks_then_follows_the_switch_once() {
     let q = r.text();
     for want in [
         "<h1>确认</h1>", "<h2 class=\"q\">切换到Klook_app？</h2>",
-        "路由器将断开 戈莫u60 并通过 Klook_app 连接。互联网将中断约一分钟，Wi-Fi 保持开启。",
+        "路由器将断开 GOMO u60 并通过 Klook_app 连接。互联网将中断约一分钟，Wi-Fi 保持开启。",
         "路由器当前使用手动 APN“internet.example”。如果 Klook_app 需要其他 APN，请在切换后前往移动网络修改，否则可能无法使用数据。",
-        "Klook_app 看起来像一个旅行（漫游）配置文件，并且数据漫游已关闭，因此在您打开数据漫游之前它不会有任何数据。",
+        "Klook_app looks like a travel (roaming) profile and 数据漫游 is off, so it will have no data until you turn 数据漫游 on.",
         "<button class=\"btn\" type=\"submit\">切换至Klook_app</button>", "href=\"/ui/router/esim\">取消</a>",
     ] {
         assert!(q.contains(want), "{want} in {q}");
     }
-    assert!(!q.contains("远程连接") && !q.contains(ICCIDS[2]));
+    assert!(!q.contains("connected remotely") && !q.contains(ICCIDS[2]));
     // Remotely: the remote lines.
     let remote = get_with(&c, &format!("{SWITCH}?p={dito}"), tailnet(4100), &cookie).await.text();
-    assert!(remote.contains(super::super::pages::confirm::REMOTE) && remote.contains("路由器不自行切换回来"), "{remote}");
+    assert!(remote.contains(super::super::pages::confirm::REMOTE) && remote.contains("The router does not switch back by itself"), "{remote}");
     assert!(!remote.contains("travel (roaming)"));
     // Nothing to ask: the active profile, a test profile, an unknown key.
     for (p, title) in [(&active, "GOMO u60 is already active."), (&test, "Test profile can’t be switched to here.")] {
@@ -265,7 +265,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     ] {
         assert!(op.contains(want), "{want} in {op}");
     }
-    assert!(!op.contains(ICCIDS[2]) && !op.to_ascii_lowercase().contains("切换回来"), "{op}");
+    assert!(!op.contains(ICCIDS[2]) && !op.to_ascii_lowercase().contains("switch back"), "{op}");
     // Its stream: only the switch and the signal, until the switch ends
     // (with "Check again" when it needs attention); nothing sampled after.
     let resp = open_live(&c, &live_url(&op, "op"), peer(162, 6), &cookie).await;
@@ -287,7 +287,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     let _sw = fake::set(&c.app, json!({"state": "no_data", "reason": "roaming_off", "target_iccid": ICCIDS[2], "generation": 8}));
     let done = get_with(&c, &format!("/ui/op/{token}"), peer(162, 6), &cookie).await.text();
     assert!(done.contains("<h1 id=\"op-title\">连接需要处理</h1>") && !done.contains("/ui/live/op/"), "{done}");
-    assert!(done.contains("This profile roams on a local network and 数据漫游 is off. 开启数据漫游 in 移动网络."));
+    assert!(done.contains("This profile roams on a local network and 数据漫游 is off. 开启Data Roaming in Mobile Network."));
 }
 
 /// The agent's refusals: busy reads as the app's busy card, others as
@@ -314,7 +314,7 @@ async fn switch_refusals_read_as_the_app() {
     let body = format!("csrf={}&p={dito}&once={}&confirm=1", page_csrf(&q), once(&q));
     let html = get_with(&c, &to(&post(&c, SWITCH, peer(163, 4), &cookie, &body).await), peer(163, 4), &cookie).await.text();
     for want in [
-        "<b>Can’t 现在就完成这个</b><p>切换失败：调制解调器处于飞行/低功耗模式",
+        "<b>Can’t 现在就完成这个</b><p>Switch failed: the modem is in airplane / low-power mode",
         "打开路由器设置→移动网络检查调制解调器模式。", "href=\"/ui/router/esim\">重新加载配置文件</a>",
         "重新加载只会读取列表，不会重复执行操作。",
     ] {
@@ -345,27 +345,27 @@ async fn delete_and_rename_follow_the_app() {
     let (gomo, dito) = (key_of(&list, 0), key_of(&list, 1));
     let q = get_with(&c, &format!("{DELETE}?p={dito}"), peer(164, 3), &cookie).await.text();
     for want in [
-        "<h2 class=\"q\">永久删除 迪托 u60？</h2>",
+        "<h2 class=\"q\">永久删除 DITO u60？</h2>",
         "此操作无法撤销。要恢复此 eSIM，你需要从 DITO 获取新的二维码。",
-        "<button class=\"btn btn-danger\" type=\"submit\">删除 迪托 u60</button>",
+        "<button class=\"btn btn-danger\" type=\"submit\">删除 DITO u60</button>",
     ] {
         assert!(q.contains(want), "{want} in {q}");
     }
     let active = get_with(&c, &format!("{DELETE}?p={gomo}"), peer(164, 3), &cookie).await.text();
-    assert!(active.contains("<h2 class=\"q\">戈莫u60 is active.</h2>") && !active.contains("name=\"once\""), "{active}");
+    assert!(active.contains("<h2 class=\"q\">GOMO u60 is active.</h2>") && !active.contains("name=\"once\""), "{active}");
     let body = format!("csrf={}&p={dito}&once={}&confirm=1", page_csrf(&q), once(&q));
     let (a, b) = tokio::join!(post(&c, DELETE, peer(164, 4), &cookie, &body), post(&c, DELETE, peer(164, 4), &cookie, &body));
     assert_eq!(to(&a), to(&b));
     assert_eq!(calls(&c), [("/api/esim/delete".to_owned(), json!({"iccid": ICCIDS[1]}))]);
     let html = get_with(&c, &to(&a), peer(164, 4), &cookie).await.text();
-    assert!(html.contains("<b>配置文件已更新</b><p>迪托 u60 deleted. The operator will be notified on the next eSIM change.</p>"), "{html}");
+    assert!(html.contains("<b>配置文件已更新</b><p>DITO u60 deleted. The operator will be notified on the next eSIM change.</p>"), "{html}");
     // Rename: the sheet.
     let r = get_with(&c, &format!("{RENAME}?p={dito}"), peer(164, 5), &cookie).await;
     r.assert_secure_html(200);
     let sheet = r.text();
     for want in [
         "<h1>重命名配置文件</h1>", "<div class=\"lead\"><a class=\"nl\" href=\"/ui/router/esim\">取消</a></div>", "<h2>昵称</h2>",
-        "name=\"nickname\" value=\"迪托 u60\" placeholder=\"DITO\" maxlength=\"64\"", "留空以使用运营商名称。",
+        "name=\"nickname\" value=\"DITO u60\" placeholder=\"DITO\" maxlength=\"64\"", "留空以使用运营商名称。",
         "<span class=\"num\">8 / 64 bytes</span>", "名称中的表情符号或重音字母每个字符可能占用多个字节。", ">保存</button>",
     ] {
         assert!(sheet.contains(want), "{want} in {sheet}");
@@ -384,7 +384,7 @@ async fn delete_and_rename_follow_the_app() {
     // A new name, then none: the app's lines.
     let r = post(&c, RENAME, peer(164, 5), &cookie, &rename("  Home  ", &once(&sheet))).await;
     let html = get_with(&c, &to(&r), peer(164, 5), &cookie).await.text();
-    assert!(html.contains("<p>更名为首页。</p>"), "{html}");
+    assert!(html.contains("<p>更名为Home。</p>"), "{html}");
     assert_eq!(calls(&c).last().unwrap(), &("/api/esim/nickname".to_owned(), json!({"iccid": ICCIDS[1], "nickname": "首页"})));
     let sheet2 = get_with(&c, &format!("{RENAME}?p={dito}"), peer(164, 6), &cookie).await.text();
     let body = format!("csrf={}&p={dito}&once={}&nickname=", page_csrf(&sheet2), once(&sheet2));

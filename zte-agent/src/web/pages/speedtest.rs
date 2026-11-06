@@ -291,7 +291,7 @@ mod tests {
         assert_eq!(bytes(3 * 1024 * 1024 * 1024), "3.00 GB");
         assert_eq!(phase_label("latency"), "测试延迟...");
         assert_eq!(phase_label("upload"), "正在上传...");
-        assert_eq!(phase_label("idle"), "闲置");
+        assert_eq!(phase_label("idle"), "Idle");
         assert_eq!(phase_label(""), "");
     }
 
@@ -315,11 +315,11 @@ mod tests {
         let r = results(&done).into_string();
         for want in ["<span>延迟测试</span><span class=\"v\">21.5 ms</span>", "<span>下载</span><span class=\"v\">123.46 兆比特/秒</span>",
             "<span>已下载</span><span class=\"v\">228.9 MB</span>", "<span>已上传</span><span class=\"v\">9.5 MB</span>",
-            "<span class=\"v\">示例 &lt;b&gt;Net&lt;/b&gt; (Town)</span>"] {
+            "<span class=\"v\">Example &lt;b&gt;Net&lt;/b&gt; (Town)</span>"] {
             assert!(r.contains(want), "{want} in {r}");
         }
         let err = views(json!({"phase": "error", "error": "all ping attempts failed"}));
-        assert!(message(&err).into_string().contains("<p class=\"msg err\" role=\"alert\">所有 ping 尝试均失败</p>"));
+        assert!(message(&err).into_string().contains("<p class=\"msg err\" role=\"alert\">all ping attempts failed</p>"));
         assert!(message(&views(json!({"phase": "error"}))).into_string().contains(">速度测试失败<"));
         assert!(message(&views(json!({"phase": "cancelled"}))).into_string().contains(">速度测试取消<"));
         // Only an end after the watch point (version 1 here) shows; never

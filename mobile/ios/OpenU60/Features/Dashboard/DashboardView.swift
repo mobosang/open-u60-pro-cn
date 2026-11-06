@@ -154,7 +154,7 @@ struct DashboardView: View {
             configs.append(SIMAlertBanner.Config(
                 id: "puk",
                 icon: "exclamationmark.lock.fill",
-                title: "SIM PUK 必填",
+                title: "需要 SIM PUK",
                 message: "Too many wrong PIN attempts. Go to Router > SIM Card to enter your PUK.",
                 color: .red
             ))
@@ -163,7 +163,7 @@ struct DashboardView: View {
             configs.append(SIMAlertBanner.Config(
                 id: "pin",
                 icon: "lock.fill",
-                title: "SIM PIN 必填",
+                title: "需要 SIM PIN",
                 message: "Your SIM card is locked. Go to Router > SIM Card to enter your PIN.",
                 color: .orange
             ))

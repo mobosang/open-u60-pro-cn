@@ -199,10 +199,10 @@ pub fn banners(v: &Views) -> Markup {
         div #banners role="status" {
             @for b in banner_list(v) {
                 @match b {
-                    Banner::Puk => (kit::banner("b-red", Icon::LockWarn, "SIM PUK 必填", html! {
+                    Banner::Puk => (kit::banner("b-red", Icon::LockWarn, "需要 SIM PUK", html! {
                         "PIN 尝试错误太多。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " to enter your PUK."
                     })),
-                    Banner::Pin => (kit::banner("b-orange", Icon::Lock, "SIM PIN 必填", html! {
+                    Banner::Pin => (kit::banner("b-orange", Icon::Lock, "需要 SIM PIN", html! {
                         "您的 SIM 卡已被锁定。前往 " a href="/ui/router/sim" { "Router > SIM Card" } " to enter your PIN."
                     })),
                     Banner::Airplane => (kit::banner("b-blue", Icon::Airplane, "飞行模式", html! {
@@ -259,7 +259,7 @@ pub fn card_conn(v: &Views) -> Markup {
 /// unavailable".
 fn traffic_caption(v: &Views) -> String {
     match v.slot(Topic::Traffic).filter(|s| s.value.is_some()) {
-        None => "实时路况不可用".into(),
+        None => "实时流量不可用".into(),
         Some(s) => {
             let age = v.now.saturating_duration_since(s.value_at).as_secs();
             if s.error.is_some() || age >= 5 {
@@ -286,7 +286,7 @@ fn traffic_card(v: &Views, href: Option<&str>) -> Markup {
     let num = |key| t.and_then(|t| fmt::float(&t[key]));
     let rate = |key| num(key).map(fmt::rate).unwrap_or_else(|| DASH.into());
     let total = |key| num(key).map(|b| fmt::bytes(b.max(0.0) as u64)).unwrap_or_else(|| DASH.into());
-    kit::card(Some("card-traffic"), href, Icon::Arrows, "实时路况", html! {
+    kit::card(Some("card-traffic"), href, Icon::Arrows, "实时流量", html! {
         div.split {
             div { (kit::icon(Icon::ArrowDown)) b.big { (roll(v, "rx", &rate("real_rx_speed"))) } span.lbl { "下载" } }
             div { (kit::icon(Icon::ArrowUp)) b.big { (roll(v, "tx", &rate("real_tx_speed"))) } span.lbl { "上传" } }
@@ -444,13 +444,13 @@ pub(crate) mod tests {
     fn renders_the_ios_card_values() {
         let s = page_of(&fixture());
         for want in [
-            "<a class=\"card\" id=\"card-conn\" href=\"/ui/signal\">", "连接与信号",
+            "<a class=\"card\" id=\"card-conn\" href=\"/ui/signal\">", "Connection &amp; signal",
             "<span class=\"rat\">5G NSA</span>", "NR RSRP <b class=\"num\">-77 dBm</b>", "漫游", "电台详情",
             "416.0 b/s", "552.0 b/s", "下载", "上传", "1.90 MB", "119 KB", "实时蜂窝流量·所有设备",
             "现场信号", "锁屏实时信号位于 iOS 应用程序中。",
             ">69%<", "<span class=\"c-green\">充电中</span><span class=\"muted\"> · </span><span class=\"c-green\">25.2W</span>",
             "电源详情", "<p class=\"big\">40.8%</p>", "37.2 °C", "26.0 °C", "<b class=\"big\">2</b>",
-            "<span class=\"lbl\">设备</span>", "网络、共享和连接设备", "Wi-Fi on",
+            "<span class=\"lbl\">devices</span>", "Networks, sharing &amp; connected devices", "Wi-Fi on",
         ] {
             assert!(s.contains(want), "missing {want:?} in {s}");
         }
@@ -523,7 +523,7 @@ pub(crate) mod tests {
         let mut failed = SlotView { version: 1, at: NOW, value_at: NOW, value: None, error: Some(Arc::from("ubus timeout <x>")) };
         let v = Views::new(NOW, vec![(Topic::Traffic, failed.clone())]);
         let s = card_traffic(&v).into_string();
-        assert!(s.contains("实时路况不可用") && s.contains(">—</b>"), "{s}");
+        assert!(s.contains("实时流量不可用") && s.contains(">—</b>"), "{s}");
         // A last good value stays; the caption says it is waiting, aged
         // from that value (the app's last sample), not from the failed read.
         failed.value = Some(Arc::new(json!({"real_rx_speed": 1, "real_tx_speed": 1})));
@@ -533,9 +533,9 @@ pub(crate) mod tests {
         // Other cards keep the error line under them.
         let bad = SlotView { version: 1, at: NOW, value_at: NOW, value: None, error: Some(Arc::from("no battery <y>")) };
         let s = card_battery(&Views::new(NOW, vec![(Topic::Battery, bad)])).into_string();
-        assert!(s.contains("无法更新：没有电池 <y>") && s.contains("不可用"), "{s}");
+        assert!(s.contains("Couldn't update: no battery &lt;y&gt;") && s.contains("不可用"), "{s}");
         let s = page_of(&views(vec![]));
-        for want in ["无运营商", "LTE RSRP —", "实时路况不可用", "不可用", "<b class=\"big\">—</b>"] {
+        for want in ["无运营商", "LTE RSRP —", "实时流量不可用", "不可用", "<b class=\"big\">—</b>"] {
             assert!(s.contains(want), "{want}");
         }
         // An unknown Wi-Fi state shows no word.
@@ -554,7 +554,7 @@ pub(crate) mod tests {
             let s = SlotView { version: 1, at: at(secs), value_at: at(secs), value: Some(Arc::new(json!({"real_rx_speed": 1}))), error: None };
             card_traffic(&Views::new(NOW, vec![(Topic::Traffic, s)])).into_string()
         };
-        assert!(traffic(4).contains("实时蜂窝流量"));
+        assert!(traffic(4).contains("直播 cellular traffic"));
         assert!(traffic(5).contains("· 之前的最后一个流量样本 · 5 正在等待设备"));
         assert!(!traffic(600).contains("class=\"age\""), "the caption replaces the age line");
         // The cards say nothing about age (the app has only the nav bar's
@@ -569,7 +569,7 @@ pub(crate) mod tests {
         // Battery every 5 s, health every 2 s: the seconds below 10, then 5 s steps.
         assert_eq!(line(Topic::Battery, 14), "");
         assert_eq!(line(Topic::Battery, 17), "<p class=\"age\">更新 15 s ago</p>");
-        assert_eq!(line(Topic::Battery, 600), "<p class=\"age\">更新 10 分钟 ago</p>");
+        assert_eq!(line(Topic::Battery, 600), "<p class=\"age\">更新 10 min ago</p>");
         assert_eq!(line(Topic::Health, 5), "");
         assert_eq!(line(Topic::Health, 7), "<p class=\"age\">更新 7 s ago</p>");
         // WAN has no cadence (event-driven): never "old".
@@ -668,9 +668,9 @@ pub(crate) mod tests {
         ]);
         let s = banners(&all).into_string();
         for (class, title, text) in [
-            ("b-red", "SIM PUK Required", "Too many wrong PIN attempts. Go to <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PUK."),
-            ("b-orange", "SIM PIN Required", "Your SIM card is locked. Go to <a href=\"/ui/router/sim\">Router &gt; SIM Card</a> to enter your PIN."),
-            ("b-blue", "Airplane Mode", "Cellular radio is off. The modem is powered down — no signal or data."),
+            ("b-red", "需要 SIM PUK", "PIN 尝试错误太多。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> to enter your PUK."),
+            ("b-orange", "需要 SIM PIN", "您的 SIM 卡已被锁定。前往 <a href=\"/ui/router/sim\">路由器 &gt; SIM 卡</a> to enter your PIN."),
+            ("b-blue", "飞行模式", "蜂窝无线电已关闭。调制解调器已断电 — 无信号或数据。"),
         ] {
             assert!(s.contains(&format!("<div class=\"banner {class}\"><svg")), "{class}");
             // PUK: the lock with "!" (the app's `exclamationmark.lock.fill`).
@@ -680,7 +680,7 @@ pub(crate) mod tests {
         }
         let off = views(vec![(Topic::Modem, json!({"status": {"operate_mode": "ONLINE"}, "data": {"enable": 0}}))]);
         assert!(banners(&off).into_string().contains(
-            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往              <a href=\\\"/ui/router/mobile-network\\\">路由器 &gt; 移动网络</a> to enable it.</span>"
+            "<strong>移动数据关闭</strong><span>蜂窝无线电已打开，但数据已禁用。前往 <a href=\"/ui/router/mobile-network\">路由器 &gt; 移动网络</a> to enable it.</span>"
         ));
     }
 

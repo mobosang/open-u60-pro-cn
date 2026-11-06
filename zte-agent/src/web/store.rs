@@ -391,7 +391,7 @@ mod tests {
         for i in 0..7 {
             flash.insert(format!("mine{i}"), me, line("more"), at(4));
         }
-        assert_eq!(flash.get("first", me, at(5)), None, "过去的份额：它自己最古老的");
+        assert_eq!(flash.get("first", me, at(5)), None, "past its share: its own oldest");
         assert!(flash.get("second", me, at(5)).is_some());
         // Full: the session holding the most (8 lines each) loses its oldest.
         for i in 0..30u64 {

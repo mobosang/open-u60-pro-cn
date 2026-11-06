@@ -747,8 +747,7 @@ fn receipts(pd: &PageData, n: i64) -> Markup {
             details {
                 summary { "为什么这些人在等待？" }
                 p.cap {
-                    "Your eSIM sends operators a receipt when a profile is added, switched or deleted. The router retries every 10 \
-                     minutes while mobile data is connected. You don\u{2019}t need to keep this screen open."
+                    "添加、切换或删除配置文件时，您的 eSIM 会向运营商发送收据。连接移动数据时，路由器每 10 分钟重试一次。您不需要保持此屏幕打开。"
                 }
             }
             form method="post" action=(RECEIPTS) {
@@ -1378,9 +1377,9 @@ mod tests {
     #[test]
     fn names_follow_the_app() {
         let p = profile("", "Klook_app", "Travel - PHL", false);
-        assert_eq!((p.shown(), p.subtitle()), ("Klook_app", "旅行 - 菲律宾"));
+        assert_eq!((p.shown(), p.subtitle()), ("Klook_app", "Travel - PHL"));
         let p = profile("GOMO u60", "", "GOMO", true);
-        assert_eq!((p.shown(), p.subtitle()), ("戈莫u60", "GOMO"));
+        assert_eq!((p.shown(), p.subtitle()), ("GOMO u60", "GOMO"));
         let p = profile("", "", "SMART", true);
         assert_eq!((p.shown(), p.subtitle()), ("SMART", "在您的路由器上选择"));
         let p = profile("", "", "", false);
@@ -1397,13 +1396,13 @@ mod tests {
         let inv = Inventory { profiles: vec![profile("Home", "", "", true), p.clone()], manual_apn: Some("example.apn".into()), ..Inventory::default() };
         let l = switch_lines(&inv, &p);
         assert_eq!(l.len(), 3);
-        assert_eq!(l[0], "路由器将断开 首页 并通过 旅游 连接。互联网将中断约一分钟，Wi-Fi 保持开启。");
-        assert!(l[1].starts_with("路由器设置为手动APN “example.apn”。如果出行需要"));
-        assert!(l[2].starts_with("旅行看起来像旅行（漫游）配置文件，并且数据漫游已关闭"));
+        assert_eq!(l[0], "路由器将断开 Home 并通过 Travel 连接。互联网将中断约一分钟，Wi-Fi 保持开启。");
+        assert!(l[1].starts_with("The router is set to the manual APN \u{201c}example.apn\u{201d}. If Travel needs"));
+        assert!(l[2].starts_with("Travel looks like a travel (roaming) profile and 数据漫游 is off"));
         // No manual APN known: that warning is left out; no active profile.
         let inv = Inventory { profiles: vec![p.clone()], ..Inventory::default() };
         let l = switch_lines(&inv, &p);
-        assert!(l[0].starts_with("路由器与当前配置文件断开连接，并且") && l.len() == 2);
+        assert!(l[0].starts_with("The router disconnects from the current profile and") && l.len() == 2);
     }
 
     /// Switch states as the app's phases, notes and the operation's status.
@@ -1417,7 +1416,7 @@ mod tests {
         assert!(matches!(op_status("", at(30), &sw("connected", Value::Null)), OpStatus::Done { .. }));
         assert_eq!(
             op_status("", at(150), &sw("no_data", json!("roaming_off"))),
-            OpStatus::Failed { msg: "This profile roams on a local network and 数据漫游 is off. 开启数据漫游 in 移动网络." }
+            OpStatus::Failed { msg: "This profile roams on a local network and 数据漫游 is off. 开启Data Roaming in Mobile Network." }
         );
         assert_eq!(op_status("", at(150), &sw("no_data", json!("data_off"))), OpStatus::Failed { msg: "配置文件处于活动状态，但移动数据已关闭。在移动网络中将其打开。" });
         assert_eq!(
@@ -1440,7 +1439,7 @@ mod tests {
         }
         assert!(html.starts_with("<section class=\"card econn esw busy\" id=\"op-progress\">"), "{html}");
         assert_eq!(op_title(&v), "正在注册网络");
-        assert!(!html.to_ascii_lowercase().contains("切换回来") && !html.contains("8900000000000000909"));
+        assert!(!html.to_ascii_lowercase().contains("switch back") && !html.contains("8900000000000000909"));
     }
 
     /// The list's card without a switch: the modem's data connection.
@@ -1454,16 +1453,16 @@ mod tests {
         let mut v = v;
         v.arg = arg(&v, None);
         let html = conn(&v).into_string();
-        assert!(html.contains("<b>移动数据已连接</b><small class=\"cap\">示例 · 4G</small>"), "{html}");
+        assert!(html.contains("<b>移动数据已连接</b><small class=\"cap\">Example · 4G</small>"), "{html}");
         assert!(html.contains("aria-label=\"信号 3 为 5\"") && !html.contains("esteps"), "{html}");
         // A switch since the page was loaded: followed.
         let mut later = views(vec![(Topic::EsimSwitch, json!({"state": "reloading", "generation": 5}))]);
         later.arg = v.arg;
         let html = conn(&later).into_string();
         assert!(html.contains("<b>正在重新加载 SIM</b>") && html.contains("class=\"card econn busy\""), "{html}");
-        assert!(updating(&later).into_string().contains("更新中"));
+        assert!(updating(&later).into_string().contains("Updating"));
         later.set(Topic::EsimSwitch, SlotView { version: 2, at: BootInstant::ZERO, value_at: BootInstant::ZERO, value: Some(Arc::new(json!({"state": "no_data", "generation": 5}))), error: None });
-        assert!(conn(&later).into_string().contains("移动数据未连接") || conn(&later).into_string().contains("移动数据未连接"));
+        assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("mobile data hasn't connected"));
         assert!(updating(&later).into_string().contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"));
         // Offline and unread.
         let off = views(vec![(Topic::Modem, json!({"data": {"connect_status": "disconnected"}}))]);
@@ -1479,7 +1478,7 @@ mod tests {
         let html = message(Notice::Flash(None, BUSY.into())).into_string();
         assert!(html.contains("<b>eSIM in use</b>") && !html.contains("重新加载配置文件"), "{html}");
         let html = message(Notice::Flash(Some(false), "Switch failed: the modem is in airplane / low-power mode".into())).into_string();
-        assert!(html.contains("Can’t 现在就完成这个") && html.contains("打开路由器设置→移动网络") && html.contains("重新加载配置文件"));
+        assert!(html.contains("Can’t 现在就完成这个") && html.contains("打开 路由器 设置 → 移动网络") && html.contains("重新加载配置文件"));
         let html = message(Notice::Flash(Some(false), "Some receipts couldn't be sent yet. The router keeps retrying.".into())).into_string();
         assert!(html.contains("<b>运营商收据</b>") && !html.contains("重新加载配置文件"));
         assert!(message(Notice::Flash(Some(true), "Renamed to X.".into())).into_string().contains("<b>配置文件已更新</b>"));
@@ -1510,7 +1509,7 @@ mod tests {
         v.esim_names = Some(Arc::new(Names::default()));
         remember(&v, &inv);
         remember(&v, &Inventory::default());
-        assert_eq!(target(&v, "8900000000000000909F"), "切换至旅游");
+        assert_eq!(target(&v, "8900000000000000909F"), "切换至Travel");
     }
 
     /// Nicknames: one line, at most 64 bytes after trimming.
@@ -1525,7 +1524,7 @@ mod tests {
     fn download_texts_follow_the_app() {
         assert_eq!(download_text(&json!({"state": "confirm"})), "准备安装");
         assert_eq!(download_text(&json!({"state": "running", "step": "es9p_authenticate_client"})), "正在连接运营商…");
-        assert_eq!(download_text(&json!({"state": "done", "provider": "Example", "name": "Plan"})), "添加示例。");
+        assert_eq!(download_text(&json!({"state": "done", "provider": "Example", "name": "Plan"})), "Example added.");
         assert_eq!(download_text(&json!({"state": "done"})), "eSIM profile added.");
         assert_eq!(download_text(&json!({"state": "running", "step": "es10b_load_bound_profile_package"})), "在eSIM…上安装");
     }

@@ -59,9 +59,9 @@ async fn sim_card_follows_the_app_with_identifiers_masked() {
     let html = r.text();
     for want in [
         "<h1>SIM 卡</h1>", "<a class=\"nl back\" href=\"/ui/router\">路由器</a>",
-        "<span>状态</span><span class=\"v c-green\">准备好了</span>", "<span>ICCID</span><span class=\"v\">…4242</span>",
+        "<span>状态</span><span class=\"v c-green\">已就绪</span>", "<span>ICCID</span><span class=\"v\">…4242</span>",
         "<span>IMSI</span><span class=\"v\">001/01 …4242</span>", "<span>MSISDN</span><span class=\"v\">…4242</span>",
-        "<span>SPN</span><span class=\"v\">测试SIM</span>", "<span>运营商</span><span class=\"v\">测试网</span>",
+        "<span>SPN</span><span class=\"v\">Test SIM</span>", "<span>运营商</span><span class=\"v\">Test Net</span>",
         "<h2>PIN 管理</h2>", "<span class=\"v c-green\">已启用</span>", "href=\"/ui/router/sim/pin-lock/disable\"",
         "<span>禁用 PIN 锁定</span>", "href=\"/ui/router/sim/change-pin\"", "<h2>SIM锁</h2>",
         "<span>解锁尝试</span><span class=\"v\">3</span>", "href=\"/ui/router/sim/nck\"", "@get('/ui/live/sim/4/",
@@ -81,7 +81,7 @@ async fn sim_card_follows_the_app_with_identifiers_masked() {
     // The SIM locks while the page is open: its banner, no lock rows.
     c.app.hub.offer(Topic::Sim, ReadOut { value: Some(sim("wait pin", "1", 2)), error: None }, std::time::Instant::now());
     let next = frame(&mut b).await.unwrap();
-    assert!(next.contains("<b>SIM PIN 必填</b>") && next.contains("href=\"/ui/router/sim/pin\">输入PIN</a>"), "{next}");
+    assert!(next.contains("<b>需要 SIM PIN</b>") && next.contains("href=\"/ui/router/sim/pin\">输入PIN</a>"), "{next}");
     assert!(!next.contains("禁用 PIN 锁定") && !next.contains("0000004242"), "{next}");
     // Another SIM (identity epoch 4): a Refresh for SIM Lock.
     let mut other = sim("sim ready", "1", 3);
@@ -133,7 +133,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
         let r = post(&c, PIN, peer(151, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&{stale}&pin=1234")).await;
         r.assert_secure_html(409);
         let html = r.text();
-        assert!(html.contains("剩余的尝试已更改，因此未发送任何内容。") && html.contains("这是最后一次尝试") && !html.contains("1234\""), "{html}");
+        assert!(html.contains("The attempts left have changed, so nothing was sent.") && html.contains("This is the last attempt") && !html.contains("1234\""), "{html}");
         assert!(html.contains("<input type=\"hidden\" name=\"left\" value=\"1\">"), "{html}");
     }
     assert!(calls(&c).is_empty());
@@ -154,19 +154,19 @@ async fn enter_pin_sends_once_and_never_echoes() {
     let r = post(&c, PIN, peer(151, 5), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&pin=5678")).await;
     r.assert_secure_html(503);
     let html = r.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败：ubus 调用 zwrt_zte_mdm.api sim_verify_pin_puk failed: &lt;x&gt;</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败：ubus call zwrt_zte_mdm.api sim_verify_pin_puk failed: &lt;x&gt;</p>"), "{html}");
     assert!(!html.contains("5678") && r.input("once") != token);
     for h in r.headers.values() {
         assert!(!h.to_str().unwrap_or("").contains("5678"));
     }
     // A replay of the failed post: the same failure, nothing sent again.
     let r = post(&c, PIN, peer(151, 5), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&pin=5678")).await;
-    assert!(r.text().contains("失败：ubus 调用") && calls(&c).len() == 1, "{}", r.text());
+    assert!(r.text().contains("失败：ubus call") && calls(&c).len() == 1, "{}", r.text());
     // An answer that says it failed is a failure (not "PIN verified").
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/sim/pin/verify", (200, json!({"ok": true, "data": {"result": "failure"}})))], ..Default::default() });
     let token = get_with(&c, PIN, peer(151, 6), &cookie).await.input("once");
     let r = post(&c, PIN, peer(151, 6), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&pin=1234")).await;
-    assert!(r.text().contains("失败：失败"), "{}", r.text());
+    assert!(r.text().contains("失败：failure"), "{}", r.text());
     // The last wrong PIN locks the SIM (while the call runs): the sheet
     // says it now needs its PUK and leads to Enter PUK.
     let _wait = fake::set(&c.app, sim("wait pin", "1", 1));
@@ -183,11 +183,11 @@ async fn enter_pin_sends_once_and_never_echoes() {
     };
     let (r, _puk) = tokio::join!(post(&c, PIN, peer(151, 6), &cookie, &body), lock);
     let html = r.text();
-    assert!(html.contains("失败：错误的PIN（假的）") && html.contains("SIM 在多次错误 PIN 后被锁定，现在需要 PUK。"), "{html}");
+    assert!(html.contains("失败：wrong PIN (fake)") && html.contains("SIM 在多次错误 PIN 后被锁定，现在需要 PUK。"), "{html}");
     assert!(html.contains("<a class=\"btn\" href=\"/ui/router/sim/puk\">输入PUK</a>") && !html.contains("4321"), "{html}");
     assert_eq!(calls(&c).len(), 1);
     let html = get_with(&c, PIN, peer(151, 6), &cookie).await.text();
-    assert!(html.contains("现在需要它的PUK") && html.contains("href=\"/ui/router/sim/puk\">输入PUK</a>"), "{html}");
+    assert!(html.contains("now needs its PUK") && html.contains("href=\"/ui/router/sim/puk\">输入PUK</a>"), "{html}");
     // The SIM is ready by now: the sheet says so and a post sends nothing.
     let _fake = fake::set(&c.app, sim("sim ready", "1", 3));
     let _dev = device::set(&c.app, device::Device::default());
@@ -199,7 +199,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
     assert!(r.text().contains("SIM 不等待其 PIN。") && calls(&c).is_empty());
     // An unknown token: nothing sent.
     let r = post(&c, PIN, peer(151, 8), &cookie, &format!("csrf={csrf}&once=00000000000000ff&confirm=1&pin=1234")).await;
-    assert!(r.text().contains("该页面已过期，因此未发送任何内容。") && calls(&c).is_empty(), "{}", r.text());
+    assert!(r.text().contains("This page expired, so nothing was sent.") && calls(&c).is_empty(), "{}", r.text());
 }
 
 /// The lock, change and PUK sheets are their own questions: what happens,
@@ -214,13 +214,13 @@ async fn pin_lock_change_and_puk_ask_and_send_the_apps_bodies() {
     let html = r.text();
     for want in [
         "<h1>启用 PIN 锁定</h1>", "<input type=\"hidden\" name=\"left\" value=\"3\">",
-        "每次路由器启动时，SIM 都会询问此 PIN。", "错误的 PIN 使用尝试。",
+        "The SIM will ask for this PIN every time the router starts.", "A wrong PIN uses an attempt.",
         super::super::pages::confirm::REMOTE, "<button class=\"it cv snd danger\" type=\"submit\">启用</button>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // The app shows the attempts only where a PIN unlocks (Enter PIN, PUK, NCK).
-    assert!(!html.contains("剩余尝试次数"), "{html}");
+    assert!(!html.contains("attempts remaining"), "{html}");
     assert!(!get_with(&c, LOCK_ON, peer(152, 2), &cookie).await.text().contains(super::super::pages::confirm::REMOTE));
     // The lock is off: Disable has nothing to do.
     assert!(get_with(&c, LOCK_OFF, peer(152, 2), &cookie).await.text().contains("PIN 锁已关闭。"));
@@ -279,7 +279,7 @@ async fn sim_unlock_sends_the_code_once() {
     let html = r.text();
     for want in [
         "<h1>SIM解锁</h1>", "<input id=\"nck\" type=\"text\" name=\"nck\" placeholder=\"解锁代码（NCK）\"",
-        "<p class=\"foot\">1 attempt remaining</p>", "这是最后一次尝试",
+        "<p class=\"foot\">1 attempt remaining</p>", "This is the last attempt",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -292,7 +292,7 @@ async fn sim_unlock_sends_the_code_once() {
     let _dev = device::set(&c.app, device::Device { gets: vec![trials(2)], ..Default::default() });
     let r = post(&c, NCK, peer(153, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&nck=0000000000000042")).await;
     r.assert_secure_html(409);
-    assert!(r.text().contains("剩下的尝试已经改变") && r.text().contains("<p class=\"foot\">2 剩余尝试次数</p>") && !r.text().contains("0000000000000042"), "{}", r.text());
+    assert!(r.text().contains("The attempts left have changed") && r.text().contains("<p class=\"foot\">2 attempts remaining</p>") && !r.text().contains("0000000000000042"), "{}", r.text());
     assert!(calls(&c).is_empty());
     let _dev = device::set(&c.app, device::Device { gets: vec![trials(1)], ..Default::default() });
     let r = post(&c, NCK, peer(153, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&nck=0000000000000042")).await;
@@ -350,14 +350,14 @@ async fn ussd_sends_once_and_keeps_the_answer_for_the_session() {
     let r = get_with(&c, &want, peer(154, 4), &cookie).await;
     let html = r.text();
     for want in [
-        "value=\"*100#\"", "<h2>回应</h2>", "<span class=\"tx\">余额 5.00。 1 计划 2 退出</span>",
+        "value=\"*100#\"", "<h2>回应</h2>", "<span class=\"tx\">Balance 5.00. 1 Plans 2 Exit</span>",
         "action=\"/ui/router/sim-services/ussd/reply\"", "placeholder=\"回复\"", "<span>结束会议</span>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
     // Another session never sees it.
     let other = format!("zte_ui_session={}", login(&c, 154, 9).await);
-    assert!(!get_with(&c, &want, peer(154, 9), &other).await.text().contains("余额 5.00"));
+    assert!(!get_with(&c, &want, peer(154, 9), &other).await.text().contains("Balance 5.00"));
     // Reply, then End Session: the app's line, the answer gone.
     let _dev = device::set(&c.app, device::Device {
         gets: vec![("/api/stk/menu", Ok(Value::Null))],
@@ -368,7 +368,7 @@ async fn ussd_sends_once_and_keeps_the_answer_for_the_session() {
     let at = to(&post(&c, &format!("{SVC}/ussd/reply"), peer(154, 5), &cookie, &body).await);
     assert_eq!(calls(&c), [("/api/ussd/respond".to_owned(), json!({"reply": "1"}))]);
     let html = get_with(&c, &at, peer(154, 5), &cookie).await.text();
-    assert!(html.contains("<span class=\"tx\">A计划</span>") && !html.contains("ussd/reply") && html.contains("value=\"*100#\""), "{html}");
+    assert!(html.contains("<span class=\"tx\">Plan A</span>") && !html.contains("ussd/reply") && html.contains("value=\"*100#\""), "{html}");
     let token = get_with(&c, &want, peer(154, 6), &cookie).await.input("once");
     let body = format!("csrf={csrf}&once={token}&confirm=1&u={}&code=*100%23", want.rsplit('=').next().unwrap());
     let html = get_with(&c, &to(&post(&c, &format!("{SVC}/ussd/cancel"), peer(154, 6), &cookie, &body).await), peer(154, 6), &cookie).await.text();
@@ -395,7 +395,7 @@ async fn ussd_sends_once_and_keeps_the_answer_for_the_session() {
     let token = get_with(&c, SVC, peer(154, 8), &cookie).await.input("once");
     let shown = to(&post(&c, &send, peer(154, 8), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&code=*100%23")).await);
     let page = get_with(&c, &shown, peer(154, 8), &cookie).await;
-    assert!(page.text().contains("<span class=\"tx\">优惠券00000000000000042</span>") && page.text().contains(&format!("name=\"u\" value=\"{token}\"")), "{}", page.text());
+    assert!(page.text().contains("<span class=\"tx\">Voucher 00000000000000042</span>") && page.text().contains(&format!("name=\"u\" value=\"{token}\"")), "{}", page.text());
     let _dev = device::set(&c.app, device::Device {
         gets: vec![("/api/stk/menu", Ok(Value::Null))],
         replies: vec![("/api/ussd/send", (503, json!({"ok": false, "error": "network busy"})))],
@@ -403,7 +403,7 @@ async fn ussd_sends_once_and_keeps_the_answer_for_the_session() {
     });
     let r = post(&c, &send, peer(154, 8), &cookie, &format!("csrf={csrf}&once={}&confirm=1&u={token}&code=*101%23", page.input("once"))).await;
     let html = get_with(&c, &to(&r), peer(154, 8), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">失败： 网络繁忙</p>") && html.contains("优惠券00000000000000042") && html.contains("value=\"*101#\""), "{html}");
+    assert!(html.contains("role=\"alert\">失败：network busy</p>") && html.contains("Voucher 00000000000000042") && html.contains("value=\"*101#\""), "{html}");
     // Logging out drops the session's answers.
     let me = c.app.auth.authenticate(crate::auth::Kind::Browser, cookie.trim_start_matches("zte_ui_session=")).unwrap().id;
     assert!(c.ussd.get(&token, me, c.app.auth.now()).is_some());
@@ -426,8 +426,8 @@ async fn sim_toolkit_selects_once_and_follows_the_worker() {
     let r = get_with(&c, SVC, peer(155, 2), &cookie).await;
     let html = r.text();
     for want in [
-        "<section class=\"group\" id=\"stk\"><h2>测试SIM</h2>",
-        "<button class=\"it bt\" type=\"submit\" form=\"stkf\" formaction=\"/ui/router/sim-services/stk/select\" name=\"c\" value=\"1700000000001.1\">余额</button>",
+        "<section class=\"group\" id=\"stk\"><h2>Test SIM</h2>",
+        "<button class=\"it bt\" type=\"submit\" form=\"stkf\" formaction=\"/ui/router/sim-services/stk/select\" name=\"c\" value=\"1700000000001.1\">Balance</button>",
         "<form id=\"stkf\" method=\"post\" action=\"/ui/router/sim-services/stk/select\"><input type=\"hidden\" name=\"csrf\"",
         "<p class=\"foot\">运营商通过您的 SIM 卡提供的服务</p>", "@get('/ui/live/simservices/3179fcad002/",
     ] {
@@ -445,12 +445,12 @@ async fn sim_toolkit_selects_once_and_follows_the_worker() {
     let _fake = fake::set(&c.app, stk("status", "1700000000002", json!({"busy": true, "reason": "Waiting for the SIM", "status": "waiting"})));
     let html = get_with(&c, SVC, peer(155, 4), &cookie).await.text();
     let reload = "<noscript><meta http-equiv=\"refresh\" content=\"3; url=/ui/router/sim-services?t=";
-    assert!(html.contains("等待SIM") && html.contains(reload), "{html}");
+    assert!(html.contains("Waiting for the SIM") && html.contains(reload), "{html}");
     // A submenu arrives live: the section is patched with its buttons.
     let resp = open_live(&c, &live_url(&html, "simservices"), peer(155, 5), &cookie).await;
     assert_eq!(c.app.hub.demand(Topic::Stk), 1);
     let mut s = resp.into_body().into_data_stream();
-    assert!(frame(&mut s).await.unwrap().contains("等待SIM"));
+    assert!(frame(&mut s).await.unwrap().contains("Waiting for the SIM"));
     let sub = stk("menu", "1700000000003", json!({"root_menu": false, "items": [{"id": 5, "label": "1 GB"}]}));
     c.app.hub.offer(Topic::Stk, ReadOut { value: Some(sub), error: None }, std::time::Instant::now());
     let next = frame(&mut s).await.unwrap();
@@ -470,7 +470,7 @@ async fn sim_toolkit_selects_once_and_follows_the_worker() {
     let at = to(&r);
     assert!(at.starts_with("/ui/router/sim-services?held=1&r="), "{at}");
     let html = get_with(&c, &at, peer(155, 6), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败: command_id 过时或丢失；重新加载SIM菜单</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">失败：stale or missing command_id; reload the SIM menu</p>"), "{html}");
     assert_eq!(calls(&c), [("/api/stk/back".to_owned(), json!({"command_id": "1700000000003"}))]);
     // The app's failure state: the menu cleared (not the worker's, which
     // a second tap could repeat), only Reload SIM Menu, no stream or reload.

@@ -62,7 +62,7 @@ struct ProcessListSheet: View {
                                             Button(role: .destructive) {
                                                 Task { await killSingle(proc.pid) }
                                             } label: {
-                                                Label("杀戮", systemImage: "xmark.circle")
+                                                Label("结束进程", systemImage: "xmark.circle")
                                             }
                                         }
                                     }
@@ -86,7 +86,7 @@ struct ProcessListSheet: View {
                     }
                 }
             }
-            .confirmationDialog("杀死所有膨胀守护进程？", isPresented: $showKillAllConfirm, titleVisibility: .visible) {
+            .confirmationDialog("结束所有膨胀守护进程？", isPresented: $showKillAllConfirm, titleVisibility: .visible) {
                 Button("消灭一切膨胀", role: .destructive) {
                     Task { await killAll() }
                 }

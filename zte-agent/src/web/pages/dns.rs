@@ -53,9 +53,9 @@ const DOH_API: &str = "/api/doh/status";
 
 /// The app's Quick Setup: (key, label, primary, secondary, DoH upstream).
 const PRESETS: [(&str, &str, &str, &str, &str); 3] = [
-    ("cloudflare", "Cloudflare（1.1.1.1）", "1.1.1.1", "1.0.0.1", "https://1.1.1.1/dns-query"),
+    ("cloudflare", "Cloudflare (1.1.1.1)", "1.1.1.1", "1.0.0.1", "https://1.1.1.1/dns-query"),
     ("google", "谷歌(8.8.8.8)", "8.8.8.8", "8.8.4.4", "https://8.8.8.8/dns-query"),
-    ("quad9", "Quad9（9.9.9.9）", "9.9.9.9", "149.112.112.112", "https://9.9.9.9:5053/dns-query"),
+    ("quad9", "Quad9 (9.9.9.9)", "9.9.9.9", "149.112.112.112", "https://9.9.9.9:5053/dns-query"),
 ];
 
 const MODES: [(&str, &str, &str); 3] = [

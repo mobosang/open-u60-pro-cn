@@ -82,7 +82,7 @@ pub static SIGNAL: Screen = Screen {
 pub static TRAFFIC: Screen = Screen {
     path: "/ui/traffic",
     id: "traffic",
-    title: "实时路况",
+    title: "实时流量",
     tab: Tab::Dashboard,
     bar: Bar::Done("/ui/"),
     topics: &[Topic::Traffic],
@@ -382,7 +382,7 @@ mod tests {
         for ((value, label), c) in NET_MODES.iter().zip(&MODE_CONFIRMS) {
             assert_eq!(c.when, ("mode", *value));
             assert!(matches!(c.need, Need::Always));
-            assert_eq!(c.title, format!("更改网络模式为{label}？"));
+            assert_eq!(c.title, format!("将网络模式更改为 {label}?"));
             assert_eq!(c.lines, [REREGISTER]);
             assert!(c.remote.unwrap()[1].contains(&format!("You are connected remotely: if {label} has no coverage here,")));
             // The body carries the checked value only; the operation follows it.

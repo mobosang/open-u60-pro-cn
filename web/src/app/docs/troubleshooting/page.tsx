@@ -3,7 +3,7 @@ import { Callout } from "@/components/ui/Callout";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 
 export const metadata: Metadata = {
-  title: "Troubleshooting",
+  title: "故障排查",
   description: "zte-agent常见问题及解决方案。",
 };
 
