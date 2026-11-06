@@ -91,7 +91,7 @@ async fn turn_on_from_settings_once() {
     assert_eq!(c.app.tls.ca_der().unwrap(), ca);
     // Another session's token, or none: expired, nothing done.
     let r = post(&c, ON, p, &cookie, &format!("csrf={}&once=00112233aabbccdd&confirm=1", get_with(&c, SETTINGS, p, &cookie).await.input("csrf"))).await;
-    assert!(line(&c, &r, p, &cookie).await.contains("This page expired, so nothing was changed."));
+    assert!(line(&c, &r, p, &cookie).await.contains("该页面已过期，因此没有任何更改。再试一次。"));
     // On: the addresses, Install on Your Devices, Reset; the http hint.
     let html = get_with(&c, SETTINGS, p, &cookie).await.text();
     for want in [
@@ -110,9 +110,9 @@ async fn turn_on_from_settings_once() {
     assert!(!html.contains(RENEW));
     // Over HTTPS: no hint; over Tailscale (loopback): no hint either.
     let html = get_secure(&c, SETTINGS, p, &cookie).await.text();
-    assert!(html.contains("You are using HTTPS.") && !html.contains("This page is plain http"));
+    assert!(html.contains("你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。") && !html.contains("This page is plain http"));
     let html = get_with(&c, SETTINGS, Peer(SocketAddr::from(([127, 0, 0, 1], 40100))), &cookie).await.text();
-    assert!(!html.contains("This page is plain http") && !html.contains("You are using HTTPS."));
+    assert!(!html.contains("This page is plain http") && !html.contains("你正在使用 HTTPS，可以通过浏览器菜单安装此管理网页。"));
     // On but not listening (a bind that failed): the question offers to
     // listen again, and its post tells the listener.
     let html = get_with(&c, ON, p, &cookie).await.text();
@@ -175,7 +175,7 @@ async fn questions_follow_the_clock_and_the_state() {
     // Off: Renew and Reset have nothing to do.
     for uri in [RENEW, RESET] {
         let html = get_with(&c, uri, p, &cookie).await.text();
-        assert!(html.contains("HTTPS is off") && !html.contains("name=\"once\""), "{uri}");
+        assert!(html.contains("DNS over HTTPS 关闭") && !html.contains("name=\"once\""), "{uri}");
     }
     confirm(&c, ON, p, &cookie).await;
     // Renew shows once fewer than 30 days are left by the router's clock.
@@ -209,7 +209,7 @@ async fn install_page_shows_the_ca_and_the_steps() {
     let p = peer(232, 2);
     let r = get_with(&c, INSTALL, p, &cookie).await;
     r.assert_secure_html(200);
-    assert!(r.text().contains("HTTPS is off"));
+    assert!(r.text().contains("DNS over HTTPS 关闭"));
     c.app.tls.turn_on().unwrap();
     let s = c.app.tls.status();
     let r = get_with(&c, INSTALL, p, &cookie).await;
@@ -222,9 +222,9 @@ async fn install_page_shows_the_ca_and_the_steps() {
         &s.sha256.replace(':', ":<wbr>"),
         "came over plain http, so someone on your network could change it",
         "sha256sum /data/zte-agent-tls/ca.crt",
-        "letter case, spaces and colons do not matter",
-        "More Details",
-        "Firefox 120 and later uses the certificates you add",
+        "这个页面来自路由器的 HTTPS，所以这些是它的指纹。检查您设置的设备是否显示相同的 SHA-256 指纹；字母大小写、空格和冒号并不重要。",
+        "设备显示位置：iPhone 和 iPad：设置 › 配置文件已下载 › 更多详细信息 › 证书，然后点击安装； Mac：Keychain 访问›证书； Android：安装后，设置 › 受信任凭据 › 用户 › 证书（如果不同，请将其删除）。",
+        "Firefox 120 及更高版本使用您添加到 Windows、macOS 或 Android 的证书。在 Linux 上，或关闭该设置： 设置 › 隐私和安全 › 证书 › 查看证书 … › 权限 › 导入 …，并信任它的网站。",
         "View More",
         &s.sha1.replace(':', "").to_ascii_lowercase(),
         &format!("href=\"{DOWNLOAD_PROFILE}\""),
@@ -234,7 +234,7 @@ async fn install_page_shows_the_ca_and_the_steps() {
         "<h2>安卓</h2>",
         "安装证书",
         "<h2>麦克</h2>",
-        "Always Trust",
+        "使用此证书时：始终信任",
         "<h2>窗户</h2>",
         "受信任的根证书颁发机构",
         "href=\"https://u60.home.arpa:9443/console/\"",
@@ -245,7 +245,7 @@ async fn install_page_shows_the_ca_and_the_steps() {
     }
     // Over HTTPS the fingerprint came from the router itself.
     let html = get_secure(&c, INSTALL, p, &cookie).await.text();
-    assert!(html.contains("This page came over HTTPS from the router") && !html.contains("came over plain http"));
+    assert!(html.contains("这个页面来自路由器的 HTTPS，所以这些是它的指纹。检查您设置的设备是否显示相同的 SHA-256 指纹；字母大小写、空格和冒号并不重要。") && !html.contains("came over plain http"));
     // Never a key.
     let key = std::fs::read(w.dir().join("issuing.key")).unwrap();
     use base64::Engine;

@@ -133,7 +133,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
         let r = post(&c, PIN, peer(151, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&{stale}&pin=1234")).await;
         r.assert_secure_html(409);
         let html = r.text();
-        assert!(html.contains("The attempts left have changed, so nothing was sent.") && html.contains("This is the last attempt") && !html.contains("1234\""), "{html}");
+        assert!(html.contains("剩余的尝试已更改，因此未发送任何内容。尝试之前请再次阅读该表。") && html.contains("This is the last attempt") && !html.contains("1234\""), "{html}");
         assert!(html.contains("<input type=\"hidden\" name=\"left\" value=\"1\">"), "{html}");
     }
     assert!(calls(&c).is_empty());
@@ -187,7 +187,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
     assert!(html.contains("<a class=\"btn\" href=\"/ui/router/sim/puk\">输入PUK</a>") && !html.contains("4321"), "{html}");
     assert_eq!(calls(&c).len(), 1);
     let html = get_with(&c, PIN, peer(151, 6), &cookie).await.text();
-    assert!(html.contains("now needs its PUK") && html.contains("href=\"/ui/router/sim/puk\">输入PUK</a>"), "{html}");
+    assert!(html.contains("SIM 在多次错误 PIN 后被锁定，现在需要 PUK。") && html.contains("href=\"/ui/router/sim/puk\">输入PUK</a>"), "{html}");
     // The SIM is ready by now: the sheet says so and a post sends nothing.
     let _fake = fake::set(&c.app, sim("sim ready", "1", 3));
     let _dev = device::set(&c.app, device::Device::default());
@@ -199,7 +199,7 @@ async fn enter_pin_sends_once_and_never_echoes() {
     assert!(r.text().contains("SIM 不等待其 PIN。") && calls(&c).is_empty());
     // An unknown token: nothing sent.
     let r = post(&c, PIN, peer(151, 8), &cookie, &format!("csrf={csrf}&once=00000000000000ff&confirm=1&pin=1234")).await;
-    assert!(r.text().contains("This page expired, so nothing was sent.") && calls(&c).is_empty(), "{}", r.text());
+    assert!(r.text().contains("该页面已过期，因此未发送任何内容。再试一次。") && calls(&c).is_empty(), "{}", r.text());
 }
 
 /// The lock, change and PUK sheets are their own questions: what happens,
@@ -214,7 +214,7 @@ async fn pin_lock_change_and_puk_ask_and_send_the_apps_bodies() {
     let html = r.text();
     for want in [
         "<h1>启用 PIN 锁定</h1>", "<input type=\"hidden\" name=\"left\" value=\"3\">",
-        "The SIM will ask for this PIN every time the router starts.", "A wrong PIN uses an attempt.",
+        "每次路由器启动时，SIM 都会请求该 PIN。在输入之前，路由器没有移动连接。", "错误的 PIN 使用尝试。如果没有剩余，SIM 将锁定，路由器将失去其移动连接，直到进入 PUK。",
         super::super::pages::confirm::REMOTE, "<button class=\"it cv snd danger\" type=\"submit\">启用</button>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -292,7 +292,7 @@ async fn sim_unlock_sends_the_code_once() {
     let _dev = device::set(&c.app, device::Device { gets: vec![trials(2)], ..Default::default() });
     let r = post(&c, NCK, peer(153, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&nck=0000000000000042")).await;
     r.assert_secure_html(409);
-    assert!(r.text().contains("The attempts left have changed") && r.text().contains("<p class=\"foot\">2 次剩余尝试</p>") && !r.text().contains("0000000000000042"), "{}", r.text());
+    assert!(r.text().contains("剩余的尝试已更改，因此未发送任何内容。尝试之前请再次阅读该表。") && r.text().contains("<p class=\"foot\">2 次剩余尝试</p>") && !r.text().contains("0000000000000042"), "{}", r.text());
     assert!(calls(&c).is_empty());
     let _dev = device::set(&c.app, device::Device { gets: vec![trials(1)], ..Default::default() });
     let r = post(&c, NCK, peer(153, 3), &cookie, &format!("csrf={csrf}&once={token}&confirm=1&left=1&nck=0000000000000042")).await;

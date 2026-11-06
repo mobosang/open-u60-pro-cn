@@ -201,7 +201,7 @@ async fn a_pasted_code_starts_the_preview_once() {
     // Another code with the same (used) token: an expired page, nothing sent.
     let other = fields(&csrf, &token, OTHER, "", None);
     let r = upload(&c, peer(171, 4), &cookie, &other).await;
-    assert!(r.status == 409 && r.text().contains("This page expired, so nothing was sent."), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("该页面已过期，因此未发送任何内容。再试一次。"), "{}", r.text());
     // A code that asks for one, with the confirmation code.
     let (_, token) = entry(&c, peer(171, 5), &cookie).await;
     let r = upload(&c, peer(171, 5), &cookie, &fields(&csrf, &token, CC_CODE, &format!(" {CC} "), None)).await;
@@ -250,13 +250,13 @@ async fn a_photo_is_read_on_the_router() {
     let (_, token) = entry(&c, peer(172, 3), &cookie).await;
     let started = std::time::Instant::now();
     let r = upload(&c, peer(172, 3), &cookie, &fields(&csrf, &token, "", "", Some(&grid))).await;
-    assert!(r.status == 400 && r.text().contains("Couldn’t read this photo."), "{}", r.text());
+    assert!(r.status == 400 && r.text().contains("无法读取此图片。请选择其他图片或手动输入激活码。"), "{}", r.text());
     assert!(started.elapsed() < std::time::Duration::from_secs(10), "{:?}", started.elapsed());
     // The upload slot taken (another upload in RAM): refused after a wait.
     let slot = crate::web::upload::hold().expect("the upload slot is free");
     let (_, token) = entry(&c, peer(172, 3), &cookie).await;
     let r = upload(&c, peer(172, 3), &cookie, &fields(&csrf, &token, "", "", Some(&two))).await;
-    assert!(r.status == 503 && r.text().contains("The router is reading another photo."), "{}", r.text());
+    assert!(r.status == 503 && r.text().contains("路由器正在读取另一张照片。稍后再试一次。"), "{}", r.text());
     drop(slot);
     assert!(calls(&c).is_empty());
     // One code in a camera photo (the "Scan QR code" input), turned a little.
@@ -273,7 +273,7 @@ async fn a_photo_is_read_on_the_router() {
     let (_, token) = entry(&c, peer(172, 5), &cookie).await;
     let r = upload(&c, peer(172, 5), &cookie, &fields(&csrf, &token, "", "", Some(&img))).await;
     let html = r.text();
-    assert!(r.status == 400 && html.contains("Enter the confirmation code from your operator") && html.contains("<details class=\"eopt\" open>"), "{html}");
+    assert!(r.status == 400 && html.contains("请输入运营商提供的确认码（最多 64 个字符）。") && html.contains("<details class=\"eopt\" open>"), "{html}");
     let r = upload(&c, peer(172, 5), &cookie, &fields(&csrf, &token, "", CC, Some(&img))).await;
     assert_eq!(to(&r), DL);
     assert_eq!(calls(&c)[1].1, json!({"activation_code": CC_CODE, "preview": true, "confirmation_code": CC}));
@@ -312,7 +312,7 @@ async fn uploads_are_checked_and_refusals_read_as_the_app() {
         .body(Body::from(vec![0u8; 16]))
         .unwrap();
     let r = send(&c, big).await;
-    assert!(r.status == 413 && r.text().contains("Photos can be up to 8 MB."), "{}", r.text());
+    assert!(r.status == 413 && r.text().contains("照片最大可达 8 MB。选择较小的图像或手动输入代码。"), "{}", r.text());
     let huge = vec![b'x'; crate::web::upload::MAX_BODY + 1];
     let r = req("POST", ADD, peer(173, 3))
         .header("content-type", format!("multipart/form-data; boundary={BOUNDARY}"))
@@ -461,7 +461,7 @@ async fn the_download_card_follows_the_app() {
     let echo = format!("es9p_authenticate_client: unknown code {CODE}\tfor\nlpa:1$x$FAKE-0000");
     let _f = fake::set(&c.app, json!({"state": "failed", "step": "es9p_authenticate_client", "error": echo}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<p>es9p_authenticate_个客户端: unknown code … for …</p>") && !html.contains("FAKE") && !html.contains("example.com"), "{html}");
+    assert!(html.contains("<p>es9p_authenticate_个客户端: unknown code … for …</p>") && !html.contains("FAKE") && !html.contains("输入域名，例如 ads.example.com：字母、数字、连字符和点。"), "{html}");
     // Cancelled by the 2-minute limit.
     let _f = fake::set(&c.app, json!({"state": "cancelled", "error": "not confirmed within 2 minutes"}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
@@ -492,7 +492,7 @@ async fn install_and_cancel_send_once() {
     let r = post(&c, CANCEL, peer(175, 3), &cookie, &body).await;
     let line = to(&r);
     assert!(line.starts_with("/ui/router/esim/add?dl=1&r="), "{line}");
-    assert!(get_with(&c, &line, peer(175, 3), &cookie).await.text().contains("This page expired, so nothing was sent."));
+    assert!(get_with(&c, &line, peer(175, 3), &cookie).await.text().contains("该页面已过期，因此未发送任何内容。再试一次。"));
     // Cancel at the preview, with a new page's token.
     let once = get_with(&c, ADD, peer(175, 4), &cookie).await.input("once");
     let r = post(&c, CANCEL, peer(175, 4), &cookie, &format!("csrf={csrf}&once={once}")).await;

@@ -652,8 +652,8 @@ mod tests {
     /// refuses the mobile side.
     #[test]
     fn exposure_follows_the_agents_refusal() {
-        assert!(exposed_for(false) == EXPOSED && EXPOSED.contains("keep refusing connections from it"));
-        assert!(exposed_for(true) == EXPOSED_ALL && EXPOSED_ALL.contains("this web UI included"));
+        assert!(exposed_for(false) == EXPOSED && EXPOSED.contains("路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。"));
+        assert!(exposed_for(true) == EXPOSED_ALL && EXPOSED_ALL.contains("路由器本身及此管理网页可能变得可从移动网络访问，届时仅由 Agent 密码保护。"));
     }
 
     #[test]

@@ -73,7 +73,7 @@ async fn device_controls_follow_the_app() {
         "<input type=\"hidden\" name=\"on\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"省电模式\">",
         "限制数据通信速度以减少功耗并延长电池寿命。",
         "<input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"快速启动\">",
-        "When enabled, powering off suspends to RAM for near-instant boot.",
+        "启用后，断电后将暂停至 RAM，以实现近乎即时的启动。禁用使用完全关闭（关闭时节省电池）。",
         "<input type=\"hidden\" name=\"timeout\" value=\"10\"><input type=\"hidden\" name=\"on\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"自动睡眠\">",
         "<label for=\"tmo\">空闲超时</label><form class=\"sf\" method=\"post\" action=\"/ui/router/device/auto-sleep\">",
         "<option value=\"10\" selected>10 min</option>", "<option value=\"60\">1 hour</option>", "<option value=\"120\">2 hours</option>",
@@ -250,7 +250,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     ]);
     assert!(!html.contains("connected remotely"));
     let token = r.input("once");
-    assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("您已远程连接：如果 the connection drops"));
+    assert!(get_with(&c, REBOOT, tailnet(42223), &cookie).await.text().contains("您已远程连接：如果连接断开，则在路由器恢复在线之前无法访问此页面’。"));
     let reset = get_with(&c, RESET, peer(223, 2), &cookie).await.text();
     has(&reset, &[
         "<h1>恢复出厂设置</h1>", "<p class=\"cap\">这将删除所有设置。输入您的路由器密码进行确认。</p>",
@@ -260,7 +260,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
         "<input id=\"rpw\" type=\"password\" name=\"password\" placeholder=\"路由器管理密码\" autocomplete=\"off\" required data-1p-ignore=\"true\" data-lpignore=\"true\" data-bwignore=\"true\">",
     ]);
     let remote = get_with(&c, RESET, tailnet(42223), &cookie).await.text();
-    assert!(remote.contains("You are connected remotely: after a factory reset the router may not come back on your tailnet"), "{remote}");
+    assert!(remote.contains("您已远程连接：恢复出厂设置后，路由器可能无法返回您的尾网；然后只能通过 Wi-Fi 设备再次进行设置。"), "{remote}");
     let csrf = page_csrf(&html);
     // Wrong: nothing sent, the password not echoed.
     let r = post(&c, REBOOT, peer(223, 3), &cookie, &format!("csrf={csrf}&once={token}&password=fake-wrong-1")).await;
@@ -272,7 +272,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     post(&c, RESET, peer(223, 3), "", &format!("csrf={csrf}&password={}", enc(PW))).await.assert_see_other(&format!("/ui/login?next={}&expired=1", enc(RESET)));
     // The right password without the sheet's token.
     let r = post(&c, REBOOT, peer(223, 4), &cookie, &format!("csrf={csrf}&password={}", enc(PW))).await;
-    assert!(r.status == 409 && r.text().contains("This page expired, so nothing was sent."), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("该页面已过期，因此未发送任何内容。再试一次。"), "{}", r.text());
     assert!(calls(&c).is_empty());
     // Right: once for a double click, both answered with the page.
     let body = format!("csrf={csrf}&once={token}&password={}", enc(PW));
@@ -291,7 +291,7 @@ async fn reboot_and_factory_reset_need_the_router_password() {
     let token = get_with(&c, RESET, peer(223, 5), &cookie).await.input("once");
     let r = post(&c, RESET, peer(223, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await;
     r.assert_secure_html(200);
-    has(&r.text(), &["<h1>正在重置…</h1>", "<p class=\"msg ok\" role=\"status\">恢复出厂设置已启动...</p>", "join its default Wi-Fi network"]);
+    has(&r.text(), &["<h1>正在重置…</h1>", "<p class=\"msg ok\" role=\"status\">恢复出厂设置已启动...</p>", "路由器清除其设置并重新启动。其 Wi-Fi 名称、Wi-Fi 密码和地址将恢复为出厂默认值，因此您可能需要先加入其默认 Wi-Fi 网络。"]);
     assert_eq!(calls(&c)[1], ("/api/device/factory-reset".to_owned(), json!({})));
     let fail = (503, json!({"ok": false, "error": "ubus call zwrt_bsp.power factory_reset failed: fake"}));
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/device/factory-reset", fail)], ..Default::default() });

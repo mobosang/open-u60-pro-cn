@@ -113,7 +113,7 @@ async fn wifi_form_question_and_reconnect_page() {
     let html = r.text();
     let same_token = format!("name=\"once\" value=\"{once}\"");
     for want in [
-        "Use at most 32 bytes", "通道 165 最多支持 20 MHz。", "name=\"ssid_2g\" value=\"Fake-Net-New\"",
+        "最多使用 32 个字节（重音字母和表情符号占用多个字节）。", "通道 165 最多支持 20 MHz。", "name=\"ssid_2g\" value=\"Fake-Net-New\"",
         "placeholder=\"留空以保留您输入的密码\"", same_token.as_str(),
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -271,7 +271,7 @@ async fn a_failed_apply_keeps_the_typed_password_for_the_retry() {
         }
     }
     let html = get_with(&c, &back, peer(208, 2), &cookie).await.text();
-    assert!(html.contains("placeholder=\"留空保留\"") && !html.contains("the password you entered"), "{html}");
+    assert!(html.contains("placeholder=\"留空保留\"") && !html.contains("留空以保留您输入的密码"), "{html}");
 }
 
 /// A carried password whose token was pushed out of the store (64 newer
@@ -298,7 +298,7 @@ async fn a_carried_password_goes_with_its_token() {
     // The token store's eviction, as 64 newer tokens would.
     c.once.remove(&next, Some(id), c.app.auth.now());
     let html = get_with(&c, &back, peer(209, 2), &cookie).await.text();
-    assert!(html.contains("placeholder=\"留空保留\"") && !html.contains("the password you entered"), "{html}");
+    assert!(html.contains("placeholder=\"留空保留\"") && !html.contains("留空以保留您输入的密码"), "{html}");
     assert!(!held(&next) && c.drafts.get(&next, id, c.app.auth.now()).is_none());
 }
 
@@ -328,7 +328,7 @@ async fn guest_wifi_form_and_apply() {
     let html = q.text();
     for want in [
         "<h2 class=\"q\">应用访客WiFi设置？</h2>", "客人必须再次加入“Fake-Guest-2” with the new password。",
-        "访客WiFi在2 hours之后自行关闭。", "guests included",
+        "访客WiFi在2 hours之后自行关闭。", "WiFi 重新启动以应用更改：路由器 ’ WiFi 上的每个设备（包括访客）都会暂时断开连接，如果该浏览器位于 WiFi 上，也会断开连接。",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -372,7 +372,7 @@ async fn guest_wifi_form_and_apply() {
     let r = post(&c, GUEST_APPLY, peer(202, 2), &cookie, &body(&csrf, &once, &[("g5", "1"), ("gssid", "Fake&Guest"), ("gkey", "short"), ("genc", "sae"), ("gtime", "0")])).await;
     r.assert_secure_html(400);
     assert!(r.text().contains("The router can&#39;t store these 个字符") || r.text().contains("The router can't store these 个字符"), "{}", r.text());
-    assert!(r.text().contains("Use 8 to 63 个字符"));
+    assert!(r.text().contains("使用 8 至 63 个字符（字母、数字、空格或符号）或 64 个十六进制数字。"));
 }
 
 /// The router's APN lists (made-up profiles; a password that must never
@@ -475,7 +475,7 @@ async fn apn_list_sheets_and_changes() {
     let once = get_with(&c, "/ui/router/apn/new", peer(203, 2), &cookie).await.input("once");
     let r = post(&c, "/ui/router/apn/save", peer(203, 2), &cookie, &body(&csrf, &once, &[("name", "Fake Travel"), ("apn", "bad apn"), ("pdp", "3"), ("auth", "0")])).await;
     r.assert_secure_html(400);
-    assert!(r.text().contains("同名的 APN 已存在") && r.text().contains("Use up to 100 letters"), "{}", r.text());
+    assert!(r.text().contains("同名的 APN 已存在") && r.text().contains("最多使用 100 个字母、数字、点、连字符和下划线。"), "{}", r.text());
     let r = post(&c, "/ui/router/apn/save", peer(203, 2), &cookie, &body(&csrf, &once, &[("name", ""), ("apn", ""), ("pdp", "3"), ("auth", "0")])).await;
     assert_eq!(r.text().matches("Name and APN are required").count(), 2);
 }
@@ -509,7 +509,7 @@ async fn lan_checks_asks_and_links_the_new_address() {
     let q = get_with(&c, &to(&r), peer(204, 2), &cookie).await;
     let html = q.text();
     assert!(html.contains("The router\u{2019}s address changes from 192.168.0.1 to 192.168.8.1.") && html.contains("open http://192.168.8.1:9090/ui/ afterwards"), "{html}");
-    assert!(html.contains("disconnects for a moment, this browser too.") && !html.contains("connected remotely"), "{html}");
+    assert!(html.contains("路由器’的网络重新启动：WiFi或USB上的每个设备都会暂时断开连接，该浏览器也是如此。") && !html.contains("connected remotely"), "{html}");
     // Over Tailscale: the address on the router's network, the remote line.
     let remote = get_with(&c, &to(&r), tailnet(40204), &cookie).await.text();
     assert!(remote.contains("路由器’在其网络上的地址从192.168.0.1更改为192。168.8.1.") && !remote.contains("this browser too"), "{remote}");
@@ -519,8 +519,8 @@ async fn lan_checks_asks_and_links_the_new_address() {
     assert_eq!(done, format!("/ui/router/lan/applied?t={once}"));
     assert_eq!(
         calls(&c),
-        vec![("/api/router/lan".to_owned(), json!({"lan_ipaddr": "192.168.8.1", "lan_netmask": "255.255.255.0", "dhcp_enable": "1",
-            "dhcp_start": "100", "dhcp_end": "192.168.8.149", "dhcp_lease_time": "12h", "ipaddr": "192.168.8.1", "netmask": "255.255.255.0",
+        vec![("/api/router/lan".to_owned(), json!({"lan_ipaddr": "192.168.8.1", "lan_netmask": "输入子网掩码，例如 255.255.255.0。", "dhcp_enable": "1",
+            "dhcp_start": "100", "dhcp_end": "192.168.8.149", "dhcp_lease_time": "12h", "ipaddr": "192.168.8.1", "netmask": "输入子网掩码，例如 255.255.255.0。",
             "ignore": 0, "zte_start": "192.168.8.100", "zte_end": "192.168.8.149", "leasetime": "12h"}))]
     );
     let html = get_with(&c, &done, peer(204, 2), &cookie).await.text();
@@ -602,7 +602,7 @@ async fn dns_modes_presets_cache_and_clear() {
     let q = get_with(&c, &to(&r), tailnet(40205), &cookie).await.text();
     assert!(
         q.contains("您已远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也经过此DoH服务器，因此可以到达’的服务器可以切断远程访问。")
-            && !q.contains("use these servers too"),
+            && !q.contains("您已远程连接：路由器’自己的查找（Tailscale重新连接、短信转发webhook）也使用这些服务器，因此可以到达’的服务器可以切断远程访问。"),
         "{q}"
     );
     let n = calls(&c).len();
@@ -649,13 +649,13 @@ async fn sessions_tokens_and_logout() {
     let csrf = page.input("csrf");
     // An unknown token: nothing drafted.
     let r = post(&c, WIFI_APPLY, peer(206, 2), &cookie, &body(&csrf, "00000000000000ff", &wifi_fields(&[("ssid_2g", "X-Fake")]))).await;
-    assert!(get_with(&c, &to(&r), peer(206, 2), &cookie).await.text().contains("This form expired, so nothing was sent."));
+    assert!(get_with(&c, &to(&r), peer(206, 2), &cookie).await.text().contains("此表格已过期，因此未发送任何内容。再次打开它。"));
     // A question's post with another revision: nothing sent.
     let once = page.input("once");
     let r = post(&c, WIFI_APPLY, peer(206, 2), &cookie, &body(&csrf, &once, &wifi_fields(&[("key_2g", "another-fake-pass")]))).await;
     assert_eq!(r.status, 303);
     let r = post(&c, WIFI_APPLY, peer(206, 2), &cookie, &format!("csrf={csrf}&once={once}&d=0000000000000000&confirm=1")).await;
-    assert!(get_with(&c, &to(&r), peer(206, 2), &cookie).await.text().contains("This page expired, so nothing was sent."));
+    assert!(get_with(&c, &to(&r), peer(206, 2), &cookie).await.text().contains("该页面已过期，因此未发送任何内容。再试一次。"));
     assert!(calls(&c).is_empty());
     assert!(c.drafts.get(&once, id, c.app.auth.now()).is_some());
     let logout = get_with(&c, "/ui/logout", peer(206, 2), &cookie).await.input("csrf");

@@ -251,7 +251,7 @@ mod tests {
             assert!(!domain_ok(bad), "{bad}");
         }
         let pairs = |v: &str| vec![("domain".to_owned(), v.to_owned())];
-        assert_eq!(add_fields(&pairs("  Ads.Example.COM ")).ok().unwrap(), vec![("domain", "ads.example.com".to_owned())]);
+        assert_eq!(add_fields(&pairs("  Ads.Example.COM ")).ok().unwrap(), vec![("domain", "输入域名，例如 ads.example.com：字母、数字、连字符和点。".to_owned())]);
         match add_fields(&pairs("   ")) {
             Err(Bad::Fields(fs)) => assert_eq!(fs.error("domain"), Some("输入域名")),
             _ => panic!("empty"),

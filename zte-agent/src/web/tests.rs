@@ -404,7 +404,7 @@ async fn login_post_checks_in_order() {
             .unwrap();
         let r = send(&c, r).await;
         r.assert_secure_html(403);
-        assert!(r.text().contains("This form expired or came from another site."));
+        assert!(r.text().contains("此表格已过期或来自其他网站。再次打开并重试。"));
     }
     // Not a form: 400.
     let r = req("POST", "/ui/login", p).header("content-type", "application/json").header("cookie", &pre_cookie).body(Body::from("{}")).unwrap();
@@ -922,7 +922,7 @@ async fn network_mode_operation_settles_or_times_out() {
     clock.advance(Duration::from_secs(10));
     let html = get_with(&c, "/ui/op/00000000000000a2", peer(32, 4), &cookie).await.text();
     assert!(html.contains("<h1 id=\"op-title\">发送模式 — 路由器可能仍在切换</h1>"), "{html}");
-    assert!(html.contains("The modem has not reported the new mode yet.") && !html.contains("http-equiv"));
+    assert!(html.contains("调制解调器尚未报告新模式。稍后再检查一次。") && !html.contains("http-equiv"));
     // Not an error (the app's "Mode sent" is not red): the mode was sent.
     assert!(html.contains("<p class=\"msg info\" role=\"status\">The modem has not") && !html.contains("role=\"alert\""), "{html}");
 }
@@ -974,7 +974,7 @@ async fn tab_roots_follow_the_app() {
     let html = get_with(&c, "/ui/settings", peer(27, 2), &cookie).await.text();
     for want in [
         "<h2>会议</h2>", "在此浏览器中登录", "href=\"/ui/logout\"><span>退出登录</span>", "<h2>关于</h2>",
-        "OpenU60", "ZTE U60 Pro (MU5250)", "zte-agent 管理网页 0.1.0", "<h2>法律声明</h2>", "not affiliated with",
+        "OpenU60", "ZTE U60 Pro (MU5250)", "zte-agent 管理网页 0.1.0", "<h2>法律声明</h2>", "此应用程序不隶属于 ZTE Corporation，也不受其认可或赞助。 ZTE 和 U60 Pro 是 ZTE Corporation 的商标。",
         "href=\"https://open-u60-pro.vercel.app/privacy\" rel=\"noopener noreferrer\"",
     ] {
         assert!(html.contains(want), "{want}");
@@ -1147,7 +1147,7 @@ async fn mobile_network_page_and_confirmations() {
     assert!(r.text().contains("您已远程连接：这将切断连接，并且只有在路由器上重新打开连接后才能访问此页面。"));
     let r = get_with(&c, &format!("{MN}/mobile-data/confirm?enable=0"), tailnet, &cookie).await;
     assert!(r.text().contains("所有连接的设备都无法访问互联网。 Wi-Fi 继续工作。"));
-    assert!(r.text().contains("this cuts the connection") && !r.text().contains("this page keep working"));
+    assert!(r.text().contains("您已远程连接：这将切断连接，并且只有在路由器上重新打开连接后才能访问此页面。") && !r.text().contains("所有连接的设备都无法访问互联网。 Wi-Fi 和此页面继续工作。"));
     // Remotely, roaming off is asked too (abroad it cuts the connection).
     let r = get_with(&c, &apply("0", "1"), tailnet, &cookie).await;
     assert!(r.text().contains("您已远程连接：如果路由器在国外，则只有在路由器上重新开启漫游后才能访问此页面。") && r.text().contains("btn-danger"));
@@ -1238,7 +1238,7 @@ async fn router_posts_check_session_csrf_confirm_and_values() {
     // Without the page's single-use token nothing is saved.
     let r = p(charge.clone(), format!("csrf={csrf}&enabled=1&limit=85&hysteresis=7")).await;
     let html = get_with(&c, r.header("location").unwrap(), peer(18, 6), &cookie).await.text();
-    assert!(html.contains("This page expired, so nothing was sent.") && !html.contains("<option value=\"85\" selected>"), "{html}");
+    assert!(html.contains("该页面已过期，因此未发送任何内容。再试一次。") && !html.contains("<option value=\"85\" selected>"), "{html}");
     let once = get_with(&c, DEV, peer(18, 6), &cookie).await.input("once");
     let save = format!("csrf={csrf}&once={once}&enabled=1&limit=85&hysteresis=7");
     let (a, b) = tokio::join!(p(charge.clone(), save.clone()), p(charge.clone(), save));
@@ -1271,7 +1271,7 @@ async fn router_posts_check_session_csrf_confirm_and_values() {
     // A question's token is its own: another page's is refused.
     let r = p(at("mobile-data"), format!("csrf={csrf}&enable=1&once=0123456789abcdef")).await;
     let html = get_with(&c, r.header("location").unwrap(), peer(18, 5), &cookie).await.text();
-    assert!(html.contains("This page expired, so nothing was sent.") && crate::web::pages::device::calls(&c.app).len() == 1, "{html}");
+    assert!(html.contains("该页面已过期，因此未发送任何内容。再试一次。") && crate::web::pages::device::calls(&c.app).len() == 1, "{html}");
 }
 
 #[tokio::test]
@@ -1522,7 +1522,7 @@ async fn processes_kills_report_their_result_to_their_session() {
     assert!(shown.contains(line), "{shown}");
     // Another session, or an unknown id: nothing.
     let other = format!("zte_ui_session={}", login(&c, 46, 9).await);
-    assert!(!get_with(&c, &location, peer(46, 9), &other).await.text().contains("Nothing was killed"));
+    assert!(!get_with(&c, &location, peer(46, 9), &other).await.text().contains("没有可以安全结束的膨胀守护进程正在运行。什么也没被杀。"));
     assert!(!get_with(&c, "/ui/health/processes?r=0123456789abcdef", peer(46, 4), &cookie).await.text().contains("killed"));
     // Kill All with nothing safe to kill: nothing is sent; a neutral line, never a success.
     let to = post(&c, "/ui/health/processes/kill-all", peer(46, 5), &cookie, &format!("csrf={csrf}&confirm=1")).await;

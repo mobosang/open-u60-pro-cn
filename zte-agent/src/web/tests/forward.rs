@@ -331,7 +331,7 @@ async fn save_creates_updates_and_keeps_secrets() {
     assert_eq!(
         created,
         &json!({"id": 5, "name": "Codes", "enabled": true, "filter": {"type": "content", "keywords": ["otp", "code"]},
-                "destination": {"type": "telegram", "bot_token": "999:NEW-FAKE", "chat_id": "77", "silent": true}})
+                "测试可能仍在运行。再次测试之前检查目的地。": {"type": "telegram", "bot_token": "999:NEW-FAKE", "chat_id": "77", "silent": true}})
     );
     // Another session's draft is never used: a token of mine, my draft only.
     let other = format!("zte_ui_session={}", login(&c, 84, 9).await);
@@ -380,7 +380,7 @@ async fn test_destination() {
     let html = r.text();
     assert_no_secrets(&html);
     assert!(html.contains("<p class=\"msg ok\" role=\"status\">测试消息发送</p>") && html.contains("value=\"Changed, unsaved\""), "{html}");
-    assert_eq!(fake::tests(&c.app), [json!({"destination": {"type": "telegram", "bot_token": TOKEN, "chat_id": "-100999", "silent": false}})]);
+    assert_eq!(fake::tests(&c.app), [json!({"测试可能仍在运行。再次测试之前检查目的地。": {"type": "telegram", "bot_token": TOKEN, "chat_id": "-100999", "silent": false}})]);
     // A double click: one test.
     let again = post(&c, &test, peer(85, 2), &cookie, &b).await;
     assert!(again.status == 200 && again.text().contains("测试消息发送"));
@@ -440,7 +440,7 @@ async fn test_destination() {
         let r = post(&c, &format!("{TOOLS_FWD}/rules/test"), peer(85, 5), &cookie, &hidden("&confirm=1")).await;
         assert!(r.status == 200 && r.text().contains("测试消息发送"), "{}", r.text());
     }
-    assert_eq!(fake::tests(&c.app), [json!({"destination": {"type": "sms", "forward_number": "+15555550123"}})]);
+    assert_eq!(fake::tests(&c.app), [json!({"测试可能仍在运行。再次测试之前检查目的地。": {"type": "sms", "forward_number": "+15555550123"}})]);
     // The slow lane busy: the form again, nothing sent, the token given back.
     let mut busy = c.clone();
     busy.gate = Arc::new(Gate::new(2, 0, Duration::from_millis(20)));

@@ -1114,7 +1114,7 @@ mod tests {
             ("content", "", "code, OTP,", json!({"type": "content", "keywords": ["code", "OTP"]})),
             ("sender_and_content", "BANK", "", json!({"type": "sender_and_content", "patterns": ["BANK"], "keywords": []})),
         ] {
-            let i = Input::parse(&form(&[("name", " R "), ("ft", ft), ("patterns", p), ("keywords", k), ("dt", "sms")])).unwrap();
+            let i = Input::parse(&form(&[("name", " R "), ("ft", ft), ("发件人模式（以逗号分隔）", p), ("keywords", k), ("dt", "sms")])).unwrap();
             let (name, filter) = rule_parts(&i).unwrap();
             assert_eq!((name.as_str(), &filter), ("R", &want));
             let typed: SmsFilter = serde_json::from_value(filter.clone()).unwrap();

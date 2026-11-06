@@ -110,11 +110,11 @@ async fn firewall_page_switches_and_level() {
     let q = get_with(&c, "/ui/router/firewall/switch?on=0", peer(210, 2), &cookie).await;
     q.assert_secure_html(200);
     has(&q.text(), &[
-        "<h2 class=\"q\">关闭the firewall?</h2>", "lose the firewall\u{2019}s protection from the internet",
+        "<h2 class=\"q\">关闭the firewall?</h2>", "路由器上的设备失去防火墙’ 的互联网保护。",
         "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。",
         "<input type=\"hidden\" name=\"on\" value=\"0\">", ">禁用防火墙</button>", "href=\"/ui/router/firewall\">取消</a>",
     ]);
-    assert!(!q.text().contains("connected remotely") && !q.text().contains("this web UI included"), "{}", q.text());
+    assert!(!q.text().contains("connected remotely") && !q.text().contains("路由器本身及此管理网页可能变得可从移动网络访问，届时仅由 Agent 密码保护。"), "{}", q.text());
     let once = q.input("once");
     let fields = body(&csrf, &once, &[("on", "0")]);
     // Origin and CSRF first; a value no page sends; no confirm: the question.
@@ -134,12 +134,12 @@ async fn firewall_page_switches_and_level() {
     assert_eq!(calls(&c).len(), 1);
     // Turning it on or raising the level can lock a remote browser out.
     let q = get_with(&c, "/ui/router/firewall/switch?on=1", tailnet(41001), &cookie).await.text();
-    has(&q, &["是否开启防火墙？", "which can cut access to the router", "You are connected remotely", ">启用防火墙</button>"]);
+    has(&q, &["是否开启防火墙？", "防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。", "You are connected remotely", ">启用防火墙</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=high", tailnet(41002), &cookie).await.text();
     has(&q, &["<h2 class=\"q\">将防火墙级别设置为High？</h2>", "blocks more connections at High", "You are connected remotely", ">设置级别</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=low", tailnet(41003), &cookie).await.text();
-    has(&q, &["将防火墙级别设置为Low？", "lets more connections from the internet through at Low", "such as SSH on port 2222", "This web UI and the agent\u{2019}s API keep refusing connections from it."]);
-    assert!(!q.contains("connected remotely") && !q.contains("can cut access"), "{q}");
+    has(&q, &["将防火墙级别设置为Low？", "lets more connections from the internet through at Low", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。"]);
+    assert!(!q.contains("connected remotely") && !q.contains("防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。"), "{q}");
     let q = get_with(&c, "/ui/router/firewall/level?level=medium", peer(210, 2), &cookie).await.text();
     assert!(q.contains("防火墙级别已经是Medium") && !q.contains("name=\"confirm\""), "{q}");
     assert_eq!(get_with(&c, "/ui/router/firewall/level?level=max", peer(210, 2), &cookie).await.status, 400);
@@ -326,7 +326,7 @@ async fn telemetry_blocker() {
     let once = get_with(&c, TM, peer(213, 2), &cookie).await.input("once");
     let r = post(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie, &body(&csrf, &once, &[("domain", "not a domain")])).await;
     r.assert_secure_html(400);
-    has(&r.text(), &["letters, digits, hyphens and dots", "value=\"not a domain\"", "aria-invalid=\"true\"", &format!("name=\"once\" value=\"{once}\"")]);
+    has(&r.text(), &["输入域名，例如 ads.example.com：字母、数字、连字符和点。", "value=\"not a domain\"", "aria-invalid=\"true\"", &format!("name=\"once\" value=\"{once}\"")]);
     let r = post(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie, &body(&csrf, &once, &[("domain", "  ")])).await;
     assert!(r.text().contains("输入域名<"), "{}", r.text());
     let line = to(&post(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie, &body(&csrf, &once, &[("domain", "Ads.Example.com")])).await);
@@ -368,7 +368,7 @@ async fn telemetry_blocker() {
     assert_eq!(to(&get_with(&c, "/ui/router/telemetry/add", peer(213, 2), &cookie).await), TM);
     let _dev = device::set(&c.app, device::Device { gets: vec![("/api/router/domain-filter", Err("ubus call failed: timed out".into()))], ..Default::default() });
     let html = get_with(&c, TM, peer(213, 2), &cookie).await.text();
-    assert!(html.contains("加载过滤器失败： ubus call failed: timed out") && !html.contains("Block All"), "{html}");
+    assert!(html.contains("加载过滤器失败： ubus call failed: timed out") && !html.contains("阻止所有 ZTE 遥测"), "{html}");
 }
 
 /// VPN Passthrough and QoS: the app's switches, posted from the page once

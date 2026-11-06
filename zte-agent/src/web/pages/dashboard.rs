@@ -554,7 +554,7 @@ pub(crate) mod tests {
             let s = SlotView { version: 1, at: at(secs), value_at: at(secs), value: Some(Arc::new(json!({"real_rx_speed": 1}))), error: None };
             card_traffic(&Views::new(NOW, vec![(Topic::Traffic, s)])).into_string()
         };
-        assert!(traffic(4).contains("Live cellular traffic"));
+        assert!(traffic(4).contains("实时蜂窝流量·所有设备"));
         assert!(traffic(5).contains("· 之前的最后一个流量样本 · 5 正在等待设备"));
         assert!(!traffic(600).contains("class=\"age\""), "the caption replaces the age line");
         // The cards say nothing about age (the app has only the nav bar's

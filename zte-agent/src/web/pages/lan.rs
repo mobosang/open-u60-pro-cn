@@ -310,15 +310,15 @@ mod tests {
             let e = errors(&q);
             assert!(e.iter().any(|(k, _)| *k == field), "{q}: {e:?}");
         }
-        assert_eq!(start_address("100", "192.168.0.1", "255.255.255.0"), "192.168.0.100");
+        assert_eq!(start_address("100", "192.168.0.1", "255.255.255.0"), "输入 IPv4 地址，例如 192.168.0.100。");
         assert_eq!(start_address("192.168.0.20", "192.168.0.1", "255.255.255.0"), "192.168.0.20");
         assert_eq!(start_address("5", "10.1.2.3", "255.255.0.0"), "10.1.0.5");
         assert_eq!(lease_secs("1d"), Some(86_400));
         assert_eq!(lease_secs("h"), None);
         let b = body(&check(&pairs(OK)).unwrap());
-        assert_eq!(b, json!({"lan_ipaddr": "192.168.8.1", "lan_netmask": "255.255.255.0", "dhcp_enable": "1",
+        assert_eq!(b, json!({"lan_ipaddr": "192.168.8.1", "lan_netmask": "输入子网掩码，例如 255.255.255.0。", "dhcp_enable": "1",
                              "dhcp_start": "100", "dhcp_end": "192.168.8.200", "dhcp_lease_time": "43200",
-                             "ipaddr": "192.168.8.1", "netmask": "255.255.255.0", "ignore": 0,
+                             "ipaddr": "192.168.8.1", "netmask": "输入子网掩码，例如 255.255.255.0。", "ignore": 0,
                              "zte_start": "192.168.8.100", "zte_end": "192.168.8.200", "leasetime": "43200"}));
         let off = body(&check(&pairs(&OK.replace("dhcp=1&", ""))).unwrap());
         assert_eq!((&off["dhcp_enable"], &off["ignore"]), (&json!("0"), &json!(1)));

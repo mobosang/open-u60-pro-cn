@@ -585,7 +585,7 @@ mod tests {
         };
         let s = page("ONLINE");
         let order = [
-            "<h2>网络连接</h2>", "移动数据", "<h2>连接方式</h2>", "数据漫游", "Enabling roaming",
+            "<h2>网络连接</h2>", "移动数据", "<h2>连接方式</h2>", "数据漫游", "启用漫游可能会向您的运营商收取额外费用。",
             "<h2>网络选择</h2>", "扫描网络", ">应用</button>",
         ];
         let at: Vec<usize> = order.iter().map(|w| s.find(w).unwrap_or_else(|| panic!("{w} in {s}"))).collect();

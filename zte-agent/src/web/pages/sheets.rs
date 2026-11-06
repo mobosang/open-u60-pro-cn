@@ -70,8 +70,8 @@ pub fn battery_rows(v: &Views) -> Markup {
                 (kit::kv_row(Some(kit::battery_icon(capacity)), "容量", &dash_or(capacity.map(|c| format!("{c}%")))))
                 (kit::kv_row(Some(Icon::Bolt), "状态", fmt::charge_label(state, capacity).0))
                 @if let Some(mv) = mv { (kit::kv_row_m(Some(Icon::BoltCircle), "电压", roll(v, "bv", &format!("{:.3} V", mv as f64 / 1000.0)))) }
-                @if let Some(ma) = ma { (kit::kv_row_m(Some(Icon::Swap), "当前", roll(v, "bc", &format!("{ma} mA")))) }
-                @if let Some(w) = b.and_then(fmt::watts) { (kit::kv_row_m(Some(Icon::Flame), "电源", roll(v, "bw", &format!("{w:.1} W")))) }
+                @if let Some(ma) = ma { (kit::kv_row_m(Some(Icon::Swap), "电流", roll(v, "bc", &format!("{ma} mA")))) }
+                @if let Some(w) = b.and_then(fmt::watts) { (kit::kv_row_m(Some(Icon::Flame), "功率", roll(v, "bw", &format!("{w:.1} W")))) }
                 // The app's temperature is in the primary colour (its other values are secondary).
                 li.it {
                     (kit::icon(Icon::Thermometer)) span { "温度" }
@@ -336,7 +336,7 @@ mod tests {
         ]);
         let s = battery_rows(&v).into_string();
         let rows: Vec<(&str, &str)> = vec![
-            ("容量", "69%"), ("状态", "充电中"), ("电压", "4.435 V"), ("当前", "5680 mA"), ("电源", "25.2 W"),
+            ("容量", "69%"), ("状态", "充电中"), ("电压", "4.435 V"), ("电流", "5680 mA"), ("功率", "25.2 W"),
             ("温度", "26.0 °C"), ("充满所需时间", "37m"), ("预计剩余时间", "\u{2014}"),
         ];
         let mut at = 0;
@@ -359,10 +359,10 @@ mod tests {
         }
         // Unknown voltage and current: no Voltage, Current or Power rows.
         let s = battery_rows(&views(vec![(Topic::Battery, json!({"status": "Full", "capacity": 100}))])).into_string();
-        assert!(s.contains(">已充满<") && !s.contains("电压") && !s.contains("当前") && !s.contains("电源"), "{s}");
+        assert!(s.contains(">已充满<") && !s.contains("电压") && !s.contains("电流") && !s.contains("功率"), "{s}");
         assert_eq!(s.matches("<li class=\"it\">").count(), 5);
         let s = battery_rows(&views(vec![(Topic::Battery, json!({"capacity": 50, "current_ua": 120_000}))])).into_string();
-        assert!(s.contains(">不可用<") && s.contains(">120 mA<") && !s.contains("电源"), "{s}");
+        assert!(s.contains(">不可用<") && s.contains(">120 mA<") && !s.contains("功率"), "{s}");
         // Nothing read yet.
         let s = battery_rows(&views(vec![])).into_string();
         assert!(s.contains("容量</span><span class=\"v\">—") && s.contains(">不可用<"), "{s}");
@@ -423,7 +423,7 @@ mod tests {
         assert!(s.contains("温度读数不可用 · 自动重试") && s.contains("<dd><b>—</b>"), "{s}");
         // Nothing read yet.
         let s = hl_temps(&views(vec![])).into_string();
-        assert!(s.contains("温度 readings unavailable") && s.contains("CPU·最热传感器</dt><dd><b>—</b>"), "{s}");
+        assert!(s.contains("温度读数不可用 · 自动重试") && s.contains("CPU·最热传感器</dt><dd><b>—</b>"), "{s}");
     }
 
     #[test]
@@ -440,7 +440,7 @@ mod tests {
         for want in [
             "<section class=\"card ctr\" id=\"hl-cpu\">", "<p class=\"big\">12.3%</p>", "<p class=\"cap num\">41.5 °C</p>",
             "<a class=\"nl\" href=\"/ui/health/cpu\">CPU、内存和进程</a>", "温度",
-            "CPU shows the hottest CPU zone. Board numbers follow the device’s sensor names.",
+            "CPU 显示最热的 CPU 区域。板号遵循设备的传感器名称。不可用意味着设备未报告有效的温度。",
         ] {
             assert!(page.contains(want), "{want} in {page}");
         }
@@ -497,7 +497,7 @@ mod tests {
         let v = views(vec![(Topic::Traffic, json!({"real_rx_speed": 52, "real_tx_speed": 69}))]);
         let s = traffic_body(&v).into_string();
         assert!(s.contains("<section class=\"card\" id=\"card-traffic\">") && !s.contains("<a class=\"card\""), "{s}");
-        assert!(s.contains("416.0 b/s") && s.contains("A speed test reports throughput over its test period"));
+        assert!(s.contains("416.0 b/s") && s.contains("这些速度显示所有连接设备上当前的蜂窝流量。速度测试报告测试期间的吞吐量；在此期间，实时数据会发生变化。"));
         assert!(dashboard::card_traffic(&v).into_string().starts_with("<a class=\"card\" id=\"card-traffic\" href=\"/ui/traffic\">"));
     }
 }

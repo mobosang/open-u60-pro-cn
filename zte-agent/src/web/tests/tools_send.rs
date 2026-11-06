@@ -158,7 +158,7 @@ async fn speed_test_start_asks_and_starts_once() {
     for want in [
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/tools/speedtest\">速度测试</a></div><h1>确认</h1>",
         "<h2 class=\"q\">开始速度测试？</h2>", "<li>服务器：Example Net - Testville, Nowhere</li>",
-        "It downloads for 15 seconds and uploads 10 MB", "<li>您的计划可能会计算此数据。</li>",
+        "下载时间为 15 秒，并通过移动连接上传 10 MB：以 100 Mbit/s 的速度上传约 200 MB，如果链接速度更快，则上传量会更多。", "<li>您的计划可能会计算此数据。</li>",
         "<input type=\"hidden\" name=\"server\" value=\"7\"><input type=\"hidden\" name=\"once\" value=\"",
         "\" autocomplete=\"off\"><input type=\"hidden\" name=\"confirm\" value=\"1\">",
         "<button class=\"btn\" type=\"submit\">启动速度测试</button>", "href=\"/ui/tools/speedtest?server=7\">取消",
@@ -247,7 +247,7 @@ async fn enable_adb_asks_and_sends_once() {
     let _dev = device::set(&c.app, device::Device::default());
     let q = get_with(&c, "/ui/tools/adb/enable", peer(113, 3), &cookie).await;
     q.assert_secure_html(200);
-    assert!(q.text().contains("<h2 class=\"q\">启用亚行？</h2>") && q.text().contains("gets a root shell on the router"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">启用亚行？</h2>") && q.text().contains("任何插入 USB-C 端口的设备都会在路由器上获得 root shell，无需密码。"), "{}", q.text());
     assert!(q.text().contains("<button class=\"btn btn-danger\" type=\"submit\">启用亚行</button>"));
     let (csrf, once) = (q.input("csrf"), q.input("once"));
     post(&c, "/ui/tools/adb/enable", peer(113, 4), &cookie, &format!("csrf={csrf}")).await.assert_see_other("/ui/tools/adb/enable");
@@ -551,14 +551,14 @@ async fn a_busy_router_gives_the_token_back() {
     c.gate = Arc::new(Gate::new(4, 0, Duration::from_millis(20)));
     let r = post(&c, "/ui/tools/at/send", peer(120, 3), &cookie, &body).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("失败：the router is busy.") && r.text().contains("value=\"ATI\""));
+    assert!(r.text().contains("失败：路由器正忙。几秒钟后重试。") && r.text().contains("value=\"ATI\""));
     c.gate = Arc::new(Gate::new(0, 4, Duration::from_millis(20)));
     let to = post(&c, "/ui/tools/adb/enable", peer(120, 4), &cookie, &adb).await.header("location").unwrap().to_owned();
     let r = post(&c, "/ui/tools/automations/save", peer(120, 5), &cookie, &save).await;
     r.assert_secure_html(503);
-    assert!(r.text().contains("失败：the router is busy."));
+    assert!(r.text().contains("失败：路由器正忙。几秒钟后重试。"));
     c.gate = free;
-    assert!(get_with(&c, &to, peer(120, 4), &cookie).await.text().contains("失败：the router is busy."));
+    assert!(get_with(&c, &to, peer(120, 4), &cookie).await.text().contains("失败：路由器正忙。几秒钟后重试。"));
     assert!(device::calls(&c.app).is_empty());
     assert!(crate::scheduler::jobs_list(&c.app).1["data"].as_array().unwrap().is_empty());
     // The same forms again: each sends once.

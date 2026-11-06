@@ -88,7 +88,7 @@ async fn mobile_network_page_follows_the_app() {
     let r = post(&c, SCAN, tailnet(40140), &cookie, &format!("csrf={csrf}&once=0123456789abcdef")).await;
     assert_eq!(to(&r), SCAN);
     let q = get_with(&c, SCAN, tailnet(40140), &cookie).await.text();
-    for want in ["<h2 class=\"q\">扫描网络？</h2>", "Some modems pause mobile data while they search.", "You are connected remotely", ">扫描网络</button>"] {
+    for want in ["<h2 class=\"q\">扫描网络？</h2>", "调制解调器搜索最多一分钟。某些调制解调器在搜索时会暂停移动数据。", "You are connected remotely", ">扫描网络</button>"] {
         assert!(q.contains(want), "{want} in {q}");
     }
     assert!(calls(&c).is_empty());
@@ -114,7 +114,7 @@ async fn mobile_network_page_follows_the_app() {
     assert!(err.is_some() && err < conn, "{html}");
     let _dev = device::set(&c.app, reads(vec![("/api/modem/data", Err("ubus <down>".into())), ("/api/modem/status", Err("no".into()))]));
     let html = get_with(&c, MN, peer(140, 4), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">加载失败：ubus &lt;down&gt;</p>") && !html.contains("airplane mode status"), "{html}");
+    assert!(html.contains("role=\"alert\">加载失败：ubus &lt;down&gt;</p>") && !html.contains("加载飞行模式状态失败"), "{html}");
 }
 
 /// Apply sends only what changed (the router's current values for the
@@ -168,7 +168,7 @@ async fn apply_sends_what_changed_once() {
     let both = "cm=0&roam=0&sel=auto_select&cm0=1&roam0=0&sel0=manual_select";
     let q_url = to(&post(&c, APPLY, tailnet(40141), &cookie, &format!("csrf={csrf}&once={}&{both}", once().await)).await);
     let q = get_with(&c, &q_url, tailnet(40141), &cookie).await;
-    for want in ["<h2 class=\"q\">切换到automatic network selection？</h2>", "Mobile data no longer reconnects by itself", "You are connected remotely"] {
+    for want in ["<h2 class=\"q\">切换到automatic network selection？</h2>", "连接断开后，移动数据不再自行重新连接。", "You are connected remotely"] {
         assert!(q.text().contains(want), "{want} in {}", q.text());
     }
     let _dev = device::set(&c.app, device::Device {
@@ -298,7 +298,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
     // Its switch posts the page's single-use token; without one nothing is sent.
     let r = post(&c, &format!("{MN}/airplane"), peer(143, 2), &cookie, &format!("csrf={csrf}&mode=ONLINE")).await;
     let html = get_with(&c, &to(&r), peer(143, 2), &cookie).await.text();
-    assert!(html.contains("This page expired, so nothing was sent."), "{html}");
+    assert!(html.contains("该页面已过期，因此未发送任何内容。再试一次。"), "{html}");
     let fail = (500, json!({"ok": false, "error": "AT+CFUN=1 failed (fake)"}));
     let _dev = device::set(&c.app, device::Device { replies: vec![("/api/modem/airplane", fail)], ..Default::default() });
     let token = get_with(&c, MN, peer(143, 2), &cookie).await.input("once");
@@ -345,7 +345,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
     assert!(calls(&c).is_empty());
     // The right password without the page's token: nothing sent.
     let r = post(&c, REBOOT, peer(143, 4), &cookie, &format!("csrf={csrf}&password={}", enc(PW))).await;
-    assert!(r.status == 409 && r.text().contains("This page expired, so nothing was sent."), "{}", r.text());
+    assert!(r.status == 409 && r.text().contains("该页面已过期，因此未发送任何内容。再试一次。"), "{}", r.text());
     assert!(calls(&c).is_empty());
     // Right: the reboot once for a double click; both answered with the
     // "Rebooting…" page itself (the router may not answer a redirect).
@@ -446,7 +446,7 @@ async fn cell_lock_asks_locks_once_and_scans() {
     assert!(q.text().contains("调制解调器将仅使用 PCI 为 178、EARFCN 为 301 的 LTE 小区。") && q.text().contains("You are connected remotely"));
     post(&c, &format!("{CELL}/lte"), tailnet(40144), &cookie, &format!("csrf={csrf}&lte_pci=178&lte_earfcn=301&once={}&confirm=1", q.input("once"))).await;
     let q = get_with(&c, &format!("{CELL}/reset"), tailnet(40144), &cookie).await;
-    assert!(q.text().contains("<h2 class=\"q\">解锁牢房？</h2>") && q.text().contains("band locks may be undone too"), "{}", q.text());
+    assert!(q.text().contains("<h2 class=\"q\">解锁牢房？</h2>") && q.text().contains("固件会一起重置频段和小区设置，因此频段锁定也可能会被撤销。"), "{}", q.text());
     let r = post(&c, &format!("{CELL}/reset"), tailnet(40144), &cookie, &format!("csrf={csrf}&once={}&confirm=1", q.input("once"))).await;
     let _sig = fake::set(&c.app, json!({"cell_lock_status": 1}));
     let html = get_with(&c, &to(&r), tailnet(40144), &cookie).await.text();

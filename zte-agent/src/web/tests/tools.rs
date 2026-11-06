@@ -88,7 +88,7 @@ async fn placeholders_and_notes() {
         ("/ui/tools/ssh", "启用SSH", "安装并启动dropbear SSH服务器。需要 ADB USB 连接。"),
         ("/ui/tools/explorer", "设备资源管理器", "浏览文件系统并收集设备信息。需要 ADB USB 连接。"),
         ("/ui/tools/lan-speedtest", "局域网速度测试", "LAN 速度测试位于 OpenU60 应用程序中。"),
-        ("/ui/tools/lan-speedtest", "局域网速度测试", "Does not use internet data."),
+        ("/ui/tools/lan-speedtest", "局域网速度测试", "测量该设备和路由器之间的 WiFi 链路速度。不使用互联网数据。"),
         ("/ui/tools/config", "配置工具", "配置解密/加密位于 OpenU60 应用程序中。"),
     ] {
         let r = get_with(&c, uri, peer(101, 2), &cookie).await;

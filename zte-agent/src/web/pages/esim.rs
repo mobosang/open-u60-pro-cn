@@ -1439,7 +1439,7 @@ mod tests {
         }
         assert!(html.starts_with("<section class=\"card econn esw busy\" id=\"op-progress\">"), "{html}");
         assert_eq!(op_title(&v), "正在注册网络");
-        assert!(!html.to_ascii_lowercase().contains("switch back") && !html.contains("8900000000000000909"));
+        assert!(!html.to_ascii_lowercase().contains("如果新配置文件没有收到数据，路由器不会自行切换回来。") && !html.contains("8900000000000000909"));
     }
 
     /// The list's card without a switch: the modem's data connection.
@@ -1460,9 +1460,9 @@ mod tests {
         later.arg = v.arg;
         let html = conn(&later).into_string();
         assert!(html.contains("<b>正在重新加载 SIM</b>") && html.contains("class=\"card econn busy\""), "{html}");
-        assert!(updating(&later).into_string().contains("Updating"));
+        assert!(updating(&later).into_string().contains("更新…"));
         later.set(Topic::EsimSwitch, SlotView { version: 2, at: BootInstant::ZERO, value_at: BootInstant::ZERO, value: Some(Arc::new(json!({"state": "no_data", "generation": 5}))), error: None });
-        assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("mobile data hasn't connected"));
+        assert!(conn(&later).into_string().contains("mobile data hasn&#39;t connected") || conn(&later).into_string().contains("配置文件处于活动状态，但移动数据尚未连接。检查计划或承保范围。"));
         assert!(updating(&later).into_string().contains("修改为· <a href=\"/ui/router/esim\">刷新</a>"));
         // Offline and unread.
         let off = views(vec![(Topic::Modem, json!({"data": {"connect_status": "disconnected"}}))]);
@@ -1478,7 +1478,7 @@ mod tests {
         let html = message(Notice::Flash(None, BUSY.into())).into_string();
         assert!(html.contains("<b>eSIM in use</b>") && !html.contains("重新加载配置文件"), "{html}");
         let html = message(Notice::Flash(Some(false), "Switch failed: the modem is in airplane / low-power mode".into())).into_string();
-        assert!(html.contains("Can’t 现在就完成这个") && html.contains("Open 路由器 设置 → 移动网络") && html.contains("重新加载配置文件"));
+        assert!(html.contains("Can’t 现在就完成这个") && html.contains("打开路由器设置→移动网络检查调制解调器模式。") && html.contains("重新加载配置文件"));
         let html = message(Notice::Flash(Some(false), "Some receipts couldn't be sent yet. The router keeps retrying.".into())).into_string();
         assert!(html.contains("<b>运营商收据</b>") && !html.contains("重新加载配置文件"));
         assert!(message(Notice::Flash(Some(true), "Renamed to X.".into())).into_string().contains("<b>配置文件已更新</b>"));

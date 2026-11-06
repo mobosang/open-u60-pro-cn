@@ -229,7 +229,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     assert!(!q.contains("connected remotely") && !q.contains(ICCIDS[2]));
     // Remotely: the remote lines.
     let remote = get_with(&c, &format!("{SWITCH}?p={dito}"), tailnet(4100), &cookie).await.text();
-    assert!(remote.contains(super::super::pages::confirm::REMOTE) && remote.contains("The router does not switch back by itself"), "{remote}");
+    assert!(remote.contains(super::super::pages::confirm::REMOTE) && remote.contains("如果新配置文件没有收到数据，路由器不会自行切换回来。"), "{remote}");
     assert!(!remote.contains("travel (roaming)"));
     // Nothing to ask: the active profile, a test profile, an unknown key.
     for (p, title) in [(&active, "GOMO u60 is already active."), (&test, "Test profile can’t be switched to here.")] {
@@ -265,7 +265,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     ] {
         assert!(op.contains(want), "{want} in {op}");
     }
-    assert!(!op.contains(ICCIDS[2]) && !op.to_ascii_lowercase().contains("switch back"), "{op}");
+    assert!(!op.contains(ICCIDS[2]) && !op.to_ascii_lowercase().contains("如果新配置文件没有收到数据，路由器不会自行切换回来。"), "{op}");
     // Its stream: only the switch and the signal, until the switch ends
     // (with "Check again" when it needs attention); nothing sampled after.
     let resp = open_live(&c, &live_url(&op, "op"), peer(162, 6), &cookie).await;

@@ -806,7 +806,7 @@ mod tests {
         let online = SlotView { version: 1, at: now, value_at: now, value: Some(Arc::new(json!({"status": {"operate_mode": "ONLINE"}}))), error: None };
         let parts = elements(&em.open(vec![(Topic::Modem, online.clone())], now));
         assert_eq!(parts[0], "<h1 id=\"op-title\">开启飞行模式</h1>");
-        assert!(parts[1].contains("Turning the radio off") && parts[2].contains("hb-o"));
+        assert!(parts[1].contains("关闭无线电…") && parts[2].contains("hb-o"));
         assert!(!em.finished());
         // Byte-equal to the page's heading and progress card.
         let mut views = Views::new(now, vec![(Topic::Modem, online)]);
