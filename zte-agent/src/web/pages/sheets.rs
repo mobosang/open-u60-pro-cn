@@ -285,7 +285,7 @@ pub fn cpu(pd: &PageData) -> Markup {
                 (hc_temp(v))
                 (kit::kv_row(Some(Icon::Clock), "正常运行时间", &dash_or(uptime)))
                 (kit::kv_row(Some(Icon::Memory), "内存总量", &dash_or(total.map(fmt::memory))))
-                (kit::kv_row(Some(Icon::Memory), "内存释放", &dash_or(avail.map(fmt::memory))))
+                (kit::kv_row(Some(Icon::Memory), "可用内存", &dash_or(avail.map(fmt::memory))))
                 @if let Some(u) = used { (kit::kv_row(Some(Icon::Chart), "已用内存", &u)) }
                 (super::processes::summary_row(pd.read(1)))
             }
@@ -410,9 +410,9 @@ mod tests {
         assert!(!s.contains("CPU sensor") && !s.contains("Crystal"), "{s}");
         let s = hl_temps(&at(10, 3)).into_string();
         assert!(s.contains("CPU·最热传感器</dt><dd><b>—</b>") && s.contains("板传感器 2</dt><dd><b>—</b>"), "{s}");
-        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("最后一个样本 10秒前 · 等待设备"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>26.0 °C</b>") && s.contains("最后一个样本 10 秒前 · 等待设备"), "{s}");
         let s = hl_temps(&at(3, 12)).into_string();
-        assert!(s.contains("电池</dt><dd><b>—</b>") && s.contains("更新 3s ago"), "{s}");
+        assert!(s.contains("电池</dt><dd><b>—</b>") && s.contains("更新 3 秒前"), "{s}");
         // A failed read is not fresh, whatever its time.
         let mut v = at(1, 1);
         v.set(Topic::Battery, SlotView { error: Some(Arc::from("no battery")), ..slot(json!({"temperature": 260}), 1) });
@@ -466,7 +466,7 @@ mod tests {
         let s = cpu(&pd).into_string();
         for (label, value) in [
             ("CPU 使用率", "12.3%"), ("CPU 核心", "6"), ("CPU·最热传感器", "41.5 °C"), ("正常运行时间", "1d 2h 3m"),
-            ("内存总量", "3.0 GB"), ("内存释放", "1.5 GB"), ("已用内存", "50%"),
+            ("内存总量", "3.0 GB"), ("可用内存", "1.5 GB"), ("已用内存", "50%"),
         ] {
             assert!(s.contains(&format!("<span>{label}</span><span class=\"v\">{value}</span>")), "{label} {value} in {s}");
         }
@@ -475,7 +475,7 @@ mod tests {
         assert!(s.contains("<li class=\"it\" id=\"hc-cores\">"));
         // The app's Processes row: the bloat summary in orange, a link to the list.
         assert!(s.contains("<a class=\"it\" href=\"/ui/health/processes\">"), "{s}");
-        assert!(s.contains("<span>流程</span><span class=\"v c-orange\">4 bloat 2%</span></a>"), "{s}");
+        assert!(s.contains("<span>进程</span><span class=\"v c-orange\">4 个冗余进程，占用 2%</span></a>"), "{s}");
         for f in &CPU {
             assert!(s.contains(&(f.render)(&v).into_string()), "{}", f.id);
         }
@@ -484,12 +484,12 @@ mod tests {
         let empty = views(vec![]);
         let pd = PageData { app: &app, p: &p, views: &empty, reads: &reads, remote: false, form: None, query: None, once: None, at: None, ussd: None, notice: None, token: Default::default(), prefs: Default::default(), secure: false };
         let s = cpu(&pd).into_string();
-        for label in ["CPU 使用率", "CPU 核心", "正常运行时间", "内存总量", "内存释放"] {
+        for label in ["CPU 使用率", "CPU 核心", "正常运行时间", "内存总量", "可用内存"] {
             assert!(s.contains(&format!("<span>{label}</span><span class=\"v\">—</span>")), "{label} in {s}");
         }
         assert!(!s.contains("已用内存"));
         // Without a summary the row still opens the list.
-        assert!(s.contains("<span>流程</span></a>"), "{s}");
+        assert!(s.contains("<span>进程</span></a>"), "{s}");
     }
 
     #[test]

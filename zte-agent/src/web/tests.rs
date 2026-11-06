@@ -972,7 +972,7 @@ async fn tab_roots_follow_the_app() {
     let (c, cookie, _) = signed_in(27).await;
     let html = get_with(&c, "/ui/settings", peer(27, 2), &cookie).await.text();
     for want in [
-        "<h2>会议</h2>", "在此浏览器中登录", "href=\"/ui/logout\"><span>退出登录</span>", "<h2>关于</h2>",
+        "<h2>会话</h2>", "在此浏览器中登录", "href=\"/ui/logout\"><span>退出登录</span>", "<h2>关于</h2>",
         "OpenU60", "ZTE U60 Pro (MU5250)", "zte-agent 管理网页 0.1.0", "<h2>法律声明</h2>", "此应用程序不隶属于 ZTE Corporation，也不受其认可或赞助。 ZTE 和 U60 Pro 是 ZTE Corporation 的商标。",
         "href=\"https://open-u60-pro.vercel.app/privacy\" rel=\"noopener noreferrer\"",
     ] {
@@ -1111,7 +1111,7 @@ async fn mobile_network_page_and_confirmations() {
     }
     assert!(!html.contains("/ui/a/datastar-") && !html.contains("style=") && !html.contains("<p class=\"actions\"><form"));
     // The state is unknown here (no device): both directions, saying what they turn on or off.
-    for label in ["开启移动数据", "关闭移动数据", "Turn on Airplane Mode", "Turn off Airplane Mode"] {
+    for label in ["开启移动数据", "关闭移动数据", "开启飞行模式", "关闭飞行模式"] {
         assert!(html.contains(&format!("aria-label=\"{label}\"")), "{label}");
     }
     // Unknown flash keys show nothing from the URL.
@@ -1496,7 +1496,7 @@ async fn processes_kills_report_their_result_to_their_session() {
     r.assert_secure_html(200);
     let html = r.text();
     assert!(html.contains(
-        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/health/cpu\">完成</a></div><h1>流程</h1><div class=\"trail\"><span id=\"pr-all\"></span></div>"
+        "<div class=\"lead\"><a class=\"nl\" href=\"/ui/health/cpu\">完成</a></div><h1>进程</h1><div class=\"trail\"><span id=\"pr-all\"></span></div>"
     ), "{html}");
     assert!(html.contains("@get('/ui/live/processes/") && html.contains("id=\"pr-sum\"") && html.contains("id=\"pr-list\""));
     // Its stream samples the processes topic only, and only while open.
@@ -1746,7 +1746,7 @@ async fn every_live_screen_streams_its_fragments_as_in_the_page() {
     // What the visible states put in their fragments.
     let shows = [
         ("card-usb", "<div id=\"card-usb\" class=\"on pb\">"), ("card-devices", "<b class=\"big\">1</b>"),
-        ("pr-all", "结束所有冗余进程"), ("pr-sum", "冗余后台服务"), ("pr-list", "PID 812"),
+        ("pr-all", "结束所有冗余进程"), ("pr-sum", "个冗余守护进程"), ("pr-list", "PID 812"),
         ("wf-count", ">1</b>"), ("wf-devices", "<b>tv</b>"), ("cd-list", "<b class=\"dn\">tv</b>"),
         ("st-run", "<span>Uploading...</span><span class=\"muted num\">80%</span>"),
         ("sd-run", "<span>Progress</span><span class=\"muted num\">40%</span>"),

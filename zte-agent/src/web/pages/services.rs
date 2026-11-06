@@ -355,7 +355,7 @@ fn ussd(pd: &PageData, u: Option<&Ussd>, token: &str) -> Markup {
                             (once_field(token))
                                             input type="hidden" name="u" value=(id);
                             input type="hidden" name="code" value=(code);
-                            button.it.cv.bt.danger type="submit" { (kit::icon(Icon::Cross)) span { "结束会议" } }
+                            button.it.cv.bt.danger type="submit" { (kit::icon(Icon::Cross)) span { "结束会话" } }
                         }
                     }
                 }
@@ -604,7 +604,7 @@ pub async fn post(ctx: Ctx, req: Request, k: Post) -> Response {
                 let active = data["session_active"].as_bool() == Some(true);
                 kept(&ussd, app, owner, &tok, Ussd { code: code_sent, answer: Some((answer_text(&data), active)), line: None })
             }
-            (Post::End, Ok(_)) => kept(&ussd, app, owner, &tok, Ussd { code: code_sent, answer: None, line: Some((true, "USSD会议结束".into())) }),
+            (Post::End, Ok(_)) => kept(&ussd, app, owner, &tok, Ussd { code: code_sent, answer: None, line: Some((true, "USSD会话结束".into())) }),
             (Post::Send | Post::Reply | Post::End, Err((_, e))) => {
                 let answer = before.and_then(|b| b.answer);
                 kept(&ussd, app, owner, &tok, Ussd { code: code_sent, answer, line: Some((false, failed(&e))) })

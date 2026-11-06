@@ -95,9 +95,7 @@ pub fn section(pd: &PageData) -> Markup {
     if !s.on {
         let foot = html! {
             p.foot {
-                "通过端口上的 HTTPS 提供此 Web UI " (s.port) " with a certificate from the router\u{2019}s own \
-                 certificate authority, so Chrome, Edge and Samsung Internet can install it as an app. Each phone or \
-                 computer trusts that authority once."
+                "通过端口 " (s.port) " 提供 HTTPS 管理网页，证书由路由器自己的证书颁发机构签发，以便 Chrome、Edge 和 Samsung Internet 将其安装为应用。每部手机或计算机只需信任该机构一次。"
             }
             @if let Some(ca) = &s.kept {
                 p.foot { "证书颁发机构 " (ca) "仍保存在路由器上。开启 HTTPS 会由它签发新证书，已信任它的设备无需重新设置。" }

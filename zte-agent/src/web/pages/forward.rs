@@ -252,7 +252,7 @@ fn log_row(csrf: &Markup, token: &str, m: &Mount, e: &Value) -> Markup {
             div.l1 {
                 span.nm { (s("sender")) }
                 @if held {
-                    span.c-orange.hl { (kit::icon(Icon::ClockArrow)) "已举行，将重试" }
+                    span.c-orange.hl { (kit::icon(Icon::ClockArrow)) "已暂存，将重试" }
                 } @else if ok {
                     span.c-green role="img" aria-label="已转发" { (kit::icon(Icon::Check)) }
                 } @else {

@@ -1432,13 +1432,13 @@ mod tests {
         let mut v = sw("modem_confirmed", Value::Null);
         v.op = Some(Op { spec: &SWITCH_OP, started: BootInstant::ZERO, arg: "" });
         let html = op_progress(&v).into_string();
-        for want in ["<b>正在注册…</b>", "切换配置文件</span><small>完成</small>", "重新加载SIM</span><small>完成</small>",
+        for want in ["<b>正在注册网络</b>", "切换配置文件</span><small>完成</small>", "重新加载SIM</span><small>完成</small>",
             "连接到网络</span><small>进行中</small>", "新的配置文件已加载。等待移动数据连接。",
             "Wi-Fi 保持连接 · 通常 15–45 秒", "切换至…0909", "href=\"/ui/router/esim\">返回 eSIM 配置文件</a>"] {
             assert!(html.contains(want), "{want} in {html}");
         }
         assert!(html.starts_with("<section class=\"card econn esw busy\" id=\"op-progress\">"), "{html}");
-        assert_eq!(op_title(&v), "正在注册…");
+        assert_eq!(op_title(&v), "正在注册网络");
         assert!(!html.to_ascii_lowercase().contains("如果新配置文件没有收到数据，路由器不会自行切换回来。") && !html.contains("8900000000000000909"));
     }
 
@@ -1476,7 +1476,7 @@ mod tests {
     #[test]
     fn message_cards_follow_the_app() {
         let html = message(Notice::Flash(None, BUSY.into())).into_string();
-        assert!(html.contains("<b>eSIM in use</b>") && !html.contains("重新加载配置文件"), "{html}");
+        assert!(html.contains("<b>eSIM 正在使用中</b>") && !html.contains("重新加载配置文件"), "{html}");
         let html = message(Notice::Flash(Some(false), "Switch failed: the modem is in airplane / low-power mode".into())).into_string();
         assert!(html.contains("暂时无法完成此操作") && html.contains("打开路由器设置→移动网络检查调制解调器模式。") && html.contains("重新加载配置文件"));
         let html = message(Notice::Flash(Some(false), "Some receipts couldn't be sent yet. The router keeps retrying.".into())).into_string();

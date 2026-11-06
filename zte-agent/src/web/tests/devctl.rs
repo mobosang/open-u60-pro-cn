@@ -330,7 +330,7 @@ async fn settings_preferences_are_cookies() {
     let (c, cookie, _) = signed_in(224).await;
     let html = get_with(&c, SETTINGS, peer(224, 2), &cookie).await.text();
     let order = [
-        "<h2>会议</h2>", "<h2>投票</h2>", "<form class=\"sf\" method=\"post\" action=\"/ui/settings/refresh\">",
+        "<h2>会话</h2>", "<h2>轮询</h2>", "<form class=\"sf\" method=\"post\" action=\"/ui/settings/refresh\">",
         "<label for=\"ms\">刷新间隔</label><select id=\"ms\" name=\"ms\"><option value=\"1000\">1.0s</option>",
         "<option value=\"2000\" selected>2.0s</option>", "<option value=\"10000\">10.0s</option></select><button class=\"btn sm\" type=\"submit\">保存</button>",
         "实时上传和下载使用单独的 1 秒刷新，与调制解调器的更新速率相匹配。",

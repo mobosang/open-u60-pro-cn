@@ -257,7 +257,7 @@ async fn enable_adb_asks_and_sends_once() {
     assert!(to.starts_with("/ui/tools/adb?r="), "{to}");
     let html = get_with(&c, &to, peer(113, 4), &cookie).await.text();
     // Between the text and the button, as the app's.
-    assert!(html.contains("ADB access over USB-C.</p></div><p class=\"msg ok\" role=\"status\">ADB 调试模式已启用。连接 USB-C 电缆以访问设备。</p><p class=\"ctr\">"), "{html}");
+    assert!(html.contains("允许通过 USB-C 进行 ADB 访问。</p></div><p class=\"msg ok\" role=\"status\">ADB 调试模式已启用。连接 USB-C 电缆以访问设备。</p><p class=\"ctr\">"), "{html}");
     // The same post again: what the first did, nothing sent.
     let again = post(&c, "/ui/tools/adb/enable", peer(113, 4), &cookie, &body).await;
     assert!(again.header("location").unwrap().starts_with("/ui/tools/adb?r="));
@@ -302,7 +302,7 @@ async fn band_lock_grids_questions_and_bodies() {
     let q = get_with(&c, "/ui/tools/band-lock/nr?nr=78&nr=1&nr=78", peer(114, 4), &cookie).await;
     let html = q.text();
     for want in [
-        "<h2 class=\"q\">应用 NR 锁定？</h2>", "对于 NSA 和 SA： 1, 78.</li>",
+        "<h2 class=\"q\">应用 NR 锁定？</h2>", "对于 NSA 和 SA：1, 78。</li>",
         "<input type=\"hidden\" name=\"nr\" value=\"1\"><input type=\"hidden\" name=\"nr\" value=\"78\">",
         "<button class=\"btn btn-danger\" type=\"submit\">应用 NR 频段锁定</button>", "href=\"/ui/tools/band-lock?nr=1&amp;nr=78\">取消",
     ] {
@@ -489,7 +489,7 @@ async fn at_terminal_checks_what_is_sent() {
     let r = post(&c, "/ui/tools/at/send", peer(118, 6), &cookie, &format!("csrf={csrf}&once={once}&cmd=AT%2BCLCK%3D%22SC%22%2C1%2C%224321%22")).await;
     r.assert_secure_html(200);
     let html = r.text();
-    assert!(html.contains("<li>命令“AT+CLCK=&quot;SC&quot;,1,&quot;••••&quot;&quot; may disrupt"), "{html}");
+    assert!(html.contains("<li>命令“AT+CLCK=&quot;SC&quot;,1,&quot;••••&quot;”可能中断"), "{html}");
     assert_eq!(html.matches("4321").count(), 1, "{html}");
     assert!(html.contains("name=\"cmd\" value=\"AT+CLCK=&quot;SC&quot;,1,&quot;4321&quot;\""), "{html}");
     assert_eq!(device::calls(&c.app).len(), 2);

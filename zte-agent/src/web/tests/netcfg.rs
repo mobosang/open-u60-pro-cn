@@ -131,7 +131,7 @@ async fn wifi_form_question_and_reconnect_page() {
     for want in [
         "<h1>确认</h1>", "<h2 class=\"q\">应用WiFi设置？</h2>",
         "在2.4 GHz上，设备必须再次加入“Fake-Net-New”，使用新密码。",
-        "“Fake-Net-New” is hidden: 设备 must type its name to join.", "WiFi restarts to apply the changes",
+        "“Fake-Net-New”是隐藏网络，设备需要输入名称才能加入。", "WiFi restarts to apply the changes",
         "<button class=\"btn btn-danger\" type=\"submit\">应用</button>", cancel.as_str(),
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -327,7 +327,7 @@ async fn guest_wifi_form_and_apply() {
     let q = get_with(&c, &to(&r), peer(202, 2), &cookie).await;
     let html = q.text();
     for want in [
-        "<h2 class=\"q\">应用访客WiFi设置？</h2>", "客人必须再次加入“Fake-Guest-2” ，使用新密码。",
+        "<h2 class=\"q\">应用访客WiFi设置？</h2>", "客人必须再次加入“Fake-Guest-2”，使用新密码。",
         "访客WiFi在2 小时之后自行关闭。", "WiFi 重新启动以应用更改：路由器 ’ WiFi 上的每个设备（包括访客）都会暂时断开连接，如果该浏览器位于 WiFi 上，也会断开连接。",
     ] {
         assert!(html.contains(want), "{want} in {html}");
@@ -512,7 +512,7 @@ async fn lan_checks_asks_and_links_the_new_address() {
     assert!(html.contains("路由器’的网络重新启动：WiFi或USB上的每个设备都会暂时断开连接，该浏览器也是如此。") && !html.contains("connected remotely"), "{html}");
     // Over Tailscale: the address on the router's network, the remote line.
     let remote = get_with(&c, &to(&r), tailnet(40204), &cookie).await.text();
-    assert!(remote.contains("路由器’在其网络上的地址从192.168.0.1更改为192。168.8.1.") && !remote.contains("this browser too"), "{remote}");
+    assert!(remote.contains("路由器’在其网络上的地址从192.168.0.1更改为192.168.8.1。") && !remote.contains("this browser too"), "{remote}");
     assert!(remote.contains("你正在远程连接：") && !remote.contains("open http://"), "{remote}");
     let r = post(&c, LAN_APPLY, peer(204, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     let done = to(&r);
@@ -563,7 +563,7 @@ async fn dns_modes_presets_cache_and_clear() {
     let r = post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &body(&csrf, &once, &fields)).await;
     let q = get_with(&c, &to(&r), peer(205, 2), &cookie).await;
     let html = q.text();
-    assert!(html.contains("<h2 class=\"q\">使用自定义 DNS 服务器？</h2>") && html.contains("通过 1.1.1.1 和 1.0.0.1") && html.contains("DNS 通过 HTTPS 关闭。"), "{html}");
+    assert!(html.contains("<h2 class=\"q\">使用自定义 DNS 服务器？</h2>") && html.contains("通过1.1.1.1 和 1.0.0.1") && html.contains("DNS 通过 HTTPS 关闭。"), "{html}");
     assert!(!html.contains("你正在远程连接"), "{html}");
     let r = post(&c, "/ui/router/dns/apply", peer(205, 2), &cookie, &format!("csrf={csrf}&once={once}&d={}&confirm=1", q.input("d"))).await;
     assert!(get_with(&c, &to(&r), peer(205, 2), &cookie).await.text().contains("<p class=\"msg ok\" role=\"status\">DNS 设置为自定义 (1.1.1.1)</p>"));

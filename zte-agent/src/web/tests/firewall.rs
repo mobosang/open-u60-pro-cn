@@ -136,7 +136,7 @@ async fn firewall_page_switches_and_level() {
     let q = get_with(&c, "/ui/router/firewall/switch?on=1", tailnet(41001), &cookie).await.text();
     has(&q, &["是否开启防火墙？", "防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。", "你正在远程连接", ">启用防火墙</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=high", tailnet(41002), &cookie).await.text();
-    has(&q, &["<h2 class=\"q\">将防火墙级别设置为High？</h2>", "blocks more connections at High", "你正在远程连接", ">设置级别</button>"]);
+    has(&q, &["<h2 class=\"q\">将防火墙级别设置为高？</h2>", "blocks more connections at High", "你正在远程连接", ">设置级别</button>"]);
     let q = get_with(&c, "/ui/router/firewall/level?level=low", tailnet(41003), &cookie).await.text();
     has(&q, &["将防火墙级别设置为Low？", "lets more connections from the internet through at Low", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。", "路由器的其他服务（例如 2222 端口的 SSH 和固件自带网页）可能变得可从移动网络访问。此管理网页及 Agent API 仍会拒绝来自移动网络的连接。"]);
     assert!(!q.contains("connected remotely") && !q.contains("防火墙将阻止未被允许的连接，可能导致无法访问路由器或其连接的设备。"), "{q}");
@@ -312,14 +312,14 @@ async fn telemetry_blocker() {
         "<span class=\"dom\">update.ztems.com</span><span class=\"v\">", "<h2>添加自定义域</h2>", "placeholder=\"要阻止的域\"",
         "<h2>被阻止的域</h2>", "<span class=\"dom\">ads.example.com</span><small>未启用</small>", "aria-label=\"删除ads.example.com\"",
     ]);
-    assert_eq!(html.matches("未启用").count(), 4);
+    assert_eq!(html.matches("未启用").count() + html.matches("未被封锁").count(), 4);
     let (csrf, once) = (r.input("csrf"), r.input("once"));
     // The switch: no question, once.
     let off = body(&csrf, &once, &[("on", "0")]);
     let done = to(&post(&c, "/ui/router/telemetry/switch", peer(213, 2), &cookie, &off).await);
     assert_eq!(done, format!("{TM}?r={once}"));
     assert_eq!(calls(&c), vec![("/api/router/domain-filter".to_owned(), json!({"enable": 0}))]);
-    has(&get_with(&c, &done, peer(213, 2), &cookie).await.text(), &["域过滤器disabled"]);
+    has(&get_with(&c, &done, peer(213, 2), &cookie).await.text(), &["域过滤器已禁用"]);
     assert_eq!(to(&post(&c, "/ui/router/telemetry/switch", peer(213, 2), &cookie, &off).await), done);
     assert_eq!(calls(&c).len(), 1);
     // Add: refused as typed; one already blocked (any case) is not sent again.

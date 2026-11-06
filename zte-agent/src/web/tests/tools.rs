@@ -51,23 +51,23 @@ async fn tools_list_follows_the_app() {
         }
     }
     for (href, sub) in [
-        ("/ui/tools/automations", "Schedule automated tasks"),
-        ("/ui/tools/sms-forward", "Auto-forward SMS to Telegram, webhooks, etc."),
-        ("/ui/tools/lan-speedtest", "Test WiFi link to router"),
-        ("/ui/tools/usb", "USB mode and powerbank control"),
+        ("/ui/tools/automations", "安排自动化任务"),
+        ("/ui/tools/sms-forward", "自动转发短信到Telegram、webhooks等。"),
+        ("/ui/tools/lan-speedtest", "测试 WiFi 到路由器的链路"),
+        ("/ui/tools/usb", "USB 模式和移动电源控制"),
         ("/ui/tools/device-info", "SIM, IMEI, WAN IPs"),
-        ("/ui/tools/devices", "View connected clients and DHCP leases"),
-        ("/ui/tools/config", "Offline ZXHN config file tool"),
-        ("/ui/tools/ttl", "Requires ADB USB connection"),
+        ("/ui/tools/devices", "查看已连接的客户端和 DHCP 租约"),
+        ("/ui/tools/config", "离线ZXHN配置文件工具"),
+        ("/ui/tools/ttl", "需要 ADB USB 连接"),
     ] {
         let row = html.split(&format!("<a class=\"it\" href=\"{href}\">")).nth(1).unwrap_or_else(|| panic!("{href}"));
         assert!(row[..row.find("</a>").unwrap()].contains(&format!("<small>{sub}</small>")), "{href}: {row}");
     }
     for (href, sub) in [
-        ("/ui/tools/speedtest", "Test WAN throughput"),
-        ("/ui/tools/adb", "Enable USB debug mode"),
-        ("/ui/tools/band-lock", "Lock NR/LTE bands"),
-        ("/ui/tools/at", "Send raw AT commands to modem"),
+        ("/ui/tools/speedtest", "测试 WAN 吞吐量"),
+        ("/ui/tools/adb", "启用USB调试模式"),
+        ("/ui/tools/band-lock", "锁定NR/LTE频段"),
+        ("/ui/tools/at", "发送原始 AT 命令到调制解调器"),
     ] {
         let row = html.split(&format!("<a class=\"it\" href=\"{href}\">")).nth(1).unwrap_or_else(|| panic!("{href}"));
         assert!(row[..row.find("</a>").unwrap()].contains(&format!("<small>{sub}</small>")), "{href}: {row}");

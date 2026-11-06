@@ -114,7 +114,7 @@ async fn mobile_network_page_follows_the_app() {
     assert!(err.is_some() && err < conn, "{html}");
     let _dev = device::set(&c.app, reads(vec![("/api/modem/data", Err("ubus <down>".into())), ("/api/modem/status", Err("no".into()))]));
     let html = get_with(&c, MN, peer(140, 4), &cookie).await.text();
-    assert!(html.contains("role=\"alert\">加载失败： ubus &lt;down&gt;</p>") && !html.contains("加载飞行模式状态失败"), "{html}");
+    assert!(html.contains("role=\"alert\">加载失败：ubus &lt;down&gt;</p>") && !html.contains("加载飞行模式状态失败"), "{html}");
 }
 
 /// Apply sends only what changed (the router's current values for the
@@ -269,7 +269,7 @@ async fn scan_lists_networks_and_registers_after_asking() {
     let op = to(&post(&c, REG, peer(142, 6), &cookie, &format!("csrf={csrf}&plmn=00102&rat=12&once={}&confirm=1", q.input("once"))).await);
     clock.advance(Duration::from_secs(3));
     let html = get_with(&c, &op, peer(142, 6), &cookie).await.text();
-    assert!(html.contains("<h1 id=\"op-title\">Registration failed</h1>") && html.contains("role=\"alert\">调制解调器报告注册失败。"), "{html}");
+    assert!(html.contains("<h1 id=\"op-title\">注册失败</h1>") && html.contains("role=\"alert\">调制解调器报告注册失败。"), "{html}");
     // A network the last scan does not offer (a crafted link, a forbidden
     // one): the question has nothing to do; a post sends nothing.
     for net in ["plmn=99999&rat=7", "plmn=00103&rat=7"] {
@@ -368,7 +368,7 @@ async fn airplane_off_failing_twice_offers_a_reboot_with_the_password() {
         }
     }
     let r = limited.expect("rate limited");
-    assert!(r.header("retry-after").is_some() && r.text().contains("Too many attempts. 重试 in "), "{}", r.text());
+    assert!(r.header("retry-after").is_some() && r.text().contains("尝试次数过多，请在 "), "{}", r.text());
     let token = get_with(&c, REBOOT, peer(143, 5), &cookie).await.input("once");
     assert_eq!(post(&c, REBOOT, peer(143, 5), &cookie, &format!("csrf={csrf}&once={token}&password={}", enc(PW))).await.status, 429);
     assert_eq!(calls(&c).len(), 1);
@@ -638,7 +638,7 @@ async fn signal_detection_starts_watches_and_stops() {
     let token = get_with(&c, SD, peer(146, 7), &cookie).await.input("once");
     let r = post(&c, &format!("{SD}/start"), peer(146, 7), &cookie, &format!("csrf={csrf}&once={token}&confirm=1")).await;
     let html = get_with(&c, &to(&r), peer(146, 7), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg err\" role=\"alert\">启动失败： modem busy</p>"), "{html}");
+    assert!(html.contains("<p class=\"msg err\" role=\"alert\">启动失败：modem busy</p>"), "{html}");
 }
 
 /// Every Router post with a single-use token: refused without a session

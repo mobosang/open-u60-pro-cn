@@ -323,15 +323,14 @@ pub fn kill_all_page(pd: &PageData) -> Markup {
     let (kill, keep) = (names("kill", Some(1)), names("keep", None));
     let mut lines = Vec::new();
     if n > 0 {
-        lines.push(format!("这将使 SIGKILL {n} 使守护进程膨胀。他们将在重新启动后返回。"));
+        lines.push(format!("这将使用 SIGKILL 结束 {n} 个冗余守护进程，重启后会恢复。"));
         lines.push(kill.join(", "));
     } else {
         lines.push("没有可以安全结束的冗余守护进程正在运行。".to_owned());
     }
     if !keep.is_empty() {
         lines.push(format!(
-            "Left running: {}. The SMS daemon and the boot-critical daemons of daemon.conf are never killed all at \
-             once; kill one from the list if you must.",
+            "保留运行：{}。批量结束不会停止短信服务和 daemon.conf 中的关键守护进程；如确有需要，请在列表中逐个结束。",
             keep.join(", ")
         ));
     }
@@ -393,7 +392,7 @@ pub fn summary_row(top: Option<&Value>) -> Markup {
     html! {
         li {
             a.it href=(PATH) {
-                (kit::icon(Icon::ListNumber)) span { "流程" }
+                (kit::icon(Icon::ListNumber)) span { "进程" }
                 @if let (Some(n), Some(d)) = (bloat, top) {
                     span.v.c-orange { (format!("{n} 个冗余进程，占用 {:.0}%", d["bloat_cpu_pct"].as_f64().unwrap_or(0.0))) }
                 }
@@ -580,27 +579,27 @@ mod tests {
         assert_eq!(s.matches("<li>").count(), 1);
         // The SMS daemon and a daemon.conf one: warned, still possible.
         let s = confirm(kill_page, Ok(json!({"pid": 400, "name": SMS})), false);
-        assert!(s.contains("<li>zte_topsw_wms 负责短信:") && s.contains(">结束进程</button>"), "{s}");
+        assert!(s.contains("<li>zte_topsw_wms 负责短信。") && s.contains(">结束进程</button>"), "{s}");
         let s = confirm(kill_page, Ok(json!({"pid": 401, "name": "zte_topsw_mc"})), true);
-        assert!(s.contains("boot-critical firmware daemon (daemon.conf)") && s.contains("connected remotely"), "{s}");
+        assert!(s.contains("daemon.conf 中的关键固件守护进程") && s.contains("你正在远程连接"), "{s}");
         // Not bloat, or gone: no form.
         let s = confirm(kill_page, Ok(json!({"pid": 1, "name": "<b>init</b>"})), false);
-        assert!(s.contains("&lt;b&gt;init&lt;/b&gt; is not a bloat daemon.") && !s.contains("<form"), "{s}");
+        assert!(s.contains("&lt;b&gt;init&lt;/b&gt; 不是冗余守护进程。") && !s.contains("<form"), "{s}");
         assert!(!confirm(kill_page, Err("not running".into()), false).contains("<form"));
         // Kill All: the app's question for the daemons it kills, named once,
         // and the SMS and daemon.conf daemons left running.
         let read = split(&[(5, "zte_topsw_diag".into()), (6, SMS.into()), (8, "zte_topsw_diag".into()), (9, "zte_dua".into()), (11, "zte_dm".into())]);
         let s = confirm(kill_all_page, Ok(read), false);
         for want in [
-            "<h2 class=\"q\">结束所有冗余守护进程？</h2>", "<li>这将使 SIGKILL 3 使守护进程膨胀。他们将在重新启动后返回。</li>",
-            "<li>zte_topsw_diag, zte_dua</li>", "<li>Left running: zte_topsw_wms, zte_dm. The SMS daemon",
+            "<h2 class=\"q\">结束所有冗余守护进程？</h2>", "<li>这将使用 SIGKILL 结束 3 个冗余守护进程，重启后会恢复。</li>",
+            "<li>zte_topsw_diag, zte_dua</li>", "<li>保留运行：zte_topsw_wms, zte_dm。批量结束不会停止短信服务",
             "action=\"/ui/health/processes/kill-all\"", ">结束所有冗余进程</button>",
         ] {
             assert!(s.contains(want), "{want} in {s}");
         }
         assert!(!s.contains("name=\"pid\"") && !s.contains("name=\"name\""));
         let s = confirm(kill_all_page, Ok(split(&[(6, SMS.into())])), false);
-        assert!(s.contains("没有可以安全结束的冗余守护进程正在运行。") && s.contains("Left running: zte_topsw_wms.") && !s.contains("<form"), "{s}");
+        assert!(s.contains("没有可以安全结束的冗余守护进程正在运行。") && s.contains("保留运行：zte_topsw_wms。") && !s.contains("<form"), "{s}");
     }
 
     #[test]

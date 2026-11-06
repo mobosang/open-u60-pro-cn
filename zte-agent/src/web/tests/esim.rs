@@ -232,7 +232,7 @@ async fn switch_asks_then_follows_the_switch_once() {
     assert!(remote.contains(super::super::pages::confirm::REMOTE) && remote.contains("如果新配置文件没有收到数据，路由器不会自行切换回来。"), "{remote}");
     assert!(!remote.contains("travel (roaming)"));
     // Nothing to ask: the active profile, a test profile, an unknown key.
-    for (p, title) in [(&active, "GOMO u60 已处于启用状态。"), (&test, "Test profile can’t be switched to here.")] {
+    for (p, title) in [(&active, "GOMO u60 已处于启用状态。"), (&test, "无法在此切换到 Test profile。")] {
         let page = get_with(&c, &format!("{SWITCH}?p={p}"), peer(162, 4), &cookie).await.text();
         assert!(page.contains(&format!("<h2 class=\"q\">{title}</h2>")) && !page.contains("name=\"once\""), "{page}");
     }
@@ -306,7 +306,7 @@ async fn switch_refusals_read_as_the_app() {
     let line = to(&r);
     assert!(line.starts_with("/ui/router/esim?r="), "{line}");
     let html = get_with(&c, &line, peer(163, 3), &cookie).await.text();
-    assert!(html.contains("<b>eSIM in use</b><p>eSIM 忙；稍后再试。</p>") && !html.contains("重新加载配置文件"), "{html}");
+    assert!(html.contains("<b>eSIM 正在使用中</b><p>eSIM 忙；稍后再试。</p>") && !html.contains("重新加载配置文件"), "{html}");
     // Airplane mode: the app's words and guidance.
     let lpm = (409, json!({"ok": false, "error": "the modem is in airplane / low-power mode; turn it back on before switching profiles"}));
     let _dev = device::set(&c.app, device_with(vec![("/api/esim/enable", lpm)], vec![]));

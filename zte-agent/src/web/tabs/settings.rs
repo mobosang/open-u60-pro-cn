@@ -49,7 +49,7 @@ pub static INSTALL: Screen = Screen {
 };
 
 fn session(_: &PageData) -> Markup {
-    kit::section(Some("会议"), None, html! {
+    kit::section(Some("会话"), None, html! {
         li.it { span { "在此浏览器中登录" } }
         li { a.it.danger href="/ui/logout" { span { "退出登录" } } }
     })
@@ -65,7 +65,7 @@ fn polling(pd: &PageData) -> Markup {
         p.foot { "实时上传和下载使用单独的 1 秒刷新，与调制解调器的更新速率相匹配。" }
         p.foot { (SAVED_HERE) }
     };
-    kit::section(Some("投票"), Some(footer), html! {
+    kit::section(Some("轮询"), Some(footer), html! {
         li.it {
             form.sf method="post" action=(prefs::REFRESH) {
                 (pd.csrf())

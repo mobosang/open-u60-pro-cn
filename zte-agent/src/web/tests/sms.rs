@@ -732,7 +732,7 @@ async fn deleting_a_conversation_is_confirmed() {
     r.assert_secure_html(200);
     let html = r.text();
     for want in [
-        "<title>删除 conversation? · U60 Pro</title>",
+        "<title>删除对话？ · U60 Pro</title>",
         "<div class=\"lead\"><a class=\"nl back\" href=\"/ui/sms\">短信</a></div><h1>确认</h1>",
         "<h2 class=\"q\">删除对话？</h2>",
         "<li>这将从 3 中删除所有 +15555550100 消息。</li>",

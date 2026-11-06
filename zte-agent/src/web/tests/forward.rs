@@ -83,7 +83,7 @@ fn assert_no_secrets(html: &str) {
 async fn the_page_in_both_tabs() {
     let (c, cookie, _) = signed_in(80).await;
     rules(&c).await;
-    for (base, tab, back) in [(SMS_FWD, "/ui/sms", "Messages"), (TOOLS_FWD, "/ui/tools", "Tools")] {
+    for (base, tab, back) in [(SMS_FWD, "/ui/sms", "短信"), (TOOLS_FWD, "/ui/tools", "工具")] {
         let r = get_with(&c, base, peer(80, 2), &cookie).await;
         r.assert_secure_html(200);
         let html = r.text();
@@ -109,7 +109,7 @@ async fn the_page_in_both_tabs() {
             &format!("<form class=\"sf\" method=\"post\" action=\"{base}/rules/toggle\">"),
             "<input type=\"hidden\" name=\"id\" value=\"2\"><input type=\"hidden\" name=\"enabled\" value=\"1\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"false\" aria-label=\"Hook\">",
             "<input type=\"hidden\" name=\"id\" value=\"1\"><input type=\"hidden\" name=\"enabled\" value=\"0\"><button class=\"sw\" type=\"submit\" role=\"switch\" aria-checked=\"true\" aria-label=\"Fake &lt;b&gt;bot&lt;/b&gt;\">",
-            &format!("<a class=\"del\" href=\"{base}/rules/delete?id=2\">删除<span class=\"sr\"> rule Hook</span></a>"),
+            &format!("<a class=\"del\" href=\"{base}/rules/delete?id=2\">删除<span class=\"sr\"> 条规则 Hook</span></a>"),
             &format!("<a class=\"it bt\" href=\"{base}/rules/new\">"),
             &format!("<a class=\"it\" href=\"{base}/log\"><svg"),
             "<span>转发日志</span>",
@@ -504,7 +504,7 @@ async fn forward_log_in_both_tabs() {
             ),
             &format!("<a href=\"{tab}\" aria-current=\"page\">"),
             "<div class=\"l1\"><span class=\"nm\">+15555550123</span><span class=\"c-orange hl\"><svg",
-            "</svg>已举行，将重试</span></div>",
+            "</svg>已暂存，将重试</span></div>",
             "<span class=\"rs\">no WAN connectivity; held for retry</span>",
             "<span class=\"nm\">EXAMPLE-BANK</span><span class=\"c-red\" role=\"img\" aria-label=\"失败\"><svg",
             "<span class=\"rs er\">webhook: bad uri</span>",
@@ -512,7 +512,7 @@ async fn forward_log_in_both_tabs() {
             "<span class=\"rs\">Fake &lt;b&gt;bot&lt;/b&gt; → webhook</span><span class=\"pv\">Your code is 000000</span>",
             &format!("<div class=\"l2\"><span class=\"tm\">{}</span></div>", stamp(1_792_000_100)),
             &format!("<span class=\"tm\">{}</span><form class=\"sf\" method=\"post\" action=\"{base}/log/retry\">", stamp(1_792_000_200)),
-            "<input type=\"hidden\" name=\"i\" value=\"1\"><input type=\"hidden\" name=\"sms\" value=\"11\"><input type=\"hidden\" name=\"rule\" value=\"2\"><input type=\"hidden\" name=\"ts\" value=\"1792000200\"><button class=\"btn sm\" type=\"submit\">重试<span class=\"sr\"> ，转发自 EXAMPLE-BANK</span></button>",
+            "<input type=\"hidden\" name=\"i\" value=\"1\"><input type=\"hidden\" name=\"sms\" value=\"11\"><input type=\"hidden\" name=\"rule\" value=\"2\"><input type=\"hidden\" name=\"ts\" value=\"1792000200\"><button class=\"btn sm\" type=\"submit\">重试<span class=\"sr\">，转发自 EXAMPLE-BANK</span></button>",
         ] {
             assert!(html.contains(want), "{want} in {html}");
         }
@@ -602,7 +602,7 @@ async fn retry_once_by_fingerprint() {
     busy.gate = Arc::new(Gate::new(2, 0, Duration::from_millis(20)));
     let page = get_with(&c, &log, peer(87, 6), &cookie).await;
     let html = retried(&c, &cookie, &log, &post(&busy, &retry, peer(87, 6), &cookie, &body(&page)).await).await;
-    assert!(html.contains("重试失败：路由器正忙。 Try again in a few seconds."), "{html}");
+    assert!(html.contains("重试失败：the router is busy. Try again in a few seconds."), "{html}");
     assert_eq!(fake::retries(&c.app).len(), 3);
     let html = retried(&c, &cookie, &log, &post(&c, &retry, peer(87, 6), &cookie, &body(&page)).await).await;
     assert!(html.contains(OK_LINE));

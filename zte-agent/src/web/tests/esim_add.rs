@@ -454,14 +454,14 @@ async fn the_download_card_follows_the_app() {
     // the app's); a server's echo of a code is not shown.
     let _f = fake::set(&c.app, json!({"state": "failed", "step": "es9p_authenticate_client", "error": "es9p_authenticate_client: matching ID not found (fake)"}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<b>无法添加配置文件</b>") && html.contains("<p>es9p_authenticate_个客户端: matching ID not found (fake)</p>"), "{html}");
+    assert!(html.contains("<b>无法添加配置文件</b>") && html.contains("<p>es9p_authenticate_client: matching ID not found (fake)</p>"), "{html}");
     assert!(html.contains("<a class=\"btn\" href=\"/ui/router/esim/add?manual=1\">重试</a>"), "{html}");
     let html = get_with(&c, "/ui/router/esim/add?manual=1", peer(174, 7), &cookie).await.text();
     assert!(html.contains("<details class=\"eopt\" open><summary>") && html.contains("手动输入代码</summary>"), "{html}");
     let echo = format!("es9p_authenticate_client: unknown code {CODE}	for\nlpa:1$x$FAKE-0000");
     let _f = fake::set(&c.app, json!({"state": "failed", "step": "es9p_authenticate_client", "error": echo}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();
-    assert!(html.contains("<p>es9p_authenticate_个客户端: unknown code … for …</p>") && !html.contains("FAKE") && !html.contains("example.com"), "{html}");
+    assert!(html.contains("<p>es9p_authenticate_client: unknown code … for …</p>") && !html.contains("FAKE") && !html.contains("example.com"), "{html}");
     // Cancelled by the 2-minute limit.
     let _f = fake::set(&c.app, json!({"state": "cancelled", "error": "not confirmed within 2 minutes"}));
     let html = get_with(&c, DL, peer(174, 7), &cookie).await.text();

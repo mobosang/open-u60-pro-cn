@@ -119,7 +119,7 @@ pub static HEALTH: Screen = Screen {
 pub static CPU: Screen = Screen {
     path: "/ui/health/cpu",
     id: "cpu",
-    title: "中央处理器和内存",
+    title: "CPU 和内存",
     tab: Tab::Dashboard,
     bar: Bar::Back("/ui/health", "CPU 和温度"),
     topics: &[Topic::Health],
@@ -164,7 +164,7 @@ pub static SHARE: Screen = Screen {
 pub static PROCESSES: Screen = Screen {
     path: processes::PATH,
     id: "processes",
-    title: "流程",
+    title: "进程",
     tab: Tab::Dashboard,
     bar: Bar::DoneTrail("/ui/health/cpu", processes::kill_all_link),
     topics: &[Topic::Processes],
@@ -175,7 +175,7 @@ pub static PROCESSES: Screen = Screen {
 
 /// The confirmations read the process names, so they are screens; their
 /// forms post to the actions of the same path.
-const KILL_CONFIRM: Screen = Screen { title: "确认", bar: Bar::Back(processes::PATH, "流程"), ..Screen::BLANK };
+const KILL_CONFIRM: Screen = Screen { title: "确认", bar: Bar::Back(processes::PATH, "进程"), ..Screen::BLANK };
 
 pub static KILL_ONE: Screen = Screen {
     path: processes::KILL,

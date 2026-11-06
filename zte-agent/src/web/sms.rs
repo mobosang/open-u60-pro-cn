@@ -753,7 +753,7 @@ mod tests {
             (-5, "5 sec. ago"),
             (-59, "59 sec. ago"),
             (-60, "1 min. ago"),
-            (-300, "5 分钟. ago"),
+            (-300, "5 min. ago"),
             (-2 * H - 59, "2 hr. ago"),
             (-23 * H, "23 hr. ago"),
             (-DAY, "1 day ago"),
@@ -763,7 +763,7 @@ mod tests {
             (-40 * DAY, "1 mo. ago"),
             (-200 * DAY, "6 mo. ago"),
             (-400 * DAY, "1 yr. ago"),
-            (90, "in 1 分钟."),
+            (90, "in 1 min."),
             (3 * H, "in 3 hr."),
         ];
         for (delta, want) in cases {
@@ -861,7 +861,7 @@ mod tests {
         assert!(check_text(&"a".repeat(765)).is_ok());
         assert_eq!(check_text(&"a".repeat(766)).unwrap_err(), "最多输入 765 个字符。");
         assert!(check_text(&"Ж".repeat(335)).is_ok());
-        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("最多输入 335 个字符"));
+        assert!(check_text(&"Ж".repeat(336)).unwrap_err().contains("最多输入335个字符"));
         // An emoji is two UTF-16 units.
         assert!(check_text(&"😀".repeat(168)).is_err() && check_text(&"😀".repeat(167)).is_ok());
         for blank in ["", "  ", "\n	"] {

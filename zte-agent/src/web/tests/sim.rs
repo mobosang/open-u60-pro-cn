@@ -351,7 +351,7 @@ async fn ussd_sends_once_and_keeps_the_answer_for_the_session() {
     let html = r.text();
     for want in [
         "value=\"*100#\"", "<h2>回应</h2>", "<span class=\"tx\">Balance 5.00. 1 Plans 2 Exit</span>",
-        "action=\"/ui/router/sim-services/ussd/reply\"", "placeholder=\"回复\"", "<span>结束会议</span>",
+        "action=\"/ui/router/sim-services/ussd/reply\"", "placeholder=\"回复\"", "<span>结束会话</span>",
     ] {
         assert!(html.contains(want), "{want} in {html}");
     }
@@ -372,7 +372,7 @@ async fn ussd_sends_once_and_keeps_the_answer_for_the_session() {
     let token = get_with(&c, &want, peer(154, 6), &cookie).await.input("once");
     let body = format!("csrf={csrf}&once={token}&confirm=1&u={}&code=*100%23", want.rsplit('=').next().unwrap());
     let html = get_with(&c, &to(&post(&c, &format!("{SVC}/ussd/cancel"), peer(154, 6), &cookie, &body).await), peer(154, 6), &cookie).await.text();
-    assert!(html.contains("<p class=\"msg ok\" role=\"status\">USSD会议结束</p>") && !html.contains("<h2>回应</h2>"), "{html}");
+    assert!(html.contains("<p class=\"msg ok\" role=\"status\">USSD会话结束</p>") && !html.contains("<h2>回应</h2>"), "{html}");
     assert_eq!(calls(&c)[1], ("/api/ussd/cancel".to_owned(), json!({})));
     // A code with other characters: refused, nothing sent.
     let token = get_with(&c, SVC, peer(154, 7), &cookie).await.input("once");
