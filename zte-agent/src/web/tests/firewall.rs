@@ -351,7 +351,7 @@ async fn telemetry_blocker() {
     let line = to(&post(&c, "/ui/router/telemetry/block-all", peer(213, 2), &cookie, &body(&csrf, &once, &[])).await);
     assert_eq!(calls(&c).len(), 4);
     has(&get_with(&c, &line, peer(213, 2), &cookie).await.text(), &[
-        "<p class=\"msg info\" role=\"status\">已拦截 3 个遥测域名；无法添加 1。失败： ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument</p>",
+        "<p class=\"msg info\" role=\"status\">已拦截 3 个遥测域名；无法添加 1。失败：ubus call zwrt_router.api router_set_domain_filter failed: Invalid argument</p>",
     ]);
     let _dev = device::set(&c.app, filter(blocked()));
     // A removal: asked, by its list.

@@ -48,4 +48,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - run: sh gradlew testDebugUnitTest
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - run: gradle testDebugUnitTest

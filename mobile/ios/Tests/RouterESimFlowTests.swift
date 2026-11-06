@@ -170,7 +170,7 @@ struct RouterESimFlowTests {
         switchClient.inventoryMeta = ["agent_instance": 5, "generation": 1, "observed_at": 120, "stale": true,
                                       "error": ["kind": "management_unavailable", "message": "euicc_init", "at": 120]]
         await switchVM.refresh()
-        precondition(switchVM.listError?.contains("无响应") == true && !switchVM.profiles.isEmpty, "A failed read keeps the list and says why")
+        precondition(switchVM.listError?.contains("没有响应") == true && !switchVM.profiles.isEmpty, "A failed read keeps the list and says why")
         switchClient.inventoryMeta = ["agent_instance": 5, "generation": 1, "observed_at": 130, "pending_receipts": 2]
         await switchVM.refresh()
         precondition(switchVM.listError == nil && switchVM.pendingReceipts == 2, "A newer clean read clears the error")

@@ -76,7 +76,7 @@ struct RouterESimTests {
         """#))
         precondition(inv.agentInstance == 1792300000000 && inv.generation == 3 && inv.observedAt == 1792300100)
         precondition(inv.stale && !inv.updating && inv.pendingReceipts == 1 && inv.profiles.count == 1)
-        precondition(inv.errorText == "切换后eSIM仍在稳定。")
+        precondition(inv.errorText == "切换后 eSIM 仍在准备中。")
         var older = inv; older.generation = 2
         precondition(older.isOlder(than: inv) && !inv.isOlder(than: older))
         var sameGenEarlier = inv; sameGenEarlier.observedAt -= 1
