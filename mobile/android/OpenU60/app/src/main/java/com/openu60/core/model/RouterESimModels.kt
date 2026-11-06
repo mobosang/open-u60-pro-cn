@@ -324,7 +324,7 @@ data class RouterESimDownloadStatus(
     val progressText: String get() = when {
         state == "confirm" -> "准备安装"
         state == "cancelling" || step?.endsWith("_cancel_session") == true -> "取消..."
-        state == "done" -> "$displayName added."
+        state == "done" -> "已添加 ${displayName}。"
         state == "failed" -> "无法添加配置文件"
         state == "cancelled" -> "下载已取消"
         step in setOf("es9p_initiate_authentication", "es10b_authenticate_server", "es9p_authenticate_client") -> "连接到运营商..."
